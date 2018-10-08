@@ -1,0 +1,65 @@
+html, body {
+	min-height: 500px;
+	width: 100vw;
+	height: 100vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-position: center center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-origin: border-box;
+	background-attachment: fixed;
+	background-image: url("../../../img/modules/login/login_bg.png");
+}
+
+/* 登录框 */
+body>.container-fluid {
+	position: relative;
+}
+
+.login_pan {
+	position: absolute;
+	top: 100px;
+	left: calc(50% - 200px);
+	width: 400px;
+	background: #fff;
+	border-radius: 8px;
+}
+
+.login_panin {
+	margin: 40px;
+}
+
+.login_panin legend {
+	margin-bottom: 5px;
+	padding-bottom: 5px;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.login_panin .container-fluid {
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
+.form-control-feedback {
+	z-index: 3;
+	pointer-events: auto;
+	cursor: pointer;
+}
+
+.close_times {
+	font-size: 26px;
+    color: #000;
+}
+
+.button_div button {
+	width: 100%;
+}
+
+.copy_div {
+	margin-top: 10px;
+	text-align: right;
+}
+
+/* 登录框 结束*/
