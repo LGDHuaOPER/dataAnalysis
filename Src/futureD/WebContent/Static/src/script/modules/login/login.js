@@ -67,6 +67,8 @@ $(function(){
 			});
 		}
 	}
+
+	$("#login_password").trigger("input");
 });
 
 /*event handler*/

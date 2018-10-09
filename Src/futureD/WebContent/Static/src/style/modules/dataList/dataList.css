@@ -111,9 +111,15 @@ body {
 }
 
 .g_bodyin_bodyin_tit_r .form-control-feedback {
+	top: 2px !important;
 	z-index: 3;
 	line-height: 41px;
 	pointer-events: auto;
+}
+
+#search_button {
+	position: relative;
+	top: 1px;
 }
 
 span.glyphicon {

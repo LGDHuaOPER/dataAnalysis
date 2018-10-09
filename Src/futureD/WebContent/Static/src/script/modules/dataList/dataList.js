@@ -127,35 +127,36 @@ $("#search_input").on("input propertychange change", function(){
 	}
 });
 
-$(".g_bodyin_bodyin_body td").on({
-	mouseover: function(){
-		$(this).addClass("warning");
-		$(this).parent().addClass("info");
-	},
-	mouseout: function(){
-		$(this).removeClass("warning");
-		$(this).parent().removeClass("info");
-	},
-	click: function(){
-		$(this).parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !$(this).parent().find("[type='checkbox']").prop("checked")).change();
-	}
+$(document).on("mouseover", ".g_bodyin_bodyin_body td", function(){
+	$(this).addClass("warning");
+	$(this).parent().addClass("info");
 });
 
-$(".g_bodyin_bodyin_body tbody [type='checkbox']").on({
-	click: function(e){
-		e.stopPropagation();
-		$(this).parent().parent().toggleClass("warning info");
-	},
-	change: function(){
-		$("#checkAll").prop("checked", ($(".g_bodyin_bodyin_body tbody [type='checkbox']").filter(":checked").length == $(".g_bodyin_bodyin_body tbody [type='checkbox']").length));
-	}
+$(document).on("mouseout", ".g_bodyin_bodyin_body td", function(){
+	$(this).removeClass("warning");
+	$(this).parent().removeClass("info");
+});
+
+$(document).on("click", ".g_bodyin_bodyin_body td", function(){
+	$(this).parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !$(this).parent().find("[type='checkbox']").prop("checked")).change();
+});
+
+
+$(document).on("click", ".g_bodyin_bodyin_body tbody [type='checkbox']", function(e){
+	e.stopPropagation();
+	$(this).parent().parent().toggleClass("warning info");
+});
+
+$(document).on("change", ".g_bodyin_bodyin_body tbody [type='checkbox']", function(){
+	$("#checkAll").prop("checked", ($(".g_bodyin_bodyin_body tbody [type='checkbox']").filter(":checked").length == $(".g_bodyin_bodyin_body tbody [type='checkbox']").length));
 });
 
 $("#checkAll").on({
 	click: function(){
 		var that = $(this);
 		$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-			$(this).trigger("click");
+			$(this).prop("checked", that.prop("checked"));
+			that.prop("checked") ? ($(this).parent().parent().removeClass("info").addClass("warning")) : ($(this).parent().parent().removeClass("warning info"));
 		});
 	}
 });
