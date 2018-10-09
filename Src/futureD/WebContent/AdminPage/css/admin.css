@@ -1,0 +1,759 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+body{
+	min-width:1200px;
+}
+ul,ol{
+	list-style: none;
+}
+input{
+	outline:none;
+}
+.admin_body .breadNav{
+	width:calc(90% - 15px);
+	height:35px;
+	line-height: 35px;
+	padding-left:15px;
+	margin:0 auto;
+	border:1px solid #c9c9c9;
+	margin-top:20px;
+	
+}
+.breadNav .adminMember{
+	font-size:14px;
+	color:#000;
+}
+.breadNav .breadSecond{
+	cursor:pointer;
+}
+.breadNav .breadSecond:hover{
+	text-decoration: underline;
+	cursor:pointer;
+	color:blue;
+}
+/* content1的内容**************************************************** */
+.adminContent1{
+	width:1206px;
+	height:400px; 
+	position:fixed;
+	left:calc(50% - 600px);
+	top:calc(40% - 150px);
+}
+.adminContent2,.adminContent3{
+	display:none;
+}
+.adminMember,.adminRecord{
+	float: left;
+	width:500px;
+	height:100%;
+	margin-right: 100px;
+}
+.adminMember .adminMember_title,.adminRecord .adminRecord_title{
+	display: block;
+	width:100%;
+	height:40px;
+	line-height: 40px;
+	text-align: center;
+	font-size:18px;
+}
+.exportRecord_Icon{
+	float: left;
+	width:50px;
+	height:100%;
+	cursor:pointer;
+}
+.adminRecord .adminRecord_title{
+	display: block;
+	width:100%;
+	height:40px;
+	line-height: 40px;
+	text-align: center;
+	font-size:18px;
+}
+.adminMember_bg  img{
+	margin:0 auto;
+	display: block;
+}
+.adminRecord_bg  img{
+	display: block;
+}
+.adminMember_bg{
+	width:300px;
+	height:290px;
+	background:#e6e6e6;
+	border-radius:50%;
+	padding-top:10px;
+	margin: 0 auto;
+	cursor:pointer;
+}
+.adminRecord_bg{
+	width:256px;
+	height:250px;
+	background:#e6e6e6;
+	border-radius:50%;
+	padding-top:50px;
+	padding-left:43px;
+	margin: 0 auto;
+	cursor:pointer;
+}
+/* content2内容 ***************************************************/
+
+.adminMember_top{
+	width:90%;
+	margin:22px auto 22px;
+	height: 30px;/* 
+	background:pink; */
+}
+.addMember{
+	float:left;
+	width:50px;
+	height:30px;
+	cursor:pointer;
+}
+.searchMember{
+	float: right;
+	height:40px;
+}
+.searchMember_input{
+	width:214px;
+	height:28px;
+	border:1px solid #aaa;
+	border-radius:3px;
+	padding-left: 10px;
+}
+.searchMember_btn{
+	display: block;
+    float: right;
+	width:90px;
+	height:30px;
+	margin-left: 10px;
+	border-radius:3px;
+	background:url(../image/search.png)no-repeat center top;
+	background-color:#2a4d9b;
+	background-position:35px 5px;
+	cursor:pointer;
+	color:#fff;
+}
+.adminMember_body{
+	width:90%;
+	margin:0 auto;
+	border:1px solid #e9e9e9;
+}
+.adminMember_body .adminMember_tableTitle ul{
+	width: 100%;
+	height:40px;
+	background:#f0f0f0;
+}
+.adminMember_body .adminMember_tableTitle ul li{
+	float: left;
+	text-align: center;
+	line-height: 40px;
+}
+.adminMember_tableTitle .check_title{
+	width: 4.3%;
+    min-width: 43px;
+}
+.adminMember_tableTitle .check_title input{
+	width: 16px;
+	height: 16px;
+}
+.adminMember_tableTitle .num_title{
+	width: 6.0%;
+    min-width: 60px;
+}
+.adminMember_tableTitle .account_title{
+	width: 18%;
+    min-width: 120px;
+}
+.adminMember_tableTitle .sex_title{
+	width: 6%;
+    min-width: 60px;
+}
+.adminMember_tableTitle .phone_title{
+	width: 18%;
+    min-width: 120px;
+}
+.adminMember_tableTitle .email_title{
+	width: 18%;
+    min-width: 120px;
+}
+.adminMember_tableTitle .part_title{
+	width: 10%;
+    min-width: 100px;
+}
+.adminMember_tableTitle .active_title{
+	width: 18%;
+    min-width: 120px;
+}
+
+/* table2表格content内容 ***************************************************/
+.adminMember_body .adminMember_tableContent  ul{
+	width: 100%;
+	height:48px;
+}
+.adminMember_body .adminMember_tableContent  ul:nth-child(even){
+	background:#f9f9f9;
+}
+.adminMember_body .adminMember_tableContent  ul li{
+	float: left;
+	text-align: center;
+	line-height: 48px;
+}
+.adminMember_tableContent .check_content{
+	width: 4.3%;
+    min-width: 43px;
+}
+.adminMember_tableContent .check_content input{
+	width: 16px;
+    height: 16px;
+    background-color: #fff;
+  /*   -webkit-appearance:none; */
+    border: 1px solid #c9c9c9;
+    border-radius: 2px;
+    outline: none;
+}
+.adminMember_tableContent .num_content{
+	width: 6.0%;
+    min-width: 60px;
+}
+.adminMember_tableContent .account_content{
+	width: 18%;
+    min-width: 120px;
+}
+.adminMember_tableContent .sex_content{
+	   width: 6%;
+    min-width: 60px;
+}
+.adminMember_tableContent .phone_content{
+	 width: 18%;
+    min-width: 120px;
+}
+.adminMember_tableContent .email_content{
+	width: 18%;
+    min-width: 120px;
+}
+.adminMember_tableContent .part_content{
+	    width: 10%;
+    min-width: 100px;
+}
+.adminMember_tableContent .active_content{
+	   width: 18%;
+    min-width: 120px;
+}
+/* content3内容 ****************************************************/
+
+.adminRecord_top{
+	width:90%;
+	margin:22px auto 22px;
+	height: 30px;
+}
+.searchRecord{
+	float: right;
+	height:40px;
+}
+.searchRecord_input{
+	width:214px;
+	height:28px;
+	border:1px solid #aaa;
+	border-radius:3px;
+	padding-left: 10px;
+}
+.searchRecord_btn{
+	display: block;
+    float: right;
+	width:90px;
+	height:30px;
+	margin-left: 10px;
+	border-radius:3px;
+	background:url(../image/search.png)no-repeat center top;
+	background-color:#2a4d9b;
+	color:#fff;
+	background-position:35px 5px;
+	cursor:pointer;
+}
+.adminRecord_body{
+	background:#fff;
+	width:90%;
+	margin:0 auto;
+	border:1px solid #e9e9e9;
+}
+.adminRecord_body .adminRecord_tableTitle ul{
+	width: 100%;
+	height:40px;
+	background:#f0f0f0;
+}
+.adminRecord_body .adminRecord_tableTitle ul li{
+	float: left;
+	text-align: center;
+	line-height: 40px;
+}
+.adminRecord_body .adminRecord_tableContent ul{
+	width: 100%;
+	height:48px;
+}
+.adminRecord_body .adminRecord_tableContent ul:nth-child(even){
+	background:#f9f9f9;
+}
+.adminRecord_body .adminRecord_tableContent ul li{
+	float: left;
+	text-align: center;
+	line-height: 48px;
+}
+.adminRecord_tableTitle .check_title{
+	width: 4.3%;
+    min-width: 43px;
+}
+.adminRecord_tableTitle .check_title input{
+	width: 16px;
+    height: 16px;
+    background-color: #fff;
+  /*   -webkit-appearance:none; */
+    border: 1px solid #c9c9c9;
+    border-radius: 2px;
+    outline: none;
+}
+.adminRecord_tableTitle .num_title{
+	width: 6.0%;
+    min-width: 60px;
+}
+.adminRecord_tableTitle .account_title{
+	width: 15.0%;
+    min-width: 150px;
+}
+.adminRecord_tableTitle .whichPage_title{
+	    width: 14.6%;
+    min-width: 146px;
+}
+.adminRecord_tableTitle .record_title{
+	    width: 20.8%;
+    min-width: 208px;
+}
+.adminRecord_tableTitle .date_title{
+	    width: 10.4%;
+    min-width: 104px;
+}
+.adminRecord_tableTitle .time_title{
+	width: 9.3%;
+    min-width: 93px;
+}
+.adminRecord_tableTitle .IpNum_title{
+	    width: 12.1%;
+    min-width: 121px;
+}
+.adminRecord_tableTitle .position_title{
+	    width: 7.5%;
+    min-width: 75px;
+}
+/* table内容 */
+.adminRecord_tableContent .check_content{
+	    width: 4.3%;
+    min-width: 43px;
+}
+.adminRecord_tableContent .check_content input{
+	width: 16px;
+    height: 16px;
+    background-color: #fff;
+  /*   -webkit-appearance:none; */
+    border: 1px solid #c9c9c9;
+    border-radius: 2px;
+    outline: none;
+}
+.adminRecord_tableContent .num_content{
+	width: 6.0%;
+    min-width: 60px;
+}
+.adminRecord_tableContent .account_content{
+	width: 15.0%;
+    min-width: 150px;
+}
+.adminRecord_tableContent .whichPage_content{
+	    width: 14.6%;
+    min-width: 146px;
+}
+.adminRecord_tableContent .record_content{
+	    width: 20.8%;
+    min-width: 208px;
+}
+.adminRecord_tableContent .date_content{
+	    width: 10.4%;
+    min-width: 104px;
+}
+.adminRecord_tableContent .time_content{
+	width: 9.3%;
+    min-width: 93px;
+}
+.adminRecord_tableContent .IpNum_content{
+	    width: 12.1%;
+    min-width: 121px;
+}
+.adminRecord_tableContent .position_content{
+	    width: 7.5%;
+    min-width: 75px;
+}
+/* page */
+.adminMember_jumpPage{
+	float: right;
+	margin-right: 5%;
+}
+.adminRecord_jumpPage{
+	float: right;
+	margin-right: 5%;
+}
+.edit{
+	margin-right:15px;
+	cursor:pointer;
+}
+.delete{
+	margin-right:15px;
+	cursor:pointer;
+}
+.right{
+	margin-right:15px;
+	cursor:pointer;
+}
+.mask{
+	display: none;
+	width: 100%;
+	height: 100%;
+	position:fixed;
+	left: 0px;
+	top: 0;
+	z-index:2;
+	background:#000;
+	opacity:0.6;
+}
+/* 增加成员******************************/
+.addMember_box{
+	display: none;
+	width:700px;
+	height:320px;
+	position:fixed;
+	top:calc(50% - 160px);
+	left:calc(50% - 350px);
+	z-index:3;
+	background:#fff;
+	font-family: '微软雅黑';
+	border-radius:5px;
+}
+.addMemberBox_title{
+	width:100%;
+	height:30px;
+	background:#314e92;
+	color:#fff;
+	border-radius:5px 5px 0 0;
+}
+.addMemberBox_title .tite_L{
+	float: left;
+	margin-left: 25px;
+	line-height: 30px;
+}
+.addMemberBox_title .tite_R{
+	float: right;
+	display: block;
+	width: 30px;
+	height: 30px;
+	margin-right: 25px;
+	line-height: 30px;
+	cursor:pointer;
+	background:url(../image/close.png)no-repeat center top;
+	background-size:30px 30px; 
+}
+.addMemberBox_Content{
+	width: 100%;
+	height: 200px;
+}
+.addMemberBox_Content ul {
+	width: 100%;
+	height:36px;
+	margin-top: 30px;
+}
+.addMemberBox_Content ul li{
+	width: 90%;
+	height:36px;
+	margin: 0 auto;
+}
+.addMemberBox_Content ul li p{
+	float: left;
+	display: block;
+	width:50%;
+	height: 100%;
+}
+.add_spanTitle{
+	display:inline-block;
+	width:80px;
+}
+.add_input{
+	display:inline-block;
+	width:200px;
+	height:34px;
+	line-height: 36px;
+	border:1px solid #aaa;
+	border-radius:3px;
+}
+.add_select{
+	display:inline-block;
+	width:200px;
+	height: 34px;
+	line-height: 36px;
+	border:1px solid #aaa;
+	border-radius:3px;
+}
+
+
+
+
+
+
+
+
+
+/* 添加里面的按钮 */
+.addMember_btn{
+	width:100%;
+	height:32px;
+	text-align: center;
+}
+.addMember_btn .add_OK,.addMember_btn .add_Cancle{
+	display: inline-block;
+	width:85px;
+	height: 32px;
+	background:#314e92;
+	color:#fff;
+	border-radius:5px;
+	line-height: 32px;
+	text-align: center;
+	cursor:pointer;
+}
+.addMember_btn .add_OK{
+	margin-right: 38px;
+}
+/* 修改成员信息*********************************************************/
+
+.editMember_box{
+	display: none;
+	width:700px;
+	height:320px;
+	position:fixed;
+	top:calc(50% - 160px);
+	left:calc(50% - 350px);
+	z-index:3;
+	background:#fff;
+	font-family: '微软雅黑';
+	border-radius:5px;
+}
+.editMemberBox_title{
+	width:100%;
+	height:30px;
+	background:#314e92;
+	color:#fff;
+	border-radius:5px 5px 0 0;
+}
+.editMemberBox_title .tite_L{
+	float: left;
+	margin-left: 25px;
+	line-height: 30px;
+}
+.editMemberBox_title .tite_R{
+	float: right;
+	display: block;
+	width: 30px;
+	height: 30px;
+	margin-right: 25px;
+	line-height: 30px;
+	cursor:pointer;
+	background:url(../image/close.png)no-repeat center top;
+	background-size:30px 30px; 
+}
+.editMemberBox_Content{
+	width: 100%;
+	height: 200px;
+}
+.editMemberBox_Content ul {
+	width: 100%;
+	height:36px;
+	margin-top: 30px;
+}
+.editMemberBox_Content ul li{
+	width: 90%;
+	height:36px;
+	margin: 0 auto;
+}
+.editMemberBox_Content ul li p{
+	float: left;
+	display: block;
+	width:50%;
+	height: 100%;
+}
+.edit_spanTitle{
+	display:inline-block;
+	width:80px;
+}
+.edit_input{
+	display:inline-block;
+	width:200px;
+	height:34px;
+	line-height: 36px;
+	border:1px solid #aaa;
+	border-radius:3px;
+}
+.edit_select{
+	display:inline-block;
+	width:200px;
+	height: 34px;
+	line-height: 36px;
+	border:1px solid #aaa;
+	border-radius:3px;
+}
+/* 修改里面的按钮 */
+.editMember_btn{
+	width:100%;
+	height:32px;
+	text-align: center;
+}
+.editMember_btn .edit_OK,.editMember_btn .edit_Cancle{
+	display: inline-block;
+	width:85px;
+	height: 32px;
+	background:#314e92;
+	color:#fff;
+	border-radius:5px;
+	line-height: 32px;
+	text-align: center;
+	cursor:pointer;
+}
+.editMember_btn .edit_OK{
+	margin-right: 38px;
+}
+/* 授权管理****************************************** */
+
+.giveRight_box{
+	display: none;
+	width:780px;
+	height: auto;
+	min-height:320px;
+	position:fixed;
+	top:calc(50% - 160px);
+	left:calc(50% - 350px);
+	z-index:3;
+	background:#fff;
+	font-family: '微软雅黑';
+	border-radius:5px;
+}
+.giveRightBox_title{
+	width:100%;
+	height:30px;
+	background:#314e92;
+	color:#fff;
+	border-radius:5px 5px 0 0;
+}
+.giveRightBox_title .tite_L{
+	float: left;
+	margin-left: 25px;
+	line-height: 30px;
+}
+.giveRightBox_title .tite_R{
+	float: right;
+	display: block;
+	width: 30px;
+	height: 30px;
+	margin-right: 25px;
+	line-height: 30px;
+	cursor:pointer;
+	background:url(../image/close.png)no-repeat center top;
+	background-size:30px 30px; 
+}
+.giveRightBox_Content{
+	width: 100%;
+	height: auto;
+	min-height: 200px;
+	font-size:14px;
+}
+.giveRightBox_Content ul {
+	width: 100%;
+	height:36px;
+}
+.giveRightBox_Content ul li{
+	width: 100%;
+	height:36px;
+}
+.giveRightBox_Content ul li p{
+	display: block;
+	float: left;
+}
+.giveRightBox_Content ul li p.giveRightBox_ContentL{
+	width:119px;
+	height:39px;
+	border-bottom:1px solid #aaa;
+	border-right:1px solid #aaa;
+	text-align: center;
+	line-height: 40px;
+}
+.giveRightBox_Content ul li p.giveRightBox_ContentL input{
+	display:block;
+	float: left;
+	width:16px;
+	height: 16px;
+	margin-left: 25px;
+    margin-top: 12px;
+    margin-right: 5px;
+}
+.giveRightBox_Content ul li p span.whichPage_right{
+	display:block;
+	float: left;
+}
+/* whichRight */
+.giveRightBox_Content ul li p.giveRightBox_ContentR{
+	width:660px;
+	height:39px;
+	border-bottom:1px solid #aaa;
+	line-height: 40px;
+}
+.giveRightBox_Content input{
+	float: left;
+	display: block;
+	width:14px;
+	height: 14px;
+	margin-left: 25px;
+	margin-top: 13px;
+	margin-right: 5px;
+}
+.giveRightBox_Content span.whichRight{
+	float: left;
+	display: block;
+	
+}
+/* 选择all */
+.chooseAll input{
+	float: left;
+	display: block;
+	width: 16px;
+	height: 16px;
+	margin-left: 25px;
+	margin-top: 12px;
+	margin-right: 5px;
+}
+.chooseAll .chooseAll_title{
+	line-height: 40px;
+}
+/* 授权里面的按钮 */
+.giveRightBox_btn{
+	width:100%;
+	height:32px;
+	text-align: center;
+}
+.giveRightBox_btn .right_OK,.giveRightBox_btn .right_Cancle{
+	display: inline-block;
+	width:85px;
+	height: 32px;
+	background:#314e92;
+	color:#fff;
+	border-radius:5px;
+	line-height: 32px;
+	text-align: center;
+	cursor:pointer;
+}
+.giveRightBox_btn .right_OK{
+	margin-right: 38px;
+}

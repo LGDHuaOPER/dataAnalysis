@@ -1,0 +1,36 @@
+
+	<span class="title">futureD数据管理与分析系统</span>
+	<!-- <span class="subtitle">数据管理与分析系统</span> -->
+	<div class="top_tool">
+		<ul>
+			<li class="top_tool_li1" flag="true">
+				<img />
+				<span id="top_admin">账户</span>
+				<dl>
+					<dd><a class="GetUserInfro" >账户信息</a></dd>
+					<dd><a id="userAdmin" >管理员</a></dd>
+				</dl>
+			</li>
+			<li class="top_tool_li2" id="help" title="使用手册">
+				<img  />
+			</li>
+			<li class="top_tool_li3"></li>
+			<li class="top_tool_li4">
+				<img />
+				<span id="top_exit">退出</span>
+			</li>
+		</ul>
+	</div>
+	<script>
+		$(function(){
+			$(".top .GetUserInfro").attr("href",currentHref+'/GetUserInfro');
+			$("#userAdmin").attr("href",currentHref+'/UserInfoServlet');
+			$(".top_tool_li1 img").attr("src",currentHref+"/common/img/guanli.png");
+			$(".top_tool_li2 img").attr("src",currentHref+"/common/img/help.png");
+			$(".top_tool_li4 img").attr("src",currentHref+"/common/img/tuichu.png");
+			
+			
+		})
+	</script>
+ 
+ 
