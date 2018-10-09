@@ -34,7 +34,7 @@ body>.container-fluid {
 }
 
 .index_help {
-	margin-left: 30px;
+	margin-left: 20px;
 	margin-right: 10px;
 }
 
@@ -75,4 +75,15 @@ body>.container-fluid {
 
 .section_in .thumbnail, .g_info_r_in span {
 	cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    .g_info_l {
+    	width: 210px;
+    	letter-spacing: 0px;
+    }
+
+    .g_info_r {
+    	padding-left: 210px;
+    }
 }

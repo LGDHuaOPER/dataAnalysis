@@ -70,4 +70,10 @@ body>.container-fluid {
 	text-align: right;
 }
 
+
+@media screen and (max-width: 768px) {
+    .login_pan {
+    	right: 10px;
+    }
+}
 /* 登录框 结束*/
