@@ -1,10 +1,3 @@
-$(function(){
-	var iuser = store.get("futureDT2__session").user;
-	if(iuser != null || iuser != undefined){
-		$(".index_curUser").text(iuser);
-	}
-});
-
 $(".g_info_r_in_r").on("click", function(){
 	store.remove('futureDT2__session');
 	window.location.assign("login.html");
@@ -17,8 +10,4 @@ $(".section_in .thumbnail").on("click", function(){
 	}else{
 		window.location.assign(ipage+".html");
 	}
-});
-
-$(".index_setting, .index_curUser").click(function(){
-	window.open("../static/软件实施180423交互.xlsx");
 });

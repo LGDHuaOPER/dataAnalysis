@@ -166,7 +166,6 @@ $(function(){
 	});
 
 	$("#jumpPage").on("click", function(){
-		if($("#jumpText").val() == "") return false;
 		var iText = Number($("#jumpText").val());
 		var currentPage = Number(dataListState.pageObj.currentPage);
 		var pageCounts = Number(dataListState.pageObj.pageCount);

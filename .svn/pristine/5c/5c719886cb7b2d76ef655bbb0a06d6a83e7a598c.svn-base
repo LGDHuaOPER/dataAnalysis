@@ -17,9 +17,9 @@
 			<div class="g_info_r">
 				<div class="g_info_r_in">
 					<div class="g_info_r_in_l">
-						<span class="glyphicon glyphicon-user index_setting" aria-hidden="true" title="点击进入管理员页面"></span>
-						<span class="index_curUser" title="点击进入管理员页面">Admin</span>
-						<span class="glyphicon glyphicon-question-sign index_help" aria-hidden="true" title="点击进入帮助页面"></span>
+						<span class="glyphicon glyphicon-user index_setting" aria-hidden="true"></span>
+						<span>Admin</span>
+						<span class="glyphicon glyphicon-question-sign index_help" aria-hidden="true"></span>
 					</div>
 					<div class="g_info_r_in_r">
 						<span class="glyphicon glyphicon-off index_exit" aria-hidden="true"></span>

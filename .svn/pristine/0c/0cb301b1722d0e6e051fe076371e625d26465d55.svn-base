@@ -1,0 +1,89 @@
+body>.container-fluid {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.g_info {
+	height: 50px;
+	line-height: 50px;
+}
+
+.g_info_l {
+	position: absolute;
+	width: 250px;
+	background: blue;
+	text-align: center;
+	color: #fff;
+	letter-spacing: 2px;
+}
+
+.g_info_r {
+	padding-left: 250px;
+	text-align: right;
+}
+
+.g_info_r_in {
+	position: relative;
+	display: inline-block;
+	height: 30px;
+    line-height: 30px;
+}
+
+.g_info_r_in_l {
+	display: inline-block;
+}
+
+.index_help {
+	margin-left: 20px;
+	margin-right: 10px;
+}
+
+.g_info_r_in_r {
+	margin-right: 10px;
+	display: inline-block;
+	padding-left: 10px;
+	border-left: 2px solid #000;
+}
+
+.g_body {
+	padding-top: 150px;
+	min-height: 600px;
+	width: 100vw;
+	height: calc(100vh - 50px);
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-position: center center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-origin: border-box;
+	background-attachment: fixed;
+	background-image: url("../../../img/modules/index/index_bg.png");
+}
+
+.section_in {
+	margin-left: 17%;
+	margin-right: 23%;
+}
+
+.thumbnail>img {
+	height: 200px;
+}
+
+.thumbnail h3, .thumbnail p {
+	text-align: center;
+}
+
+.section_in .thumbnail, .g_info_r_in span {
+	cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    .g_info_l {
+    	width: 210px;
+    	letter-spacing: 0px;
+    }
+
+    .g_info_r {
+    	padding-left: 210px;
+    }
+}

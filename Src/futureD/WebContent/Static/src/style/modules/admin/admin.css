@@ -34,6 +34,10 @@ body {
 	background-color: rgb(245, 245, 245);
 }
 
+.g_menu .nav>li>a {
+	padding: 10px 11px;
+}
+
 .g_info_l {
 	position: absolute;
 	padding-left: 10px;
@@ -77,9 +81,11 @@ body {
 .g_bodyin_tit_r .breadcrumb {
 	padding: 0px 15px;
 }
+/* 桌面应用布局结束 */
 
+/* 自定义开始 */
 .g_bodyin_body {
-	padding: 15px;
+	padding: 5px;
 	height: calc(100% - 55px);
 	background-color: #fff;
 }
@@ -88,58 +94,32 @@ body {
 	height: 100%;
 }
 
-.g_bodyin_bodyin_tit {
-	height: 40px;
+.g_bodyin_bodyin>.tab-content {
+	height: calc(100% - 45px);
+}
+
+.staffManage_tit {
+	padding-top: 8px;
+	height: 48px;
 	line-height: 40px;
 }
 
-.g_bodyin_bodyin_tit_l {
+.staffManage_tit_l {
 	position: absolute;
-	width: 90px;
+	padding-left: 10px;
+	width: 100px;
+	height: 40px;
 }
 
-.g_bodyin_bodyin_tit_l .glyphicon {
+.staffManage_tit_l .glyphicon {
 	font-size: 22px;
 }
 
-.g_bodyin_bodyin_tit_l .glyphicon+.glyphicon {
+.staffManage_tit_l .glyphicon+.glyphicon {
 	margin-left: 10px;
 }
 
-.g_bodyin_bodyin_tit_r {
-	padding-left: 90px;
-	height: 40px;
-	text-align: right;
-}
-
-.g_bodyin_bodyin_tit_r>div {
-	max-width: 350px;
-    display: inline-block;
-}
-
-.g_bodyin_bodyin_tit_r .form-inline .form-group {
-	display: inline-block;
-	margin-bottom: 0;
-	vertical-align: middle;
-}
-
-.g_bodyin_bodyin_tit_r .form-control-feedback {
-	top: 2px !important;
-	z-index: 3;
-	line-height: 41px;
-	pointer-events: auto;
-}
-
-#search_button {
-	position: relative;
-	top: 1px;
-}
-
-span.glyphicon {
-	cursor: pointer;
-}
-
-.g_bodyin_bodyin_tit_l>.glyphicon-remove-circle {
+.staffManage_tit_l>.glyphicon-remove-circle {
 	transform:rotate(45deg);
 	-ms-transform:rotate(45deg); 	/* IE 9 */
 	-moz-transform:rotate(45deg); 	/* Firefox */
@@ -147,30 +127,110 @@ span.glyphicon {
 	-o-transform:rotate(45deg); 	/* Opera */
 }
 
-.g_bodyin_bodyin_body {
-	height: calc(100% - 40px);
+.staffManage_body {
+	height: calc(100 - 48px);
 }
 
-.g_bodyin_bodyin_body table {
+/* 表格一般樣式開始 */
+.staffManage_body table {
 	margin-top: 10px;
 	margin-bottom: 10px;
 	border: 1px solid #bebebe;
 }
 
-.g_bodyin_bodyin_body thead tr {
+.staffManage_body thead tr {
 	background-color: #3d89f9;
 	color: #fff;
 }
 
-.g_bodyin_bodyin_body .table-striped>tbody>tr:nth-of-type(odd) {
+.staffManage_body .table-striped>tbody>tr:nth-of-type(odd) {
 	background: #ececec;
 }
 
-.g_bodyin_bodyin_body tbody>tr>td, .g_bodyin_bodyin_body tfoot>tr>td, .g_bodyin_bodyin_body thead>tr>th {
+.staffManage_body tbody>tr>td, .staffManage_body tfoot>tr>td, .staffManage_body thead>tr>th {
 	border-top: 0px solid #fff;
 	text-align: center;
 	cursor: pointer;
 }
+/* 表格一般樣式結束 */
+
+.staffManage_tit_r {
+	padding-left: 100px;
+	height: 40px;
+	text-align: right;
+}
+
+.staffManage_tit_r>div {
+	position: relative;
+	padding-right: 54px;
+	max-width: 350px;
+    display: inline-block;
+}
+
+.staffManage_tit_r_in>input[type='button'] {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.staffManage_tit_r_in>.input-group>.input-group-btn {
+	position: relative;
+    top: -3px;
+}
+
+
+.operaDailyLog_tit {
+	padding-top: 8px;
+	height: 48px;
+	line-height: 40px;
+}
+
+.operaDailyLog_tit_l {
+	height: 40px;
+}
+
+.operaDailyLog_tit_l>button {
+	font-size: 18px;
+}
+
+.operaDailyLog_tit_l .glyphicon {
+	font-size: 22px;
+}
+
+.operaDailyLog_body {
+	height: calc(100 - 48px);
+}
+
+/* 表格一般樣式開始 */
+.operaDailyLog_body table {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	border: 1px solid #bebebe;
+}
+
+.operaDailyLog_body thead tr {
+	background-color: #3d89f9;
+	color: #fff;
+}
+
+.operaDailyLog_body .table-striped>tbody>tr:nth-of-type(odd) {
+	background: #ececec;
+}
+
+.operaDailyLog_body tbody>tr>td, .operaDailyLog_body tfoot>tr>td, .operaDailyLog_body thead>tr>th {
+	border-top: 0px solid #fff;
+	text-align: center;
+	cursor: pointer;
+}
+/* 表格一般樣式結束 */
+
+
+
+
+
+
+
+
 
 .g_bodyin_bodyin_body tbody td.not_search .glyphicon {
 	font-size: 20px;
@@ -180,6 +240,7 @@ span.glyphicon {
 	margin-left: 8px;
 }
 
+/* 分页组件开始 */
 .futureDT2_page_wrapper {
 	text-align: center;
 }
@@ -209,6 +270,11 @@ span.glyphicon {
 
 #pagelist, .futureDT2_page_span {
 	vertical-align: middle;
+}
+/* 分页组件结束 */
+
+span.glyphicon {
+	cursor: pointer;
 }
 
 @media screen and (max-height: 500px) {

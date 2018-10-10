@@ -3,7 +3,6 @@
  */
 package com.eoulu.service.impl;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
@@ -87,7 +86,6 @@ public class WaferServiceImpl implements WaferService{
 		String lotID = "";
 		String waferID = "";
 		String dateNowStr = "";
-		String totalTestTime = "";
 		int datanum = 0;// 数据信息开始的行数
 		int testerWaferSerialIDnum = 0;
 		int limitnum = 0;
@@ -109,7 +107,6 @@ public class WaferServiceImpl implements WaferService{
 			testerWaferSerialIDnum = (int) messageMap.get("TesterWaferSerialIDnum");
 			limitnum = (int) messageMap.get("Limitnum");
 			dieTypeList = (List<String>) messageMap.get("dieTypeList");
-			totalTestTime =  messageMap.get("totalTestTime").toString();
 		}
 
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -118,10 +115,10 @@ public class WaferServiceImpl implements WaferService{
 			// 判断文件是否上传
 			Map<Integer, Object> dietypeName = util.getDieTypeName(filelist, testerWaferSerialIDnum, limitnum);
 			UserDao userDao = new UserDao();
-			 testOperator = userDao.getUserId(testOperator);
-			if ("".equals(testOperator)) {
+			String archiveUser = userDao.getUserId(operator);
+			if ("".equals(archiveUser)) {
 				UserDO user = new UserDO();
-				user.setUserName(testOperator);
+				user.setUserName(operator);
 				user.setTelephone("");
 				user.setAuthority("");
 				user.setPassword(Md5Util.md5("EOULU2018"));
@@ -130,14 +127,13 @@ public class WaferServiceImpl implements WaferService{
 				user.setEmail("");
 				boolean flag = userDao.insert(user);
 				if (flag) {
-					testOperator = userDao.getUserId(testOperator);
+					archiveUser = userDao.getUserId(operator);
 				}
 			}
-			String archiveUser = "";
 			if (testOperator.equals(operator)) {
-				archiveUser = testOperator;
+				testOperator = archiveUser;
 			} else {
-				archiveUser = userDao.getUserId(operator);
+				testOperator = userDao.getUserId(testOperator);
 			}
 			WaferDO wafer = new WaferDO();
 			wafer.setWaferNumber(waferID);
@@ -153,7 +149,7 @@ public class WaferServiceImpl implements WaferService{
 			wafer.setProductCategory(productCategory);
 			wafer.setDataFormat(Integer.parseInt(dataFormat));
 			wafer.setGmtCreate(df.format(new Date()));
-			wafer.setFileName(new File(csvExcel).getName());
+			wafer.setFileName(csvExcel);
 			wafer.setDeleteStatus(0);
 			wafer.setTotalTestQuantity(0);
 			Map<String, List<Object[]>> parameterList = util.getParameter(filelist, datanum, testerWaferSerialIDnum,
@@ -166,13 +162,6 @@ public class WaferServiceImpl implements WaferService{
 
 			int waferId = dao.getMaxWaferID(conn, waferID);
 			status = parameterDao.updateMapParameter(conn, waferId, waferID);
-			if (!"success".equals(status)) {
-				conn.rollback();
-				return status;
-			}
-			
-			Object[] param = new Object[]{waferId,"",archiveUser,totalTestTime};
-			status = dao.insertSecondaryInfo(conn, param);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
@@ -215,14 +204,10 @@ public class WaferServiceImpl implements WaferService{
 				e1.printStackTrace();
 			}
 		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+
 		}
 
-		return status;
+		return null;
 	}
 	
 	/**
@@ -349,10 +334,10 @@ public class WaferServiceImpl implements WaferService{
 			String str = "";
 			for(int j=7;j<data.length;j++){
 				obj[j] = data[j];
-				bin =bin&&(data[j]==null|| "null".equals(data[j])|| "".equals(data[j])||(Double.parseDouble(data[j])>=upperAndLowerLimit.get(j-7).get("lower")&&Double.parseDouble(data[j])<=upperAndLowerLimit.get(j-7).get("upper")));
+				bin =bin&&(data[j]==null|| "null".equals(data[j])|| "".equals(data[j])||(Double.parseDouble(data[j])>=upperAndLowerLimit.get(j-7).get("Lower")&&Double.parseDouble(data[j])<=upperAndLowerLimit.get(j-7).get("Upper")));
 				str += ","+bin;
 				if(m == filelist.size()-1){
-					column +=",C"+(j-6);
+					column +=",C";
 					columnStr +=",?";
 				}
 			}

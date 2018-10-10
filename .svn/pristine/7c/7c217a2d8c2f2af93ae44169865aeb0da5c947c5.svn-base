@@ -15,14 +15,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.tools.ant.taskdefs.Zip;
 
 import com.eoulu.dao.ParameterDao;
 import com.eoulu.dao.WaferDao;
@@ -52,35 +49,21 @@ public class FileParser {
 		suffix.add(".s2p");
 		suffix.add(".xlsx");
 	}
-	public static ArrayList<String> filelist = new ArrayList<String>();
+	public ArrayList<String> filelist = new ArrayList<String>();
 	// zip压缩文件中 上传失败的CSV文件,map文件 和 excel文件
-	public static ArrayList<String> faileCSV = new ArrayList<String>();
+	public ArrayList<String> faileCSV = new ArrayList<String>();
 	// 存放map的晶圆编号和路径
-	public static Map<String, Object> mapfilelist = new HashMap<String, Object>();
+	public Map<String, Object> mapfilelist = new HashMap<String, Object>();
 	// 存放map的晶圆编号和路径
 	public Map<String, Object> excelfilelist = new HashMap<String, Object>();
 	// CSV总个数
-	public static int CSVnum = 0;
+	public int CSVnum = 0;
 	// Map总个数
-	public static int Mapnum = 0;
+	public int Mapnum = 0;
 	// Excel总个数
-	public static int Excelnum = 0;
-	
-	public static void main(String[] args) {
-		String tempPath = "E:";
-		String fileName = "lotidtest.zip";
-		String temp = "E:/test";
-		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
-		String productCatagory="1";
-		String testOperator="Admin";
-		String description="cesghi";
-		String currentUser="TEST";
-		String dataFormat = "0";
-		System.out.println(Zip(tempPath, fileName, temp, filename2, true, productCatagory, testOperator, description, currentUser, dataFormat));
-		
-	}
+	public int Excelnum = 0;
 
-	public static Map<String, Object> Zip(String tempPath, String fileName, String temp, String filename2, Boolean flag,
+	public Map<String, Object> Zip(String tempPath, String fileName, String temp, String filename2, Boolean flag,
 			String productCatagory, String testOperator, String description, String currentUser, String dataFormat) {
 		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
 		String filename = "";// 上传失败的CSV、Map、Excel文件名
@@ -123,6 +106,7 @@ public class FileParser {
 				filename = filename + faileCSV.get(i) + ",";
 			}
 		}
+
 		flag = CSVnum > 0 || Mapnum > 0 || Excelnum > 0 ? false : true;
 		if (!"".equals(filename) || !"".equals(errorFile.toString())) {
 			int failnum;// 上传失败的CSV、map、excel个数
@@ -152,7 +136,7 @@ public class FileParser {
 		return resultMap;
 	}
 
-	static void getFiles(String filePath, Boolean flag, String productCatagory, String testOperator, String description,
+	void getFiles(String filePath, Boolean flag, String productCatagory, String testOperator, String description,
 			String tempPath, String temp, int filternum, String currentUser, String dataFormat, String fileName) {
 		File root = new File(filePath);
 		File[] files = root.listFiles();// 获取当前目录下的所有文件与文件夹
@@ -199,7 +183,7 @@ public class FileParser {
 		return temp1 && temp2;
 	}
 
-	public static void CSV(String path, Boolean flag, String productCatagory, String testOperator, String description,
+	public void CSV(String path, Boolean flag, String productCatagory, String testOperator, String description,
 			String tempPath, String temp, int filternum, String currentUser, boolean flagDirectory, String dataFormat,
 			String fileName) {
 		WaferDao fileDao = new WaferDao();
@@ -448,7 +432,7 @@ public class FileParser {
 		return name;
 	}
 
-	public static String getWaferID(String file) throws IOException {
+	public String getWaferID(String file) throws IOException {
 		String waferid = "";
 		boolean flag = true;
 		FileInputStream fis = null;
@@ -657,7 +641,6 @@ public class FileParser {
 			String DeviceID="";
 			String LotID="";
 			String WaferID="";
-			String totalTestTime = "";
 			int datanum=0;
 			int TesterWaferSerialIDnum=0;
 			int Limitnum=0;
@@ -679,12 +662,7 @@ public class FileParser {
 		    		String TestStopTimeArrary[]=s.split(",");
 		    		TestStopTime=getDefaultValue(TestStopTimeArrary, null, TestStopTime);
 		    		continue;
-		    	}else if(s.contains("TotalTestTime")){
-		    		String totalTest[] = s.split(",");
-		    		totalTestTime = totalTest.length>2?totalTest[2]:totalTestTime;
-		    		continue;
-		    	}
-		    	else if(s.contains("Operator")){
+		    	}else if(s.contains("Operator")){
 		    		String Operator1;
 		    		String OperatorArray[]=s.split(",");
 		    	    if(OperatorArray.length>=3 && !"".equals(OperatorArray[2])){
@@ -788,7 +766,6 @@ public class FileParser {
 		    MessageresultMap.put("TesterWaferSerialIDnum", TesterWaferSerialIDnum);
 		    MessageresultMap.put("Limitnum", Limitnum);
 		    MessageresultMap.put("dieTypeList", dieTypeList);
-		    MessageresultMap.put("totalTestTime", totalTestTime);
 			return MessageresultMap;
 		}
 		
@@ -838,17 +815,17 @@ public class FileParser {
 		 * @throws IOException
 		 * @throws Exception
 		 */
-		public static Map<String, Object> getMapFile(String file) throws IOException,Exception{
+		public Map<String, Object> getMapFile(String file) throws IOException,Exception{
 			Map<String, Object> MapFileResult=new HashMap<String, Object>();
 			List<String> filelist1=new ArrayList<String>();//存放所有文件
 			List<String> filelist=new ArrayList<String>();//存放8个参数
 			FileInputStream fis = null;
 			String status=null;//map文件标志信息
 			String Waferid="";
-			double Diameter=-1;
-			double DieSizeX=-1;
-			double DieSizeY=-1;
-			double FlatLength=-1;
+			float Diameter=-1;
+			float DieSizeX=-1;
+			float DieSizeY=-1;
+			float FlatLength=-1;
 			fis = new FileInputStream(file);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis,"Unicode"));
 			String line = "";
@@ -879,7 +856,7 @@ public class FileParser {
 					continue;
 				}
 				if(filelist1.get(i).contains("Diameter=")&&!filelist1.get(i).contains("NotchDiameter=")){
-					Diameter=Double.parseDouble(filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1));
+					Diameter=Float.parseFloat(filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1));
 					continue;
 				}
 				if(filelist1.get(i).contains("DieSizeX=")){
@@ -1016,7 +993,6 @@ public class FileParser {
 		    Map<String, List<Object[]>> parametermap=new HashMap<String , List<Object[]>>();
 			dealparam = datanum>0? filelist.get(datanum-1).split(","):null;
 			int length= datanum>0? dealparam.length-6:0;//参数个数长度+1
-			System.out.println("length:"+length);
 			String parameterNameUnit="";
 			String Max[] = null;
 			String Min[] = null;
@@ -1030,8 +1006,7 @@ public class FileParser {
 					Min=filelist.get(limitnum+num*2).split(",");
 					Max=filelist.get(limitnum+1+num*2).split(",");
 				}
-				System.out.println(Arrays.toString(Min));
-				System.out.println(Arrays.toString(Max));
+				
 				String column = "C";
 				Object[] obj = null;
 				String min="";
@@ -1048,15 +1023,15 @@ public class FileParser {
 						parameterName=parameterNameUnit;
 					}
 					//设默认值
-					if("".equals(Min[6+dp])){
+					if("".equals(Min[dp-1])){
 						min = "-9E37";
 					}else{
-						min=Min[6+dp];	
+						min=Min[dp-1];	
 					}
-					if("".equals(Max[6+dp])){
+					if("".equals(Max[dp-1])){
 						max = "9E37";
 					}else{
-						max=Max[6+dp];
+						max=Max[dp-1];
 					}
 					obj = new Object[]{parameterName,parameterUnit,column,max,min};
 					list.add(obj);
@@ -1073,7 +1048,7 @@ public class FileParser {
 		 * @param file
 		 * @return
 		 */
-		public static Map<String, Object> SaveMapFile(String file){
+		public Map<String, Object> SaveMapFile(String file){
 			String status=null;
 			String waferid="";//晶圆编号
 			Double diameter;
@@ -1082,6 +1057,7 @@ public class FileParser {
 			Double flatLength;
 			List<String> filelist=new ArrayList<String>();//存放8个参数
 			Map<String, Object> resultMap=new HashMap<String, Object>();
+			Connection conn=null;
 			try {
 				Map<String, Object> mapFileResult=getMapFile(file);
 				status=(String) mapFileResult.get("status");
@@ -1109,15 +1085,24 @@ public class FileParser {
 					mapDO.setStandCoorDieX(filelist.get(6));
 					mapDO.setStandCoorDieY(filelist.get(7));
 					mapDO.setWaferId(0);
-					mapDO.setWaferNumber(waferid);
-					status = new ParameterDao().insertMapParameter( mapDO);
+					status = new ParameterDao().insertMapParameter(conn, mapDO);
 					resultMap.put(waferid, file);
 					resultMap.put("status", status);
 				}//加锁
 			}catch (IOException e) {
 				e.printStackTrace();
+			} catch(SQLException e){
+				
 			}catch (Exception e) {
 				e.printStackTrace();
+			}finally {
+				if(conn!=null){
+					try {
+						conn.close();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 			return resultMap;
 		}
