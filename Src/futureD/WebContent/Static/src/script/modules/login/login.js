@@ -4,23 +4,12 @@ var futureDT2Mock, loginUserPassObj;
 $(function(){
 	/*保存mock数据*/
 	if(!eouluGlobal.S_getPageAllConfig().futureDT2.canUseAjax){
-		loginUserPassObj = [
-			{
-				"user": "Admin",
-				"password": "admin",
-				"role": "superAdmin"
-			},
-			{
-				"user": "test",
-				"password": "test123456",
-				"role": "admin"
-			},
-			{
-				"user": "user",
-				"password": "user123456",
-				"role": "user"
-			}
-		];
+		if(!store.get("futureDT2__userDB")){
+			loginUserPassObj = futuredGlobal.S_getAdmin_staff();
+			store.set("futureDT2__userDB", _.cloneDeep(loginUserPassObj));
+		}else{
+			loginUserPassObj = store.get("futureDT2__userDB");
+		}
 	}else{
 		/*进入页面验证本地存储*/
 		// storage.clear(); // 将localStorage的所有内容清除
@@ -99,11 +88,11 @@ $(".button_div>button").click(function(){
 	var iuser = $("#login_user").val().trim();
 	var ipassword = $("#login_password").val().trim();
 	var imessage, iFlag = false;
-	var iuserObj = _.find(loginUserPassObj, function(o) { return o.user == iuser; });
+	var iuserObj = _.find(loginUserPassObj, function(v, i) { return i == iuser; });
 	if(iuserObj == undefined){
 		imessage = "用户名不存在！";
 		iFlag = true;
-	}else if(iuserObj.password != ipassword){
+	}else if(iuserObj.password.value != ipassword){
 		imessage = "密码错误！";
 		iFlag = true;
 	}
@@ -115,10 +104,15 @@ $(".button_div>button").click(function(){
 		$(".login_panin .message_div").empty().append(ialert);
 	}else{
 		var futureDT2__session = {};
+		var newiuserObj = _.cloneDeep(iuserObj);
+		newiuserObj.current_login.value == null ? null : (newiuserObj.last_login.value = newiuserObj.current_login.value);
+		newiuserObj.current_login.value = moment().format("YYYY-MM-DD HH:mm:ss");
 		futureDT2__session.expires = Date.now() + 1000*60*60;
-		futureDT2__session.user = iuser;
-		futureDT2__session.password = ipassword;
+		futureDT2__session.data = newiuserObj;
 		store.set('futureDT2__session', futureDT2__session);
+		var item = {};
+		item[iuser] = newiuserObj;
+		store.set("futureDT2__userDB", _.assign(loginUserPassObj, item));
 		window.location.assign("index.html");
 	}
 });

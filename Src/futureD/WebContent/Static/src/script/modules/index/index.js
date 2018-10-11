@@ -20,5 +20,5 @@ $(".section_in .thumbnail").on("click", function(){
 });
 
 $(".index_setting, .index_curUser").click(function(){
-	window.open("../static/软件实施180423交互.xlsx");
+	window.location.assign("admin.html");
 });

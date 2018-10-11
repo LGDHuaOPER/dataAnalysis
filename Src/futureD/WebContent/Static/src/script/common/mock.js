@@ -22,6 +22,7 @@
     var _global;
     // 定义一些默认参数
     var _DefaultParam = {
+        /*数据列表*/
         dataList: [
             {
                 "wafer_id": {
@@ -115,7 +116,282 @@
                     "detail": "time"
                 }
             }
-        ]
+        ],
+        /*管理员 用户管理*/
+        admin_staff: {
+            "Admin": {
+                "user_id": {
+                    "exegesis": "主键",
+                    "value": "1",
+                    "detail": null
+                },
+                "user_name": {
+                    "exegesis": "用户名",
+                    "value": "Admin",
+                    "detail": null
+                },
+                "password": {
+                    "exegesis": "密码",
+                    "value": "admin",
+                    "detail": null
+                },
+                "sex": {
+                    "exegesis": "性别",
+                    "value": "男",
+                    "detail": null
+                },
+                "telephone": {
+                    "exegesis": "联系电话",
+                    "value": "15468524598",
+                    "detail": null
+                },
+                "email": {
+                    "exegesis": "电子邮箱",
+                    "value": "remind@eoulu.com",
+                    "detail": null
+                },
+                "role_id": {
+                    "exegesis": "角色",
+                    "value": "3",
+                    "detail": "1：成员；2：管理员；3：超级管理员"
+                },
+                "authority": {
+                    "exegesis": "权限",
+                    "value": [1,2,3,4,5,6],
+                    "detail": [
+                        {
+                            "1": {
+                                "authority_name": "管理员页面",
+                                "authority_url": "admin.html",
+                                "page": "管理员"
+                            },
+                            "2": {
+                                "authority_name": "操作用户",
+                                "authority_url": null,
+                                "page": "管理员"
+                            },
+                            "3": {
+                                "authority_name": "授权",
+                                "authority_url": null,
+                                "page": "管理员"
+                            },
+                            "4": {
+                                "authority_name": "数据列表",
+                                "authority_url": "dataList.html",
+                                "page": "数据列表"
+                            },
+                            "5": {
+                                "authority_name": "工程分析",
+                                "authority_url": "ProjectAnalysis.html",
+                                "page": "工程分析"
+                            },
+                            "6": {
+                                "authority_name": "数据统计",
+                                "authority_url": "DataStatistics.html",
+                                "page": "数据统计"
+                            },
+                        }
+                    ]
+                },
+                "last_login": {
+                    "exegesis": "上次登录时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                },
+                "gmt_create": {
+                    "exegesis": "生成时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                },
+                "current_login": {
+                    "exegesis": "当前登录时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                }
+            },
+
+            "test": {
+                "user_id": {
+                    "exegesis": "主键",
+                    "value": "2",
+                    "detail": null
+                },
+                "user_name": {
+                    "exegesis": "用户名",
+                    "value": "test",
+                    "detail": null
+                },
+                "password": {
+                    "exegesis": "密码",
+                    "value": "test123456",
+                    "detail": null
+                },
+                "sex": {
+                    "exegesis": "性别",
+                    "value": "男",
+                    "detail": null
+                },
+                "telephone": {
+                    "exegesis": "联系电话",
+                    "value": "15468524598",
+                    "detail": null
+                },
+                "email": {
+                    "exegesis": "电子邮箱",
+                    "value": "test@eoulu.com",
+                    "detail": null
+                },
+                "role_id": {
+                    "exegesis": "角色",
+                    "value": "2",
+                    "detail": "1：角色；2：管理员；3：超级管理员"
+                },
+                "authority": {
+                    "exegesis": "权限",
+                    "value": [1,2,3,4,5,6],
+                    "detail": [
+                        {
+                            "1": {
+                                "authority_name": "管理员页面",
+                                "authority_url": "admin.html",
+                                "page": "管理员"
+                            },
+                            "2": {
+                                "authority_name": "操作用户",
+                                "authority_url": null,
+                                "page": "管理员"
+                            },
+                            "3": {
+                                "authority_name": "授权",
+                                "authority_url": null,
+                                "page": "管理员"
+                            },
+                            "4": {
+                                "authority_name": "数据列表",
+                                "authority_url": "dataList.html",
+                                "page": "数据列表"
+                            },
+                            "5": {
+                                "authority_name": "工程分析",
+                                "authority_url": "ProjectAnalysis.html",
+                                "page": "工程分析"
+                            },
+                            "6": {
+                                "authority_name": "数据统计",
+                                "authority_url": "DataStatistics.html",
+                                "page": "数据统计"
+                            },
+                        }
+                    ]
+                },
+                "last_login": {
+                    "exegesis": "上次登录时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                },
+                "gmt_create": {
+                    "exegesis": "生成时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                },
+                "current_login": {
+                    "exegesis": "当前登录时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                }
+            },
+
+            "user": {
+                "user_id": {
+                    "exegesis": "主键",
+                    "value": "3",
+                    "detail": null
+                },
+                "user_name": {
+                    "exegesis": "用户名",
+                    "value": "user",
+                    "detail": null
+                },
+                "password": {
+                    "exegesis": "密码",
+                    "value": "user123456",
+                    "detail": null
+                },
+                "sex": {
+                    "exegesis": "性别",
+                    "value": "男",
+                    "detail": null
+                },
+                "telephone": {
+                    "exegesis": "联系电话",
+                    "value": "15468524598",
+                    "detail": null
+                },
+                "email": {
+                    "exegesis": "电子邮箱",
+                    "value": "user@eoulu.com",
+                    "detail": null
+                },
+                "role_id": {
+                    "exegesis": "角色",
+                    "value": "1",
+                    "detail": "1：角色；2：管理员；3：超级管理员"
+                },
+                "authority": {
+                    "exegesis": "权限",
+                    "value": [4,5,6],
+                    "detail": [
+                        {
+                            "1": {
+                                "authority_name": "管理员页面",
+                                "authority_url": "admin.html",
+                                "page": "管理员"
+                            },
+                            "2": {
+                                "authority_name": "操作用户",
+                                "authority_url": null,
+                                "page": "管理员"
+                            },
+                            "3": {
+                                "authority_name": "授权",
+                                "authority_url": null,
+                                "page": "管理员"
+                            },
+                            "4": {
+                                "authority_name": "数据列表",
+                                "authority_url": "dataList.html",
+                                "page": "数据列表"
+                            },
+                            "5": {
+                                "authority_name": "工程分析",
+                                "authority_url": "ProjectAnalysis.html",
+                                "page": "工程分析"
+                            },
+                            "6": {
+                                "authority_name": "数据统计",
+                                "authority_url": "DataStatistics.html",
+                                "page": "数据统计"
+                            },
+                        }
+                    ]
+                },
+                "last_login": {
+                    "exegesis": "上次登录时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                },
+                "gmt_create": {
+                    "exegesis": "生成时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                },
+                "current_login": {
+                    "exegesis": "当前登录时间",
+                    "value": "2018-10-11 10:25:00",
+                    "detail": "time"
+                }
+            }
+        }
     };
 
     // 定义一些api
@@ -143,6 +419,10 @@
 
         S_getDataList: function(){
             return _DefaultParam.dataList;
+        },
+
+        S_getAdmin_staff: function(){
+            return _DefaultParam.admin_staff;
         },
 
         // @数据处理类@

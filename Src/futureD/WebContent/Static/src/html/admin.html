@@ -48,18 +48,19 @@
 					    			<div class="staffManage_tit_r_in">
 					    				<div class="input-group">
 					    				    <div class="input-group-btn">
-					    				        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action <span class="caret"></span></button>
+					    				        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="请选择">请选择 <span class="caret"></span></button>
 					    				        <ul class="dropdown-menu">
-					    				          	<li><a href="#">Action</a></li>
-					    				          	<li><a href="#">Another action</a></li>
-					    				          	<li><a href="#">Something else here</a></li>
-					    				          	<li role="separator" class="divider"></li>
-					    				          	<li><a href="#">Separated link</a></li>
+					    				          	<li data-iclass="td__user_name"><a href="javascript:;">用户名</a></li>
+					    				          	<li data-iclass="td__telephone"><a href="javascript:;">电话</a></li>
+					    				          	<li data-iclass="td__email"><a href="javascript:;">Email</a></li>
+					    				          	<li data-iclass="td__role_id"><a href="javascript:;">角色</a></li>
+					    				          	<!-- <li role="separator" class="divider"></li> -->
 					    				        </ul>
 					    				    </div><!-- /btn-group -->
-					    				    <input type="text" class="form-control" aria-label="...">
+					    				    <input type="text" class="form-control" aria-label="输入框" data-isearch="search_button" disabled="disabled">
+					    				    <input type="date" class="form-control" aria-label="日期选择框" disabled="disabled">
 					    				</div><!-- /input-group -->
-					    				<input type="button" class="btn btn-primary" value="搜索">
+					    				<input type="button" class="btn btn-primary" id="search_button" value="搜索">
 					    			</div>
 					    		</div>
 					    	</div>
@@ -68,28 +69,16 @@
 					    			<thead>
 					    				<tr>
 					    					<th><input type="checkbox" id="checkAll"></th>
-					    					<th>产品名称</th>
-					    					<th>批次编号</th>
-					    					<th>晶圆编号</th>
-					    					<th>合格率</th>
-					    					<th>测试时间</th>
-					    					<th>上传者</th>
-					    					<th>描述</th>
+					    					<th>序号</th>
+					    					<th>用户名</th>
+					    					<th>性别</th>
+					    					<th>电话</th>
+					    					<th>Email</th>
+					    					<th>角色</th>
 					    					<th>操作</th>
 					    				</tr>
 					    			</thead>
 					    			<tbody>
-					    				<tr>
-					    					<td><input type="checkbox" id=""></td>
-					    					<td>产品名称</td>
-					    					<td>批次编号</td>
-					    					<td>晶圆编号</td>
-					    					<td>合格率</td>
-					    					<td>测试时间</td>
-					    					<td>上传者</td>
-					    					<td>描述</td>
-					    					<td>操作</td>
-					    				</tr>
 					    			</tbody>
 					    		</table>
 					    		<div class="futureDT2_page_wrapper">
@@ -156,13 +145,13 @@
 	<script src="../script/libs/bootstrap.min.js"></script>
 	<script src="../script/libs/lodash.min.js"></script>
 	<script src="../script/libs/store.legacy.min.js"></script>
-	<script src="../script/common/futureDT2session.js"></script>
 	<script src="../script/libs/moment-with-locales.min.js"></script>
+	<script src="../script/common/futureDT2session.js"></script>
 	<script src="../script/common/pagination.min.js"></script>
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
-	<script src="../script/modules/dataList/dataList.js"></script>
+	<script src="../script/modules/admin/admin.js"></script>
 </body>
 </html>

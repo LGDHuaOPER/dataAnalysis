@@ -93,7 +93,7 @@ $(function(){
 		}
 	}
 	
-	function renderData(currentPage, classify, funObj){
+	function renderData(currentPage, classify, funObj, signalDelete){
 		var iArr = getDataListPageData(classify, funObj)[currentPage-1];
 		var str = '';
 		var icurrentPage = currentPage;
@@ -103,13 +103,13 @@ $(function(){
 				var iii = (currentPage-1)*10+i+1;
 				str+='<tr>'+
 						'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-						'<td>第'+iii+'条'+v.product_category.value+'</td>'+
-						'<td>'+v.lot_number.value+'</td>'+
-						'<td>'+v.wafer_number.value+'</td>'+
-						'<td>'+v.qualified_rate.value+'</td>'+
-						'<td>'+v.test_start_date.value+'</td>'+
-						'<td>'+v.archive_user.value+'</td>'+
-						'<td>'+v.description.value+'</td>'+
+						'<td data-itext="第'+iii+'条'+v.product_category.value+'">第'+iii+'条'+v.product_category.value+'</td>'+
+						'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
+						'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
+						'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
+						'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
+						'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
+						'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
 						'<td class="not_search"><span class="glyphicon glyphicon-edit" aria-hidden="true" data-ivalue="'+ii+'"></span><span class="glyphicon glyphicon-eye-open" aria-hidden="true" data-ivalue="'+ii+'"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" data-ivalue="'+ii+'"></span></td>'+
 					'</tr>';
 			});
@@ -120,6 +120,12 @@ $(function(){
 		$("#checkAll").prop("checked", dataListState.sellectObj.selectAll);
 		selectTdItem();
 		dataListState.pageObj.currentPage = icurrentPage;
+		if(signalDelete == true){
+			_.forEach(dataListState.sellectObj.selectItem, function(val){
+				$(".g_bodyin_bodyin_body tbody [type='checkbox'][data-ivalue='"+(Number(val))+"']").prop("checked", true);
+			});
+			$("#checkAll").prop("checked", ($(".g_bodyin_bodyin_body tbody [type='checkbox']").filter(":checked").length == $(".g_bodyin_bodyin_body tbody [type='checkbox']").length));
+		}
 	}
 
 	renderData(1, "onload", {});
@@ -166,11 +172,10 @@ $(function(){
 	});
 
 	$("#jumpPage").on("click", function(){
-		if($("#jumpText").val() == "") return false;
 		var iText = Number($("#jumpText").val());
 		var currentPage = Number(dataListState.pageObj.currentPage);
 		var pageCounts = Number(dataListState.pageObj.pageCount);
-		if(currentPage == iText || currentPage <= 0 || currentPage>pageCounts){
+		if(currentPage == iText || iText <= 0 || iText>pageCounts){
 		    $("#jumpText").val('');
 		    return;
 		}else{
@@ -313,7 +318,7 @@ $(function(){
 		  	}else{
 		  		iText = dataListState.pageObj.currentPage - 1;
 		  	}
-		  	var ID = iThat.data("ivalue");
+		  	var ID = iThat.data("ivalue").toString();
 		  	renderData(iText, "delete", {deleteFun: function(){
 		  		var futuredDatalistArray = JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data;
 		  		_.forEach(futuredDatalistArray, function(v, i, arr){
@@ -334,8 +339,9 @@ $(function(){
 		  		dataListState.pageObj.pageOption.count = dataListState.pageObj.itemLength;
 		  		dataListState.pageObj.pageOption.curr = iText;
 		  		new Pagination(dataListState.pageObj.selector, dataListState.pageObj.pageOption);
+		  		_.pull(dataListState.sellectObj.selectItem, ID);
 		  		return futuredDatalistChunkArray;
-		  	}});
+		  	}}, true);
 
 		    swalWithBootstrapButtons({
 		    	title: '删除成功！',
@@ -402,9 +408,10 @@ $(document).on("click", ".g_bodyin_bodyin_body tbody [type='checkbox']", functio
 
 $(document).on("change", ".g_bodyin_bodyin_body tbody [type='checkbox']", function(){
 	$("#checkAll").prop("checked", ($(".g_bodyin_bodyin_body tbody [type='checkbox']").filter(":checked").length == $(".g_bodyin_bodyin_body tbody [type='checkbox']").length));
-	var ID = $(this).data("ivalue");
+	var ID = $(this).data("ivalue").toString();
 	$(this).prop("checked") ? dataListState.sellectObj.selectItem.push(ID) : _.pull(dataListState.sellectObj.selectItem, ID);
 	dataListState.sellectObj.selectItem = _.uniq(dataListState.sellectObj.selectItem);
+	dataListState.sellectObj.selectAll = $("#checkAll").prop("checked");
 });
 
 $("#checkAll").on({
@@ -430,17 +437,25 @@ $("#checkAll").on({
 
 $("#search_button").on("click", function(){
 	var isearch = $("#search_input").val().trim();
-	$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
-		var iText = $(this).text();
-		var ireplace = "<b style='color:red'>"+isearch+"</b>";
-		var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
-		$(this).empty().html(iHtml);
-	});
-	dataListState.hasSearch = true;
-	return false;
+	if(isearch == ""){
+		$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
+			var iiText = _.isNil($(this).data("itext")) ? "" : $(this).data("itext");
+			$(this).empty().text(iiText);
+		});
+		dataListState.hasSearch = false;
+		return false;
+	}else{
+		$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
+			var iText = $(this).text();
+			var ireplace = "<b style='color:red'>"+isearch+"</b>";
+			var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
+			$(this).empty().html(iHtml);
+		});
+		dataListState.hasSearch = true;
+		return false;
+	}
 });
 
-$(".g_info_r .glyphicon-off").click(function(){
-	store.remove('futureDT2__session');
-	window.location.assign("login.html");
+$(".g_info_r>.glyphicon-user").click(function(){
+	window.location.assign("admin.html");
 });

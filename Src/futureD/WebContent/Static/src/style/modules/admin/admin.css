@@ -224,20 +224,16 @@ body {
 }
 /* 表格一般樣式結束 */
 
-
-
-
-
-
-
-
-
-.g_bodyin_bodyin_body tbody td.not_search .glyphicon {
+.staffManage_body tbody td.not_search .glyphicon, .operaDailyLog_body tbody td.not_search .glyphicon {
 	font-size: 20px;
 }
 
-.g_bodyin_bodyin_body tbody td.not_search .glyphicon+.glyphicon {
+.staffManage_body tbody td.not_search .glyphicon+.glyphicon, .operaDailyLog_body tbody td.not_search .glyphicon+.glyphicon {
 	margin-left: 8px;
+}
+
+.staffManage_tit_r_in input[type='date'] {
+	display: none;
 }
 
 /* 分页组件开始 */
@@ -275,6 +271,10 @@ body {
 
 span.glyphicon {
 	cursor: pointer;
+}
+
+.g_info_r>.glyphicon-user {
+	display: none;
 }
 
 @media screen and (max-height: 500px) {
