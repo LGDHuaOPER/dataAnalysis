@@ -13,15 +13,6 @@ dataListState.sellectObj = {
 	selectItem: []
 };
 
-function selectTdItem(){
-	if(dataListState.sellectObj.selectAll){
-		$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-			$(this).prop("checked", true);
-			$(this).parent().parent().removeClass("info").addClass("warning");
-		});
-	}
-}
-
 /*page onload*/
 $(function(){
 	function getDataListPageData(immediately, funObj){
@@ -118,13 +109,13 @@ $(function(){
 		}
 		$(".g_bodyin_bodyin_body tbody").empty().append(str);
 		$("#checkAll").prop("checked", dataListState.sellectObj.selectAll);
-		selectTdItem();
 		dataListState.pageObj.currentPage = icurrentPage;
 		if(signalDelete == true){
 			_.forEach(dataListState.sellectObj.selectItem, function(val){
-				$(".g_bodyin_bodyin_body tbody [type='checkbox'][data-ivalue='"+(Number(val))+"']").prop("checked", true);
+				$(".g_bodyin_bodyin_body tbody [type='checkbox'][data-ivalue='"+(Number(val))+"']").prop("checked", true).parent().parent().addClass("warning").removeClass("info");
 			});
-			$("#checkAll").prop("checked", ($(".g_bodyin_bodyin_body tbody [type='checkbox']").filter(":checked").length == $(".g_bodyin_bodyin_body tbody [type='checkbox']").length));
+			$("#checkAll").prop("checked", dataListState.pageObj.itemLength == dataListState.sellectObj.selectItem.length);
+			dataListState.sellectObj.selectAll = $("#checkAll").prop("checked");
 		}
 	}
 
@@ -158,8 +149,10 @@ $(function(){
 	      // do something
 	      	renderData(obj.curr, "onload", {});
 	      	dataListState.hasSearch && ($("#search_button").trigger("click"));
-	      	dataListState.sellectObj.selectItem.map(function(v, i, arr){
-	      		$(".g_bodyin_bodyin_body tbody [type='checkbox'][data-ivalue='"+v+"']").trigger("click");
+	      	$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
+	      		if(_.indexOf(dataListState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
+	      			$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+	      		}
 	      	});
 	    }
 	  }
@@ -190,7 +183,11 @@ $(function(){
 		renderData(1, "onload", {refreshMock: true});
 		dataListState.pageObj.pageOption.count = dataListState.pageObj.itemLength;
 		dataListState.pageObj.pageOption.curr = 1;
-		dataListState.hasSearch && ($("#search_button").trigger("click"));
+		dataListState.sellectObj.selectAll = false;
+		$("#checkAll").prop("checked", false);
+		dataListState.sellectObj.selectItem = [];
+		dataListState.hasSearch = false;
+		$("#search_input").val("");
 		new Pagination(dataListState.pageObj.selector, dataListState.pageObj.pageOption);
 	});
 
@@ -407,10 +404,10 @@ $(document).on("click", ".g_bodyin_bodyin_body tbody [type='checkbox']", functio
 });
 
 $(document).on("change", ".g_bodyin_bodyin_body tbody [type='checkbox']", function(){
-	$("#checkAll").prop("checked", ($(".g_bodyin_bodyin_body tbody [type='checkbox']").filter(":checked").length == $(".g_bodyin_bodyin_body tbody [type='checkbox']").length));
 	var ID = $(this).data("ivalue").toString();
 	$(this).prop("checked") ? dataListState.sellectObj.selectItem.push(ID) : _.pull(dataListState.sellectObj.selectItem, ID);
 	dataListState.sellectObj.selectItem = _.uniq(dataListState.sellectObj.selectItem);
+	$("#checkAll").prop("checked", dataListState.pageObj.itemLength == dataListState.sellectObj.selectItem.length);
 	dataListState.sellectObj.selectAll = $("#checkAll").prop("checked");
 });
 

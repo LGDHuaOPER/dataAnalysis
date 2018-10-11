@@ -30,6 +30,29 @@
             "futureDT2": {
                 canUseAjax: false
             }
+        },
+        RegExpList: {
+            "email": {
+                "ODQ": /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
+                "newRegExp": "^([a-zA-Z0-9]+[_|\\_|\\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\\_|\\.]?)*[a-zA-Z0-9]+\\.[a-zA-Z]{2,3}$",
+                "g": false,
+                "i": false,
+                "success": true
+            },
+            "mobile": {
+                "ODQ": /^1[34578]\d{9}$/,
+                "newRegExp": "^1[34578]\\d{9}$",
+                "g": false,
+                "i": false,
+                "success": true
+            },
+            "telephone": {
+                "ODQ": /^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{7,14}$/,
+                "newRegExp": "^(\\(\\d{3,4}\\)|\\d{3,4}-|\\s)?\\d{7,14}$",
+                "g": false,
+                "i": false,
+                "success": true
+            }
         }
     };
 
@@ -236,6 +259,20 @@
         },
         S_getPageAllConfig: function(){
             return _DefaultParam.pageAllConfig;
+        },
+        S_getRegExpList: function(classify){
+            var returnVar;
+            if(_.isNil(classify) || classify == "ALL"){
+                returnVar = _DefaultParam.RegExpList;
+            }else{
+                var ireturnVar = _DefaultParam.RegExpList[classify];
+                if(_.isNil(ireturnVar)){
+                    returnVar = null;
+                }else{
+                    returnVar = ireturnVar;
+                }
+            }
+            return returnVar;
         },
         
         // @URL处理类@
