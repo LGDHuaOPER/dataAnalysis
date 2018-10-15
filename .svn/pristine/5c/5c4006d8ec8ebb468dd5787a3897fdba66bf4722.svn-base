@@ -157,7 +157,7 @@
                 },
                 "authority": {
                     "exegesis": "权限",
-                    "value": [1,2,3,4,5,6,7,8,9],
+                    "value": [1,2,3,4,5,6],
                     "detail": "authority"
                 },
                 "last_login": {
@@ -354,38 +354,23 @@
             ],
             "数据列表": [
                 {
-                    "authority_name": "数据列表-读",
+                    "authority_name": "数据列表",
                     "authority_url": "dataList.html",
                     "authority_id": "4"
-                },
-                {
-                    "authority_name": "数据列表-写",
-                    "authority_url": "dataList.html",
-                    "authority_id": "5"
                 }
             ],
             "工程分析": [
                 {
-                    "authority_name": "工程分析-读",
+                    "authority_name": "工程分析",
                     "authority_url": "ProjectAnalysis.html",
-                    "authority_id": "6"
-                },
-                {
-                    "authority_name": "工程分析-写",
-                    "authority_url": "ProjectAnalysis.html",
-                    "authority_id": "7"
-                },
+                    "authority_id": "5"
+                }
             ],
             "数据统计": [
                 {
-                    "authority_name": "数据统计-读",
+                    "authority_name": "数据统计",
                     "authority_url": "DataStatistics.html",
-                    "authority_id": "8"
-                },
-                {
-                    "authority_name": "数据统计-写",
-                    "authority_url": "DataStatistics.html",
-                    "authority_id": "9"
+                    "authority_id": "6"
                 }
             ]
         }

@@ -1,12 +1,4 @@
 /*variable defined*/
-var dataListSwalMixin = swal.mixin({
-  	confirmButtonClass: 'btn btn-success',
-  	cancelButtonClass: 'btn btn-danger',
-  	buttonsStyling: true,
-	animation: false,
-	customClass: 'animated zoomIn'
-});
-
 var dataListState = new Object();
 dataListState.pageObj = {
 	selector: null,
@@ -463,26 +455,4 @@ $("#search_button").on("click", function(){
 
 $(".g_info_r>.glyphicon-user").click(function(){
 	window.location.assign("admin.html");
-});
-
-$(".g_bodyin_bodyin_tit_l>span.glyphicon-saved").click(function(){
-	if(dataListState.sellectObj.selectItem.length == 0){
-		dataListSwalMixin({
-			title: '提示',
-			text: "未选中数据！将会默认全部数据",
-			type: 'info',
-			showConfirmButton: false,
-			timer: 2000,
-		});
-		store.remove("futureDT2__datalist__selectedItem");
-		return false;
-	}
-	store.set("futureDT2__datalist__selectedItem", dataListState.sellectObj.selectItem);
-	dataListSwalMixin({
-		title: '提示',
-		text: "已保存选中数据！",
-		type: 'success',
-		showConfirmButton: false,
-		timer: 2000,
-	});
 });

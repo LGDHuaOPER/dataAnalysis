@@ -21,7 +21,7 @@
 	    				<div class="form-group has-feedback">
 	    				  	<div class="input-group">
 	    				    	<span class="input-group-addon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></span>
-	    				    	<input type="text" class="form-control" id="login_user" aria-describedby="user_sr_only" placeholder="请输入账号" autocomplete="new-password">
+	    				    	<input type="text" class="form-control" id="login_user" aria-describedby="user_sr_only" placeholder="请输入账号">
 	    				  	</div>
 	    				  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
 	    				  	<span id="user_sr_only" class="sr-only">账号</span>
@@ -29,7 +29,7 @@
 	    				<div class="form-group has-feedback">
 	    				  	<div class="input-group">
 	    				    	<span class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></span>
-	    				    	<input type="password" class="form-control" id="login_password" aria-describedby="password_sr_only" placeholder="请输入密码" autocomplete="new-password">
+	    				    	<input type="password" class="form-control" id="login_password" aria-describedby="password_sr_only" placeholder="请输入密码">
 	    				  	</div>
 	    				  	<span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span>
 	    				  	<span id="password_sr_only" class="sr-only">密码</span>

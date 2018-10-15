@@ -279,18 +279,25 @@ $(function(){
 			window.location.assign("login.html");
 			return false;
 		}else{
-			adminState.staffSellectObj.selectItem.map(function(val, ind, arr){
-				if(ifutureDT2__userDB[val].role_id.value == "3"){
+			if(curUserSession.data.role_id.value == "2"){
+				var iFlag = false;
+				adminState.staffSellectObj.selectItem.map(function(val, ind, arr){
+					if(ifutureDT2__userDB[val].role_id.value == "3"){
+						iFlag = true;
+						return true;
+					}
+				});
+				if(iFlag){
 					adminSwalMixin({
 						title: '异常',
-						text: "超级管理员不能被删除！",
+						text: "权限不足，您删除不了超级管理员",
 						type: 'error',
 						showConfirmButton: false,
 						timer: 2000,
 					});
 					return false;
 				}
-			});
+			}
 		}
 
 		adminSwalMixin({
@@ -349,16 +356,6 @@ $(function(){
 	$(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-trash", function(e){
 		e.stopPropagation();
 		var iThat = $(this);
-		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
-			adminSwalMixin({
-				title: '异常',
-				text: "超级管理员不能被删除",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			});
-			return false;
-		}
 		var curUserSession = adminState.futureDT2__session;
 		if(_.isNil(curUserSession)){
 			adminSwalMixin({
@@ -374,7 +371,7 @@ $(function(){
 			if(iThat.parent().siblings(".td__role_id").data("ivalue") > curUserSession.data.role_id.value){
 				adminSwalMixin({
 					title: '异常',
-					text: "权限不足，您删除不了角色等级大于您的用户",
+					text: "权限不足，您删除不了超级管理员",
 					type: 'error',
 					showConfirmButton: false,
 					timer: 2000,
@@ -451,17 +448,6 @@ $(function(){
 		e.stopPropagation();
 		var iThat = $(this);
 		var iTd = iThat.parent();
-		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
-			$(".staff_update #staff_update_role_id option[value='3']").prop({
-				"selected": true,
-				"disabled": false
-			}).parent().attr("readonly", "readonly").prop("disabled", true);
-		}else{
-			$(".staff_update #staff_update_role_id option[value='请选择用户角色']").prop({
-				"selected": true
-			}).parent().removeAttr("readonly").prop("disabled", false);
-			$(".staff_update #staff_update_role_id option[value='3']").prop("disabled", true);
-		}
 		var curUserSession = adminState.futureDT2__session;
 		if(_.isNil(curUserSession)){
 			adminSwalMixin({
@@ -1053,17 +1039,12 @@ $(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphi
 		if(iThat.parent().siblings(".td__role_id").data("ivalue") > curUserSession.data.role_id.value){
 			adminSwalMixin({
 				title: '异常',
-				text: "权限不足，您修改不了角色等级比你高的",
+				text: "权限不足，您修改不了超级管理员",
 				type: 'error',
 				showConfirmButton: false,
 				timer: 2000,
 			});
 			return false;
-		}
-		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
-			$(".staff_authority_r_foot>.btn-primary").prop("disabled", true);
-		}else{
-			$(".staff_authority_r_foot>.btn-primary").prop("disabled", false);
 		}
 	}
 	$(".futureDT2_bg_cover, .staff_authority").slideDown(250);
