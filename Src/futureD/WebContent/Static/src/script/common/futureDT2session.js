@@ -1,10 +1,24 @@
 ;(function(){
-	if(!store.get('futureDT2__session')){
+	var iclassify = store.get('futureDT2__session_classify');
+	if(!iclassify){
 		window.location.assign("login.html");
-	}else{
-		var iexpires = store.get('futureDT2__session').expires;
-		if(iexpires < Date.now()){
+	}else if(iclassify == "sessionStorage"){
+		if(!window.sessionStorage.getItem("futureDT2__sessionStorage")){
 			window.location.assign("login.html");
+		}else{
+			var iexpires = JSON.parse(window.sessionStorage.getItem("futureDT2__sessionStorage")).expires;
+			if(iexpires < Date.now()){
+				window.location.assign("login.html");
+			}
+		}
+	}else if(iclassify == "localStorage"){
+		if(!store.get('futureDT2__session')){
+			window.location.assign("login.html");
+		}else{
+			var iexpires = store.get('futureDT2__session').expires;
+			if(iexpires < Date.now()){
+				window.location.assign("login.html");
+			}
 		}
 	}
 
@@ -21,7 +35,7 @@
 		window.location.assign("login.html");
 	});
 
-	window.onbeforeunload = function (e) {
+	/*window.onbeforeunload = function (e) {
 	  	e = e || window.event;
 
 	  	// 兼容IE8和Firefox 4之前的版本
@@ -31,7 +45,7 @@
 
 	  	// Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
 	  	return '关闭提示';
-	};
+	};*/
 
 	// window.addEventListener('unload', function(event) {
 	//     store.remove("futureDT2__session");

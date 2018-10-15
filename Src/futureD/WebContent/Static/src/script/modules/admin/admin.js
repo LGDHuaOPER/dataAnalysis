@@ -671,6 +671,58 @@ $("#staff_addition_email, #staff_update_email").on("input propertychange change"
 	$(this).parent().next().empty().append(str);
 });
 
+$("#staff_addition_user_name").on("input propertychange change", function(){
+	var newUser = $("#staff_addition_user_name").val().trim();
+	if(newUser == ""){
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+		$(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
+		$(this).parent().next().empty().append(str);
+		return false;
+	}
+	var ifutureDT2__userDB = store.get("futureDT2__userDB");
+	var str;
+	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
+		ifutureDT2__userDB = futuredGlobal.S_getAdmin_staff();
+	}
+
+	if(!_.isNil(_.find(ifutureDT2__userDB, function(vv, kk){
+		return kk == newUser;
+	}))){
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
+		$(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
+	}else{
+		str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+		staffSubmitBtn($(this), "addition");
+	}
+	$(this).parent().next().empty().append(str);
+});
+
+$("#staff_update_user_name").on("input propertychange change", function(){
+	var newUser = $("#staff_update_user_name").val().trim();
+	if(newUser == ""){
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+		$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
+		$(this).parent().next().empty().append(str);
+		return false;
+	}
+	var ifutureDT2__userDB = store.get("futureDT2__userDB");
+	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
+		ifutureDT2__userDB = futuredGlobal.S_getAdmin_staff();
+	}
+	var userArr = [];
+	_.forOwn(ifutureDT2__userDB, function(val, ke){
+		if(ke != adminState.staffUpdateUser) userArr.push(ke);
+	});
+	if(_.indexOf(userArr, newUser) > -1){
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
+		$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
+	}else{
+		str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+		staffSubmitBtn($(this), "update");
+	}
+	$(this).parent().next().empty().append(str);
+});
+
 $(".row .has-feedback .form-control-feedback").click(function(){
 	if($(this).is(".glyphicon-eye-open")){
 		$(this).prev().attr("type", "text");
@@ -1144,3 +1196,4 @@ $(".staff_authority_r_foot .btn-primary").click(function(){
 		adminState.staffHasSearch && ($("#search_button").trigger("click"));
 	}
 });
+

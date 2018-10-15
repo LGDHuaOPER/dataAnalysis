@@ -1,3 +1,11 @@
+var loginSwalMixin = swal.mixin({
+  	confirmButtonClass: 'btn btn-success',
+  	cancelButtonClass: 'btn btn-danger',
+  	buttonsStyling: true,
+	animation: false,
+	customClass: 'animated zoomIn'
+});
+
 var futureDT2Mock;
 var loginUserPassObj = store.get("futureDT2__userDB");
 
@@ -55,8 +63,6 @@ $(function(){
 			});
 		}
 	}
-
-	$("#login_password").trigger("input");
 });
 
 /*event handler*/
@@ -108,11 +114,43 @@ $(".button_div>button").click(function(){
 		newiuserObj.current_login.value = moment().format("YYYY-MM-DD HH:mm:ss");
 		futureDT2__session.expires = Date.now() + 1000*60*60;
 		futureDT2__session.data = newiuserObj;
-		store.set('futureDT2__session', futureDT2__session);
 		var item = {};
 		item[iuser] = newiuserObj;
 		store.set("futureDT2__userDB", _.assign(loginUserPassObj, item));
-		window.location.assign("index.html");
+
+		loginSwalMixin({
+		 	title: '是否用安全模式？',
+		 	text: "如果是在公用电脑，建议使用安全模式登录！",
+		 	type: 'info',
+		  	showCancelButton: true,
+		  	confirmButtonText: '是，使用！',
+		  	cancelButtonText: '否，不使用！',
+		  	reverseButtons: false
+		}).then(function(result) {
+		  if (result.value) {
+		  	store.set("futureDT2__session_classify", "sessionStorage");
+		  	try{
+		  		window.sessionStorage.setItem("futureDT2__sessionStorage", JSON.stringify(futureDT2__session));
+		  		store.set('futureDT2__session', futureDT2__session);
+		  		window.location.assign("index.html");
+		  	}catch{
+		  		loginSwalMixin({
+		  		 	title: '异常',
+		  		 	text: "您的浏览器不支持sessionStorage！",
+		  		 	type: 'warning',
+		  		 	showConfirmButton: false,
+					timer: 2000,
+		  		})
+		  	}
+		  } else if (
+		    // Read more about handling dismissals
+		    result.dismiss === swal.DismissReason.cancel
+		  ) {
+		  	store.set("futureDT2__session_classify", "localStorage");
+		  	store.set('futureDT2__session', futureDT2__session);
+		  	window.location.assign("index.html");
+		  }
+		});
 	}
 });
 
