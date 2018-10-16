@@ -105,20 +105,45 @@ span.glyphicon {
 }
 
 .section_in {
-	margin-left: 17%;
-	margin-right: 23%;
+	margin-left: 20%;
+	margin-right: 20%;
 }
 
-.thumbnail>img {
-	height: 200px;
+.thumbnail {
+	position: relative;
+	height: 300px;
+}
+
+.thumbnail[data-ipage="dataList"]>img {
+	margin-top: 60px;
+}
+
+.thumbnail[data-ipage="projectAnalysis"]>img {
+	margin-top: 41px;
+}
+
+.thumbnail[data-ipage="1"]>img {
+	margin-top: 26px;
 }
 
 .thumbnail h3, .thumbnail p {
 	text-align: center;
+	white-space: nowrap;
+}
+
+.thumbnail p {
+	font-size: 15px;
 }
 
 .section_in .thumbnail, .g_info_r_in span {
 	cursor: pointer;
+}
+
+.thumbnail .caption {
+	position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @media screen and (max-height: 500px) {

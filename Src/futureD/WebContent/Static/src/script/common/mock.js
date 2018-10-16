@@ -103,7 +103,7 @@
                 "data_format": {
                     "exegesis": "数据格式",
                     "value": "1",
-                    "detail": "1：EOULU标准数据；2：博达微数据；3：Excel格式；4：TXT数据格式"
+                    "detail": "0：EOULU标准数据；1：博达微数据；2：新Excel格式；3：TXT数据格式"
                 },
                 "gmt_create": {
                     "exegesis": "生成时间",

@@ -274,6 +274,19 @@
             }
             return returnVar;
         },
+        S_getFileSize: function(value){
+            if(null==value||value==''){
+                return "0 Bytes";
+            }
+            var unitArr = new Array("Bytes","KB","MB","GB","TB","PB","EB","ZB","YB");
+            var index=0,
+                srcsize = parseFloat(value);
+            index=Math.floor(Math.log(srcsize)/Math.log(1024));
+            var size =srcsize/Math.pow(1024,index);
+            //  保留的小数位数
+            size=size.toFixed(2);
+            return size+unitArr[index];
+        },
         
         // @URL处理类@
         // 设置URL，并跳转，@param isRead 是否只读，true为不跳转，只返回新url，false为跳转并返回新url

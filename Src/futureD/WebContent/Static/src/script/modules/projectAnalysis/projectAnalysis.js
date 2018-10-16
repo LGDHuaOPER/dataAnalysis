@@ -43,7 +43,6 @@ function getProjectAnalysisData(searchVal){
 				returnprojectAnalysisData = projectAnalysisData;
 			}else{
 				_.forEach(projectAnalysisData, function(v){
-					console.log(v)
 					_.forOwn(v, function(o){
 						if(String(o.value).indexOf(searchVal)>-1){
 							returnprojectAnalysisData.push(v);
@@ -239,12 +238,14 @@ $("#search_button").on("click", function(){
 	if(dataArr !== false){
 		projectAnalysisRenderData(dataArr);
 	}
-	$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
-		var iText = $(this).text();
-		var ireplace = "<b style='color:red'>"+isearch+"</b>";
-		var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
-		$(this).empty().html(iHtml);
-	});
+	if(isearch != ""){
+		$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
+			var iText = $(this).text();
+			var ireplace = "<b style='color:red'>"+isearch+"</b>";
+			var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
+			$(this).empty().html(iHtml);
+		});
+	}
 	projectAnalysisState.hasSearch = isearch == "" ? false : true;
 	return false;
 });
@@ -272,12 +273,12 @@ $(".g_body_rr_body_itemin").click(function(e){
 });
 
 $(".g_body_rr_body_btn>input").click(function(){
-	projectAnalysisSwalMixin({
-		title: '跳转页面异常',
-		text: "暂未开发！",
-		type: 'info',
-		showConfirmButton: false,
-		timer: 2500,
-	});
-	// window.location.assign("admin.html");
+	// projectAnalysisSwalMixin({
+	// 	title: '跳转页面异常',
+	// 	text: "暂未开发！",
+	// 	type: 'info',
+	// 	showConfirmButton: false,
+	// 	timer: 2500,
+	// });
+	window.location.assign("RF_SP2.html");
 });

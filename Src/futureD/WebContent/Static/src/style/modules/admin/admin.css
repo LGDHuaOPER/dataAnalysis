@@ -615,12 +615,6 @@ span.glyphicon {
 	display: none;
 }
 
-@media screen and (max-height: 500px) {
-    body {
-        min-height: 499px;
-    }
-}
-
 @media screen and (max-width: 768px) {
     .staff_authority {
         left: 0px;
@@ -631,4 +625,10 @@ span.glyphicon {
 	.staff_addition, .staff_update {
 	    left: 0px;
 	}
+}
+
+@media screen and (max-height: 500px) {
+    body {
+        min-height: 499px;
+    }
 }
