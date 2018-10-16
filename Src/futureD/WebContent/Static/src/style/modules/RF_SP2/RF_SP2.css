@@ -145,6 +145,14 @@ body {
 	-o-transform:rotate(90deg); 	/* Opera */
 }
 
+.g_bodyin_bodyin_bottom_l_itemin_sub {
+	display: none;
+}
+
+.g_bodyin_bodyin_bottom_l_itemin_main.active+.g_bodyin_bodyin_bottom_l_itemin_sub {
+	display: block;
+}
+
 .g_bodyin_bodyin_bottom_l_itemin_subin {
 	padding: 0px 40px;
 	text-align: right;

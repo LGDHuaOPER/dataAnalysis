@@ -268,6 +268,12 @@ function searchRenderData(currentPage, isearch){
 
 /*page onload*/
 $(function(){
+	var winHeight = $(window).height();
+	if(winHeight<600){
+		winHeight = 600;
+	}
+	$("body").height(winHeight);
+	$(".g_bodyin_bodyin_bottom, .g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 200);
 	renderData(1, "onload", {});
 
 	// 分页元素ID（必填）

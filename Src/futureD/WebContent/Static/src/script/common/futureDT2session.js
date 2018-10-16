@@ -32,6 +32,7 @@
 		item[curUser] = iuserObj;
 		store.set("futureDT2__userDB", _.assign(futureDT2__userDB, item));
 		store.remove('futureDT2__session');
+		window.sessionStorage.removeItem("futureDT2__sessionStorage");
 		window.location.assign("login.html");
 	});
 
