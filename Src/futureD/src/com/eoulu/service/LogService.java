@@ -38,5 +38,7 @@ public interface LogService {
 	 * @return
 	 */
 	int countLog(String keyword);
+	
+	void delete();
 
 }

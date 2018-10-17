@@ -62,7 +62,35 @@ public class ParameterDao {
 		return flag;
 		
 	}
+	/**
+	 * 单条添加参数
+	 * @param conn
+	 * @param param
+	 * @return
+	 */
+	public static String insertParameter(Connection conn,Object[] param){
+		String sql = "insert into dm_wafer_parameter (wafer_id,parameter_name,parameter_unit,parameter_column,upper_limit,lower_limit) value (?,?,?,?,?,?)";
+		return db.operate(conn, sql, param)?"success":"晶圆参数添加失败！";
+		
+	}
+	/**
+	 * 单条添加参数
+	 * @param conn
+	 * @param param
+	 * @return
+	 */
+	public static String insertExcelParameter(Connection conn,Object[] param){
+		String sql = "insert into dm_wafer_parameter (wafer_id,parameter_name,parameter_unit,parameter_column) value (?,?,?,?)";
+		return db.operate(conn, sql, param)?"success":"晶圆参数添加失败！";
+		
+	}
 	
+	/**
+	 * 上下限
+	 * @param waferId  晶圆表主键
+	 * @param conn
+	 * @return
+	 */
 	public List<Map<String, Double>> getUpperAndLowerLimit(int waferId,Connection conn) {
 		String sql = "select upper_limit,lower_limit from dm_wafer_parameter where wafer_id=? order by parameter_column asc";
 		PreparedStatement ps;
@@ -84,43 +112,27 @@ public class ParameterDao {
 		return list;
 	}
 	
-	public String insertMapParameter(MapParameterDO map){
-		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_id,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	public String insertMapParameter(Connection conn,MapParameterDO map){
+		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		String flag = "success";
-		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferId(),map.getWaferNumber()};
-		flag = db.operate(sql, param)?flag:"晶圆的Map参数添加失败！";
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		flag = db.operate(conn,sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
 	
-	public static String updateMapParameter(Connection conn ,int waferId,String waferNumber){
-		String sql = "update dm_wafer_map_parameter set wafer_id="+waferId+" where wafer_id=0 and wafer_number='"+waferNumber+"'";
-		PreparedStatement ps;
+	public static String updateMapParameter(Connection conn ,MapParameterDO map){
+		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=?";
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
 		String flag = "success";
-		try {
-			ps = conn.prepareStatement(sql);
-			if(ps.executeUpdate()<1){
-				flag = "晶圆的Map参数存储失败！";
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			flag = "晶圆的Map参数存储失败！";
-		}
-		
+		flag = db.operate(conn,sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
 	
-	public static void main(String[] args) {
-		Connection conn = db.getConnection();
+	public boolean getMapParameter(Connection conn,String waferNO){
+		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? ";
+		Object result = db.queryResult(conn, sql,new Object[]{waferNO});
+		return result==null?false:true;
 		
-		try {
-			conn.setAutoCommit(false);
-			String flag = updateMapParameter(conn, 24, "test080607");
-			System.out.println(flag);
-			conn.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/**
@@ -129,14 +141,16 @@ public class ParameterDao {
 	 * @param waferId
 	 * @return
 	 */
-	public static List<String> getEightParameter(Connection conn,int waferId)
+	public  List<String> getEightParameter(Connection conn,String waferNO)
 	{
 		List<String> Parameter=new ArrayList<>();
 		String DirectionX=null,DirectionY=null,SetCoorX=null,SetCoorY=null,StandCoorDieX=null,StandCoorDieY = null ;
 		int SetCoorDieX=0,SetCoorDieY=0;
 		double Diameter=0,DieSizeX=0,DieSizeY = 0,FlatLength = 0;
 		try {
-			String sql="select direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,diameter,die_x_max,die_y_max,cutting_edge_length from dm_wafer_map_parameter where wafer_id="+waferId;
+			String sql="select direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,diameter,die_x_max,die_y_max,cutting_edge_length from dm_wafer_map_parameter where wafer_number='"+waferNO+"'";
+			System.out.println("waferNO"+waferNO);
+			System.out.println(sql);
 			PreparedStatement psm = conn.prepareStatement(sql);
 			ResultSet rs = psm.executeQuery(sql);
 			while(rs.next()){
@@ -175,4 +189,63 @@ public class ParameterDao {
 		return Parameter;
 	}
 	
+	
+	public static List<String> getEightParameter(String waferNumber){
+		String	sql = "select direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,diameter,die_x_max,die_y_max,cutting_edge_length from dm_wafer_map_parameter where wafer_id=0 and wafer_number='"+waferNumber+"'";
+	
+		List<String> Parameter=new ArrayList<>();
+		String DirectionX=null,DirectionY=null,SetCoorX=null,SetCoorY=null,StandCoorDieX=null,StandCoorDieY = null ;
+		int SetCoorDieX=0,SetCoorDieY=0;
+		double Diameter=0,DieSizeX=0,DieSizeY = 0,FlatLength = 0;
+		Connection conn = db.getConnection();
+		try {
+			
+			PreparedStatement psm = conn.prepareStatement(sql);
+			ResultSet rs = psm.executeQuery(sql);
+			while(rs.next()){
+				DirectionX=rs.getString(1);
+				DirectionY=rs.getString(2);
+				SetCoorX=rs.getString(3);
+				SetCoorY=rs.getString(4);
+				SetCoorDieX=rs.getInt(5);
+				SetCoorDieY=rs.getInt(6);
+				StandCoorDieX=rs.getString(7);
+				StandCoorDieY=rs.getString(8);
+				Diameter=rs.getDouble(9);
+				DieSizeX=rs.getDouble(10);
+				DieSizeY=rs.getDouble(11);
+				FlatLength=rs.getDouble(12);
+				break;
+			}
+			if(rs!=null){
+				rs.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		Parameter.add(DirectionX);
+		Parameter.add(DirectionY);
+		Parameter.add(SetCoorX);
+		Parameter.add(SetCoorY);
+		Parameter.add(String.valueOf(SetCoorDieX));
+		Parameter.add(String.valueOf(SetCoorDieY));
+		Parameter.add(StandCoorDieX);
+		Parameter.add(StandCoorDieY);
+		Parameter.add(String.valueOf(Diameter));
+		Parameter.add(String.valueOf(DieSizeX));
+		Parameter.add(String.valueOf(DieSizeY));
+		Parameter.add(String.valueOf(FlatLength));
+		return Parameter;
+	}
+	
+	public boolean delete(Connection conn,int waferId){
+		String sql = "delete from dm_wafer_parameter where wafer_id=?";
+		return db.operate(conn, sql, new Object[]{waferId});
+	}
 }

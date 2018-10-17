@@ -42,7 +42,7 @@ public class LogDao {
 			sql += " where user_name like ? or  page like ? or description like ? or location like ?";
 			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%",(page.getCurrentPage()-1)*page.getRow(),page.getCurrentPage()*page.getRow()};
 		}
-		sql += " limit ?,?";
+		sql += "  order by gmt_create desc limit ?,?";
 		return db.queryToList(sql,param );
 	}
 	
@@ -66,8 +66,20 @@ public class LogDao {
 	 */
 	public List<Map<String,Object>> listLog(String logIdStr){
 		String sql = "select user_name,page,description,substring_index(gmt_create,' ',1) operate_date,substring_index(gmt_create,' ',-1) operate_time,ip_address,location "
-				+ " from dm_log where log_id in ("+logIdStr+")";
+				+ " from dm_log ";
+		if(!"".equals(logIdStr)){
+			sql += " where log_id in ("+logIdStr+") ";
+		}
+		sql += " order by gmt_create desc ";
 		return db.queryToList(sql, null);
+	}
+	/**
+	 * 删除
+	 */
+	public void delete(){
+		String sql = "delete from dm_log where gmt_create<date_sub(sysdate(),interval 30 day)";
+		boolean flag = db.operate(sql, null);
+		System.out.println("delete result:"+flag);
 	}
 	
 	

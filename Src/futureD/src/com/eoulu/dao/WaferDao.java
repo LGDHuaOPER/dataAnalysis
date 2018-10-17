@@ -7,6 +7,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,31 +25,20 @@ import com.eoulu.util.DataBaseUtil;
 public class WaferDao {
 
 	private static DataBaseUtil db = new DataBaseUtil();
+	private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	/**
 	 * 数据列表分页,模糊查询
 	 * @param page
 	 * @return
 	 */
 	public List<Map<String,Object>> listWafer(PageDTO page,String keyword,String Parameter){
-		String sql = "select wafer_id,wafer_number,product_category,lot_number,qualified_rate,left(test_end_date,10)test_end_date,dm_user.user_name test_operator,description from dm_wafer "
+		String sql = "select wafer_id,wafer_number,device_number,lot_number,qualified_rate,left(test_end_date,10)test_end_date,dm_user.user_name test_operator,description from dm_wafer "
 				+ "left join dm_user on dm_user.user_id=dm_wafer.test_operator "
 				+ "where delete_status=0 ";
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += " and (";
-			String[] params = Parameter.split(",");
-			param = new Object[params.length+2];
-			for(int i=0;i<params.length;i++) {
-				sql+=params[i]+" like ? ";	
-				if(i==params.length-1) {
-					sql+=") ";
-				}else {
-					sql+="or ";
-				}
-				param[i]="%"+keyword+"%";
-			}
-			param[params.length] = (page.getCurrentPage()-1)*page.getRow();
-			param[params.length+1]=page.getRow();
+			sql += " and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
+			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		}
 		sql += "  order by gmt_modified desc limit ?,? ";
 		
@@ -58,20 +50,14 @@ public class WaferDao {
 	 * @return
 	 */
 	public int countWafer(String keyword,String Parameter){
-		String sql = "select count(*) from dm_wafer where delete_status=0  ";
+		String sql = "select count(*) from dm_wafer   "
+				+ "left join dm_user on dm_user.user_id=dm_wafer.test_operator "
+				+ " where delete_status=0 ";
 		Object[] param = null;
 		if(!"".equals(keyword)){
-			sql += " and (";
-			String[] params = Parameter.split(",");
-			param = new Object[params.length];
-			for(int i=0;i<params.length;i++) {
-				sql+=params[i]+" like ? ";	
-				if(i==params.length-1) {
-					sql+=") ";
-				}else {
-					sql+="or ";
-				}
-				param[i]="%"+keyword+"%";
+			if(!"".equals(keyword)){
+				sql += " and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
+				param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%"};
 			}
 		}
 		Object result = db.queryResult(sql, param);
@@ -79,18 +65,19 @@ public class WaferDao {
 	}
 	
 	public int getWaferID(Connection conn,String waferNumber,String dieType){
-		String sql = "select wafer_id from dm_wafer where wafer_number=? and die_type=?";
+		String sql = "select wafer_id from dm_wafer where wafer_number=? and die_type=? and delete_status=0";
 		Object[] param = new Object[]{waferNumber,dieType};		
 		Object result = db.queryResult(conn,sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
 	public int getMaxWaferID(Connection conn,String waferNumber){
-		String sql = "select max(wafer_id) wafer_id from dm_wafer where wafer_number=?";
+		String sql = "select max(wafer_id) wafer_id from dm_wafer where wafer_number=? and delete_status=0";
 		Object[] param = new Object[]{waferNumber};		
 		Object result = db.queryResult(conn,sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
+	
 	
 	/**
 	 * 晶圆添加
@@ -100,8 +87,8 @@ public class WaferDao {
 	 */
 	public String insert(Connection conn,WaferDO wafer){
 		String sql = "insert into dm_wafer (wafer_number,die_type,device_number,lot_number,product_category,wafer_file_name,qualified_rate,"
-				+ "test_start_date,test_end_date,test_operator,archive_user,description,delete_status,total_test_quantity,data_format,gmt_create,gmt_modified) "
-				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "test_start_date,test_end_date,test_operator,archive_user,description,total_test_quantity,data_format,gmt_create,gmt_modified,delete_status) "
+				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)";
 		PreparedStatement ps = null;
 		String flag = "";
 		try {
@@ -118,11 +105,10 @@ public class WaferDao {
 			ps.setObject(10, wafer.getTestOperator());
 			ps.setObject(11, wafer.getArchiveUser());
 			ps.setObject(12, wafer.getDescription());
-			ps.setObject(13, wafer.getDeleteStatus());
-			ps.setObject(14, wafer.getTotalTestQuantity());
-			ps.setObject(15, wafer.getDataFormat());
-			ps.setObject(16, wafer.getGmtCreate());
-			ps.setObject(17, wafer.getGmtModified());
+			ps.setObject(13, wafer.getTotalTestQuantity());
+			ps.setObject(14, wafer.getDataFormat());
+			ps.setObject(15, wafer.getGmtCreate());
+			ps.setObject(16, wafer.getGmtModified());
 			int row = ps.executeUpdate();
 			flag = row>0?"success":"晶圆添加失败！";
 		} catch (SQLException e) {
@@ -138,8 +124,8 @@ public class WaferDao {
 	 * @return
 	 */
 	public boolean update(WaferDO wafer){
-		String sql = "update dm_wafer set product_category=?,test_operator=?,test_end_date=?,description=? where wafer_id=?";
-		Object[] param = new Object[]{wafer.getProductCategory(),wafer.getTestOperator(),wafer.getTestEndDate(),wafer.getDescription(),wafer.getWaferId()};
+		String sql = "update dm_wafer set product_category=?,test_operator=?,test_end_date=?,description=?,gmt_modified=? where wafer_id=?";
+		Object[] param = new Object[]{wafer.getProductCategory(),wafer.getTestOperator(),wafer.getTestEndDate(),wafer.getDescription(),df.format(new Date()),wafer.getWaferId()};
 		return db.operate(sql, param);
 	}
 	/**
@@ -147,12 +133,41 @@ public class WaferDao {
 	 * @param waferId
 	 * @return
 	 */
-	public boolean remove(String waferId){
+	public boolean remove(String waferId,int deleteStatus){
 		if("".equals(waferId)){
 			return false;
 		}
-		String sql = "update dm_wafer set delete_status=1 where wafer_id in ("+waferId+") ";
+		String sql = "update dm_wafer set delete_status="+deleteStatus+" where wafer_id in ("+waferId+") ";
 		return db.operate(sql, null);
+	}
+	
+	public boolean delete(Connection conn,int waferId){
+		String sql = "delete from dm_wafer where wafer_id=?";
+		return db.operate(conn, sql, new Object[]{waferId});
+	}
+	/**
+	 * 删除垃圾数据
+	 * @param conn
+	 * @return
+	 */
+	public boolean delete(Connection conn){
+		String sql = "delete from dm_wafer where delete_status=2";
+		return db.operate(conn, sql, null);
+	}
+	
+	public List<String> getJunkWaferId(Connection conn){
+		List<String> ls = new ArrayList<>();
+		String sql = "select wafer_id from dm_wafer where delete_status=2";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				ls.add(rs.getString(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ls;
 	}
 	
 	/**
@@ -164,9 +179,18 @@ public class WaferDao {
 		return db.queryToList(sql, null);
 	}
 	
-	
+	public String getWaferNO(int waferId){
+		String sql = "select wafer_number from dm_wafer where wafer_id=?";
+		Object result = db.queryResult(sql, new Object[]{waferId});
+		return result==null?"":result.toString();
+		
+	}
+	public List<Map<String,Object>> getSecondaryInfo(Connection conn,String waferNO){
+		String sql = "select computer_name,tester,total_test_time from dm_wafer_secondary_info where wafer_number=?";
+		return db.queryToList(conn, sql, new Object[]{waferNO});
+	}
 	public String insertSecondaryInfo(Connection conn,Object[] param){
-		String sql = "insert into dm_wafer_secondary_info (wafer_id,computer_name,tester,total_test_time) value (?,?,?,?)";
+		String sql = "insert into dm_wafer_secondary_info (wafer_number,computer_name,tester,total_test_time) value (?,?,?,?)";
 		PreparedStatement ps = null;
 		String flag = "";
 		try {
@@ -183,10 +207,29 @@ public class WaferDao {
 		
 		return flag;
 	}
+	
+	public String updateSecondaryInfo(Connection conn,Object[] param){
+		String sql = "update dm_wafer_secondary_info set computer_name=?,tester=?,total_test_time=? where wafer_number=?";
+		PreparedStatement ps = null;
+		String flag = "";
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setObject(1, param[1]);
+			ps.setObject(2, param[2]);
+			ps.setObject(3, param[3]);
+			ps.setObject(4, param[0]);
+			int row = ps.executeUpdate();
+			flag = row>0?"success":"晶圆次要信息添加失败！";
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}
 
 	/**
 	 * 判断晶圆是否存在
-	 * @param conn2
+	 * @param conn
 	 * @param waferid
 	 * @return
 	 * @throws SQLException
@@ -205,6 +248,22 @@ public class WaferDao {
 		return flag;
 	}
 	
+	public  int queryWaferinfo(String waferNO,String lot,String device,String dieType){
+		String sql="select wafer_id from dm_wafer where wafer_number=? and lot_number=? and device_number=? and die_type=?";
+		Object result = db.queryResult(sql, new Object[]{waferNO,lot,device,dieType});
+		return result==null?0:Integer.parseInt(result.toString());
+	}
+	public  boolean queryWaferinfo(String waferNO){
+		String sql="select wafer_number from dm_wafer where wafer_number=?";
+		return db.queryResult(sql, new Object[]{waferNO})==null?false:true;
+	}
+	
+	
+	public Map<String,Object> getFile(Connection conn,int waferId){
+		String sql =" select wafer_file_name,wafer_number from dm_wafer where wafer_id=?";
+		List<Map<String,Object>> result = db.queryToList(conn,sql, new Object[]{waferId});
+		return result.size()>0?result.get(0):null;
+	}
 	
 	
 }

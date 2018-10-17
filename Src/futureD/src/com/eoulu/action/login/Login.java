@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import com.eoulu.action.Log.iPLocation;
 import com.eoulu.service.UserService;
+import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.UserServiceImpl;
 import com.eoulu.util.Md5Util;
 import com.google.gson.Gson;
@@ -49,7 +50,6 @@ public class Login extends HttpServlet {
 		String userName = request.getParameter("userName")==null?"":request.getParameter("userName");
 		String password = request.getParameter("password")==null?"":request.getParameter("password");
 		password = Md5Util.md5(password);
-	System.out.println(userName+"----"+password);
 		UserService service = new UserServiceImpl();
 		String compare = "";
 		if(!"".equals(userName)){
@@ -58,9 +58,6 @@ public class Login extends HttpServlet {
 		}
 		String result = "";
 		if(!"".equals(userName) && !"".equals(password) && compare.equals(password)){
-			System.out.println(!"".equals(userName));
-			System.out.println(!"".equals(password));
-			System.out.println(compare.equals(password));
 			result = "success";
 			HttpSession session = request.getSession();
 			session.setAttribute("userName", userName);
@@ -72,6 +69,7 @@ public class Login extends HttpServlet {
 		}else{
 			result = "fail";
 		}
+		new LogServiceImpl().delete();
 		response.getWriter().write(new Gson().toJson(result));
 	}
 	

@@ -37,14 +37,13 @@ public class DataList extends HttpServlet {
 		
 		WaferService service = new WaferServiceImpl();
 		PageDTO page = new PageDTO();
-		page.setCurrentPage(currentPage);
 		page.setRow(10);
 		page.setPageCount(service.countWafer(keyword,Parameter));
+		page.setCurrentPage(currentPage<page.getTotalPage()?currentPage:1);
 		request.setAttribute("waferList", service.listWafer(page, keyword,Parameter));
 		if(!"".equals(keyword)){
 			request.setAttribute("keyword", keyword);
 		}
-		
 		request.setAttribute("currentPage", currentPage);
 		request.setAttribute("totalPage", page.getTotalPage());
 		request.setAttribute("userList", service.getAllUser());

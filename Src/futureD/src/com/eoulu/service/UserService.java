@@ -114,5 +114,19 @@ public interface UserService {
 	  * @return
 	  */
 	 String getUserId(String userName);
+	 /**
+	  * 用户名
+	  * @param userId
+	  * @return
+	  */
+	 String getUserName(int userId);
+	 
+	 /**
+	  * 用户修改密码
+	  * @param password
+	  * @param userName
+	  * @return
+	  */
+	 boolean updatePassword(String password,String userName);
 
 }

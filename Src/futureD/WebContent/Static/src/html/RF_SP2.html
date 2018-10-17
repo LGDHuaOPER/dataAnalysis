@@ -8,7 +8,6 @@
 	<title>futureD工程分析-RF-SP2分析</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/awesomplete_all.css" type="text/css">
@@ -32,6 +31,7 @@
 					  	<li><a href="projectAnalysis.html">工程分析</a></li>
 					  	<li class="active">RF-SP2分析</li>
 					</ol>
+					<span class="glyphicon glyphicon-stats" aria-hidden="true" title="进入数据统计功能"></span>
 				</div>
 			</div>
 			<div class="g_bodyin_body">
@@ -42,15 +42,8 @@
 							<div class="g_bodyin_bodyin_top_wrap_m">
 								<div class="g_bodyin_bodyin_top_wrap_m_in">
 									<ul>
-										<li>S2P</li>
-										<li class="active">CF</li>
-										<li>BandWidth</li>
-										<li>VSWR</li>
-										<li>VSWR</li>
-										<li>VSWR</li>
-										<li>VSWR</li>
-										<li><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>
 									</ul>
+									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 								</div>
 							</div>
 							<div class="g_bodyin_bodyin_top_wrap_r"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
@@ -58,56 +51,86 @@
 					</div><!-- g_bodyin_bodyin_top end -->
 					<div class="g_bodyin_bodyin_bottom">
 						<div class="g_bodyin_bodyin_bottom_l">
-							<div class="g_bodyin_bodyin_bottom_l_item">
-								<div class="g_bodyin_bodyin_bottom_l_itemin">
-									<div class="g_bodyin_bodyin_bottom_l_itemin_main active">32412<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-									<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
+							<div class="g_bodyin_bodyin_bottom_l_intop">
+								<!-- <div class="g_bodyin_bodyin_bottom_l_item">
+									<div class="g_bodyin_bodyin_bottom_l_itemin">
+										<div class="g_bodyin_bodyin_bottom_l_itemin_main">WaferID01.csv<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+										<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
+											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1-0-RF.S2P</div>
+											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">2-0-RF.S2P</div>
+											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">3-0-RF.S2P</div>
+											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">4-0-RF.S2P</div>
+											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">5-0-RF.S2P</div>
+										</div>
 									</div>
-								</div>
-							</div>
-							<div class="g_bodyin_bodyin_bottom_l_item">
-								<div class="g_bodyin_bodyin_bottom_l_itemin">
-									<div class="g_bodyin_bodyin_bottom_l_itemin_main">32412<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-									<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-									</div>
-								</div>
-							</div>
-							<div class="g_bodyin_bodyin_bottom_l_item">
-								<div class="g_bodyin_bodyin_bottom_l_itemin">
-									<div class="g_bodyin_bodyin_bottom_l_itemin_main">32412<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-									<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-									</div>
-								</div>
-							</div>
-							<div class="g_bodyin_bodyin_bottom_l_item">
-								<div class="g_bodyin_bodyin_bottom_l_itemin">
-									<div class="g_bodyin_bodyin_bottom_l_itemin_main active">32412<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-									<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1</div>
-									</div>
-								</div>
-							</div>
+								</div> -->
+							</div><!-- g_bodyin_bodyin_bottom_l_intop end -->
+							<div class="g_bodyin_bodyin_bottom_l_inbottom"><input type="checkbox">全选/全不选</div>
 						</div><!-- g_bodyin_bodyin_bottom_l end -->
-						<div class="g_bodyin_bodyin_bottom_r">2</div>
+						<div class="g_bodyin_bodyin_bottom_r">
+							<div class="container-fluid">
+								<div class="row">
+									<div class="col-sm-12 col-md-6 col-lg-6">
+										<div class="chartWarp" id="picture_box1">
+											<div id="picture1top" class="picturetop"></div>
+											<div id="picture1bottom" class="picturebottom">
+												<div class="pictureline">
+													<p></p>
+												</div>
+												<div class="smithdata">
+													<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
+													<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								  	<div class="col-sm-12 col-md-6 col-lg-6">
+								  		<div class="chartWarp" id="picture_box2" data-iclassify="S12" data-iflag="initial">
+								  			<div id="picture2top" class="picturetop"></div>
+								  			<div id="picture2bottom" class="picturebottom">
+								  			<div class="pictureline">
+								  					<p></p>
+								  				</div>
+								  				<div class="smithdata">
+								  					<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S12</span>)</p>
+								  					<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+								  				</div>
+								  			</div>
+								  		</div><!-- chartWarp end -->
+								  	</div>
+								</div><!-- row end -->
+								<div class="row">
+									<div class="col-sm-12 col-md-6 col-lg-6">
+										<div class="chartWarp" id="picture_box3" data-iclassify="S21" data-iflag="initial">
+											<div id="picture3top" class="picturetop"></div>
+											<div id="picture3bottom" class="picturebottom">
+											<div class="pictureline">
+													<p></p>
+												</div>
+												<div class="smithdata">
+													<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S21</span>)</p>
+													<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+												</div>
+											</div>
+										</div><!-- chartWarp end -->
+									</div>
+								  	<div class="col-sm-12 col-md-6 col-lg-6">
+								  		<div class="chartWarp" id="picture_box4">
+								  			<div id="picture4top" class="picturetop"></div>
+								  			<div id="picture4bottom" class="picturebottom">
+								  				<div class="pictureline">
+								  					<p></p>
+								  				</div>
+								  				<div class="smithdata">
+								  					<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S22</span>)</p>
+								  					<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+								  				</div>
+								  			</div>
+								  		</div><!-- chartWarp end -->
+								  	</div>
+								</div>
+							</div><!-- container-fluid end -->
+						</div>
 					</div><!-- g_bodyin_bodyin_bottom end -->
 				</div><!-- g_bodyin_bodyin end -->
 			</div>
@@ -245,7 +268,6 @@
 	<script src="../script/libs/store.legacy.min.js"></script>
 	<script src="../script/libs/moment-with-locales.min.js"></script>
 	<script src="../script/common/futureDT2session.js"></script>
-	<script src="../script/common/pagination.min.js"></script>
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 	<script src="../script/libs/awesomplete.min.js"></script>
@@ -253,5 +275,11 @@
 	<script src="../script/common/mock.js"></script>
 	<script src="../script/libs/progressbar.min.js"></script>
 	<script src="../script/modules/RF_SP2/RF_SP2.js"></script>
+
+	<script src="../script/libs/newhighcharts.js"></script>	
+	<script src="../script/libs/drawingSmith.js"></script>
+	<script src="../script/libs/highcharts-axis-arrow.js"></script>
+	<!-- <script src="../script/libs/waferdata.js"></script> -->
+	<script src="../script/modules/RF_SP2/RF_SP2_render.js"></script>
 </body>
 </html>

@@ -686,6 +686,8 @@ $(document).on("click", ".g_bodyin_bodyin_body tbody td.not_search .glyphicon.gl
   		animation: false,
     	customClass: 'animated zoomIn'
 	});
+	/*swal.clickConfirm();
+	swal.clickCancel();*/
 	swalWithBootstrapButtons({
 	  title: '确定删除吗？',
 	  text: "删除后将放入回收站，点击刷新按钮可以重置数据！",

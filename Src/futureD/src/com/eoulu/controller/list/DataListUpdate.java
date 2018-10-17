@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.entity.WaferDO;
 import com.eoulu.service.WaferService;
+import com.eoulu.service.impl.LogServiceImpl;
+import com.eoulu.service.impl.UserServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.google.gson.Gson;
 
@@ -41,17 +43,22 @@ public class DataListUpdate extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		WaferService service = new WaferServiceImpl();
 		String productCategory = request.getParameter("productCategory")==null?"":request.getParameter("productCategory").trim();
-		int testOperator = request.getParameter("testOperator")==null?0:Integer.parseInt(request.getParameter("testOperator"));
 		String testEndDate = request.getParameter("testEndDate")==null?"":request.getParameter("testEndDate");
 		String description = request.getParameter("description")==null?"":request.getParameter("description").trim();
 		int waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
+		String userName = request.getSession().getAttribute("userName").toString();
+		int userId = Integer.parseInt(new UserServiceImpl().getUserId(userName));
 		WaferDO wafer = new WaferDO();
 		wafer.setDescription(description);
 		wafer.setTestEndDate(testEndDate);
-		wafer.setTestOperator(testOperator);
+		wafer.setTestOperator(userId);
 		wafer.setProductCategory(productCategory);
 		wafer.setWaferId(waferId);
-		response.getWriter().write(new Gson().toJson(service.update(wafer)));
+		boolean flag = service.update(wafer);
+		if(flag){
+			new LogServiceImpl().insertLog(userName, "数据列表", "修改了晶圆"+service.getWaferNO(waferId), request.getSession());
+		}
+		response.getWriter().write(new Gson().toJson(flag));
 		
 	}
 

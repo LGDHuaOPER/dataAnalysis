@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.eoulu.util.DataBaseUtil;
+
 /**
  * @author mengdi
  *
@@ -15,6 +17,7 @@ import java.util.List;
  */
 public class SmithDao {
 
+	private DataBaseUtil db = new DataBaseUtil();
 	/**
 	 * 添加Smith数据
 	 * @param conn
@@ -50,5 +53,22 @@ public class SmithDao {
 		}
 		return flag;
 	}
+	
+	public boolean deleteSmithData(Connection conn,int waferId){
+		String sql = "delete from dm_smith_data where wafer_id=?";
+		return db.operate(conn, sql, new Object[]{waferId});
+	}
+	
+	public boolean deleteMarker(Connection conn,int waferId){
+		String sql = "delete from dm_marker_data where wafer_id=?";
+		return db.operate(conn, sql, new Object[]{waferId});
+	}
+	
+	
+	public boolean deleteMarkerCalculation(Connection conn,int waferId){
+		String sql = "delete from dm_marker_calculation where wafer_id=?";
+		return db.operate(conn, sql, new Object[]{waferId});
+	}
+	
 	
 }

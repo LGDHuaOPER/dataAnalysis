@@ -135,4 +135,13 @@ public class LogServiceImpl implements LogService{
 			
 	}
 
+	/* (non-Javadoc)
+	 * @see com.eoulu.service.LogService#delete()
+	 */
+	@Override
+	public void delete() {
+		dao.delete();
+
+	}
+
 }

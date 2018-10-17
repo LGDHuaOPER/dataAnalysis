@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.service.WaferService;
+import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.google.gson.Gson;
 
@@ -33,8 +34,11 @@ public class DataListRemove extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		WaferService service = new WaferServiceImpl();
 		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId");
-		
-		response.getWriter().write(new Gson().toJson(service.remove(waferId)));
+		boolean flag = service.remove(waferId);
+		if(flag){
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "数据列表", "删除晶圆"+service.getWaferNO(Integer.parseInt(waferId))+"至回收站", request.getSession());
+		}
+		response.getWriter().write(new Gson().toJson(flag));
 	
 	}
 

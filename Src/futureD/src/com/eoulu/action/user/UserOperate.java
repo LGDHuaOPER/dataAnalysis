@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.entity.UserDO;
 import com.eoulu.service.UserService;
+import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.UserServiceImpl;
 import com.eoulu.transfer.PageDTO;
 import com.eoulu.util.BaseEncrypt;
@@ -66,10 +67,19 @@ public class UserOperate extends HttpServlet {
 		
 		if( userId == 0 ){
 			result = service.saveUser(user);
+			
 		}else{
 			result = service.updateUser(user)?"修改成功！":"修改失败！";
 		}
+		String description = "";
+		if("添加成功！".equals(result)){
+			description = "创建用户"+userName;
+		}
+		if("修改成功！".equals(result)){
+			description = "修改用户"+userName+"的信息";
+		}
 		
+		new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", description, request.getSession());
 		response.getWriter().write(new Gson().toJson(result));
 		
 	}

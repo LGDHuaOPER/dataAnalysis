@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.eoulu.service.UserService;
+import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.UserServiceImpl;
 import com.google.gson.Gson;
 
@@ -46,7 +47,11 @@ public class AuthorityModify extends HttpServlet {
 		UserService service = new UserServiceImpl();
 		String userId = request.getParameter("userId")==null?"0":request.getParameter("userId");
 		String authority = request.getParameter("authority")==null?"":request.getParameter("authority");
-		response.getWriter().write(new Gson().toJson(service.updateAuthority(authority, Integer.parseInt(userId))));
+		boolean flag = service.updateAuthority(authority, Integer.parseInt(userId));
+		if(flag){
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", "修改"+service.getUserName(Integer.parseInt(userId))+"的权限", request.getSession());
+		}
+		response.getWriter().write(new Gson().toJson(flag));
 	}
 
 }

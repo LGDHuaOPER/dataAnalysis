@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.service.UserService;
+import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.UserServiceImpl;
 import com.google.gson.Gson;
 
@@ -42,8 +43,11 @@ public class UserRemove extends HttpServlet {
 		int userId = request.getParameter("userId")==null?0:Integer.parseInt(request.getParameter("userId"));
 		
 		UserService service = new UserServiceImpl();
-		
-		response.getWriter().write(new Gson().toJson(service.remove(userId)));
+		boolean flag = service.remove(userId);
+		if(flag){
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", "删除用户"+service.getUserName(userId), request.getSession());
+		}
+		response.getWriter().write(new Gson().toJson(flag));
 		
 	}
 

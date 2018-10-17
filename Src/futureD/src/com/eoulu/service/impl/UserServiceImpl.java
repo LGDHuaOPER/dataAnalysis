@@ -152,6 +152,16 @@ public class UserServiceImpl implements UserService{
 	public String getUserId(String userName) {
 		return dao.getUserId(userName);
 	}
+
+	@Override
+	public String getUserName(int userId) {
+		return dao.getUserName(userId);
+	}
+
+	@Override
+	public boolean updatePassword(String password, String userName) {
+		return dao.updatePassword(password, userName);
+	}
 	
 	
 

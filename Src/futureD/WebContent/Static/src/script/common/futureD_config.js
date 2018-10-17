@@ -314,7 +314,19 @@
                 }
                 return setHref;
             }else{
-                console.warn("C_setURLParam参数paramObj不是一个对象");
+                console.warn("S_settingURLParam参数paramObj不是一个对象");
+            }
+        },
+        S_getLastStr: function(str, num){
+            if(this.S_isString(str)){
+                num = num || 1;
+                if(str.length<num){
+                    return str;
+                }else{
+                    return str.substring(str.length-num, str.length);
+                }
+            }else{
+                console.warn("S_getLastStr参数Str不是字符串");
             }
         },
 
@@ -326,6 +338,10 @@
         // 判断变量是否是对象
         S_isObject: function(o){
             return Object.prototype.toString.call(o) === '[object Object]';
+        },
+        // 判断对象是否是字符串
+        S_isString: function(obj){ 
+            return Object.prototype.toString.call(obj) === "[object String]";  
         }
         
     };
