@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 为移动设备添加 viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+	<title>futureD数据管理与数据分析</title>
+	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/modules/login/login.css" type="text/css">
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="login_pan">
+			<div class="login_panin">
+	    		<fieldset><legend>登录</legend>
+	    			<div class="container-fluid">
+	    				<div class="message_div">
+	    				</div>
+	    				<div class="form-group has-feedback">
+	    				  	<div class="input-group">
+	    				    	<span class="input-group-addon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></span>
+	    				    	<input type="text" class="form-control" id="login_user" aria-describedby="user_sr_only" placeholder="请输入账号" autocomplete="new-password">
+	    				  	</div>
+	    				  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+	    				  	<span id="user_sr_only" class="sr-only">账号</span>
+	    				</div>
+	    				<div class="form-group has-feedback">
+	    				  	<div class="input-group">
+	    				    	<span class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></span>
+	    				    	<input type="password" class="form-control" id="login_password" aria-describedby="password_sr_only" placeholder="请输入密码" autocomplete="new-password">
+	    				  	</div>
+	    				  	<span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span>
+	    				  	<span id="password_sr_only" class="sr-only">密码</span>
+	    				</div>
+	    				<div class="button_div">
+		    				<button type="button" class="btn btn-default" disabled="disabled">登录</button>
+	    				</div>
+	    				<div class="copy_div">
+	    					<span>版本号：V1.0.0.181008</span>
+	    				</div>
+	    			</div><!-- container-fluid end -->
+	    		</fieldset>
+			</div>
+		</div>
+	</div>
+	<script src="../script/libs/jquery-3.3.1.min.js"></script>
+	<script src="../script/libs/bootstrap.min.js"></script>
+	<script src="../script/libs/lodash.min.js"></script>
+	<script src="../script/libs/store.legacy.min.js"></script>
+	<script src="../script/libs/moment-with-locales.min.js"></script>
+	<script src="../script/libs/sweetalert2.min.js"></script>
+	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="../script/common/futureD_config.js"></script>
+	<script src="../script/common/mock.js"></script>
+	<script src="../script/modules/login/login.js"></script>
+</body>
+</html>

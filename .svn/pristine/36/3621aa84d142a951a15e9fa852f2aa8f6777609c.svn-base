@@ -1,4 +1,4 @@
-package com.eoulu.controller.list;
+package com.eoulu.action.list;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,14 +17,14 @@ import com.google.gson.Gson;
 /**
  * Servlet implementation class DataUpload
  */
-@WebServlet(description = "上传", urlPatterns = { "/DataUpload" })
-public class DataUpload extends HttpServlet {
+@WebServlet(description = "上传", urlPatterns = { "/UploadFile" })
+public class UploadFile extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DataUpload() {
+    public UploadFile() {
         super();
     }
 
@@ -44,14 +44,12 @@ public class DataUpload extends HttpServlet {
 		FileUtil util = new FileUtil();
 		String fileName = null;
 		Map<String, Object> PathresultMap=util.getPath();
-		String temp=(String) PathresultMap.get("temp");
-		String tempPath =(String) PathresultMap.get("tempPath");
-	    File file01 = (File) PathresultMap.get("file01");//缓存文件
-	    fileName = util.getForm(file01, request, fileName, tempPath);
-	    Map<String,String> map = new HashMap<>();
-	    map.put("fileName", fileName);
-	    map.put("tempPath", temp);
-	    map.put("filePath", tempPath+"\\"+fileName);
+		String temp=(String) PathresultMap.get("temp"),
+				tempPath =(String) PathresultMap.get("tempPath");
+		//缓存文件
+	    File file01 = (File) PathresultMap.get("file01");
+	    //key:文件名；value：文件路径
+	    Map<String,String> map  = util.getFormByProgress(file01, request, tempPath);
 		response.getWriter().write(new Gson().toJson(map));
 	}
 

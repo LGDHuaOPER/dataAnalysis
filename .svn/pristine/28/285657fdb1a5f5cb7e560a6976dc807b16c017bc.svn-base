@@ -1,8 +1,9 @@
 /**
  * 
  */
-package com.eoulu.service;
+package com.eoulu.parser;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,12 +23,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
+
 import org.apache.tools.ant.taskdefs.Zip;
 
 import com.eoulu.dao.ParameterDao;
 import com.eoulu.dao.WaferDao;
 import com.eoulu.entity.MapParameterDO;
 import com.eoulu.exception.ExceptionLog;
+import com.eoulu.service.ReadPMSFileService;
+import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.eoulu.transfer.FileFilterTool;
 import com.eoulu.util.DataBaseUtil;
@@ -40,18 +45,10 @@ import com.eoulu.util.FileUtil;
  *
  * 
  */
-public class FileParser {
-	private static List<String> suffix = null; 
-	static{
-		suffix = new ArrayList<>();
-		suffix.add(".csv");
-		suffix.add(".CSV");
-		suffix.add(".pms");
-		suffix.add(".PMS");
-		suffix.add(".S2P");
-		suffix.add(".s2p");
-		suffix.add(".xlsx");
-	}
+public class ZipFileParser {
+	
+	private static boolean fileType = false;
+	
 	public static ArrayList<String> filelist = new ArrayList<String>();
 	// zip压缩文件中 上传失败的CSV文件,map文件 和 excel文件
 	public static ArrayList<String> faileCSV = new ArrayList<String>();
@@ -65,23 +62,26 @@ public class FileParser {
 	public static int Mapnum = 0;
 	// Excel总个数
 	public static int Excelnum = 0;
-	
+	private static MapParameterDO mapDO = null;
+	private static String logWafer = "";
 	public static void main(String[] args) {
-		String tempPath = "E:";
-		String fileName = "lotidtest.zip";
+		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\20180709-futureD.zip";
+		String fileName = "20180709-futureD.zip";
 		String temp = "E:/test";
 		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
 		String productCatagory="1";
 		String testOperator="Admin";
-		String description="cesghi";
+		String description="测试Smith";
 		String currentUser="TEST";
 		String dataFormat = "0";
-		System.out.println(Zip(tempPath, fileName, temp, filename2, true, productCatagory, testOperator, description, currentUser, dataFormat));
-		
+		long time = System.currentTimeMillis();
+		Map<String, Object> map = Zip(filePath, temp, filename2, productCatagory, description, currentUser, dataFormat, "", 0);
+		System.out.println(System.currentTimeMillis()-time);
+		System.out.println(map);
 	}
 
-	public static Map<String, Object> Zip(String tempPath, String fileName, String temp, String filename2, Boolean flag,
-			String productCatagory, String testOperator, String description, String currentUser, String dataFormat) {
+	public static Map<String, Object> Zip(String filePath, String temp, String filename2,String productCategory, String description, String currentUser,
+			String dataFormat,String sessionId,int interval) {
 		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
 		String filename = "";// 上传失败的CSV、Map、Excel文件名
 		String status = "";
@@ -89,25 +89,36 @@ public class FileParser {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		// 用户上传的是一个压缩包
 		// 若是一个文件夹。
-		File file1 = FileUtil.unZipFiles(tempPath + "\\" + fileName, temp + "\\" + filename2);
+		File file1 = FileUtil.unZipFiles(filePath, temp + "\\" + filename2);
 		System.out.println(file1.getName());
-		if (!"0".equals(dataFormat)) {
-			resultMap.put("flag", false);
-			resultMap.put("status", "上传的文件与选择的格式不一致！");
+//		if ("0".equals(dataFormat)) {
+//			resultMap.put("flag", false);
+//			
+//			return resultMap;
+//		}
+		ReadPMSFileService pmsService = new ReadPMSFileService();
+		if(pmsService.isContains(file1.getAbsolutePath(), "pms")){
+			status = pmsService.getPMSFiles(file1.getAbsolutePath(),  productCategory,currentUser, description, dataFormat, sessionId, interval);
+			resultMap.put("status", status);
 			return resultMap;
 		}
-		System.out.println("EOULU");
+		if(!"0".equals(dataFormat)){
+			resultMap.put("status", "文件与数据格式不一致！");
+			return resultMap;
+		}
+		mapDO = null;
+		logWafer = "";
 		// 导入map
-		getFiles(file1.getAbsolutePath(), flag, productCatagory, testOperator, description, tempPath, temp, filternum,
-				currentUser, dataFormat, fileName);
+		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
+				currentUser, dataFormat);
 		// 导入excel文件
 		filternum = 2;
-		getFiles(file1.getAbsolutePath(), flag, productCatagory, testOperator, description, tempPath, temp, filternum,
-				currentUser, dataFormat, fileName);
+		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
+				currentUser, dataFormat);
 		// 导入CSV文件
 		filternum = 3;
-		getFiles(file1.getAbsolutePath(), flag, productCatagory, testOperator, description, tempPath, temp, filternum,
-				currentUser, dataFormat, fileName);
+		getFiles(file1.getAbsolutePath(), productCategory, description, filternum,
+				currentUser, dataFormat);
 		for (int i = 0; i < filelist.size(); i++) {
 			if (!(filelist.get(i).endsWith(".CSV") || filelist.get(i).endsWith(".csv")
 					|| filelist.get(i).endsWith(".zip") || filelist.get(i).endsWith(".map")
@@ -123,7 +134,7 @@ public class FileParser {
 				filename = filename + faileCSV.get(i) + ",";
 			}
 		}
-		flag = CSVnum > 0 || Mapnum > 0 || Excelnum > 0 ? false : true;
+		boolean flag = CSVnum > 0 || Mapnum > 0 || Excelnum > 0 ? false : true;
 		if (!"".equals(filename) || !"".equals(errorFile.toString())) {
 			int failnum;// 上传失败的CSV、map、excel个数
 			// 包含多个上传失败的文件
@@ -149,21 +160,22 @@ public class FileParser {
 		}
 		resultMap.put("flag", flag);// 存在CSV
 		resultMap.put("status", status);// 上传失败的CSV文件名
+		resultMap.put("logWafer", logWafer);
 		return resultMap;
 	}
 
-	static void getFiles(String filePath, Boolean flag, String productCatagory, String testOperator, String description,
-			String tempPath, String temp, int filternum, String currentUser, String dataFormat, String fileName) {
+	static void getFiles(String filePath,  String productCatagory,  String description,
+			 int filternum, String currentUser, String dataFormat) {
 		File root = new File(filePath);
 		File[] files = root.listFiles();// 获取当前目录下的所有文件与文件夹
 		boolean flagDirectory = isExist(files);
-		CSV(filePath, flag, productCatagory, testOperator, description, tempPath, temp, filternum, currentUser,
-				flagDirectory, dataFormat, fileName);
+		CSV(filePath,  productCatagory,  description, filternum, currentUser,
+				flagDirectory, dataFormat);
 		for (File file : files) {
 			if (file.isDirectory()) {
 				if (!flagDirectory) {// 没有曲线数据时，才进入向下一级文件夹目录；当前路径下若有文件夹且包含.csv与.map文件，则在读取.csv文件后取读取曲线数据
-					getFiles(file.getAbsolutePath(), flag, productCatagory, testOperator, description, tempPath, temp,
-							filternum, currentUser, dataFormat, fileName);
+					getFiles(file.getAbsolutePath(), productCatagory,  description, 
+							filternum, currentUser, dataFormat);
 				}
 			} else {
 				if (filternum == 1 && !flagDirectory) {
@@ -199,9 +211,8 @@ public class FileParser {
 		return temp1 && temp2;
 	}
 
-	public static void CSV(String path, Boolean flag, String productCatagory, String testOperator, String description,
-			String tempPath, String temp, int filternum, String currentUser, boolean flagDirectory, String dataFormat,
-			String fileName) {
+	public static void CSV(String path, String productCategory, String description, int filternum, String currentUser,
+			boolean flagDirectory, String dataFormat) {
 		WaferDao fileDao = new WaferDao();
 		File file1 = new File(path);
 		FileFilterTool filetool = new FileFilterTool();
@@ -221,89 +232,58 @@ public class FileParser {
 			try {
 				// zip,调用Zip方法
 				if (files1[i].getName().endsWith(".CSV") || files1[i].getName().endsWith(".csv")) {
-					flag = false;
 					CSVnum = CSVnum + 1;
-					String waferid = getWaferID(files1[i].getAbsolutePath());
-					Connection conn2 = new DataBaseUtil().getConnection();
-					boolean flag2 = fileDao.queryWaferinfo(conn2, waferid);
-					// CSV文件中晶圆编号为空 或者文件内容有误
-					if ("上传失败，文件中的晶圆编号为空值！".equals(waferid) || "上传失败，目标文件内容有误！".equals(waferid)) {
-						failcsv = getReturn(files1[i].getName(), waferid);
-						faileCSV.add(failcsv);
-						conn2.close();
-						continue;
-					}
-					if (flag2) {
-						status = "文件已经上传！";
-						failcsv = getReturn(files1[i].getName(), status);
-						faileCSV.add(failcsv);
-						conn2.close();
-						continue;
-					}
-					// 找到对应的map文件
-					if (mapfilelist.get(waferid) != null) {
-						// 把map文件内容写入CSV文件
-						WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));
-						long timeCSV = System.currentTimeMillis();
-						WaferService service = new WaferServiceImpl();
-						status = service.saveZipData(conn2, files1[i].getAbsolutePath(), productCatagory, testOperator,
-								description, files1[i].getAbsolutePath(), dataFormat);
-						// 未找到对应的map文件
-						long timeCSV2 = System.currentTimeMillis();
-						System.out.println("how long:" + (timeCSV2 - timeCSV));
-					} else {
-						conn2.close();
-						status = "上传失败，导入目标文件前没有导入对应的map文件！";
-					}
+					// WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));// 把map文件内容写入CSV文件
+					long timeCSV = System.currentTimeMillis();
+					WaferService service = new WaferServiceImpl();
+					status = service.saveZipData(mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
+							description, files1[i].getAbsolutePath(), mapDO,invalidationList);
+					// 未找到对应的map文件
+					long timeCSV2 = System.currentTimeMillis();
+					System.out.println("how long:" + (timeCSV2 - timeCSV));
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"".equals(failcsv)) {
 						faileCSV.add(failcsv);
 					}
 				} else if (files1[i].getName().endsWith(".map")) {
-					flag = false;
 					Mapnum = Mapnum + 1;
-					Map<String, Object> resultMap = SaveMapFile(files1[i].getAbsolutePath());
+					Map<String, Object> resultMap = getMapFile(files1[i].getAbsolutePath());// SaveMapFile(files1[i].getAbsolutePath());
 					status = (String) resultMap.get("status");
-					if ("文件已经上传！".equals(status) || "success".equals(status)) {
-						Set<String> keys = resultMap.keySet();
-						for (String Waferid : keys) {
-							mapfilelist.put(Waferid, resultMap.get(Waferid));
-							break;
-						}
+					if ("success".equals(status)) {
+						mapfilelist.put(resultMap.get("waferNO").toString(), resultMap.get("waferNO"));
+						logWafer = resultMap.get("waferNO").toString();
 					}
 					failcsv = getReturn(files1[i].getName(), status);
-					// 上传失败
+					
 					if (!"".equals(failcsv)) {
 						faileCSV.add(failcsv);
 					}
 				} else if (files1[i].getName().endsWith(".xlsx") || files1[i].getName().endsWith(".xls")) {
-					/*
-					flag = false;
 					Excelnum = Excelnum + 1;
-					String waferid = Transtion.GetexcelWaferID(files1[i].getAbsolutePath());
-					Connection conn2 = new DataBaseUtil().getConnection();
-					boolean flag2 = fileDao.queryWaferinfo(conn2, waferid);
+					String waferid = ExcelParser.getExcelWaferNumber(files1[i].getAbsolutePath());
+					Connection conn = new DataBaseUtil().getConnection();
+					boolean flag2 = fileDao.queryWaferinfo(conn, waferid);
 					// excel文件中晶圆编号为空
 					if ("上传失败，文件中的晶圆编号为空值！".equals(waferid)) {
 						failcsv = getReturn(files1[i].getName(), waferid);
 						faileCSV.add(failcsv);
-						conn2.close();
+						conn.close();
 						continue;
 					}
 					if (flag2) {
 						status = "文件已经上传！";
 						failcsv = getReturn(files1[i].getName(), status);
 						faileCSV.add(failcsv);
-						conn2.close();
+						conn.close();
 						continue;
 					}
 					// 找到对应的map文件
 					if (mapfilelist.get(waferid) != null) {
-						String CSVname = Transtion.readfile(files1[i].getAbsolutePath(),
+						String CSVname = ExcelParser.readfile(files1[i].getAbsolutePath(),
 								(String) mapfilelist.get(waferid));
 						if (!(CSVname.contains("WaferID"))) {
 							status = CSVname;
-							conn2.close();
+							conn.close();
 							// 导入转换后的CSV文件。
 						} else {
 							String CSV[] = CSVname.split("\n");
@@ -311,24 +291,19 @@ public class FileParser {
 							for (int j = 0; j < CSV.length; j++) {
 								filelist.add(CSV[j]);
 							}
-							status = fileDao.GetWaferDataExcel(conn2, filelist, productCatagory, testOperator,
-									description, files1[i].getAbsolutePath(), currentUser, dataFormat);
+							status = ExcelParser.getExcelData(files1[i].getAbsolutePath(), productCategory, description,
+									currentUser, dataFormat);
 						}
 						// 未找到对应的map文件
 					} else {
-						status = Transtion.getExcelData(files1[i].getAbsolutePath(), productCatagory, testOperator,
-								description, currentUser, dataFormat, "", 0);
+						status = ExcelParser.getExcelData(files1[i].getAbsolutePath(), productCategory, description,
+								currentUser, dataFormat);
 					}
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"".equals(failcsv)) {
 						faileCSV.add(failcsv);
-					}*/
+					}
 				}
-			} catch (IOException e) {
-				ExceptionLog.printException(e);
-				failcsv = getReturn(files1[i].getName(), "文件不存在！");
-				faileCSV.add(failcsv);
-				continue;
 			} catch (SQLException e) {
 				ExceptionLog.printException(e);
 				failcsv = getReturn(files1[i].getName(), "数据库操作异常！");
@@ -522,7 +497,7 @@ public class FileParser {
 	 */
 	public static Map<String, String> GetXYandDieno(String filepath, int v) {
 		Map<String, String> xydieno = new HashMap<String, String>();// 将三个重要信息diex，diey，dieno存到这个list中。
-		List<String> Content = new ArrayList<String>();// 该list是将文件中的内容全部取出
+		List<String> contentList = new ArrayList<String>();// 该list是将文件中的内容全部取出
 		File file = new File(filepath);
 		BufferedReader br = null;
 		BufferedReader bs = null;
@@ -536,14 +511,14 @@ public class FileParser {
 				String s = "";
 				try {
 					while ((s = br.readLine()) != null) {
-						Content.add(s + "\n");
+						contentList.add(s + "\n");
 					}
-					if (Content.size() < 10) {
-						Content.removeAll(Content);
+					if (contentList.size() < 10) {
+						contentList.removeAll(contentList);
 						fis = new FileInputStream(file);
 						bs = new BufferedReader(new InputStreamReader(fis, "GBK"), 5 * 1024 * 1024);
 						while ((s = bs.readLine()) != null) {
-							Content.add(s + "\n");
+							contentList.add(s + "\n");
 						}
 
 					}
@@ -565,48 +540,39 @@ public class FileParser {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		int j = 0, k = 0;// 这两个值用于取到[Die]到[SubDie]的两个序号
-		String Info;
-		for (int i = 0; i < Content.size(); i++) {
-			Info = Content.get(i);
-			if (Info.contains("[Die]")) {
-				j = i;
-			} else if (Info.contains("[SubDie]")) {
-				k = i;
-			}
-		}
-		// 将所有重要信息即die的信息存到这个list中。
-		List<String> ImportantInfo = new ArrayList<String>();
-		for (int s = j + 1; s < k; s++) {
-			ImportantInfo.add(Content.get(s));
-		}
+		int j = 0;// 这两个值用于取到[Die]到[SubDie]的两个序号
 		Map<String, String> Invalidation = new HashMap<String, String>();
-		String s;
-		String dieno;
-		String diexy;
+		String s,dieno,diexy;
 		String[] diexdiey;
-		for (int m = 0; m < ImportantInfo.size(); m++) {
-			s = ImportantInfo.get(m);
-			// 存有效die
-			if (s.contains("ToBeProbed") || s.contains("ToInked")) {
-				dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
-				diexdiey = s.split(",");
-				diexy = diexdiey[1] + "," + diexdiey[2];
-				xydieno.put(diexy, dieno);
-			} else {
-				dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
-				diexdiey = s.split(",");
-				diexy = diexdiey[1] + "," + diexdiey[2];
-				Invalidation.put(diexy, dieno);
+		for (int m = 0,size=contentList.size(); m < size; m++) {
+			s = contentList.get(m);
+			if (s.contains("[Die]")) {
+				j=m;
 			}
+			if (s.contains("[SubDie]")){
+				break;
+			}
+			if(j>0){
+				// 存有效die
+				if (s.contains("ToBeProbed") || s.contains("ToInked")) {
+					dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
+					diexdiey = s.split(",");
+					diexy = diexdiey[1] + "," + diexdiey[2];
+					xydieno.put(diexy, dieno);
+				} else {
+					dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
+					diexdiey = s.split(",");
+					diexy = diexdiey[1] + "," + diexdiey[2];
+					Invalidation.put(diexy, dieno);
+				}
+			}
+			
 		}
-		switch (v) {
-		case 1:
+		if(v ==1){
 			return xydieno;
-
-		case 2:
+		}
+		if(v==2){
 			return Invalidation;
-
 		}
 		return xydieno;
 	}
@@ -647,7 +613,7 @@ public class FileParser {
 	 * @param testOperator
 	 * @return
 	 */
-		public Map<String, Object> getMessage(List<String> filelist,String productCatagory,String testOperator){
+		public Map<String, Object> getMessage(List<String> filelist,String productCatagory){
 			String status=null;
 			Map<String, Object> MessageresultMap=new HashMap<String, Object>();
 			String TestStarTime="";
@@ -760,11 +726,6 @@ public class FileParser {
 				MessageresultMap.put("status", status);
 				return MessageresultMap;
 			}
-		    //获取非关键信息
-			//当没有传入的这个参数是空的时候，就给个默认值为operator[2],(即前台没填这个)如果传了，就是本身。
-		    if(testOperator==null){
-		    	testOperator=Operator;
-		    }
 		    if(productCatagory==null){
 		    	productCatagory="测试仪";
 		    }
@@ -782,7 +743,6 @@ public class FileParser {
 		    MessageresultMap.put("LotID", LotID);
 		    MessageresultMap.put("WaferID", WaferID);
 		    MessageresultMap.put("dateNowStr", dateNowStr);
-		    MessageresultMap.put("testOperator", testOperator);
 		    MessageresultMap.put("productCatagory", productCatagory);
 		    MessageresultMap.put("datanum", datanum);
 		    MessageresultMap.put("TesterWaferSerialIDnum", TesterWaferSerialIDnum);
@@ -830,7 +790,7 @@ public class FileParser {
 			}
 			return resultmap;
 		}
-		
+		private static List<String> invalidationList = new ArrayList<String>();
 		/**
 		 * 获取map文件中8个参数和晶圆编号、晶圆直径
 		 * @param file
@@ -838,61 +798,93 @@ public class FileParser {
 		 * @throws IOException
 		 * @throws Exception
 		 */
-		public static Map<String, Object> getMapFile(String file) throws IOException,Exception{
+		public static Map<String, Object> getMapFile(String file){
 			Map<String, Object> MapFileResult=new HashMap<String, Object>();
 			List<String> filelist1=new ArrayList<String>();//存放所有文件
 			List<String> filelist=new ArrayList<String>();//存放8个参数
 			FileInputStream fis = null;
-			String status=null;//map文件标志信息
-			String Waferid="";
-			double Diameter=-1;
-			double DieSizeX=-1;
-			double DieSizeY=-1;
-			double FlatLength=-1;
-			fis = new FileInputStream(file);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis,"Unicode"));
-			String line = "";
+			String status="success";//map文件标志信息
+			String waferNO="";
 			int flagnum=0;
-			while ((line = br.readLine()) != null){
-				filelist1.add(line);
-			}
-			//map文件为ANSI编码方式
-			if(filelist1.size()<5){
-				br.close();
-				fis.close();
-				filelist1.clear();
+			double diameter=-1,dieSizeX=-1,dieSizeY=-1,flatLength=-1;
+			try {
 				fis = new FileInputStream(file);
-				BufferedReader br2 = new BufferedReader(new InputStreamReader(fis,"GBK"));
-				line = "";
-				flagnum=0;
-				while ((line = br2.readLine()) != null){
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis,"Unicode"));
+				String line = "";
+				
+				while ((line = br.readLine()) != null){
 					filelist1.add(line);
 				}
-				br2.close();
+				//map文件为ANSI编码方式
+				if(filelist1.size()<5){
+					br.close();
+					fis.close();
+					filelist1.clear();
+					fis = new FileInputStream(file);
+					BufferedReader br2 = new BufferedReader(new InputStreamReader(fis,"GBK"));
+					line = "";
+					flagnum=0;
+					while ((line = br2.readLine()) != null){
+						filelist1.add(line);
+					}
+					br2.close();
+				}
+				if(fis!=null){
+					fis.close();
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			if(fis!=null){
-				fis.close();
-			}
+			invalidationList.clear();
+			String s,dieno,diexy;
+			String[] diexdiey;
+			String str = "";
+			int indexFlag = 0;
 			for(int i=0;i<filelist1.size();i++){
+				s = filelist1.get(i);
 				if(filelist1.get(i).contains("WaferID=")){
-					Waferid=filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1);
+					waferNO=s.substring(s.indexOf("=")+1);
 					continue;
 				}
-				if(filelist1.get(i).contains("Diameter=")&&!filelist1.get(i).contains("NotchDiameter=")){
-					Diameter=Double.parseDouble(filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1));
+				if(s.contains("Diameter=")&&!s.contains("NotchDiameter=")){
+					diameter=Double.parseDouble(s.substring(s.indexOf("=")+1));
 					continue;
 				}
 				if(filelist1.get(i).contains("DieSizeX=")){
-					DieSizeX=Float.parseFloat(filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1));
+					dieSizeX=Float.parseFloat(s.substring(s.indexOf("=")+1));
 					continue;
 				}
 				if(filelist1.get(i).contains("DieSizeY=")){
-					DieSizeY=Float.parseFloat(filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1));
+					dieSizeY=Float.parseFloat(s.substring(s.indexOf("=")+1));
 					continue;
 				}
 				if(filelist1.get(i).contains("FlatLength=")){
-					FlatLength=Float.parseFloat(filelist1.get(i).substring(filelist1.get(i).indexOf("=")+1));
+					flatLength=Float.parseFloat(s.substring(s.indexOf("=")+1));
+					continue;
+				}
+				
+				if (s.contains("[Die]")) {
+					indexFlag=i;
+					continue;
+				}
+				if (s.contains("[SubDie]")){
 					break;
+				}
+				if(indexFlag>0){
+					// 存无效die
+					if (s.contains("ToBeProbed") || s.contains("ToInked")) {
+						
+					} else{
+						dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
+						diexdiey = s.split(",");
+						diexy = diexdiey[1] + "," + diexdiey[2];
+						str = diexy +","+dieno + ",0,-1,0" ;
+						invalidationList.add(str);
+					}
 				}
 			}
 			//map文件格式有误
@@ -901,27 +893,27 @@ public class FileParser {
 				MapFileResult.put("status", status);
 				return MapFileResult;
 			//map文件中晶圆编号为空
-			}else if("".equals(Waferid)){
+			}else if("".equals(waferNO)){
 				status="上传失败，文件中的晶圆编号为空值！";
 				MapFileResult.put("status", status);
 				return MapFileResult;
 			//map文件中晶圆直径为空
-			}else if(Diameter==-1){
+			}else if(diameter==-1){
 				status="上传失败，文件中的Diameter为空值！";
 				MapFileResult.put("status", status);
 				return MapFileResult;
 			//格式无误
-			}else if(DieSizeX==-1){
+			}else if(dieSizeX==-1){
 				status="上传失败，文件中的DieSizeX为空值！";
 				MapFileResult.put("status", status);
 				return MapFileResult;
 			//格式无误
-			}else if(DieSizeY==-1){
+			}else if(dieSizeY==-1){
 				status="上传失败，文件中的DieSizeY为空值！";
 				MapFileResult.put("status", status);
 				return MapFileResult;
 			//格式无误
-			}else if(FlatLength==-1){
+			}else if(flatLength==-1){
 				status="上传失败，文件中的FlatLength为空值！";
 				MapFileResult.put("status", status);
 				return MapFileResult;
@@ -965,12 +957,28 @@ public class FileParser {
 				
 				}
 				MapFileResult.put("status", status);
-				MapFileResult.put("Waferid", Waferid);
-				MapFileResult.put("Diameter", Diameter);
-				MapFileResult.put("DieSizeX", DieSizeX);
-				MapFileResult.put("DieSizeY", DieSizeY);
-				MapFileResult.put("FlatLength", FlatLength);
+				MapFileResult.put("waferNO", waferNO);
+				MapFileResult.put("Diameter", diameter);
+				MapFileResult.put("DieSizeX", dieSizeX);
+				MapFileResult.put("DieSizeY", dieSizeY);
+				MapFileResult.put("FlatLength", flatLength);
 				MapFileResult.put("filelist", filelist);
+				MapFileResult.put("invalidationList", invalidationList);
+				mapDO = new MapParameterDO();
+				mapDO.setDiameter(diameter);
+				mapDO.setDieXMax(dieSizeX);
+				mapDO.setDieYMax(dieSizeY);
+				mapDO.setCuttingEdgeLength(flatLength);
+				mapDO.setDirectionX(filelist.size()>0?filelist.get(0):"Right");
+				mapDO.setDirectionY(filelist.size()>0?filelist.get(1):"Top");
+				mapDO.setSetCoorX(filelist.size()>0?filelist.get(2):"Right");
+				mapDO.setSetCoorY(filelist.size()>0?filelist.get(3):"Down");
+				mapDO.setSetCoorDieX(filelist.size()>0?Integer.parseInt(filelist.get(4)):0);
+				mapDO.setSetCoorDieY(filelist.size()>0?Integer.parseInt(filelist.get(5)):1);
+				mapDO.setStandCoorDieX(filelist.size()>0?filelist.get(6):"AAAA");
+				mapDO.setStandCoorDieY(filelist.size()>0?filelist.get(7):"AAAA");
+				mapDO.setWaferId(0);
+				mapDO.setWaferNumber(waferNO);
 				return MapFileResult;
 			}
 		}
@@ -1016,7 +1024,6 @@ public class FileParser {
 		    Map<String, List<Object[]>> parametermap=new HashMap<String , List<Object[]>>();
 			dealparam = datanum>0? filelist.get(datanum-1).split(","):null;
 			int length= datanum>0? dealparam.length-6:0;//参数个数长度+1
-			System.out.println("length:"+length);
 			String parameterNameUnit="";
 			String Max[] = null;
 			String Min[] = null;
@@ -1075,163 +1082,53 @@ public class FileParser {
 		 */
 		public static Map<String, Object> SaveMapFile(String file){
 			String status=null;
-			String waferid="";//晶圆编号
-			Double diameter;
-			Double dieSizeX;
-			Double dieSizeY;
-			Double flatLength;
-			List<String> filelist=new ArrayList<String>();//存放8个参数
 			Map<String, Object> resultMap=new HashMap<String, Object>();
-			try {
 				Map<String, Object> mapFileResult=getMapFile(file);
 				status=(String) mapFileResult.get("status");
 				if(status!=null){
 					resultMap.put("status", status);
 					return resultMap;
 				}else{
-					waferid=(String) mapFileResult.get("Waferid");
-					diameter=(Double) mapFileResult.get("Diameter");
-					dieSizeX=(Double) mapFileResult.get("DieSizeX");
-					dieSizeY=(Double) mapFileResult.get("DieSizeY");
-					flatLength=(Double) mapFileResult.get("FlatLength");
-					filelist= (List<String>) mapFileResult.get("filelist");
-					MapParameterDO mapDO = new MapParameterDO();
-					mapDO.setDiameter(diameter);
-					mapDO.setDieXMax(dieSizeX);
-					mapDO.setDieYMax(dieSizeY);
-					mapDO.setCuttingEdgeLength(flatLength);
-					mapDO.setDirectionX(filelist.get(0));
-					mapDO.setDirectionY(filelist.get(1));
-					mapDO.setSetCoorX(filelist.get(2));
-					mapDO.setSetCoorY(filelist.get(3));
-					mapDO.setSetCoorDieX(Integer.parseInt(filelist.get(4)));
-					mapDO.setSetCoorDieY(Integer.parseInt(filelist.get(5)));
-					mapDO.setStandCoorDieX(filelist.get(6));
-					mapDO.setStandCoorDieY(filelist.get(7));
-					mapDO.setWaferId(0);
-					mapDO.setWaferNumber(waferid);
-					status = new ParameterDao().insertMapParameter( mapDO);
-					resultMap.put(waferid, file);
-					resultMap.put("status", status);
-				}//加锁
-			}catch (IOException e) {
-				e.printStackTrace();
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
+					resultMap.put("status", "success");
+				}
 			return resultMap;
 		}
 		
-		
 		/**
-		 * 此处用于曲线数据添加，需改
-		 * @param conn
-		 * @param file
-		 * @param WaferID
+		 * 判断路径下是否包含图片文件
+		 * @param path
 		 * @return
 		 */
-		/*
-		public String insertCurve(Connection conn, String file, int waferId) {
-			System.out.println("读到了么：" + file);
-			long time0 = System.currentTimeMillis();
-			file = file.substring(0, file.lastIndexOf("."));
-			File file1 = new File(file);
-			String status = null;
-			File[] files = file1.listFiles();
-			CurveParameter curveParameter = new CurveParameter();
-			int paramId = 0;
-			if (files != null) {
-				for (File temp : files) {
-					String curveType = temp.getName();
-					File[] curvefile = temp.listFiles();
-					for (File curve : curvefile) {
-						String name = curve.getName();
-						String su = name.substring(name.indexOf("."));
-						if(!suffix.contains(su)){
-							break;
-						}
-						String[] fileName = null;
-						if (!name.contains("_")) {
-							fileName = name.substring(0, curve.getName().indexOf(".")).split("-");
-						} else {
-							fileName = name.substring(0, curve.getName().indexOf(".")).split("_");
-						}
-						if (fileName.length < 3) {
-							status = "曲线数据文件名格式有误！";
-							break;
-						}
-						String dieType = fileName[0];
-						String subdieNO = "";
-						String group = "";
-						subdieNO = fileName[1];
-						group = fileName[2];
-						try {
-							List<String> list = getFile(curve.getAbsolutePath());
-							if (".S2P".equalsIgnoreCase(su)) {
-								curveParameter.setWaferSerialID(WaferSerialID);
-								curveParameter.setCurveType(curveType);
-								curveParameter.setSubdieNO(subdieNO);
-								curveParameter.setDieType(dieType);
-								curveParameter.setDeviceGroup(group);
-								paramId = new CurveDao().insertCurveParameter(conn, curveParameter);
-								List<CurveSmithData> curveList = new ArrayList<>();
-								int index = 0;
-								for(int i=0;i<list.size();i++){
-									String tempStr = list.get(i).trim();
-									if(i>0 && list.get(i-1).startsWith("#")){
-										index = i;
-									}
-									if(index>0 && i>index && !tempStr.equals("")){
-										String[] datas = tempStr.replaceAll("\t", " ").split(" ");
-										CurveSmithData curvedata = new CurveSmithData();
-										curvedata.setCurve_parameter_id(paramId);
-										curvedata.setWafer_serial_id(WaferSerialID);
-										curvedata.setFequency(Double.parseDouble(datas[0]));
-										curvedata.setReal_part_s11(Double.parseDouble(datas[1]));
-										curvedata.setImaginary_part_s11(Double.parseDouble(datas[2]));
-										curvedata.setReal_part_s12(Double.parseDouble(datas[3]));
-										curvedata.setImaginary_part_s12(Double.parseDouble(datas[4]));
-										curvedata.setReal_part_s21(Double.parseDouble(datas[5]));
-										curvedata.setImaginary_part_s21(Double.parseDouble(datas[6]));
-										curvedata.setReal_part_s22(Double.parseDouble(datas[7]));
-										curvedata.setImaginary_part_s22(Double.parseDouble(datas[8]));
-										curveList.add(curvedata);
-									}
-								}
-								status = new CurveDao().insertSmithData(conn, curveList);
-								if(status!=null){
-									break;
-								}
-							} else {
-								String[] datas = null;
-								if (list.size() > 1) {
-									datas = list.get(0).split(",");
-									if (!saveCurveDatas(conn, datas, "Parameter", WaferSerialID, curveType, dieType, subdieNO,
-											group).equals("")) {
-										status = "曲线参数表添加数据失败！";
-										break;
-									}
-								}
-								//可优化
-								for (int i = 1; i < list.size() - 1; i++) {
-									datas = list.get(i).replaceAll("\\s*", "").split(",");
-									if (!saveCurveDatas(conn, datas, "datas", WaferSerialID, curveType, dieType, subdieNO,
-											group).equals("")) {
-										status = "曲线数据表添加数据失败！";
-										break;
-									}
-
-								}
+		public static boolean isExistImage(String path){
+			File root = new File(path);
+			if(root.isDirectory()){
+				File[] files = root.listFiles();
+				try {
+					for(File file:files){
+						if(file.isDirectory() ){
+							if(!fileType){
+								isExistImage(file.getAbsolutePath());
 							}
-						} catch (IOException e) {
-							e.printStackTrace();
+						}else{
+							BufferedImage image = ImageIO.read(file);
+							if(image != null){
+								fileType = true;
+								break;
+							}
 						}
+						
 					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("ImageReader解析过程出错！");
 				}
 			}
-			long time2 = System.currentTimeMillis();
-	System.out.println("曲线数据："+(time2-time0));
-			return status;
-		}*/
+			System.out.println("fileType:"+fileType);
+			return fileType;
+		}
+		
+		
+		
+		
 		
 }

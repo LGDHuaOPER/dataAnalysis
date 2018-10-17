@@ -31,8 +31,11 @@ function getProjectAnalysisData(searchVal){
 			type: 'error',
 			showConfirmButton: false,
 			timer: 2500,
+		}).then(function(result){
+			if(result.dismiss == "timer"){
+				window.location.assign("login.html");
+			}
 		});
-		window.location.assign("login.html");
 		return false;
 	}else{
 		var projectAnalysisData = JSON.parse(futureDT2__datalist__pageDataObj).data;
@@ -174,7 +177,7 @@ $(document).on("mouseout", ".g_bodyin_bodyin_body td", function(){
 		// 		'<td data-itext="'+trObj.description.value+'">'+trObj.description.value+'</td>'+
 		// 	'</tr>';
 		$(".g_bodyin_body_bottom tbody").append($(this).parent().parent().clone());
-		$(".g_bodyin_body_bottom tbody tr").removeClass("info warning");
+		$(".g_bodyin_body_bottom tbody tr, .g_bodyin_body_bottom tbody td").removeClass("info warning");
 	}else{
 		_.pull(projectAnalysisState.sellectObj.selectItem, ID);
 		$(".g_bodyin_body_bottom tbody [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
@@ -200,7 +203,7 @@ $("#checkAll").on({
 		projectAnalysisState.sellectObj.selectAll = that.prop("checked");
 		if(that.prop("checked")){
 			projectAnalysisState.sellectObj.selectItem = store.get('futureDT2__datalist__selectedItem');
-			$(".g_bodyin_body_bottom tbody").append($(".g_bodyin_bodyin_body tbody>tr").clone());
+			$(".g_bodyin_body_bottom tbody").empty().append($(".g_bodyin_bodyin_body tbody>tr").clone());
 			$(".g_bodyin_body_bottom tbody tr").removeClass("info warning");
 			analyzeBtn();
 		}else{
@@ -273,12 +276,13 @@ $(".g_body_rr_body_itemin").click(function(e){
 });
 
 $(".g_body_rr_body_btn>input").click(function(){
-	// projectAnalysisSwalMixin({
-	// 	title: '跳转页面异常',
-	// 	text: "暂未开发！",
-	// 	type: 'info',
-	// 	showConfirmButton: false,
-	// 	timer: 2500,
-	// });
+	var iArr = [];
+	$(".g_bodyin_body_bottom tbody tr").each(function(){
+		iArr.push($(this).find(".not_search [type='checkbox']").data("ivalue").toString());
+	});
+	var item = {};
+	item.selectedItem = iArr;
+	item.curveType = $(".g_body_rr_body_item.active").data("icurvetype").toString();
+	store.set("futureDT2__projectAnalysis__selectedObj", item);
 	window.location.assign("RF_SP2.html");
 });
