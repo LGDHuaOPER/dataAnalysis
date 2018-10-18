@@ -70,7 +70,7 @@ $(function(){
 			}	
 			var chart = Highcharts.chart(dom, {
 				chart: {
-						type: 'line'
+					type: 'line'
 				},
 				title: {
 					text: null
@@ -79,7 +79,7 @@ $(function(){
 		            loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
 		        },
 		        legend: {
-					enabled: false
+					enabled: true
 				},
 			    xAxis: {
 					title: {
@@ -109,18 +109,19 @@ $(function(){
 					series: {
 						point: {
 							events: {
-								mouseOver: function () {
+								mouseOver: function (pa) {
+									/*console.log(this);
+									console.log(pa);*/
 									var x = xData[this.x] ;
 									var y = this.y ;
 									var str = y+" dB,"+x+" GHz" ;
 									msgDom.find(".Smith_Msg2").text(str);
-									
 								}
 							}
 						},
 					}
 				},
-		});
+			});
 		}
 
 
@@ -133,10 +134,10 @@ $(function(){
 			$("#picture_box2,#picture_box3").mousedown(function(e) {
 				if (3 == e.which) {
 					// e.preventDefault();
-					RF_SP2State.contextObj = {
-						classify: $(this).data("iclassify"),
-						flag: $(this).data("iflag")
-					};
+					$(this).data("iflag", RF_SP2State.contextObj.flagArr[Number($(this).data("iflag") == "initial")]);
+
+					RF_SP2State.contextObj.classify = $(this).data("iclassify");
+					RF_SP2State.contextObj.flag = $(this).data("iflag");
 					var iThat = $(this);
 					RF_SP2SwalMixin({
 					  title: '确定切换数据格式吗？',
@@ -151,7 +152,11 @@ $(function(){
 					  	// {value: true}
 					  	iThat.children(".picturetop").empty();
 		  				//曲线
-		  				drawDbCurve(iThat.children(".picturetop").attr("id"), RF_SP2State.mock.RF_SP2_MagnitudeDB[0][RF_SP2State.contextObj.classify], iThat.children(".picturebottom"));
+		  				var originData = RF_SP2State.mock.RF_SP2_MagnitudeDB[0];
+		  				if(RF_SP2State.contextObj.flag == "initial"){
+		  					originData = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve;
+		  				}
+		  				drawDbCurve(iThat.children(".picturetop").attr("id"), originData[RF_SP2State.contextObj.classify], iThat.children(".picturebottom"));
 					    RF_SP2SwalMixin({
 					    	title: '切换成功！',
 					    	text: "新数据已被绘制到图表",
@@ -192,5 +197,63 @@ $(function(){
 			    }
 			    return {x: x, y: y};
 			}
-
 });
+
+/*绘制曲线图*/
+function renderSpline(option){
+	var chart = Highcharts.chart(option.container, {
+		chart: {
+			type: 'spline'
+		},
+		title: {
+			text: option.title
+		},
+        lang: {
+            loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
+        },
+        legend: {
+			enabled: true
+		},
+	    xAxis: {
+			title: {
+				text: "Hz",
+			}, 
+			categories : option.data.xData[0],
+			gridLineColor: '#197F07',
+            gridLineWidth: 1
+		}, 
+		yAxis: {
+			title: {
+				text: "dB",
+			},
+		    gridLineColor: '#197F07',
+		    gridLineWidth: 1,
+		  /*  labels: {
+		      step: 0.01
+	    	}  */
+		},
+		series:  [{
+			data: option.data.yData[0]
+		},{
+			data: option.data.yData[1]
+		}],
+		credits: {
+			enabled: false
+		},
+		plotOptions: {
+			series: {
+				point: {
+					events: {
+						mouseOver: function (pa) {
+							console.log(this);
+							console.log(pa);
+							/*var x = xData[this.x] ;
+							var y = this.y ;
+							var str = y+" dB,"+x+" GHz" ;*/
+						}
+					}
+				},
+			}
+		},
+	});
+}

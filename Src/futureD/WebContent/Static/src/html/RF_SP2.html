@@ -10,8 +10,6 @@
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/awesomplete_all.css" type="text/css">
-	<link rel="stylesheet" href="../style/common/futureDT2AddUpdate.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/RF_SP2/RF_SP2.css" type="text/css">
 </head>
 <body>
@@ -43,225 +41,254 @@
 								<div class="g_bodyin_bodyin_top_wrap_m_in">
 									<ul>
 									</ul>
-									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 								</div>
 							</div>
 							<div class="g_bodyin_bodyin_top_wrap_r"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
 						</div>
 					</div><!-- g_bodyin_bodyin_top end -->
 					<div class="g_bodyin_bodyin_bottom">
-						<div class="g_bodyin_bodyin_bottom_l">
-							<div class="g_bodyin_bodyin_bottom_l_intop">
-								<!-- <div class="g_bodyin_bodyin_bottom_l_item">
-									<div class="g_bodyin_bodyin_bottom_l_itemin">
-										<div class="g_bodyin_bodyin_bottom_l_itemin_main">WaferID01.csv<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-										<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
-											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1-0-RF.S2P</div>
-											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">2-0-RF.S2P</div>
-											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">3-0-RF.S2P</div>
-											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">4-0-RF.S2P</div>
-											<div class="g_bodyin_bodyin_bottom_l_itemin_subin">5-0-RF.S2P</div>
-										</div>
-									</div>
-								</div> -->
-							</div><!-- g_bodyin_bodyin_bottom_l_intop end -->
-							<div class="g_bodyin_bodyin_bottom_l_inbottom"><input type="checkbox">全选/全不选</div>
-						</div><!-- g_bodyin_bodyin_bottom_l end -->
-						<div class="g_bodyin_bodyin_bottom_r">
-							<div class="container-fluid">
-								<div class="row">
-									<div class="col-sm-12 col-md-6 col-lg-6">
-										<div class="chartWarp" id="picture_box1">
-											<div id="picture1top" class="picturetop"></div>
-											<div id="picture1bottom" class="picturebottom">
-												<div class="pictureline">
-													<p></p>
-												</div>
-												<div class="smithdata">
-													<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
-													<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
-												</div>
+						<div class="g_bodyin_bodyin_bottom_1">
+							<div class="g_bodyin_bodyin_bottom_l">
+								<div class="g_bodyin_bodyin_bottom_l_intop">
+									<!-- <div class="g_bodyin_bodyin_bottom_l_item">
+										<div class="g_bodyin_bodyin_bottom_l_itemin">
+											<div class="g_bodyin_bodyin_bottom_l_itemin_main">WaferID01.csv<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+											<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
+												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">2-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">3-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">4-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">5-0-RF.S2P</div>
 											</div>
 										</div>
-									</div>
-								  	<div class="col-sm-12 col-md-6 col-lg-6">
-								  		<div class="chartWarp" id="picture_box2" data-iclassify="S12" data-iflag="initial">
-								  			<div id="picture2top" class="picturetop"></div>
-								  			<div id="picture2bottom" class="picturebottom">
-								  			<div class="pictureline">
-								  					<p></p>
-								  				</div>
-								  				<div class="smithdata">
-								  					<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S12</span>)</p>
-								  					<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
-								  				</div>
-								  			</div>
-								  		</div><!-- chartWarp end -->
-								  	</div>
-								</div><!-- row end -->
-								<div class="row">
-									<div class="col-sm-12 col-md-6 col-lg-6">
-										<div class="chartWarp" id="picture_box3" data-iclassify="S21" data-iflag="initial">
-											<div id="picture3top" class="picturetop"></div>
-											<div id="picture3bottom" class="picturebottom">
-											<div class="pictureline">
-													<p></p>
-												</div>
-												<div class="smithdata">
-													<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S21</span>)</p>
-													<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
-												</div>
+									</div> -->
+								</div><!-- g_bodyin_bodyin_bottom_l_intop end -->
+								<div class="g_bodyin_bodyin_bottom_l_inbottom"><input type="checkbox">全选/全不选</div>
+							</div><!-- g_bodyin_bodyin_bottom_l end -->
+							<div class="g_bodyin_bodyin_bottom_r">
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-sm-12 col-md-6 col-lg-6">
+											<div class="chartWarp" id="picture_box1">
+												<div id="picture1top" class="picturetop"></div>
+												<div id="picture1bottom" class="picturebottom">
+													<div class="picturebottom_in">
+														<div class="picturebottom_in_l"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>
+														<div class="picturebottom_in_m">
+															<div class="picturebottom_in_m_in">
+																<ul>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																</ul>
+															</div>
+														</div><!-- picturebottom_in_m end -->
+														<div class="picturebottom_in_r"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+													</div>
+												</div><!-- picturebottom end -->
 											</div>
-										</div><!-- chartWarp end -->
+										</div>
+									  	<div class="col-sm-12 col-md-6 col-lg-6">
+									  		<div class="chartWarp" id="picture_box2" data-iclassify="S12" data-iflag="initial">
+									  			<div id="picture2top" class="picturetop"></div>
+									  			<div id="picture2bottom" class="picturebottom">
+									  				<div class="picturebottom_in">
+														<div class="picturebottom_in_l"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>
+														<div class="picturebottom_in_m">
+															<div class="picturebottom_in_m_in">
+																<ul>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S12</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																</ul>
+															</div>
+														</div><!-- picturebottom_in_m end -->
+														<div class="picturebottom_in_r"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+													</div><!-- picturebottom_in end -->
+									  			</div>
+									  		</div><!-- chartWarp end -->
+									  	</div>
+									</div><!-- row end -->
+									<div class="row">
+										<div class="col-sm-12 col-md-6 col-lg-6">
+											<div class="chartWarp" id="picture_box3" data-iclassify="S21" data-iflag="initial">
+												<div id="picture3top" class="picturetop"></div>
+												<div id="picture3bottom" class="picturebottom">
+													<div class="picturebottom_in">
+														<div class="picturebottom_in_l"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>
+														<div class="picturebottom_in_m">
+															<div class="picturebottom_in_m_in">
+																<ul>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S21</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																</ul>
+															</div>
+														</div><!-- picturebottom_in_m end -->
+														<div class="picturebottom_in_r"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+													</div><!-- picturebottom_in end -->
+												</div>
+											</div><!-- chartWarp end -->
+										</div>
+									  	<div class="col-sm-12 col-md-6 col-lg-6">
+									  		<div class="chartWarp" id="picture_box4">
+									  			<div id="picture4top" class="picturetop"></div>
+									  			<div id="picture4bottom" class="picturebottom">
+									  				<div class="picturebottom_in">
+														<div class="picturebottom_in_l"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>
+														<div class="picturebottom_in_m">
+															<div class="picturebottom_in_m_in">
+																<ul>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																	<li class="active">
+																		<div class="pictureline">
+																			<p></p>
+																		</div>
+																		<div class="smithdata">
+																			<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S22</span>)</p>
+																			<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
+																		</div>
+																	</li>
+																</ul>
+															</div>
+														</div><!-- picturebottom_in_m end -->
+														<div class="picturebottom_in_r"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+													</div><!-- picturebottom_in end -->
+									  			</div>
+									  		</div><!-- chartWarp end -->
+									  	</div>
 									</div>
-								  	<div class="col-sm-12 col-md-6 col-lg-6">
-								  		<div class="chartWarp" id="picture_box4">
-								  			<div id="picture4top" class="picturetop"></div>
-								  			<div id="picture4bottom" class="picturebottom">
-								  				<div class="pictureline">
-								  					<p></p>
-								  				</div>
-								  				<div class="smithdata">
-								  					<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S22</span>)</p>
-								  					<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>
-								  				</div>
-								  			</div>
-								  		</div><!-- chartWarp end -->
-								  	</div>
+								</div><!-- container-fluid end -->
+							</div>
+						</div><!-- g_bodyin_bodyin_bottom_1 end -->
+						<div class="g_bodyin_bodyin_bottom_2">
+							<div class="g_bodyin_bodyin_bottom_lsub">
+								<div class="g_bodyin_bodyin_bottom_lsub_top">
+									<!-- <div class="g_bodyin_bodyin_bottom_lsub_item">
+										<div class="g_bodyin_bodyin_bottom_lsub_itemin">
+											<div class="g_bodyin_bodyin_bottom_lsub_itemin_main">WaferID01.csv<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
+											<div class="g_bodyin_bodyin_bottom_lsub_itemin_sub">
+												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">1-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">2-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">3-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">4-0-RF.S2P</div>
+												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">5-0-RF.S2P</div>
+											</div>
+										</div>
+									</div> -->
+								</div><!-- g_bodyin_bodyin_bottom_lsub_top end -->
+								<div class="g_bodyin_bodyin_bottom_lsub_bottom">
+									<table class="table table-striped table-bordered table-hover table-condensed">
+										<thead>
+											<tr>
+												<th>参数</th>
+												<th>值</th>
+												<th>公式</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>参数</td>
+												<td>值</td>
+												<td>公式</td>
+											</tr>
+											<tr>
+												<td>参数</td>
+												<td>值</td>
+												<td>公式</td>
+											</tr>
+											<tr>
+												<td>参数</td>
+												<td>值</td>
+												<td>公式</td>
+											</tr>
+										</tbody>
+									</table>
+								</div><!-- g_bodyin_bodyin_bottom_lsub_bottom end -->
+							</div><!-- g_bodyin_bodyin_bottom_lsub end -->
+							<div class="g_bodyin_bodyin_bottom_rsub">
+								<div class="g_bodyin_bodyin_bottom_rsubin">
+									<div class="g_bodyin_bodyin_bottom_rsubin_tit">
+										<button type="button" class="btn btn-default">
+										  	<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 添加Marker
+										</button>
+									</div><!-- g_bodyin_bodyin_bottom_rsubin_tit end -->
+									<div class="g_bodyin_bodyin_bottom_rsubin_body">
+										<div id="markerChart"></div>
+									</div>
+									<div class="g_bodyin_bodyin_bottom_rsubin_foot">
+										<div class="container-fluid">
+											<div class="row">
+												<div class="col-sm-12 col-md-6 col-lg-6">1</div>
+												<div class="col-sm-12 col-md-6 col-lg-6">2</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-12 col-md-6 col-lg-6">3</div>
+												<div class="col-sm-12 col-md-6 col-lg-6">4</div>
+											</div>
+										</div>
+									</div><!-- g_bodyin_bodyin_bottom_rsubin_foot end -->
 								</div>
-							</div><!-- container-fluid end -->
-						</div>
+							</div><!-- g_bodyin_bodyin_bottom_rsub end -->
+						</div><!-- g_bodyin_bodyin_bottom_2 end -->
 					</div><!-- g_bodyin_bodyin_bottom end -->
 				</div><!-- g_bodyin_bodyin end -->
 			</div>
 		</div>
 	</div>
-	<div class="futureDT2_bg_cover"></div>
-	<div class="futureDT2_addition" data-iparent="addition">
-		<div class="futureDT2_addition_l">
-			<div class="futureDT2_addition_menu">
-				<div class="futureDT2_addition_menu_in">上传文件</div>
-			</div>
-		</div><div class="futureDT2_addition_r">
-			<div class="futureDT2_addition_r_tit">详细信息</div>
-			<div class="futureDT2_addition_r_body">
-				<div class="futureDT2_addition_r_bodyin">
-					<div class="container-fluid">
-						<div class="row">
-						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6">
-						  		<select id="futureDT2_addition_data_format" class="form-control isRequired">
-						  			<option value="请选择数据格式" disabled selected>请选择数据格式</option>
-						  			<option value="0">EOULU标准数据</option>
-						  			<option value="1">博达微数据</option>
-						  			<option value="2">新Excel格式</option>
-						  			<option value="3">TXT数据格式</option>
-						  		</select>
-						  	</div>
-						  	<div class="col-sm-5 col-md-5 col-lg-5 info_div"></div>
-						</div>
-						<!-- <div class="row">
-						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="password" class="form-control isRequired" placeholder="请输入密码" id="futureDT2_addition_password"><span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span></div>
-						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
-						</div> -->
-						<div class="row">
-						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="text" id="futureDT2_addition_product_category" class="form-control isRequired" placeholder="请输入或选择产品名称"></div>
-						  	<div class="col-sm-5 col-md-5 col-lg-5 info_div"></div>
-						</div>
-						<div class="row row_extra2">
-						  	<div class="col-sm-1 col-md-1 col-lg-1"></div>
-						  	<div class="col-sm-10 col-md-10 col-lg-10"><textarea id="futureDT2_addition_td_description" rows="2" class="form-control" maxlength="100" placeholder="最多输入100个字符"></textarea></div>
-						</div>
-					</div><!-- container-fluid end -->
-					<div class="container-fluid">
-						<div class="container-fluid_in">
-							<div class="container-fluid_in_tit">添加文件</div>
-							<div class="container-fluid_in_body">
-								<div class="container-fluid">
-									<div class="row row_extra3">
-										<div class="col-sm-12 col-md-6 col-lg-6">
-											<div class="well">
-												<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><input type="file" id="add_file_Upload" accept="aplication/zip, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><br>
-												点击/拖拽文件到这里上传<br>
-												<small>支持Excel、TXT等数据格式</small>
-											</div>
-										</div>
-										<div class="col-sm-12 col-md-6 col-lg-6">
-											<div class="alert alert-info" role="alert">
-											  	<div class="container-fluid">
-											  		<div class="row">
-											  			<div class="col-sm-12 col-md-8 col-lg-i8">
-											  				<div class="upload_l_tit"></div>
-											  				<div class="upload_l_body"></div>
-											  			</div>
-											  			<div class="col-sm-12 col-md-4 col-lg-4">
-											  				<div id="upload_container"></div>
-											  			</div>
-											  		</div>
-											  	</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div><!-- futureDT2_addition_r_body end -->
-			<div class="futureDT2_addition_r_foot">
-				<input type="button" value="提交" class="btn btn-primary" disabled>
-				<input type="button" value="关闭" class="btn btn-warning">
-			</div>
-		</div>
-	</div><!-- futureDT2_addition end -->
-	<div class="futureDT2_update" data-iparent="update">
-		<div class="futureDT2_update_l">
-			<div class="futureDT2_update_menu">
-				<div class="futureDT2_update_menu_in">修改信息</div>
-			</div>
-		</div><div class="futureDT2_update_r">
-			<div class="futureDT2_update_r_tit">详细信息</div>
-			<div class="futureDT2_update_r_body">
-				<div class="futureDT2_update_r_bodyin">
-					<div class="container-fluid">
-						<div class="row">
-						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6">
-						  		<select id="futureDT2_update_data_format" class="form-control isRequired">
-						  			<option value="请选择数据格式" disabled selected>请选择数据格式</option>
-						  			<option value="0">EOULU标准数据</option>
-						  			<option value="1">博达微数据</option>
-						  			<option value="2">新Excel格式</option>
-						  			<option value="3">TXT数据格式</option>
-						  		</select>
-						  	</div>
-						  	<div class="col-sm-5 col-md-5 col-lg-5 info_div"></div>
-						</div>
-						<!-- <div class="row">
-						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="password" class="form-control isRequired" placeholder="请输入密码" id="futureDT2_update_password"><span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span></div>
-						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
-						</div> -->
-						<div class="row">
-						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="text" id="futureDT2_update_product_category" class="form-control isRequired" placeholder="请输入或选择产品名称"></div>
-						  	<div class="col-sm-5 col-md-5 col-lg-5 info_div"></div>
-						</div>
-						<div class="row row_extra">
-						  	<div class="col-sm-1 col-md-1 col-lg-1"></div>
-						  	<div class="col-sm-10 col-md-10 col-lg-10"><textarea id="futureDT2_update_td_description" rows="3" class="form-control" maxlength="100" placeholder="最多输入100个字符"></textarea></div>
-						</div>
-					</div>
-				</div>
-			</div><!-- futureDT2_update_r_body end -->
-			<div class="futureDT2_update_r_foot">
-				<input type="button" value="提交" class="btn btn-primary" disabled>
-				<input type="button" value="关闭" class="btn btn-warning">
-			</div>
-		</div>
-	</div><!-- futureDT2_update end -->
 	<script src="../script/libs/jquery-3.3.1.min.js"></script>
 	<script src="../script/libs/bootstrap.min.js"></script>
 	<script src="../script/libs/lodash.min.js"></script>
@@ -270,7 +297,6 @@
 	<script src="../script/common/futureDT2session.js"></script>
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="../script/libs/awesomplete.min.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
 	<script src="../script/libs/progressbar.min.js"></script>
