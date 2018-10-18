@@ -180,7 +180,7 @@ public class CurveDao {
 	
 	
 	public List<String[]> getCurvFile(Connection conn,int waferId){
-		String sql = "select curve_file_name,curve_type_id from dm_curve_type where wafer_id=? and curve_file_type=1 order by curve_type_id";
+		String sql = "select curve_file_name,curve_type_id,coordinate_id from dm_curve_type where wafer_id=? and curve_file_type=1 order by curve_type_id";
 		List<String[]> ls = new ArrayList<>();
 		String[] att = null;
 		PreparedStatement ps;
@@ -189,7 +189,7 @@ public class CurveDao {
 			ps.setInt(1, waferId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
-				att = new String[]{rs.getString(1),rs.getString(2)};
+				att = new String[]{rs.getString(1),rs.getString(2),rs.getString(3)};
 				ls.add(att);
 			}
 		} catch (SQLException e) {
@@ -205,42 +205,7 @@ public class CurveDao {
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
-	public Map<String,List<Double[]>> getSmithData(int curveTypeId){
-		Map<String,List<Double[]>> map = new HashMap<>();
-		List<Double[]> listS11 = new ArrayList<>();
-		List<Double[]> listS12 = new ArrayList<>();
-		List<Double[]> listS21 = new ArrayList<>();
-		List<Double[]> listS22 = new ArrayList<>();
-		Double[] dataS11 = null;
-		Double[] dataS12 = null;
-		Double[] dataS21 = null;
-		Double[] dataS22 = null;
-		Connection conn = null;
-		try {
-			conn = db.getConnection();
-			String sql = "select fequency,real_part_s11,imaginary_part_s11,real_part_s12,imaginary_part_s12,real_part_s21,imaginary_part_s21,real_part_s22,imaginary_part_s22 from curve_smith_data where curve_parameter_id=?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, curveTypeId);
-			ResultSet rs = ps.executeQuery();
-			while(rs.next()){
-				dataS11 = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-				dataS12 = new Double[]{rs.getDouble(1),rs.getDouble(4),rs.getDouble(5)};
-				dataS21 = new Double[]{rs.getDouble(1),rs.getDouble(6),rs.getDouble(7)};
-				dataS22 = new Double[]{rs.getDouble(1),rs.getDouble(8),rs.getDouble(9)};
-				listS11.add(dataS11);
-				listS12.add(dataS12);
-				listS21.add(dataS21);
-				listS22.add(dataS22);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		map.put("S11", listS11);
-		map.put("S12", listS12);
-		map.put("S21", listS21);
-		map.put("S22", listS22);
-		return map;
-	}
+	
 	
 	
 }

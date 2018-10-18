@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.eoulu.dao.CurveDao;
+import com.eoulu.dao.SmithDao;
 import com.eoulu.dao.WaferDao;
 import com.eoulu.service.AnalysisService;
 import com.eoulu.util.DataBaseUtil;
@@ -24,6 +25,7 @@ import com.eoulu.util.DataBaseUtil;
 public class AnalysisServiceImpl implements AnalysisService{
 
 	private CurveDao curveDao = new CurveDao();
+	private SmithDao smithDao = new SmithDao();
 	private WaferDao dao = new WaferDao();
 	@Override
 	public String getVerificationDC(String[] waferId,String[] waferNO,int count) {
@@ -88,11 +90,46 @@ public class AnalysisServiceImpl implements AnalysisService{
 		int id = 0;
 		for(int i=0,length=curveTypeId.length;i<length;i++){
 			id = Integer.parseInt(curveTypeId[i]);
-			map = curveDao.getSmithData(id);
+			map = smithDao.getSmithData(id);
 			result.put(legend[i], map);
 		}
 		return result;
 	}
+
+	@Override
+	public Map<String, Object> getMarkerCurve(String[] curveTypeId, String sParameter) {
+		int id = 0;
+		Map<String, Object> map = new LinkedHashMap<>();
+		List<Double[]> ls = null;
+		for(String str:curveTypeId){
+			id = Integer.parseInt(str);
+			ls = smithDao.getSmithData(id, sParameter);
+			map.put(str, ls);
+		}
+		return map;
+	}
+
+	@Override
+	public boolean saveMarker(String[] marker, String[] calculation, String[] customParameter,
+			String[] calculationResult, String waferId, String sParameter, String module) {
+		List<Object[]> markerList = new ArrayList<>();
+		String[] att = null;
+		Object[] temp=null;
+		for(String str:marker){
+			att = str.split(",");
+			temp = new Object[]{waferId,module,sParameter,att[0],Double.parseDouble(att[1]),Double.parseDouble(att[2])};
+			markerList.add(temp);
+		}
+		List<Object[]> ls = new ArrayList<>();
+		for(int i=0,length=calculation.length;i<length;i++){
+			temp = new Object[]{waferId,module,sParameter,customParameter[i],calculation[i],calculationResult[i]};
+			ls.add(temp);
+		}
+		boolean flag = smithDao.insertMarkerData(markerList);
+		boolean flag2 = smithDao.insertMarkerCalculation(ls);
+		return flag && flag2;
+	}
+
 	
 	
 

@@ -41,7 +41,27 @@ public interface AnalysisService {
 	 * @return
 	 */
 	Map<String,Object> getSmithData(String[] curveTypeId,String[] legend);
+	/**
+	 * marker曲线数据
+	 * key为S2P文件对应的主键
+	 * @param curveTypeId
+	 * @param sParameter  s参数：S11、S12、S21、S22
+	 * @return
+	 */
+	Map<String,Object> getMarkerCurve(String[] curveTypeId,String sParameter);
 	
+	/**
+	 * 保存分析模型的marker与计算参数
+	 * @param marker
+	 * @param calculation
+	 * @param customParameter
+	 * @param calculationResult
+	 * @param waferId
+	 * @param sParameter
+	 * @param module
+	 * @return
+	 */
+	boolean saveMarker(String[] marker,String[] calculation,String[] customParameter,String[] calculationResult,String waferId,String sParameter,String module);
 	
 	
 }
