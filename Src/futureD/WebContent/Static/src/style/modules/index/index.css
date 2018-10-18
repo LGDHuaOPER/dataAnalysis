@@ -122,7 +122,7 @@ span.glyphicon {
 	margin-top: 41px;
 }
 
-.thumbnail[data-ipage="1"]>img {
+.thumbnail[data-ipage="dataStatistics"]>img {
 	margin-top: 26px;
 }
 

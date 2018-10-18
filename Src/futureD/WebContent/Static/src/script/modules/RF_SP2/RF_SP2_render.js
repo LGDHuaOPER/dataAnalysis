@@ -79,7 +79,7 @@ $(function(){
 		            loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
 		        },
 		        legend: {
-					enabled: true
+					enabled: false
 				},
 			    xAxis: {
 					title: {
