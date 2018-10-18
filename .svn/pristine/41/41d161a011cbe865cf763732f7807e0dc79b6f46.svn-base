@@ -1,8 +1,0 @@
-rootUrl=D:/EDM/WaferImage/
-downUrl = /EDM/WaferImage
-initVersion = 1.0.0
-flag = NO
-
-# FileListener
-listenerPath=D:/futureD/Excel
-coverFlag = true
