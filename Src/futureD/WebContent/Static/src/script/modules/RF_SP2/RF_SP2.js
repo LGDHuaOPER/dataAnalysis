@@ -88,6 +88,7 @@ function renderSelectCsv(item, flag, insertDOM){
 		ii = "00"+ii;
 		fileName = fileName+eouluGlobal.S_getLastStr(ii, 3)+'.csv';
 		RF_SP2State.mock.RF_SP2_render.push(fileName);
+		RF_SP2State.mock.RF_SP2_render = _.uniq(RF_SP2State.mock.RF_SP2_render);
 		str2+='<div class="g_bodyin_bodyin_bottom_l'+flag+'_item">'+
 					'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin">'+
 						'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_main">'+fileName+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>'+

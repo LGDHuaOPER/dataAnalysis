@@ -40,14 +40,51 @@ dataStatisticsState.mock = {
 	RF_SP2_MagnitudeDB: futuredGlobal.S_getRF_SP2_MagnitudeDB(),
 	RF_SP2_render: []
 };
-dataStatisticsState.waferSelected = [];
-dataStatisticsState.contextObj = {
+dataStatisticsState.csvANDparamSelected = {
+	csv: [],
+	param: []
+};
+/*dataStatisticsState.contextObj = {
 	classify: null,
 	flag: null,
 	flagArr: ["initial", "change"]
-};
+};*/
 dataStatisticsState.stateObj = {
-	renderSelectCsvSub: false
+	renderSelectCsvSub: false,
+	chartValidate: {
+		"histogram": {
+			csvLen: "+",
+			paramLen: 1
+		},
+		"boxlinediagram": {
+			csvLen: "+",
+			paramLen: 1
+		},
+		"CPK": {
+			csvLen: 1,
+			paramLen: 1
+		},
+		/*"correlationgraph": {
+			csvLen: 0,
+			paramLen: 0
+		},*/
+		"wafermap": {
+			csvLen: "+",
+			paramLen: 1
+		},
+		"gaussiandistribution": {
+			csvLen: "+",
+			paramLen: 1
+		}
+	},
+	chartRenderCurID: 0
+};
+dataStatisticsState.chartMap = {
+	"histogram": "column",
+	"boxlinediagram": "boxplot",
+	"CPK": "line",
+	"correlationgraph": "bubble",
+	"gaussiandistribution": "gaussiandistribution",
 };
 
 function eleResize(){
@@ -62,7 +99,7 @@ function eleResize(){
 
 function eleResize2(){
 	$(".g_bodyin_bodyin_bottom_lsub, .g_bodyin_bodyin_bottom_rsub").height($(".g_bodyin_bodyin_bottom").height());
-	$(".g_bodyin_bodyin_bottom_lsub_top, .g_bodyin_bodyin_bottom_lsub_bottom").innerHeight($(".g_bodyin_bodyin_bottom_lsub").innerHeight() / 2 - 1);
+	$(".g_bodyin_bodyin_bottom_lsub_top, .g_bodyin_bodyin_bottom_lsub_mid").innerHeight(($(".g_bodyin_bodyin_bottom_lsub").innerHeight() - 46) / 2);
 }
 
 function renderSelectCsv(item, flag, insertDOM){
@@ -83,9 +120,10 @@ function renderSelectCsv(item, flag, insertDOM){
 		ii = "00"+ii;
 		fileName = fileName+eouluGlobal.S_getLastStr(ii, 3)+'.csv';
 		dataStatisticsState.mock.RF_SP2_render.push(fileName);
+		dataStatisticsState.mock.RF_SP2_render = _.uniq(dataStatisticsState.mock.RF_SP2_render);
 		str2+='<div class="g_bodyin_bodyin_bottom_l'+flag+'_item">'+
 					'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin">'+
-						'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_main">'+fileName+'<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>'+
+						'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_main" data-icsv="'+fileName+'">'+fileName+'<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>'+
 						'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_sub" data-parentfile="'+fileName.replace(".csv", "")+'">';
 		_.times(times, function(index){
 			var num = from+index;
@@ -95,6 +133,71 @@ function renderSelectCsv(item, flag, insertDOM){
 		str2+='</div></div></div>';
 	});
 	insertDOM.empty().append(str2);
+}
+
+function renderChartValidate(){
+	$(".g_bodyin_bodyin_bottom_r .thumbnail:not([data-ichart='correlationgraph'])").addClass("cannotclick");
+	var csvLen = $(".g_bodyin_bodyin_bottom_l_itemin_main.active").length;
+	var paramLen = $(".g_bodyin_bodyin_bottom_l_inbottom a.list-group-item-info").length;
+	var item = {};
+	item.csvLen = csvLen;
+	item.paramLen = paramLen;
+	var findChart = [];
+	var notFindChart = {};
+	_.forOwn(dataStatisticsState.stateObj.chartValidate, function(v, k){
+		if(k == "CPK"){
+			if(csvLen == 1){
+				item.csvLen = 1;
+			}
+		}else{
+			if(csvLen >= 1){
+				item.csvLen = "+";
+			}
+		}
+		if(_.isEqual(v, item)){
+			findChart.push(k);
+		}else{
+			notFindChart[k] = eouluGlobal.S_getObjDifference(item, v);
+		}
+	});
+	return {
+		findChart: findChart,
+		notFindChart: notFindChart
+	};
+}
+
+function changeChartCanClick(item){
+	item.findChart.map(function(v, i){
+		$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='"+v+"']").removeClass("cannotclick");
+	});
+}
+
+function renderChartCsvANDParam(obj){
+	var str = '';
+	if(obj.classify == "csv"){
+		obj.csv.map(function(v, i){
+			str+='<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_item">'+
+						'<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_itemin">'+
+							'<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_itemin_main">'+v+'<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>'+
+						'</div>'+
+					'</div>';
+		});
+	}else if(obj.classify == "table"){
+		str+='<table class="table table-striped table-bordered table-hover table-condensed"><thead><tr><th>参数名称</th><th>下限</th><th>上限</th><th>等分数</th></tr></thead><tbody>';
+		obj.param.map(function(v, i){
+			var id = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
+			str+='<tr data-chartcurid="'+id+'" data-ishowchartparam="'+v+'"><td>'+v+'</td><td>0.32</td><td>1.4</td><td>8</td></tr>';
+		});
+		str+='</tbody></table>';
+	}else if(obj.classify == "ul"){
+		str+='<ul class="list-group">';
+		obj.param.map(function(v, i){
+			var id2 = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
+			str+='<li class="list-group-item" data-chartcurid="'+id2+'" data-ishowchartparam="'+v+'"><span class="badge">参数</span>'+v+'</li>';
+		});
+		str+='</ul>';
+	}
+	obj.insertDOM.empty().append(str);
 }
 
 /*page onload*/
@@ -126,14 +229,15 @@ $(function(){
 		if(!_.isEmpty(curveTypeArr) && !_.isNil(curveTypeArr)){
 			curveTypeArr.map(function(v){
 				str+='<li>'+v+'</li>';
-				istr+='<p>'+v+'</p>';
+				istr+='<a href="javascript:;" class="list-group-item" data-iparam="'+v+'"><span class="badge">选中</span>'+v+'</a>';
 			});
 		}
 		str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
 		$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
-		$(".g_bodyin_bodyin_bottom_l_inbottom").empty().append(istr);
+		$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group").empty().append(istr);
 		$(".g_bodyin_bodyin_top_wrap_m_in>ul>li:first").trigger("click");
 
+		/*主页面csv文件渲染*/
 		renderSelectCsv(item, '', $(".g_bodyin_bodyin_bottom_l_intop"));
 		$(".g_bodyin_bodyin_bottom_l_item:first .g_bodyin_bodyin_bottom_l_itemin_main").trigger("click");
 
@@ -142,7 +246,7 @@ $(function(){
 		}
 	}
 
-	$(".g_bodyin_bodyin_bottom_2").hide();
+	$(".g_bodyin_bodyin_bottom_2, .g_bodyin_bodyin_bottom_rsubin").hide();
 	
 	eleResize();
 	$(window).on("resize", function(){
@@ -156,13 +260,15 @@ $(".g_info_r>.glyphicon-user").click(function(){
 	window.location.assign("admin.html");
 });
 
-/*左侧切换*/
+/*数据统计左侧切换*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).toggleClass("selected");
-	var item = $(this).parent().data("parentfile") +" "+$(this).text();
-	$(this).hasClass("selected") ? dataStatisticsState.waferSelected.push(item) : _.pull(dataStatisticsState.waferSelected, item);
 }).on("click", ".g_bodyin_bodyin_bottom_l_itemin_main", function(){
 	$(this).toggleClass("active");
+	var csv = $(this).data("icsv").toString();
+	$(this).hasClass("active") ? dataStatisticsState.csvANDparamSelected.csv.push(csv) : _.pull(dataStatisticsState.csvANDparamSelected.csv, csv);
+	var item = renderChartValidate();
+	changeChartCanClick(item);
 });
 
 /*上部分左右移动*/
@@ -213,53 +319,213 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 	}
 });
 
-/*分析模型左侧*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_subin", function(){
-	$(this).toggleClass("selected");
-}).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_main", function(){
+/*chart左侧*/
+$(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_main", function(){
 	$(this).toggleClass("active");
 });
 
 /*主页面与图表切换*/
 $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbnail", function(){
+	if($(this).hasClass("cannotclick")) return false;
 	var target = $(this).data("ipage");
-	$("."+target).siblings().fadeOut(300, function(){
-		$(this).siblings().fadeIn(300);
+	var ichart = $(this).data("ichart");
+	$("."+target).siblings().fadeOut(200);
+	$("."+target).delay(200).fadeIn(200,function(){
 		if(target == "g_bodyin_bodyin_bottom_2"){
 			$(".g_bodyin_tit_r>span").show();
+			renderChartCsvANDParam({
+				classify: "csv",
+				csv: _.cloneDeep(dataStatisticsState.csvANDparamSelected.csv),
+				flag: "sub",
+				insertDOM: $(".g_bodyin_bodyin_bottom_lsub_top"),
+				ishowchart: ichart
+			});
+			var classify;
+			if(ichart == "histogram" || ichart == "wafermap" || ichart == "gaussiandistribution"){
+				classify = "table";
+			}else if(ichart == "boxlinediagram" || ichart == "CPK" || ichart == "correlationgraph"){
+				classify = "ul";
+			}
+			renderChartCsvANDParam({
+				classify: classify,
+				param: _.cloneDeep(dataStatisticsState.csvANDparamSelected.param),
+				insertDOM: $(".g_bodyin_bodyin_bottom_lsub_mid"),
+				ishowchart: ichart
+			});
+			$(".g_bodyin_bodyin_bottom_lsub_item .g_bodyin_bodyin_bottom_lsub_itemin_main").trigger("click");
 			if(!dataStatisticsState.stateObj.renderSelectCsvSub){
-				renderSelectCsv(store.get("futureDT2__projectAnalysis__selectedObj"), 'sub', $(".g_bodyin_bodyin_bottom_lsub_top"));
 				eleResize2();
-				$(".g_bodyin_bodyin_bottom_lsub_item:first .g_bodyin_bodyin_bottom_lsub_itemin_main").trigger("click");
-
-				/*var idata = dataStatisticsState.mock.RF_SP2[0].curveinfos[2].smithAndCurve.S21;
-				var idata1 = dataStatisticsState.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21;
-				var ixData = [];
-				ixData[0] = [];
-				ixData[1] = [];
-				var iyData = [];
-				iyData[0] = [];
-				iyData[1] = [];
-				_.forEach(idata, function(v, i){
-					ixData[0].push(v[0]);
-					iyData[0].push(v[2]);
-				});
-				_.forEach(idata1, function(v, i){
-					ixData[1].push(v[0]);
-					iyData[1].push(v[2]);
-				});
-				renderSpline({
-					container: "markerChart",
-					title: "marker图",
-					data: {
-						xData: ixData,
-						yData: iyData
-					}
-				});*/
 				dataStatisticsState.stateObj.renderSelectCsvSub = true;
 			}
+			/*分发chart*/
+			$(".g_bodyin_bodyin_bottom_rsubin:not([data-ishowchart='"+ichart+"'])").fadeOut(100);
+			$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']").delay(100).fadeIn(200, function(){
+				/*画图*/
+				buildChartContainer({
+					ishowchart: ichart
+				});
+				$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']>.chartBody>.container-fluid [data-initrenderchart]").each(function(i, el){
+					var container = $(this).attr("id");
+					var curLine = $(".g_bodyin_bodyin_bottom_lsub_mid [data-chartcurid='"+container+"']");
+					var subtitle;
+					if(classify == "table"){
+						subtitle = "等分数"+curLine.children("td:eq(3)").text();
+					}else if(classify == "ul"){
+						subtitle = "";
+					}
+					/*分流逻辑*/
+					var type = _.find(dataStatisticsState.chartMap, function(o, k){
+						return k == ichart;
+					});
+					var yAxis = {};
+					var xAxis = {};
+					var chart = {};
+					if(type == 'column'){
+						/*chart = {
+							type: type,
+							plotBorderWidth: 0,
+							zoomType: 'xy'
+						};*/
+						/*xAxis = {
+							type: 'linear',
+							tickLength: 0
+							// tickmarkPlacement: 'between'
+						};
+						yAxis = {
+							min: 0,
+							title: {
+								text: '降雨量 (mm)'
+							}
+						};*/
+						/*直方图
+						xAxis = [{
+							title: { text: 'Data' }
+						}, {
+							title: { text: 'Histogram' },
+							opposite: true
+						}];
+						yAxis = [{
+							title: { text: 'Data' }
+						}, {
+							title: { text: 'Histogram' },
+							opposite: true
+						}];*/
+						yAxis = {
+							title: {
+								title: '百分数'
+							}
+						};
+						xAxis = {
+							min: Number(curLine.children("td:eq(1)").text()),
+							max: Number(curLine.children("td:eq(2)").text()),
+							tickAmount: Number(curLine.children("td:eq(3)").text()) + 1,
+							type: 'linear',
+							labels: {
+								rotation: -45  // 设置轴标签旋转角度
+							}
+						};
+					}else if(type == 'boxplot'){
+						xAxis = {
+									categories: ['1', '2', '3', '4', '5'],
+									title: {
+										text: ''
+									}
+								};
+						yAxis = {
+							title: {
+								text: '观测值'
+							},
+							plotLines: [{
+								value: 932,
+								color: 'red',
+								width: 1,
+								label: {
+									text: '理论模型: 932',
+									align: 'center',
+									style: {
+										color: 'gray'
+									}
+								}
+							}]
+						};
+					}else if(type == 'line'){
+						xAxis = {
+							categories: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+						};
+						yAxis = {
+							title: {
+								text: '气温 (°C)'
+							}
+						};
+					}else if(type == 'bubble'){
+						xAxis = {
+							gridLineWidth: 1
+						};
+						yAxis = {
+							startOnTick: false,
+							endOnTick: false
+						};
+					}else if(type == 'gaussiandistribution'){
+						xAxis = [{
+							categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+										 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+							crosshair: true
+						}];
+						yAxis = [{ // Primary yAxis
+							labels: {
+								format: '{value}°C',
+								style: {
+									color: Highcharts.getOptions().colors[1]
+								}
+							},
+							title: {
+								text: '温度',
+								style: {
+									color: Highcharts.getOptions().colors[1]
+								}
+							}
+						}, { // Secondary yAxis
+							title: {
+								text: '降雨量',
+								style: {
+									color: Highcharts.getOptions().colors[0]
+								}
+							},
+							labels: {
+								format: '{value} mm',
+								style: {
+									color: Highcharts.getOptions().colors[0]
+								}
+							},
+							opposite: true
+						}];
+					}
+					initRenderChart({
+						chart: {
+							type: type
+						},
+						container: container,
+						title: curLine.data("ishowchartparam"),
+						subtitle: subtitle,
+						yAxis: yAxis,
+						xAxis: xAxis
+					});
+				});
+			});
 		}else{
 			$(".g_bodyin_tit_r>span").hide();
 		}
 	});
+});
+
+/*参数选中*/
+$(document).on("click", ".g_bodyin_bodyin_bottom_l_inbottom>.list-group>a", function(){
+	$(this).toggleClass("list-group-item-info");
+	var that = $(this);
+	var param = that.data("iparam").toString();
+	that.hasClass("list-group-item-info") ? dataStatisticsState.csvANDparamSelected.param.push(param) : _.pull(dataStatisticsState.csvANDparamSelected.param, param);
+	var a = ["选中", "取消选中"];
+	$(this).children("span").text(a[Number(that.hasClass("list-group-item-info"))]);
+	var item = renderChartValidate();
+	changeChartCanClick(item);
 });
