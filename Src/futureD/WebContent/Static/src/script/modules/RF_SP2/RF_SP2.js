@@ -47,7 +47,8 @@ RF_SP2State.contextObj = {
 	flagArr: ["initial", "change"]
 };
 RF_SP2State.stateObj = {
-	renderSelectCsvSub: false
+	renderSelectCsvSub: false,
+	calcTableIndex: -1
 };
 
 function eleResize(){
@@ -297,3 +298,27 @@ $(".g_bodyin_tit_r>.glyphicon-stats").click(function(){
 	store.set("RF_SP2_renderCSV", RF_SP2State.mock.RF_SP2_render);
 	window.location.assign("dataStatistics.html");
 });
+
+/*点击出现计算器*/
+$(document).on("click", "tr.canCalc", function(){
+	$(".RF_SP2_cover, .subAddParam").slideDown(200);
+	RF_SP2State.stateObj.calcTableIndex = $(this).index();
+}).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
+	$(".RF_SP2_cover, .subAddParam").slideUp(200);
+}).on("click", ".subAddParam_footin>.btn-primary", function(){
+	var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2State.stateObj.calcTableIndex);
+	tr.children().eq(0).text($("#calc_text").val());
+	tr.children().eq(2).text($("#clac_textarea").val());
+	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+	$(".subAddParam_footin>.btn-warning").trigger("click");
+});
+
+$(".calcin>div>.row>div>div").on({
+	"mousedown": function(){
+		$(this).addClass("active");
+	},
+	"mouseup": function(){
+		$(this).removeClass("active");
+		$("#clac_textarea").val($("#clac_textarea").val()+$(this).text());
+	}
+})

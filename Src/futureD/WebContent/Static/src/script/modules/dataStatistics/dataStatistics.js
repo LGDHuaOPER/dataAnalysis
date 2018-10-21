@@ -83,8 +83,9 @@ dataStatisticsState.chartMap = {
 	"histogram": "column",
 	"boxlinediagram": "boxplot",
 	"CPK": "line",
-	"correlationgraph": "bubble",
+	"correlationgraph": "scatter",
 	"gaussiandistribution": "gaussiandistribution",
+	"wafermap": "wafermap",
 };
 
 function eleResize(){
@@ -330,6 +331,7 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 	var target = $(this).data("ipage");
 	var ichart = $(this).data("ichart");
 	$("."+target).siblings().fadeOut(200);
+	$(".g_bodyin_bodyin_bottom_rsubin:not([data-ishowchart='"+ichart+"'])").fadeOut(200);
 	$("."+target).delay(200).fadeIn(200,function(){
 		if(target == "g_bodyin_bodyin_bottom_2"){
 			$(".g_bodyin_tit_r>span").show();
@@ -358,14 +360,15 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 				dataStatisticsState.stateObj.renderSelectCsvSub = true;
 			}
 			/*分发chart*/
-			$(".g_bodyin_bodyin_bottom_rsubin:not([data-ishowchart='"+ichart+"'])").fadeOut(100);
-			$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']").delay(100).fadeIn(200, function(){
+			$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']").delay(50).fadeIn(200, function(){
 				/*画图*/
 				buildChartContainer({
 					ishowchart: ichart
 				});
 				$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']>.chartBody>.container-fluid [data-initrenderchart]").each(function(i, el){
 					var container = $(this).attr("id");
+					var canvasID = "canvas_"+container;
+					$(this).append("<canvas id='"+canvasID+"'></canvas>")
 					var curLine = $(".g_bodyin_bodyin_bottom_lsub_mid [data-chartcurid='"+container+"']");
 					var subtitle;
 					if(classify == "table"){
@@ -380,136 +383,171 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 					var yAxis = {};
 					var xAxis = {};
 					var chart = {};
-					if(type == 'column'){
-						/*chart = {
-							type: type,
-							plotBorderWidth: 0,
-							zoomType: 'xy'
-						};*/
-						/*xAxis = {
-							type: 'linear',
-							tickLength: 0
-							// tickmarkPlacement: 'between'
-						};
-						yAxis = {
-							min: 0,
-							title: {
-								text: '降雨量 (mm)'
-							}
-						};*/
-						/*直方图
-						xAxis = [{
-							title: { text: 'Data' }
-						}, {
-							title: { text: 'Histogram' },
-							opposite: true
-						}];
-						yAxis = [{
-							title: { text: 'Data' }
-						}, {
-							title: { text: 'Histogram' },
-							opposite: true
-						}];*/
-						yAxis = {
-							title: {
-								title: '百分数'
-							}
-						};
-						xAxis = {
-							min: Number(curLine.children("td:eq(1)").text()),
-							max: Number(curLine.children("td:eq(2)").text()),
-							tickAmount: Number(curLine.children("td:eq(3)").text()) + 1,
-							type: 'linear',
-							labels: {
-								rotation: -45  // 设置轴标签旋转角度
-							}
-						};
-					}else if(type == 'boxplot'){
-						xAxis = {
-									categories: ['1', '2', '3', '4', '5'],
-									title: {
-										text: ''
-									}
-								};
-						yAxis = {
-							title: {
-								text: '观测值'
+					if(type == "wafermap"){
+						buildColorGradation({
+							width: $(this).width(),
+							height: $(this).height(),
+							container: canvasID,
+							bgFillColor: "#eee",
+							waferData: futuredGlobal.S_getMockWaferData()[0],
+							spacePercent: {
+								x: 0.13,
+								y: 0.13
 							},
-							plotLines: [{
-								value: 932,
-								color: 'red',
-								width: 1,
-								label: {
-									text: '理论模型: 932',
-									align: 'center',
+							m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%3].m_DieDataListNew,
+							colorGradation: {
+								limitColor: "#FF0000",
+								floorColor: "#0000FF",
+								nums: 256
+							}
+						});
+						$(".colorGradient").width($(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='wafermap']>.chartTit").width() - 200).height($(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='wafermap']>.chartTit").height());
+						_.times(256, function(ii){
+							var color = getGradientColor ('#FF0000', '#0000FF', 256, ii);
+							var height = $(".colorGradient").height();
+							var width = $(".colorGradient").width() / 300;
+							$(".colorGradient").append("<span class='colorGradientSpan' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+						});
+					}else{
+						if(type == 'column'){
+							/*chart = {
+								type: type,
+								plotBorderWidth: 0,
+								zoomType: 'xy'
+							};*/
+							/*xAxis = {
+								type: 'linear',
+								tickLength: 0
+								// tickmarkPlacement: 'between'
+							};
+							yAxis = {
+								min: 0,
+								title: {
+									text: '降雨量 (mm)'
+								}
+							};*/
+							/*直方图
+							xAxis = [{
+								title: { text: 'Data' }
+							}, {
+								title: { text: 'Histogram' },
+								opposite: true
+							}];
+							yAxis = [{
+								title: { text: 'Data' }
+							}, {
+								title: { text: 'Histogram' },
+								opposite: true
+							}];*/
+							yAxis = {
+								title: {
+									title: '百分数'
+								}
+							};
+							xAxis = {
+								min: Number(curLine.children("td:eq(1)").text()),
+								max: Number(curLine.children("td:eq(2)").text()),
+								tickAmount: Number(curLine.children("td:eq(3)").text()) + 1,
+								type: 'linear',
+								labels: {
+									rotation: -45  // 设置轴标签旋转角度
+								}
+							};
+						}else if(type == 'boxplot'){
+							xAxis = {
+										categories: ['1', '2', '3', '4', '5'],
+										title: {
+											text: ''
+										}
+									};
+							yAxis = {
+								title: {
+									text: '观测值'
+								},
+								plotLines: [{
+									value: 932,
+									color: 'red',
+									width: 1,
+									label: {
+										text: '理论模型: 932',
+										align: 'center',
+										style: {
+											color: 'gray'
+										}
+									}
+								}]
+							};
+						}else if(type == 'line'){
+							xAxis = {
+								categories: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二']
+							};
+							yAxis = {
+								title: {
+									text: 'values'
+								}
+							};
+						}else if(type == 'scatter'){
+							xAxis = {
+								title: {
+									enabled: true,
+									text: '身高 (cm)'
+								},
+								startOnTick: true,
+								endOnTick: true,
+								showLastLabel: true
+							};
+							yAxis = {
+								title: {
+									text: '体重 (kg)'
+								}
+							};
+						}else if(type == 'gaussiandistribution'){
+							xAxis = [{
+								/*categories: [30, 60, 90, 120, 150, 180,
+											 210, 240, 270, 300, 330, 360],*/
+								crosshair: true,
+								type: 'linear',
+							}];
+							yAxis = [{ // Primary yAxis
+								labels: {
+									format: '{value}一一',
 									style: {
-										color: 'gray'
+										color: Highcharts.getOptions().colors[1]
+									}
+								},
+								title: {
+									text: '参数一',
+									style: {
+										color: Highcharts.getOptions().colors[1]
 									}
 								}
-							}]
-						};
-					}else if(type == 'line'){
-						xAxis = {
-							categories: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
-						};
-						yAxis = {
-							title: {
-								text: '气温 (°C)'
-							}
-						};
-					}else if(type == 'bubble'){
-						xAxis = {
-							gridLineWidth: 1
-						};
-						yAxis = {
-							startOnTick: false,
-							endOnTick: false
-						};
-					}else if(type == 'gaussiandistribution'){
-						xAxis = [{
-							categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-										 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-							crosshair: true
-						}];
-						yAxis = [{ // Primary yAxis
-							labels: {
-								format: '{value}°C',
-								style: {
-									color: Highcharts.getOptions().colors[1]
-								}
+							}, { // Secondary yAxis
+								title: {
+									text: '参数二',
+									style: {
+										color: Highcharts.getOptions().colors[0]
+									}
+								},
+								labels: {
+									format: '{value}二二',
+									style: {
+										color: Highcharts.getOptions().colors[0]
+									}
+								},
+								opposite: true
+							}];
+						}
+						initRenderChart({
+							chart: {
+								type: type
 							},
-							title: {
-								text: '温度',
-								style: {
-									color: Highcharts.getOptions().colors[1]
-								}
-							}
-						}, { // Secondary yAxis
-							title: {
-								text: '降雨量',
-								style: {
-									color: Highcharts.getOptions().colors[0]
-								}
-							},
-							labels: {
-								format: '{value} mm',
-								style: {
-									color: Highcharts.getOptions().colors[0]
-								}
-							},
-							opposite: true
-						}];
+							container: container,
+							title: curLine.data("ishowchartparam"),
+							subtitle: subtitle,
+							yAxis: yAxis,
+							xAxis: xAxis
+						});
 					}
-					initRenderChart({
-						chart: {
-							type: type
-						},
-						container: container,
-						title: curLine.data("ishowchartparam"),
-						subtitle: subtitle,
-						yAxis: yAxis,
-						xAxis: xAxis
-					});
 				});
 			});
 		}else{

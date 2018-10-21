@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		#div1, #div2 {
+			width: 500px;
+			height: 500px;
+		}
+		
+		#div3 {
+			width: 512px;
+			height: 10px;
+		}
+
+		.qq {
+			width: 2px;
+			height: 10px;
+			display: inline-block;
+		}
+	</style>
+</head>
+<body>
+	<div id="div1">
+		<canvas id="canvas"></canvas>
+	</div>
+	<div id="div2">
+		<canvas id="canvas2"></canvas>
+	</div>
+	<div id="div3"></div>
+	<script src="../script/libs/jquery-3.3.1.min.js"></script>
+	<script src="../script/libs/lodash.min.js"></script>
+	<script src="../script/common/futureD_config.js"></script>
+	<script src="../script/libs/drawWaferMap.js"></script>
+	<script src="../script/common/mock.js"></script>
+	<script>
+	for(var i = 1; i<257; i++){
+		var color = getGradientColor ('#FF0000', '#0000FF', 256, i);
+		console.log(color)
+		$("#div3").append("<div class='qq' style='background: "+color+"'></div>");
+	}
+	buildColorGradation({
+		width: 500,
+		height: 500,
+		container: "canvas",
+		bgFillColor: "#0000ff",
+		waferData: futuredGlobal.S_getMockWaferData()[0],
+		spacePercent: {
+			x: 0.05,
+			y: 0.05
+		},
+		m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[0].m_DieDataListNew,
+		colorGradation: {
+			limitColor: "#FF0000",
+			floorColor: "#0000FF",
+			nums: 256
+		}
+	});
+	buildColorGradation({
+		width: 500,
+		height: 500,
+		container: "canvas2",
+		bgFillColor: "#0000ff",
+		waferData: futuredGlobal.S_getMockWaferData()[0],
+		spacePercent: {
+			x: 0.1,
+			y: 0.1
+		},
+		m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[1].m_DieDataListNew,
+		colorGradation: {
+			limitColor: "#FF0000",
+			floorColor: "#0000FF",
+			nums: 256
+		}
+	});
+	</script>
+</body>
+</html>

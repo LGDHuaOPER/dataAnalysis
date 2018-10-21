@@ -129,80 +129,109 @@ function initRenderChart(obj){
 					}
 				},
 				series: [{
-					name: '东京',
+					name: '数据一',
 					data: [7.0, 6.9, 9.5, 14.5, 18.4, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
 				}, {
-					name: '伦敦',
+					name: '数据二',
 					data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
 				}]
 			})
 		);
 	}
 	/*相关性图*/
-	else if(obj.chart.type == 'bubble'){
+	else if(obj.chart.type == 'scatter'){
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 				chart: {
-					plotBorderWidth: 1,
 					zoomType: 'xy'
 				},
+				legend: {
+					layout: 'vertical',
+					align: 'left',
+					verticalAlign: 'top',
+					x: 100,
+					y: 70,
+					floating: true,
+					backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+					borderWidth: 1
+				},
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 5,
+							states: {
+								hover: {
+									enabled: true,
+									lineColor: 'rgb(100,100,100)'
+								}
+							}
+						},
+						states: {
+							hover: {
+								marker: {
+									enabled: false
+								}
+							}
+						},
+						tooltip: {
+							headerFormat: '<b>{series.name}</b><br>',
+							pointFormat: '{point.x} cm, {point.y} kg'
+						}
+					}
+				},
 				series: [{
-					name:'气泡1',
-					data: [
-						[9, 81, 63],
-						[98, 5, 89],
-						[51, 50, 73],
-						[41, 22, 14],
-						[58, 24, 20],
-						[78, 37, 34],
-						[55, 56, 53],
-						[18, 45, 70],
-						[42, 44, 28],
-						[3, 52, 59],
-						[31, 18, 97],
-						[79, 91, 63],
-						[93, 23, 23],
-						[44, 83, 22]
-					],
-					marker: {
-						fillColor: {
-							radialGradient: { cx: 0.4, cy: 0.3, r: 0.7 },
-							stops: [
-								[0, 'rgba(255,255,255,0.5)'],
-								[1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0.5).get('rgba')]
-							]
-						}
-					}
+					name: '数据一',
+					color: 'rgba(223, 83, 83, .5)',
+					data: [[161.2, 51.6], [167.5, 59.0], [159.5, 49.2], [157.0, 63.0], [155.8, 53.6],
+						   [170.0, 59.0], [159.1, 47.6], [166.0, 69.8], [176.2, 66.8], [160.2, 75.2],
+						   [172.5, 55.2], [170.9, 54.2], [172.9, 62.5], [153.4, 42.0], [160.0, 50.0],
+						   [147.2, 49.8], [168.2, 49.2], [175.0, 73.2], [157.0, 47.8], [167.6, 68.8],
+						   [159.5, 50.6], [175.0, 82.5], [166.8, 57.2], [176.5, 87.8], [170.2, 72.8],
+						  ]
 				}, {
-					name:'气泡2',
-					data: [
-						[42, 38, 20],
-						[6, 18, 1],
-						[1, 93, 55],
-						[57, 2, 90],
-						[80, 76, 22],
-						[11, 74, 96],
-						[88, 56, 10],
-						[30, 47, 49],
-						[57, 62, 98],
-						[4, 16, 16],
-						[46, 10, 11],
-						[22, 87, 89],
-						[57, 91, 82],
-						[45, 15, 98]
-					],
-					marker: {
-						fillColor: {
-							radialGradient: { cx: 0.4, cy: 0.3, r: 0.7 },
-							stops: [
-								[0, 'rgba(255,255,255,0.5)'],
-								[1, Highcharts.Color(Highcharts.getOptions().colors[1]).setOpacity(0.5).get('rgba')]
-							]
-						}
-					}
+					name: '数据二',
+					color: 'rgba(119, 152, 191, .5)',
+					data: [[174.0, 65.6], [175.3, 71.8], [193.5, 80.7], [186.5, 72.6], [187.2, 78.8],
+						   [181.5, 74.8], [184.0, 86.4], [184.5, 78.4], [175.0, 62.0], [184.0, 81.6],
+						   [180.0, 76.6], [177.8, 83.6], [192.0, 90.0], [176.0, 74.6], [174.0, 71.0],
+						   [184.0, 79.6], [192.7, 93.8], [171.5, 70.0], [173.0, 72.4], [176.0, 85.9],
+						   [176.0, 78.8], [180.5, 77.8], [172.7, 66.2], [176.0, 86.4], [173.5, 81.8],
+						  ]
 				}]
 			})
 		);
 	}else if(obj.chart.type == 'gaussiandistribution'){
+		var lowerBound = 10, upperBound = 30;
+		var normalY = function(x, mean, stdDev) {
+			return Math.exp((-0.5) * Math.pow((x - mean) / stdDev, 2)) * 1000;
+		}
+		var getMean = function(lowerBound, upperBound) {
+			return (upperBound + lowerBound) / 2;
+		}
+		// distance between mean and each bound of a 95% confidence interval 
+		// is 2 stdDeviation, so distance between the bounds is 4
+		var getStdDeviation = function(lowerBound, upperBound) {
+			return (upperBound - lowerBound) / 4;
+		}
+		var generatePoints = function(lowerBound, upperBound) {
+			var stdDev = getStdDeviation(lowerBound, upperBound); 
+			var min = lowerBound - 2 * stdDev;
+			var max = upperBound + 2 * stdDev;
+			var unit = (max - min) / 100;
+			return _.range(min, max, unit);
+		}
+		var mean = getMean(lowerBound, upperBound);
+		var stdDev = getStdDeviation(lowerBound, upperBound);
+		var points = generatePoints(lowerBound, upperBound);
+		var seriesData = points.map(function(x){
+			return ({ x: x, y: normalY(x, mean, stdDev)});
+		});
+		var iData = [];
+		_.forEach(seriesData, function(v, i){
+			if(i%8 == 0){
+				iData.push(v.y);
+			}
+		});
+		console.log(iData)
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 				chart: {
 					zoomType: 'xy',
@@ -221,19 +250,20 @@ function initRenderChart(obj){
 					backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
 				},
 				series: [{
-					name: '降雨量',
+					name: '参数一',
 					type: 'column',
 					yAxis: 1,
 					data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
 					tooltip: {
-						valueSuffix: ' mm'
+						valueSuffix: '壹'
 					}
 				}, {
-					name: '温度',
+					name: '参数二',
 					type: 'spline',
-					data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
+					data: iData,
+					// data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
 					tooltip: {
-						valueSuffix: '°C'
+						valueSuffix: '贰'
 					}
 				}]
 			})
