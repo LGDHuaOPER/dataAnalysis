@@ -8,7 +8,7 @@
 	<title>futureD工程分析</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
-	<!-- <link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css"> -->
+	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
@@ -68,6 +68,11 @@
 									<tbody>
 									</tbody>
 								</table>
+								<div class="futureDT2_page_wrapper">
+									<div class="futureDT2_page">
+										<ol class="pagination" id="pagelist"></ol><span class="futureDT2_page_span">&nbsp;到<input type="text" id="jumpText">页&nbsp;<input type="button" class="btn btn-primary" value="确定" id="jumpPage"></span>
+									</div>
+								</div>
 							</div><!-- g_bodyin_bodyin_body end -->
 						</div>
 					</div>
@@ -129,7 +134,7 @@
 	<script src="../script/libs/store.legacy.min.js"></script>
 	<script src="../script/libs/moment-with-locales.min.js"></script>
 	<script src="../script/common/futureDT2session.js"></script>
-	<!-- <script src="../script/common/pagination.min.js"></script> -->
+	<script src="../script/common/pagination.min.js"></script>
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 	<script src="../script/common/futureD_config.js"></script>

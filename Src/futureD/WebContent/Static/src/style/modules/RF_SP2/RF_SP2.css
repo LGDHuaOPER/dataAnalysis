@@ -143,6 +143,11 @@ body {
 	padding-top: 20px;
 }
 
+.g_bodyin_bodyin_bottom_lsub_bottom th:nth-child(3) {
+	max-width: 200px;
+	width: 200px;
+}
+
 .canCalc {
 	cursor: pointer;
     height: 32px;

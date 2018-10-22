@@ -227,6 +227,39 @@ span.glyphicon {
 	display: none;
 }
 
+/* 翻页组件 */
+.futureDT2_page_wrapper {
+	text-align: center;
+}
+
+.futureDT2_page {
+	display: inline-block;
+}
+
+.futureDT2_page_span {
+	display: inline-block;
+}
+
+.futureDT2_page_span input[type='text'] {
+	margin-left: 3px;
+	margin-right: 3px;
+	width: 50px;
+}
+
+.pagination .pagination-item .pagination-link {
+	border-radius: 0px;
+}
+
+.pagination .pagination-item .pagination-link.current {
+	background-color: #3d89f9;
+	color: #fff;
+}
+
+#pagelist, .futureDT2_page_span {
+	vertical-align: middle;
+}
+/* 翻页组件 end */
+
 @media screen and (max-height: 500px) {
     body {
         min-height: 499px;

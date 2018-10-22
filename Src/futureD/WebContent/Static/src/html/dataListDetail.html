@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 为移动设备添加 viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+	<title>futureD数据统计-详细信息</title>
+	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/modules/dataListDetail/dataListDetail.css" type="text/css">
+</head>
+<body>
+	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
+	<div class="g_info">
+		<div class="g_info_l">futureD数据管理与分析</div>
+		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+	</div>
+	<div class="g_menu">
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs" role="tablist">
+		    <li role="presentation" class="active" data-iclassify="allDetail"><a href="#allDetail" aria-controls="allDetail" role="tab" data-toggle="tab" title="您可以快速查看该晶圆的所有信息">所有信息</a></li>
+		    <li role="presentation" data-iclassify="parameterMap"><a href="#parameterMap" aria-controls="parameterMap" role="tab" data-toggle="tab" title="您可以快速预览参数Map">参数图</a></li>
+		    <li role="presentation" data-iclassify="vectorMap"><a href="#vectorMap" aria-controls="vectorMap" role="tab" data-toggle="tab" title="您可以快速预览矢量Map">矢量图</a></li>
+		</ul>
+	</div>
+	<div class="g_body">
+		<div class="g_bodyin">
+			<div class="g_bodyin_tit">
+				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_r">
+					<ol class="breadcrumb">
+					  	<li><a href="index.html">主页面</a></li>
+					  	<li><a href="dataList.html">数据统计</a></li>
+					  	<li class="active">详细信息</li>
+					</ol>
+					<span class="glyphicon glyphicon glyphicon-share-alt" aria-hidden="true" title="返回" data-ipage="g_bodyin_bodyin_bottom_1"></span>
+				</div>
+			</div>
+			<div class="g_bodyin_body">
+				<div class="g_bodyin_bodyin">
+					<!-- Tab panes -->
+					<div class="tab-content">
+					    <div role="tabpanel" class="tab-pane fade in active" id="allDetail">
+					    	allDetail
+					    </div>
+					    <div role="tabpanel" class="tab-pane fade" id="parameterMap">
+					    	parameterMap
+					    </div><!-- parameterMap end -->
+					    <div role="tabpanel" class="tab-pane fade" id="vectorMap">
+					    	vectorMap
+					    </div><!-- vectorMap end -->
+					</div><!-- tab-content end -->
+				</div><!-- g_bodyin_bodyin end -->
+			</div>
+		</div>
+	</div>
+	<script src="../script/libs/jquery-3.3.1.min.js"></script>
+	<script src="../script/libs/bootstrap.min.js"></script>
+	<script src="../script/libs/lodash.min.js"></script>
+	<script src="../script/libs/store.legacy.min.js"></script>
+	<script src="../script/libs/moment-with-locales.min.js"></script>
+	<script src="../script/common/futureDT2session.js"></script>
+	<script src="../script/libs/sweetalert2.min.js"></script>
+	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="../script/common/futureD_config.js"></script>
+	<script src="../script/common/mock.js"></script>
+	<!-- <script src="../script/libs/progressbar.min.js"></script> -->
+	<script src="../script/libs/newhighcharts.js"></script>	
+	<script src="../script/libs/highcharts-axis-arrow.js"></script>
+	<script src="../script/libs/highcharts-more.js"></script>
+	<script src="../script/libs/histogram-bellcurve.js"></script>
+	<script src="../script/modules/dataStatistics/dataStatisticsRender.js"></script>
+	<script src="../script/libs/drawWaferMap.js"></script>
+	<script src="../script/modules/dataStatistics/dataStatistics.js"></script>
+</body>
+</html>

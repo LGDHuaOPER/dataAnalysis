@@ -205,7 +205,7 @@ function renderChartCsvANDParam(obj){
 $(function(){
 	var item = store.get("futureDT2__projectAnalysis__selectedObj");
 	if(_.isEmpty(item) || _.isNil(item)){
-		RF_SP2SwalMixin({
+		dataStatisticsSwalMixin({
 			title: '未选中晶圆',
 			text: "请重新选择！",
 			type: 'info',
@@ -308,7 +308,7 @@ $(".g_bodyin_bodyin_top_wrap_r>span").click(function(){
 $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 	var target = $(this).data("targetclass");
 	if(target == "add"){
-		RF_SP2SwalMixin({
+		dataStatisticsSwalMixin({
 			title: '敬请期待',
 			text: "功能尚未开发",
 			type: 'info',

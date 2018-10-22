@@ -400,7 +400,7 @@ $(".g_info_r>.glyphicon-user").click(function(){
 	window.location.assign("admin.html");
 });
 
-$(".g_bodyin_bodyin_tit_l>span.glyphicon-saved").click(function(){
+/*$(".g_bodyin_bodyin_tit_l>span.glyphicon-saved").click(function(){
 	if(dataListState.sellectObj.selectItem.length == 0){
 		dataListSwalMixin({
 			title: '提示',
@@ -420,18 +420,12 @@ $(".g_bodyin_bodyin_tit_l>span.glyphicon-saved").click(function(){
 		showConfirmButton: false,
 		timer: 2000,
 	});
-});
+});*/
 
 /*小眼睛详情*/
 $(document).on("click", ".g_bodyin_bodyin_body tbody .glyphicon-eye-open", function(e){
 	e.stopPropagation();
-	dataListSwalMixin({
-		title: '提示',
-		text: "功能正在开发中！",
-		type: 'info',
-		showConfirmButton: false,
-		timer: 2000,
-	});
+	window.location.assign("dataListDetail.html");
 }).on("click", ".g_bodyin_bodyin_body tbody .glyphicon-edit", function(e){
 	e.stopPropagation();
 	var iThat = $(this).parent();

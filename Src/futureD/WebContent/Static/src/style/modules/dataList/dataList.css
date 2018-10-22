@@ -95,7 +95,7 @@ body {
 
 .g_bodyin_bodyin_tit_l {
 	position: absolute;
-	width: 150px;
+	width: 130px;
 }
 
 .g_bodyin_bodyin_tit_l .glyphicon {
@@ -107,7 +107,7 @@ body {
 }
 
 .g_bodyin_bodyin_tit_r {
-	padding-left: 150px;
+	padding-left: 130px;
 	height: 40px;
 	text-align: right;
 }
