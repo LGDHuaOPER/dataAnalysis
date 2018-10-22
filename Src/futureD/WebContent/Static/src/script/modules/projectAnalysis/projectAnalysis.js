@@ -42,19 +42,6 @@ projectAnalysisState.pageSearchObj = {
 	    // obj.limit：获取每页显示数据条数
 	    // obj.isFirst：是否首次加载页面，一般用于初始加载的判断
 	    projectAnalysisState.pageSearchObj.currentPage = obj.curr;
-	    $(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-	    	if(_.indexOf(projectAnalysisState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-	    		$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-	    	}
-	    });
-	    if(projectAnalysisState.searchObj.hasSearch){
-	    	$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
-	    		var iText = $(this).text();
-	    		var ireplace = "<b style='color:red'>"+projectAnalysisState.searchObj.searchVal+"</b>";
-	    		var iHtml = iText.replace(new RegExp(projectAnalysisState.searchObj.searchVal, 'g'), ireplace);
-	    		$(this).empty().html(iHtml);
-	    	});
-	    }
 	    // 首次不执行
 	    if (!obj.isFirst) {
 	      // do something
@@ -185,6 +172,19 @@ function projectAnalysisRenderData(obj){
 				'</tr>';
 		});
 		$(".g_bodyin_bodyin_body tbody").empty().append(str);
+		$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
+			if(_.indexOf(projectAnalysisState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
+				$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+			}
+		});
+		if(projectAnalysisState.searchObj.hasSearch){
+			$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
+				var iText = $(this).text();
+				var ireplace = "<b style='color:red'>"+projectAnalysisState.searchObj.searchVal+"</b>";
+				var iHtml = iText.replace(new RegExp(projectAnalysisState.searchObj.searchVal, 'g'), ireplace);
+				$(this).empty().html(iHtml);
+			});
+		}
 	}
 }
 
@@ -198,6 +198,11 @@ function analyzeBtn(){
 
 /*page onload*/
 $(function(){
+	var selectItem = store.get("futureDT2__projectAnalysis__selectedObj");
+	if(!_.isNil(selectItem)){
+		projectAnalysisState.sellectObj.selectItem = selectItem.selectedItem;
+	}
+
 	$(".g_bodyin_body_top").height(($(".g_bodyin_body").height())/2);
 	$(".g_bodyin_body_bottom").height(($(".g_bodyin_body").height())/2 - 30);
 
@@ -237,19 +242,6 @@ $(function(){
 		    // obj.limit：获取每页显示数据条数
 		    // obj.isFirst：是否首次加载页面，一般用于初始加载的判断
 		    projectAnalysisState.pageObj.currentPage = obj.curr;
-		    $(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-		    	if(_.indexOf(projectAnalysisState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-		    		$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-		    	}
-		    });
-		    if(projectAnalysisState.searchObj.hasSearch){
-		    	$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
-		    		var iText = $(this).text();
-		    		var ireplace = "<b style='color:red'>"+projectAnalysisState.searchObj.searchVal+"</b>";
-		    		var iHtml = iText.replace(new RegExp(projectAnalysisState.searchObj.searchVal, 'g'), ireplace);
-		    		$(this).empty().html(iHtml);
-		    	});
-		    }
 		    // 首次不执行
 		    if (!obj.isFirst) {
 		      // do something
@@ -536,3 +528,7 @@ $(".g_body_rr_body_btn>input").click(function(){
 	store.set("futureDT2__projectAnalysis__selectedObj", item);
 	window.location.assign("RF_SP2.html");
 });
+
+/*window.addEventListener('unload', function(event) {
+    store.set("futureDT2__session");
+});*/
