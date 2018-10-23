@@ -255,6 +255,9 @@ $(function(){
 		};
 		// 初始化分页器
 		projectAnalysisState.paginationObj.normal = new Pagination(projectAnalysisState.pageObj.selector, projectAnalysisState.pageObj.pageOption);
+
+		// 左下方填充
+		$(".g_bodyin_body_bottom tbody").empty().append($(".g_bodyin_bodyin_body tbody [type='checkbox']:checked").parent().parent().clone());
 	}
 });
 
@@ -518,12 +521,12 @@ $(".g_body_rr_body_itemin").click(function(e){
 });
 
 $(".g_body_rr_body_btn>input").click(function(){
-	var iArr = [];
+	/*var iArr = [];
 	$(".g_bodyin_body_bottom tbody tr").each(function(){
 		iArr.push($(this).find(".not_search [type='checkbox']").data("ivalue").toString());
-	});
+	});*/
 	var item = {};
-	item.selectedItem = iArr;
+	item.selectedItem = projectAnalysisState.sellectObj.selectItem;
 	item.curveType = $(".g_body_rr_body_item.active").data("icurvetype").toString();
 	store.set("futureDT2__projectAnalysis__selectedObj", item);
 	window.location.assign("RF_SP2.html");
