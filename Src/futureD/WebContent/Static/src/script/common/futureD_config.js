@@ -358,8 +358,18 @@
                 });
             }
             return changes(object, base);
+        },
+
+        // @数学
+        S_factorial: function (num) { 
+            if (num < 0) { 
+                return -1; 
+            } else if (num === 0 || num === 1) { 
+                return 1; 
+            } else { 
+                return (num * this.S_factorial(num - 1)); 
+            } 
         }
-        
     };
 
     // 最后将插件对象暴露给全局对象

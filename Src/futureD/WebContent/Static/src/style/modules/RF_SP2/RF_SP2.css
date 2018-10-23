@@ -173,6 +173,7 @@ body {
 
 .g_bodyin_bodyin_bottom_rsubin_tit {
 	grid-area: g_bodyin_bodyin_bottom_rsubin_tit;
+	position: relative;
 	line-height: 50px;
 	text-indent: 20px;
 }
@@ -185,9 +186,49 @@ body {
 	-o-transform:rotate(-90deg); 	/* Opera */
 }
 
+.g_bodyin_bodyin_bottom_rsubin_tit>button {
+	position: relative;
+	z-index: 5;
+}
+
+.buildMarker {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	padding-top: 50px;
+	width: 500px;
+	z-index: 3;
+	border: 1px solid #ccc;
+	background-color: rgba(239, 239, 239, 0.8);
+	display: none;
+}
+
 .g_bodyin_bodyin_bottom_rsubin_body {
 	grid-area: g_bodyin_bodyin_bottom_rsubin_body;
 	padding: 0 40px;
+}
+
+.buildMarker_body {
+	max-height: 380px;
+	overflow-y: auto;
+}
+
+.buildMarker_body .row {
+	margin-bottom: 10px;
+	height: 34px; 
+	line-height: 34px;
+}
+
+.buildMarker_foot {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	line-height: 34px;
+	text-align: center;
+}
+
+.buildMarker_footin {
+	display: inline-block;
+	text-indent: 0px;
 }
 
 #markerChart {
@@ -685,6 +726,20 @@ span.glyphicon {
 
 .subAddParam_footin>input+input {
 	margin-left: 25px;
+}
+
+.reRenderBtnDiv {
+	position: absolute;
+	left: 310px;
+	top: 465px;
+	padding: 10px;
+	display: inline-block;
+	background-color: rgba(239, 239, 239, 0.5);
+	z-index: 2;
+}
+
+div.awesomplete {
+	display: block;
 }
 
 @media screen and (max-width: 1023px) {

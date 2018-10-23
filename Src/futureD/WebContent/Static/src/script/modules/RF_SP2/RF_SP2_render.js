@@ -203,7 +203,17 @@ $(function(){
 function renderSpline(option){
 	var chart = Highcharts.chart(option.container, {
 		chart: {
-			type: 'spline'
+			type: 'spline',
+			zoomType: 'x',
+			resetZoomButton: {
+				position: {
+					align: 'left', // by default
+					// verticalAlign: 'top', // by default
+					x: 90,
+					y: 10
+				},
+				relativeTo: 'chart'
+			}
 		},
 		title: {
 			text: option.title
@@ -216,44 +226,133 @@ function renderSpline(option){
 		},
 	    xAxis: {
 			title: {
-				text: "Hz",
+				text: "Mhz",
 			}, 
 			categories : option.data.xData[0],
 			gridLineColor: '#197F07',
-            gridLineWidth: 1
+			// 网格线线条宽度，当设置为 0 时则不显示网格线
+            gridLineWidth: 0,
+            crosshair: {
+            	dashStyle: "LongDashDotDot",
+            	width: 2,
+            	color: "#bbbbbb"
+            }
 		}, 
 		yAxis: {
 			title: {
 				text: "dB",
 			},
-		    gridLineColor: '#197F07',
+		    gridLineColor: '#eee',
 		    gridLineWidth: 1,
-		  /*  labels: {
-		      step: 0.01
-	    	}  */
+		  	crosshair: {
+		  		dashStyle: "LongDashDotDot",
+		  		width: 2,
+		  		color: "#bbbbbb"
+		  	}
 		},
 		series:  [{
+			name: option.name[0],
 			data: option.data.yData[0]
 		},{
+			name: option.name[1],
 			data: option.data.yData[1]
 		}],
 		credits: {
 			enabled: false
 		},
+		tooltip: {
+			formatter: function (e) {
+                return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, '+this.y+' dB';
+            }
+			/*headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
+		},
 		plotOptions: {
 			series: {
+				allowPointSelect: false,
+				/*dataLabels: {
+					enabled: true,
+					format: '{y} mm'
+				},*/
+				marker: {
+					enabled: true,
+					/*fillColor: "#00aeef",*/
+					radius: 1,
+					symbol: "diamond",
+					states: {
+						hover: {
+							fillColor: 'white',
+	                        lineColor: 'black',
+	                        lineWidth: 3
+						},
+						select: {
+							fillColor: 'white',
+	                        lineColor: 'red',
+	                        lineWidth: 3,
+	                        radius: 4
+						}
+					}
+				},
+				cursor: "pointer",
 				point: {
 					events: {
-						mouseOver: function (pa) {
-							console.log(this);
-							console.log(pa);
-							/*var x = xData[this.x] ;
-							var y = this.y ;
-							var str = y+" dB,"+x+" GHz" ;*/
+						mouseOver: function (ev) {
+							/*console.log(chart.getSelectedPoints());*/
+							var ii = this.colorIndex;
+							if(ii == 0){
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(this.series.name+" "+this.category+"Mhz, "+this.y+"dB");
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(option.name[1]+" "+this.category+"Mhz, "+option.data.yData[1][this.x]+"dB");
+							}else{
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(this.series.name+" "+this.category+"Mhz, "+this.y+"dB");
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(option.name[0]+" "+this.category+"Mhz, "+option.data.yData[0][this.x]+"dB");
+							}
+							/*chart.series[ii].data[1].select(true, true);*/
+						},
+						click: function(ev){
+							var serise1 = 0;
+							var name = this.series.name;
+							var x = this.category;
+							var y = this.y;
+							if(this.selected){
+								this.select(false,true);
+								/*_.isEqual*/
+								_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+										var flag = false;
+										if(o.name == name && o.x == x && o.y == y) flag = true;
+										return flag;
+									 }));
+								$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
+							}else{
+								_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(o){
+									 if(o.name == name){
+									 	serise1++;
+									 }
+								});
+								if(serise1 > 1){
+									RF_SP2SwalMixin({
+										title: "Marker打点提示",
+										text: "目前功能一条曲线最多打2个点",
+										type: "error",
+										timer: 2500
+									});
+									return false;
+								}
+								this.select(true,true);
+								var markerName = "Marker"+(RF_SP2State.stateObj.splineSelectedArr.length + 1);
+								RF_SP2State.stateObj.splineSelectedArr.push({
+									name: name,
+									x: x,
+									y: y,
+									markerName: markerName,
+									key: RF_SP2State.stateObj.comfirm_key
+								});
+								$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name+x)+'"><td contenteditable="true" title="点击修改">'+markerName+'</td><td>'+x+'</td><td>'+y+'</td><td>'+RF_SP2State.stateObj.comfirm_key+'</td></tr>');
+							}
 						}
 					}
 				},
 			}
 		},
 	});
+	option.callback && option.callback(chart);
 }

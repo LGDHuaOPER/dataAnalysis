@@ -140,7 +140,7 @@ $(".button_div>button").click(function(){
 		  		 	type: 'warning',
 		  		 	showConfirmButton: false,
 					timer: 2000,
-		  		})
+		  		});
 		  	}
 		  } else if (
 		    // Read more about handling dismissals
