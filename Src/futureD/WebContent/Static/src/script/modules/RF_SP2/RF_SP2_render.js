@@ -317,6 +317,9 @@ function renderSpline(option){
 						},
 						click: function(ev){
 							console.log("point.click", ev);
+							console.log(chart.series);
+							console.log(chart.xAxis);
+							console.log(this);
 							if(_.isNil(RF_SP2State.stateObj.comfirm_key)){
 								RF_SP2SwalMixin({
 									title: 'Key值设置提醒',
@@ -379,6 +382,38 @@ function renderSpline(option){
 								if(this.selected){
 									/*选中过*/
 									/*第一步，自己曲线找*/
+									var otherx = null;
+									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+											var flag = false;
+											if(o.name == name && o.y == y){
+												flag = true;
+												if(o.x != x){
+													otherx = o.x;
+												}
+											}
+											return flag;
+										 }));
+									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+											var flag = false;
+											if(o.name == name && o.y == y){
+												flag = true;
+												if(o.x != x){
+													otherx = o.x;
+												}
+											}
+											return flag;
+										 }));
+									this.select(false,true);
+									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
+									if(!_.isNil(otherx)){
+										$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+otherx)+"']").remove();
+										console.log(chart.series[Number(!ii)].data)
+										console.log(_.indexOf(chart.xAxis[0].categories, otherx))
+										console.log(otherx)
+										console.log(chart.xAxis[0])
+										console.log(chart.series[Number(!ii)].data[_.indexOf(chart.xAxis[0].categories, otherx)])
+										chart.series[Number(!ii)].data[_.indexOf(chart.xAxis[0].categories, otherx)].select(false, false);
+									}
 									/*第二步，另一条曲线找*/
 									/*this.select(false,true);
 									chart.series[Number(ii)].data[iindex].select(false, true);
@@ -398,7 +433,7 @@ function renderSpline(option){
 												title: "Marker打点提示",
 												text: "以y为Key时，另一点不存在",
 												type: "error",
-												timer: 2500
+												timer: 2000
 											});
 											this.select(true,true);
 											saveMarkerANDaddTr(name, x, y);
@@ -407,16 +442,48 @@ function renderSpline(option){
 												title: "Marker打点提示",
 												text: "以y为Key时，另一点存在但是还未找到",
 												type: "error",
-												timer: 2500
+												timer: 2000
 											});
 											// 找一对一对的
+											var Combinatorial = findPointCombinatorial({
+												fromIndex: iindex,
+												Arr: yData1,
+												baseVal: y
+											});
+											var newPointArr = [];
+											_.forEach(Combinatorial, function(qv, wi){
+												var xx1 = option.data.xData[0][qv.index];
+												var xx2 = option.data.xData[0][qv.index + 1];
+												var yy1 = qv.arr[0];
+												var yy2 = qv.arr[1];
+												newPointArr.push(getPointXY({
+													one: [xx1, yy1],
+													two: [xx2, yy2],
+													baseVal: y,
+													index: qv.index
+												}));
+											});
+											
+											var NewxyData = buildNewxyData({
+												pointArr: newPointArr,
+												xData: _.cloneDeep(option.data.xData[0]),
+												yData: _.cloneDeep(chart.series[Number(!ii)].yData),
+											});
+											chart.xAxis[0].setCategories(NewxyData.xData);
+											chart.series[Number(!ii)].setData(NewxyData.yData);
+											saveMarkerANDaddTr(name, x, y);
+											saveMarkerANDaddTr(name, _.last(newPointArr).x, _.last(newPointArr).y);
+											_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+												var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+												chart.series[ii].data[_.indexOf(NewxyData.yData, v.y)].select(true, true);
+											});
 										}
 									}else{
 										/*找到了*/
 										this.select(true,true);
 										saveMarkerANDaddTr(name, x, y);
 										chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
-										saveMarkerANDaddTr(name, chart.series[Number(!ii)].xData[lastYIndex1], y);
+										saveMarkerANDaddTr(name, option.data.xData[0][lastYIndex1], y);
 									}
 									/*第二步，另一条曲线找*/
 								}
@@ -449,10 +516,12 @@ function judgeIntersect(yData1, iindex, cur, y){
 					return false;
 				}
 			}else{
-				if(cur < (yData1.length - iindex - 1)){
+				flag1 = true;
+				return false;
+				/*if(cur < (yData1.length - iindex - 1)){
 					cur++;
 					judgeIntersect(yData1, iindex, cur, y);
-				}
+				}*/
 			}
 		}
 	});
@@ -493,14 +562,37 @@ function findPointCombinatorial(obj){
 	var flagNum = obj.fromIndex;
 	var returnArr = [];
 	_.reduce(obj.Arr, function(result, value, key, arr) {
-		if(result<obj.baseVal && value)
-	  (result[value] || (result[value] = [])).push(key);
-	  return result;
-	}, obj.Arr[obj.fromIndex + 1]);
-
-	_.forEach(obj.Arr, function(v, i){
-		if(i > obj.fromIndex){
-
+		if(key > obj.fromIndex){
+			if(_.sortBy([result, value])[0] < obj.baseVal && obj.baseVal < _.sortBy([result, value])[1]){
+				returnArr.push({
+					index: key - 1,
+					arr: [result, value]
+				});
+			}
+		  	return value;
 		}
+	}, obj.Arr[obj.fromIndex + 1]);
+	return returnArr;
+}
+
+function getPointXY(obj){
+	var k = (obj.two[1] - obj.one[1]) / obj.two[0] - obj.one[0];
+	var x = obj.two[0] - (obj.two[1] - obj.baseVal) / k;
+	x = Math.floor(x * 100) / 100;
+	return {
+		x: x,
+		y: obj.baseVal,
+		index: obj.index
+	}
+}
+
+function buildNewxyData(obj){
+	_.forEach(obj.pointArr, function(v, i){
+		obj.xData.splice(v.index+i+1, 0, v.x);
+		obj.yData.splice(v.index+i+1, 0, v.y);
 	});
+	return {
+		xData: _.cloneDeep(obj.xData),
+		yData: _.cloneDeep(obj.yData)
+	}
 }
