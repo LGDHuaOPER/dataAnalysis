@@ -133,7 +133,7 @@ $(".button_div>button").click(function(){
 		  		window.sessionStorage.setItem("futureDT2__sessionStorage", JSON.stringify(futureDT2__session));
 		  		store.set('futureDT2__session', futureDT2__session);
 		  		window.location.assign("index.html");
-		  	}catch{
+		  	}catch(err){
 		  		loginSwalMixin({
 		  		 	title: '异常',
 		  		 	text: "您的浏览器不支持sessionStorage！",

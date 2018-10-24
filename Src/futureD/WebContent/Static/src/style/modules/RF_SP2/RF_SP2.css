@@ -141,11 +141,23 @@ body {
 .g_bodyin_bodyin_bottom_lsub_bottom {
 	grid-area: g_bodyin_bodyin_bottom_lsub_bottom;
 	padding-top: 20px;
+	overflow-y: auto;
 }
 
-.g_bodyin_bodyin_bottom_lsub_bottom th:nth-child(3) {
-	max-width: 200px;
-	width: 200px;
+.g_bodyin_bodyin_bottom_lsub_bottom th:nth-child(1), .g_bodyin_bodyin_bottom_lsub_bottom td:nth-child(1), .g_bodyin_bodyin_bottom_lsub_bottom th:nth-child(2), .g_bodyin_bodyin_bottom_lsub_bottom td:nth-child(2) {
+	max-width: 100px;
+	min-width: 100px;
+	width: 100px;
+	word-wrap: break-word;
+    word-break: break-all;
+}
+
+.g_bodyin_bodyin_bottom_lsub_bottom th:nth-child(3), .g_bodyin_bodyin_bottom_lsub_bottom td:nth-child(3) {
+	max-width: 144px;
+	min-width: 144px;
+	width: 144px;
+	word-wrap: break-word;
+    word-break: break-all;
 }
 
 .canCalc {
@@ -731,7 +743,7 @@ span.glyphicon {
 .reRenderBtnDiv {
 	position: absolute;
 	left: 310px;
-	top: 185px;
+	top: 180px;
 	padding: 10px;
 	display: inline-block;
 	background-color: rgba(239, 239, 239, 0.5);

@@ -235,7 +235,8 @@ function renderSpline(option){
             crosshair: {
             	dashStyle: "LongDashDotDot",
             	width: 2,
-            	color: "#bbbbbb"
+            	color: "#bbbbbb",
+            	snap: true
             }
 		}, 
 		yAxis: {
@@ -247,7 +248,8 @@ function renderSpline(option){
 		  	crosshair: {
 		  		dashStyle: "LongDashDotDot",
 		  		width: 2,
-		  		color: "#bbbbbb"
+		  		color: "#bbbbbb",
+		  		snap: true
 		  	}
 		},
 		series:  [{
@@ -273,6 +275,11 @@ function renderSpline(option){
 				/*dataLabels: {
 					enabled: true,
 					format: '{y} mm'
+				},*/
+				/*events: {
+					click: function(e){
+						console.log("event", e)
+					}
 				},*/
 				marker: {
 					enabled: true,
@@ -309,44 +316,110 @@ function renderSpline(option){
 							/*chart.series[ii].data[1].select(true, true);*/
 						},
 						click: function(ev){
-							var serise1 = 0;
+							console.log("point.click", ev);
+							if(_.isNil(RF_SP2State.stateObj.comfirm_key)){
+								RF_SP2SwalMixin({
+									title: 'Key值设置提醒',
+									text: "请先设置Key值并保存",
+									type: 'info',
+									showConfirmButton: false,
+									timer: 2000,
+								});
+								return false;
+							}
+							var ii = !this.colorIndex;
 							var name = this.series.name;
+							var name2 = chart.series[Number(ii)].name;
 							var x = this.category;
 							var y = this.y;
-							if(this.selected){
-								this.select(false,true);
-								/*_.isEqual*/
-								_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
-										var flag = false;
-										if(o.name == name && o.x == x && o.y == y) flag = true;
-										return flag;
-									 }));
-								$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
-							}else{
-								_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(o){
-									 if(o.name == name){
-									 	serise1++;
-									 }
-								});
-								if(serise1 > 1){
-									RF_SP2SwalMixin({
-										title: "Marker打点提示",
-										text: "目前功能一条曲线最多打2个点",
-										type: "error",
-										timer: 2500
+							var iindex = this.x;
+							if(RF_SP2State.stateObj.comfirm_key == "x"){
+								/*以X为Key*/
+								var y2 = chart.series[Number(ii)].yData[iindex];
+								if(this.selected){
+									/*以前选中了*/
+									this.select(false,true);
+									chart.series[Number(ii)].data[iindex].select(false, true);
+									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+											var flag = false;
+											if(o.name == name && o.x == x) flag = true;
+											return flag;
+										 }));
+									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+											var flag = false;
+											if(o.name == name2 && o.x == x) flag = true;
+											return flag;
+										 }));
+									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
+									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name2+x)+"']").remove();
+								}else{
+									/*以前未选中*/
+									var serise1 = 0;
+									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(o){
+										 if(o.name == name){
+										 	serise1++;
+										 }
 									});
-									return false;
+									if(serise1 > 1){
+										RF_SP2SwalMixin({
+											title: "Marker打点提示",
+											text: "以x为Key时一条曲线最多打2个点",
+											type: "error",
+											timer: 2500
+										});
+										return false;
+									}
+									this.select(true,true);
+									chart.series[Number(ii)].data[iindex].select(true, true);
+									saveMarkerANDaddTr(name, x, y);
+									saveMarkerANDaddTr(name2, x, y2);
 								}
-								this.select(true,true);
-								var markerName = "Marker"+(RF_SP2State.stateObj.splineSelectedArr.length + 1);
-								RF_SP2State.stateObj.splineSelectedArr.push({
-									name: name,
-									x: x,
-									y: y,
-									markerName: markerName,
-									key: RF_SP2State.stateObj.comfirm_key
-								});
-								$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name+x)+'"><td contenteditable="true" title="点击修改">'+markerName+'</td><td>'+x+'</td><td>'+y+'</td><td>'+RF_SP2State.stateObj.comfirm_key+'</td></tr>');
+							}else if(RF_SP2State.stateObj.comfirm_key == "y"){
+								/*以Y为Key*/
+								if(this.selected){
+									/*选中过*/
+									/*第一步，自己曲线找*/
+									/*第二步，另一条曲线找*/
+									/*this.select(false,true);
+									chart.series[Number(ii)].data[iindex].select(false, true);
+									this.select(false,true);
+									chart.series[Number(ii)].data[iindex].select(false, true);*/
+								}else{
+									/*先前未选中*/
+									if(RF_SP2State.stateObj.key_y) return false;
+									/*第一步，自己曲线找*/
+									var yData1 = chart.series[Number(!ii)].yData;
+									var lastYIndex1 = _.lastIndexOf(yData1, y);
+									if(iindex == lastYIndex1){
+										/*不存在或者有相交但是还未找到*/
+										var isIntersect = judgeIntersect(yData1, iindex, 1, y);
+										if(!isIntersect){
+											RF_SP2SwalMixin({
+												title: "Marker打点提示",
+												text: "以y为Key时，另一点不存在",
+												type: "error",
+												timer: 2500
+											});
+											this.select(true,true);
+											saveMarkerANDaddTr(name, x, y);
+										}else{
+											RF_SP2SwalMixin({
+												title: "Marker打点提示",
+												text: "以y为Key时，另一点存在但是还未找到",
+												type: "error",
+												timer: 2500
+											});
+											// 找一对一对的
+										}
+									}else{
+										/*找到了*/
+										this.select(true,true);
+										saveMarkerANDaddTr(name, x, y);
+										chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
+										saveMarkerANDaddTr(name, chart.series[Number(!ii)].xData[lastYIndex1], y);
+									}
+									/*第二步，另一条曲线找*/
+								}
 							}
 						}
 					}
@@ -355,4 +428,79 @@ function renderSpline(option){
 		},
 	});
 	option.callback && option.callback(chart);
+}
+
+/*$(document).on("mousemove", function(e){
+	console.log("document", e)
+});*/
+
+function judgeIntersect(yData1, iindex, cur, y){
+	var flag1 = false;
+	_.forEach(yData1, function(v, i){
+		if(i>iindex){
+			if(yData1[iindex+cur] > y){
+				if(v<y){
+					flag1 = true;
+					return false;
+				}
+			}else if(yData1[iindex+cur] < y){
+				if(v>y){
+					flag1 = true;
+					return false;
+				}
+			}else{
+				if(cur < (yData1.length - iindex - 1)){
+					cur++;
+					judgeIntersect(yData1, iindex, cur, y);
+				}
+			}
+		}
+	});
+	return flag1;
+}
+
+/*保存marker和添加表格行*/
+function saveMarkerANDaddTr(name, x, y){
+	var maxID;
+	if(_.isNil(RF_SP2State.stateObj.splineSelectedArr) || _.isEmpty(RF_SP2State.stateObj.splineSelectedArr)){
+		maxID = 1;
+	}else{
+		maxID = Number(_.last(_.sortBy(RF_SP2State.stateObj.splineSelectedArr, function(o) { return o.id; })).id) + 1;
+	}
+	var markerName = "Marker"+maxID;
+	/*var markerName2 = "Marker"+(maxID+1);*/
+	RF_SP2State.stateObj.splineSelectedArr.push({
+		name: name,
+		x: x,
+		y: y,
+		markerName: markerName,
+		key: RF_SP2State.stateObj.comfirm_key,
+		id: maxID
+	});
+	/*RF_SP2State.stateObj.splineSelectedArr.push({
+		name: name2,
+		x: x,
+		y: y2,
+		markerName: markerName2,
+		key: RF_SP2State.stateObj.comfirm_key,
+		id: maxID+1
+	});*/
+	$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name+x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName+'">'+markerName+'</td><td>'+x+'</td><td>'+y+'</td><td>'+RF_SP2State.stateObj.comfirm_key+'</td></tr>');
+	/*$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name2+x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName2+'">'+markerName2+'</td><td>'+x+'</td><td>'+y2+'</td><td>'+RF_SP2State.stateObj.comfirm_key+'</td></tr>');*/
+}
+
+function findPointCombinatorial(obj){
+	var flagNum = obj.fromIndex;
+	var returnArr = [];
+	_.reduce(obj.Arr, function(result, value, key, arr) {
+		if(result<obj.baseVal && value)
+	  (result[value] || (result[value] = [])).push(key);
+	  return result;
+	}, obj.Arr[obj.fromIndex + 1]);
+
+	_.forEach(obj.Arr, function(v, i){
+		if(i > obj.fromIndex){
+
+		}
+	});
 }

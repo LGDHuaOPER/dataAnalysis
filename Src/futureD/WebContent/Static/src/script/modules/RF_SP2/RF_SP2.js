@@ -51,19 +51,74 @@ RF_SP2State.stateObj = {
 	renderSelectCsvSub: false,
 	calcTableIndex: -1,
 	splineSelectedArr: [],
-	comfirm_key: 'x'
+	comfirm_key: store.get("futureD__RF_SP2__comfirm_key"),
+	key_y: false,
 };
 RF_SP2State.MathMap = {
-	"sin": "Math.sin",
-	"cos": "Math.cos",
-	"tan": "Math.tan",
-	"ln": "Math.log()",
-	"log": "Math.log()/Math.log()",
-	"!": "Math.log()/Math.log()",
-	"π": "Math.PI",
-	"e": "Math.E",
-	"^": "Math.pow()",
-	"√": "Math.sqrt()"
+	"sin": {
+		"replace": "Math.sin",
+		"reg": null,
+		"fun": null,
+		"index": -1
+	},
+	"cos": {
+		"replace": "Math.cos",
+		"reg": null,
+		"fun": null,
+		"index": -1
+	},
+	"tan": {
+		"replace": "Math.tan",
+		"reg": null,
+		"fun": null,
+		"index": -1
+	},
+	"ln": {
+		"replace": "Math.log",
+		"reg": null,
+		"fun": null,
+		"index": -1
+	},
+	"log": {
+		"replace": "Math.log(##2)/Math.log(##1)",
+		"reg": /log\d+\(\d+\)/g,
+		"reg1": /log(\d+)\((\d+)\)/,
+		"fun": "match",
+		"index": [1, 2]
+	},
+	"!": {
+		"replace": "eouluGlobal.S_factorial(##1)",
+		"reg": /\d+\!/g,
+		"reg1": /\d+(?=\!)/,
+		"fun": "match",
+		"index": 0
+	},
+	"π": {
+		"replace": "Math.PI",
+		"reg": null,
+		"fun": null,
+		"index": -1
+	},
+	"e": {
+		"replace": "Math.E",
+		"reg": null,
+		"fun": null,
+		"index": -1
+	},
+	"^": {
+		"replace": "Math.pow(##1, ##2)",
+		"reg": /\w+\^\w+/,
+		"reg1": /(\w+)\^(\w+)/,
+		"fun": "match",
+		"index": [1, 2]
+	},
+	"√": {
+		"replace": "Math.sqrt(##1)",
+		"reg": /√\d+/g,
+		"reg1": /√(\d+)/,
+		"fun": "match",
+		"index": 1
+	}
 };
 RF_SP2State.allowKeyCode = [8, 46, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 110, 190];
 RF_SP2State.search_markerObj = {
@@ -184,7 +239,7 @@ $(function(){
 		var str2 = '';
 		var iArra = [];
 		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-			str2+='<tr data-iflag="'+(v.name+v.x)+'"><td contenteditable="true" title="点击修改">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';
+			str2+='<tr data-iflag="'+(v.name+v.x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+v.markerName+'">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';
 			iArra.push({
 				label: v.markerName+".X: "+v.x,
 				value: v.markerName+".X"
@@ -196,6 +251,10 @@ $(function(){
 		});
 		$(".buildMarker_body>.container-fluid tbody").empty().append(str2);
 		RF_SP2State.search_markerObj.list = _.cloneDeep(iArra);
+	}
+
+	if(!_.isNil(RF_SP2State.stateObj.comfirm_key)){
+		$("#comfirm_key_sel").val(RF_SP2State.stateObj.comfirm_key);
 	}
 
 	RF_SP2State.search_markerObj.awesomplete = new Awesomplete(document.getElementById("search_marker"), {
@@ -386,11 +445,81 @@ $(document).on("click", "tr.canCalc", function(){
 }).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
 	$(".RF_SP2_cover, .subAddParam").slideUp(200);
 }).on("click", ".subAddParam_footin>.btn-primary", function(){
-	var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2State.stateObj.calcTableIndex);
-	tr.children().eq(0).text($("#calc_text").val());
-	tr.children().eq(2).text($("#clac_textarea").val());
-	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
-	$(".subAddParam_footin>.btn-warning").trigger("click");
+	var str = $("#clac_textarea").val();
+	if(str == "" || str.trim() == "") return false;
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(iv, ik){
+		if(str.indexOf(iv.markerName) == -1) return true;
+		var delayArr = str.match(new RegExp(iv.markerName+"\\."+"X", "g"));
+		var delayArr2 = str.match(new RegExp(iv.markerName+"\\."+"Y", "g"));
+		_.forEach(delayArr, function(vv, ii){
+			str = str.replace(vv, iv.x);
+		});
+		_.forEach(delayArr2, function(vv, ii){
+			str = str.replace(vv, iv.y);
+		});
+	});
+	_.forOwn(RF_SP2State.MathMap, function(v, k){
+		if(str.indexOf(k) == -1) return true;
+		if(v.reg == null){
+			var ireg = new RegExp(k, "g");
+			str = _.replace(str, ireg, v.replace);
+		}else{
+			var delayArr = str.match(v.reg);
+			if(_.isNil(delayArr)) return true;
+			if(_.isNumber(v.index)){
+				_.forEach(delayArr, function(vv, ii){
+					var replaceStr = "("+v.replace+")";
+					var num = vv.match(v.reg1)[v.index];
+					replaceStr = replaceStr.replace("##1", num);
+					str = str.replace(vv, replaceStr);
+				});
+			}else if(_.isArray(v.index)){
+				_.forEach(delayArr, function(vv, ii){
+					var replaceStr = "("+v.replace+")";
+					var num1 = vv.match(v.reg1)[v.index[0]];
+					var num2 = vv.match(v.reg1)[v.index[1]];
+					replaceStr = replaceStr.replace("##1", num1);
+					replaceStr = replaceStr.replace("##2", num2);
+					str = str.replace(vv, replaceStr);
+				});
+			}
+		}
+	});
+	console.warn(str);
+	try{
+		var iVal = eval(str);
+		if(_.isNaN(iVal)){
+			RF_SP2SwalMixin({
+				title: "公式提示",
+				text: "公式有误",
+				type: "error",
+				timer: 2000
+			});
+		}else{
+			var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2State.stateObj.calcTableIndex);
+			tr.children().eq(0).text($("#calc_text").val());
+			tr.children().eq(1).text(iVal.toFixed(2));
+			tr.children().eq(2).text($("#clac_textarea").val());
+			var iiflag = false;
+			$(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr:last>td").each(function(){
+				if($(this).text() != ""){
+					iiflag = true;
+					return false;
+				}
+			});
+			if(!iiflag) {
+				$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+			}
+			$(".subAddParam_footin>.btn-warning").trigger("click");
+		}
+	}catch(err){
+		RF_SP2SwalMixin({
+			title: "公式提示",
+			text: "公式有误",
+			type: "error",
+			timer: 2000
+		});
+	}
 });
 
 $(".calcin>div>.row>div>div").on({
@@ -399,7 +528,12 @@ $(".calcin>div>.row>div>div").on({
 	},
 	mouseup: function(){
 		$(this).removeClass("active");
-		$("#clac_textarea").val($("#clac_textarea").val()+$(this).text());
+		var t = $("#clac_textarea").val();
+		var k = $(this).text();
+		var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+		var s = t.substring(0,cp) + k + t.substring(cp, t.length);
+		$("#clac_textarea").val(s);
+		eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + k.length);
 	}
 });
 
@@ -444,16 +578,60 @@ $("#comfirm_key").click(function(){
 		$(this).children("td").eq(3).text(key);
 	});
 	RF_SP2State.stateObj.comfirm_key = key;
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
+		v.key = key;
+	});
+	store.set("futureD__RF_SP2__comfirm_key", RF_SP2State.stateObj.comfirm_key);
 	RF_SP2SwalMixin({
 		title: "Marker确认Key提示",
-		text: "成功",
+		text: "成功，请记得保存",
 		type: "success",
 		timer: 1000
 	});
 });
 
+/*marker点修改*/
+$(document).on("input propertychange change", ".buildMarker_body>.container-fluid tbody td:nth-child(1)", function(){
+	var origin = $(this).data("iorigin");
+	var newMarker = $(this).text();
+	var flag = true;
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+		if(v.markerName != origin && v.markerName == newMarker){
+			flag = false;
+			return false;
+		}
+	});
+	if(!flag){
+		$(this).text(origin);
+	}
+}).on("blur", ".buildMarker_body>.container-fluid tbody td:nth-child(1)", function(){
+	var origin = $(this).data("iorigin");
+	var newMarker = $(this).text();
+	if(!/Marker\d+/.test(newMarker)){
+		$(this).text(origin);
+	}else{
+		var ii = $(this).parent().index();
+		var flag = true;
+		$(".buildMarker_body>.container-fluid tbody td:nth-child(1)").each(function(i){
+			/*console.log($(this).index()); // 0*/
+			if(ii != i && newMarker == $(this).text()){
+				flag = false;
+				return false;
+			}
+		});
+		if(!flag){
+			$(this).text(origin);
+		}
+	}
+});
+
 /*marker点提交*/
 $(".buildMarker_footin>.btn-primary").click(function(){
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+		var iText = $(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(v.name+v.x)+"']").children("td").eq(0).text();
+		v.markerName = iText;
+		v.id = iText.match(/Marker(\d+)/)[1];
+	});
 	store.set("futureD__RF_SP2__splineSelectedArr", RF_SP2State.stateObj.splineSelectedArr);
 	RF_SP2SwalMixin({
 		title: "Marker提交提示",
@@ -461,4 +639,10 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 		type: "success",
 		timer: 1000
 	});
+});
+
+/*marker搜索*/
+$(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
+	// alert($(this).text())
+	$("#clac_textarea").val($("#clac_textarea").val()+$("#search_marker").val().trim());
 });

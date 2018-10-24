@@ -369,6 +369,30 @@
             } else { 
                 return (num * this.S_factorial(num - 1)); 
             } 
+        },
+        // @DOM
+        S_getCaretPosition: function(dom){
+            var CaretPos = 0;
+            if (document.selection){
+                dom.focus ();
+                var Sel = document.selection.createRange ();
+                Sel.moveStart ('character', -dom.value.length);
+                CaretPos = Sel.text.length;
+            }else if (dom.selectionStart || dom.selectionStart == '0')
+                CaretPos = dom.selectionStart;
+            return (CaretPos);
+        },
+        S_setCaretPosition: function(dom, pos){
+            if(dom.setSelectionRange){
+                dom.focus();
+                dom.setSelectionRange(pos,pos);
+            }else if (dom.createTextRange){
+                var range = dom.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', pos);
+                range.moveStart('character', pos);
+                range.select();
+            }
         }
     };
 
