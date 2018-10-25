@@ -211,6 +211,9 @@ function renderNavItem(obj){
 	$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
 }
 
+/*before load*/
+$(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv").hide();
+
 /*page onload*/
 $(function(){
 	var item = store.get("futureDT2__projectAnalysis__selectedObj");
@@ -241,16 +244,12 @@ $(function(){
 			$(".g_bodyin_bodyin_top_wrap_l>span, .g_bodyin_bodyin_top_wrap_r>span").show();
 		}
 	}
-
-	$(".g_bodyin_bodyin_bottom_2").hide();
 	
 	eleResize();
 	$(window).on("resize", function(){
 		eleResize();
 		eleResize2();
 	});
-
-	$(".reRenderBtnDiv").hide();
 
 	/*回显marker*/
 	RF_SP2State.stateObj.splineSelectedArr = store.get("futureD__RF_SP2__splineSelectedArr");
@@ -693,4 +692,19 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 $(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
 	// alert($(this).text())
 	$("#clac_textarea").val($("#clac_textarea").val()+$("#search_marker").val().trim());
+});
+
+/*双击4图表*/
+$(document).on("dblclick", ".chartWarp", function(){
+	$(".fourChart_div").fadeOut(200, function(){
+		$(".signalChart_div").fadeIn(200);
+		$("#S12_chart_S").fadeIn(100);
+		drawDbCurve("S12_chart_S", RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve.S12);
+	});
+});
+
+$(".signalChart_div_tit>button").click(function(){
+	$(".signalChart_div").fadeOut(200, function(){
+		$(".fourChart_div").fadeIn(200);
+	});
 });

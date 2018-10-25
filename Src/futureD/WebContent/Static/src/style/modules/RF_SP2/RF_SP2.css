@@ -758,6 +758,36 @@ div.awesomplete {
 	text-decoration: underline;
 }
 
+.signalChart_div {
+	display: grid;
+	grid-template-rows: 40px 1fr 35px;
+	grid-template-areas: "signalChart_div_tit"
+						"signalChart_div_body"
+						"signalChart_div_foot";
+}
+
+.signalChart_div_tit {
+	grid-area: signalChart_div_tit;
+	height: 40px;
+	line-height: 40px;
+	text-indent: 20px;
+}
+
+.signalChart_div_body {
+	grid-area: signalChart_div_body;
+}
+
+.signalChart_div_foot {
+	grid-area: signalChart_div_foot;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+div[id$='_chart_S'] {
+	height: 100%;
+	display: none;
+}
+
 @media screen and (max-width: 1023px) {
 	.g_bodyin_bodyin_bottom {
 		grid-template-columns: 300px 1fr;
