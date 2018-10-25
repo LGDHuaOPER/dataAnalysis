@@ -51,8 +51,10 @@ RF_SP2State.stateObj = {
 	renderSelectCsvSub: false,
 	calcTableIndex: -1,
 	splineSelectedArr: [],
+	splineSelectedCopyArr: [],
 	comfirm_key: store.get("futureD__RF_SP2__comfirm_key"),
 	key_y: false,
+	curLineInsertIndex: null
 };
 RF_SP2State.MathMap = {
 	"sin": {
@@ -179,6 +181,36 @@ function renderSelectCsv(item, flag, insertDOM){
 	insertDOM.empty().append(str2);
 }
 
+function renderNavItem(obj){
+	var str = '';
+	var item = obj.item, type = obj.type, inde = obj.index;
+	var curveTypeArr = _.find(RF_SP2State.mock.curveType, function(o, k){
+		return k == item.curveType;
+	});
+	if(item.curveType == "RF-S2P"){
+		item.curveType = "S2P";
+	}
+	if(type == "g_bodyin_bodyin_bottom_1"){
+		str+='<li class="active" data-targetclass="g_bodyin_bodyin_bottom_1">'+item.curveType+'</li><li data-targetclass="g_bodyin_bodyin_bottom_2">TCF</li>';
+	}else if(type == "g_bodyin_bodyin_bottom_2"){
+		str+='<li data-targetclass="g_bodyin_bodyin_bottom_1">返回'+item.curveType+'</li>';
+		var activeFlag = "";
+		if(inde == 1 || _.isNil(inde)){
+			activeFlag = "active";
+		}
+		str+='<li class="'+activeFlag+'" data-targetclass="g_bodyin_bodyin_bottom_2">TCF</li>';
+		if(!_.isEmpty(curveTypeArr) && !_.isNil(curveTypeArr)){
+			curveTypeArr.map(function(v, i){
+				var activeFlag2 = "";
+				if(inde - i == 2) activeFlag2 = "active";
+				str+='<li class="'+activeFlag2+'" data-targetclass="g_bodyin_bodyin_bottom_2">'+v+'</li>';
+			});
+		}
+		str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
+	}
+	$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
+}
+
 /*page onload*/
 $(function(){
 	var item = store.get("futureDT2__projectAnalysis__selectedObj");
@@ -195,23 +227,12 @@ $(function(){
 			}
 		});
 	}else{
-		/*item.selectedItem;
-		item.curveType;*/
-		var curveTypeArr = _.find(RF_SP2State.mock.curveType, function(o, k){
-			return k == item.curveType;
+		/*导航栏*/
+		renderNavItem({
+			item: item,
+			type: "g_bodyin_bodyin_bottom_1"
 		});
-		if(item.curveType == "RF-S2P"){
-			item.curveType = "S2P";
-		}
-		var str = '<li class="active" data-targetclass="g_bodyin_bodyin_bottom_1">'+item.curveType+'</li>';
-		if(!_.isEmpty(curveTypeArr) && !_.isNil(curveTypeArr)){
-			curveTypeArr.map(function(v){
-				str+='<li data-targetclass="g_bodyin_bodyin_bottom_2">'+v+'</li>';
-			});
-		}
-		str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
-		$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
-
+		/*导航栏结束*/
 		renderSelectCsv(item, '', $(".g_bodyin_bodyin_bottom_l_intop"));
 		$(".g_bodyin_bodyin_bottom_l_item:first .g_bodyin_bodyin_bottom_l_itemin_main").trigger("click");
 		$(".g_bodyin_bodyin_bottom_l_item:first .g_bodyin_bodyin_bottom_l_itemin_sub>.g_bodyin_bodyin_bottom_l_itemin_subin:first").trigger("click");
@@ -233,9 +254,11 @@ $(function(){
 
 	/*回显marker*/
 	RF_SP2State.stateObj.splineSelectedArr = store.get("futureD__RF_SP2__splineSelectedArr");
+	RF_SP2State.stateObj.splineSelectedCopyArr = store.get("futureD__RF_SP2__splineSelectedArr");
 	if(_.isNil(RF_SP2State.stateObj.splineSelectedArr)){
 		RF_SP2State.stateObj.splineSelectedArr = [];
 	}else{
+		RF_SP2State.stateObj.key_y = RF_SP2State.stateObj.comfirm_key == "y" ? true : false;
 		var str2 = '';
 		var iArra = [];
 		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
@@ -349,8 +372,16 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 		});
 	}else{
 		$(this).addClass("active").siblings().removeClass("active");
+		var inde = $(this).index();
 		$("."+target).siblings().fadeOut(300, function(){
 			$(this).siblings().fadeIn(300);
+			/*导航栏*/
+			renderNavItem({
+				item: store.get("futureDT2__projectAnalysis__selectedObj"),
+				type: target,
+				index: inde
+			});
+			/*导航栏结束*/
 			if(target == "g_bodyin_bodyin_bottom_2"){
 				if(!RF_SP2State.stateObj.renderSelectCsvSub){
 					renderSelectCsv(store.get("futureDT2__projectAnalysis__selectedObj"), 'sub', $(".g_bodyin_bodyin_bottom_lsub_top"));
@@ -374,6 +405,14 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 						ixData[1].push(v[0]/1000000);
 						iyData[1].push(v[2]);
 					});
+					/*构造新数据*/
+					_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
+						if(v.isNew){
+							ixData[0].splice(v.newIndex, 0, v.x);
+							iyData[_.indexOf(RF_SP2State.waferTCFSelected, v.name)].splice(v.newIndex, 0, v.y);
+							iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))].splice(v.newIndex, 0, iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))][v.newIndex - 1]);
+						}
+					});
 					renderSpline({
 						container: "markerChart",
 						title: "marker图",
@@ -383,9 +422,13 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 						},
 						name: RF_SP2State.waferTCFSelected,
 						callback: function(chart){
-							_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+							/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 								var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
 								chart.series[ii].data[_.indexOf(iyData[ii], v.y)].select(true, true);
+							});*/
+							_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+								var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+								chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
 							});
 						}
 					});
@@ -485,7 +528,6 @@ $(document).on("click", "tr.canCalc", function(){
 			}
 		}
 	});
-	console.warn(str);
 	try{
 		var iVal = eval(str);
 		if(_.isNaN(iVal)){
@@ -574,17 +616,20 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 
 $("#comfirm_key").click(function(){
 	var key = $(this).parent().prev().children("select").val();
-	$(".buildMarker_body>div tbody>tr").each(function(){
+	/*$(".buildMarker_body>div tbody>tr").each(function(){
 		$(this).children("td").eq(3).text(key);
-	});
+	});*/
 	RF_SP2State.stateObj.comfirm_key = key;
-	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
+	/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
 		v.key = key;
-	});
+	});*/
+	/*清空*/
+	RF_SP2State.stateObj.splineSelectedArr = [];
+	$(".buildMarker_body>div tbody").empty();
 	store.set("futureD__RF_SP2__comfirm_key", RF_SP2State.stateObj.comfirm_key);
 	RF_SP2SwalMixin({
 		title: "Marker确认Key提示",
-		text: "成功，请记得保存",
+		text: "成功，现在可以选点了，请记得保存",
 		type: "success",
 		timer: 1000
 	});
@@ -627,6 +672,9 @@ $(document).on("input propertychange change", ".buildMarker_body>.container-flui
 
 /*marker点提交*/
 $(".buildMarker_footin>.btn-primary").click(function(){
+	/*if(_.isEmpty(RF_SP2State.stateObj.splineSelectedCopyArr)){
+
+	}*/
 	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 		var iText = $(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(v.name+v.x)+"']").children("td").eq(0).text();
 		v.markerName = iText;

@@ -754,6 +754,10 @@ div.awesomplete {
 	display: block;
 }
 
+.underline_b {
+	text-decoration: underline;
+}
+
 @media screen and (max-width: 1023px) {
 	.g_bodyin_bodyin_bottom {
 		grid-template-columns: 300px 1fr;

@@ -86,14 +86,12 @@ $(function(){
 						text: "GHz",
 					}, 
 					categories : xData,
-					gridLineColor: '#197F07',
-		            gridLineWidth: 1
 				}, 
 				yAxis: {
 					title: {
 						text: "dB",
 					},
-				    gridLineColor: '#197F07',
+				    gridLineColor: '#eee',
 				    gridLineWidth: 1,
 				  /*  labels: {
 				      step: 0.01
@@ -182,8 +180,6 @@ $(function(){
 			});
 			
 
-				
-				
 
 			//得到点击的坐标
 			function getEventPosition(ev) {
@@ -201,6 +197,7 @@ $(function(){
 
 /*绘制曲线图*/
 function renderSpline(option){
+	var anotherAddCategories = 0;
 	var chart = Highcharts.chart(option.container, {
 		chart: {
 			type: 'spline',
@@ -264,14 +261,20 @@ function renderSpline(option){
 		},
 		tooltip: {
 			formatter: function (e) {
-                return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, '+this.y+' dB';
-            }
+				if(RF_SP2State.stateObj.comfirm_key == "y"){
+					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, <b class="underline_b">'+this.y+' dB</b>';
+				}else if(RF_SP2State.stateObj.comfirm_key == "x"){
+					return '<b>'+this.series.name+'</b><br><b class="underline_b">'+this.x+' Mhz</b>, '+this.y+' dB';
+				}
+            },
+            useHTML: true
 			/*headerFormat: '<b>{series.name}</b><br>',
 			pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
 		},
 		plotOptions: {
 			series: {
 				allowPointSelect: false,
+				connectNulls: true,
 				/*dataLabels: {
 					enabled: true,
 					format: '{y} mm'
@@ -316,10 +319,10 @@ function renderSpline(option){
 							/*chart.series[ii].data[1].select(true, true);*/
 						},
 						click: function(ev){
-							console.log("point.click", ev);
+							/*console.log("point.click", ev);
 							console.log(chart.series);
 							console.log(chart.xAxis);
-							console.log(this);
+							console.log(this);*/
 							if(_.isNil(RF_SP2State.stateObj.comfirm_key)){
 								RF_SP2SwalMixin({
 									title: 'Key值设置提醒',
@@ -374,15 +377,15 @@ function renderSpline(option){
 									}
 									this.select(true,true);
 									chart.series[Number(ii)].data[iindex].select(true, true);
-									saveMarkerANDaddTr(name, x, y);
-									saveMarkerANDaddTr(name2, x, y2);
+									saveMarkerANDaddTr(name, x, y, false, iindex);
+									saveMarkerANDaddTr(name2, x, y2, false, iindex);
 								}
 							}else if(RF_SP2State.stateObj.comfirm_key == "y"){
 								/*以Y为Key*/
 								if(this.selected){
 									/*选中过*/
 									/*第一步，自己曲线找*/
-									var otherx = null;
+									/*var otherx = null;
 									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
 											var flag = false;
 											if(o.name == name && o.y == y){
@@ -407,85 +410,204 @@ function renderSpline(option){
 									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
 									if(!_.isNil(otherx)){
 										$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+otherx)+"']").remove();
-										console.log(chart.series[Number(!ii)].data)
-										console.log(_.indexOf(chart.xAxis[0].categories, otherx))
-										console.log(otherx)
-										console.log(chart.xAxis[0])
-										console.log(chart.series[Number(!ii)].data[_.indexOf(chart.xAxis[0].categories, otherx)])
 										chart.series[Number(!ii)].data[_.indexOf(chart.xAxis[0].categories, otherx)].select(false, false);
-									}
+									}*/
 									/*第二步，另一条曲线找*/
-									/*this.select(false,true);
-									chart.series[Number(ii)].data[iindex].select(false, true);
-									this.select(false,true);
-									chart.series[Number(ii)].data[iindex].select(false, true);*/
+									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+										var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+										chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(false, true);
+									});
+									RF_SP2State.stateObj.splineSelectedArr = [];
+									$(".buildMarker_body>.container-fluid tbody").empty();
 								}else{
 									/*先前未选中*/
+									/*只可选一次*/
 									if(RF_SP2State.stateObj.key_y) return false;
 									/*第一步，自己曲线找*/
 									var yData1 = chart.series[Number(!ii)].yData;
 									var lastYIndex1 = _.lastIndexOf(yData1, y);
-									if(iindex == lastYIndex1){
-										/*不存在或者有相交但是还未找到*/
+									var firstYIndex1 = _.indexOf(yData1, y);
+									if(iindex == lastYIndex1 && iindex == firstYIndex1){
+										/*不存在或者另一点存在但是还未找到*/
 										var isIntersect = judgeIntersect(yData1, iindex, 1, y);
-										if(!isIntersect){
+										var reverseyData1 = _.reverse(_.cloneDeep(yData1));
+										var reverseyData1FromIndex = reverseyData1.length-iindex-1;
+										var isIntersect2 = judgeIntersect(reverseyData1, reverseyData1FromIndex, 1, y);
+										if(!isIntersect && !isIntersect2){
 											RF_SP2SwalMixin({
 												title: "Marker打点提示",
-												text: "以y为Key时，另一点不存在",
+												text: "以y为Key时，当前曲线另一点不存在",
 												type: "error",
 												timer: 2000
 											});
-											this.select(true,true);
-											saveMarkerANDaddTr(name, x, y);
-										}else{
+											// this.select(true,true);
+											saveMarkerANDaddTr(name, x, y, false, iindex);
+										}else if(isIntersect && !isIntersect2){
 											RF_SP2SwalMixin({
 												title: "Marker打点提示",
-												text: "以y为Key时，另一点存在但是还未找到",
-												type: "error",
+												text: "以y为Key时，当前曲线另一点存在但是还未找到，位置大于当前点",
+												type: "info",
 												timer: 2000
 											});
 											// 找一对一对的
-											var Combinatorial = findPointCombinatorial({
-												fromIndex: iindex,
-												Arr: yData1,
-												baseVal: y
+											renderPointToChart({
+												iindex: iindex,
+												yData1: yData1,
+												y: y,
+												chart: chart,
+												ii: ii,
+												name: name,
+												x: x,
+												flag: "last",
 											});
-											var newPointArr = [];
-											_.forEach(Combinatorial, function(qv, wi){
-												var xx1 = option.data.xData[0][qv.index];
-												var xx2 = option.data.xData[0][qv.index + 1];
-												var yy1 = qv.arr[0];
-												var yy2 = qv.arr[1];
-												newPointArr.push(getPointXY({
-													one: [xx1, yy1],
-													two: [xx2, yy2],
-													baseVal: y,
-													index: qv.index
-												}));
+										}else if(!isIntersect && isIntersect2){
+											RF_SP2SwalMixin({
+												title: "Marker打点提示",
+												text: "以y为Key时，当前曲线另一点存在但是还未找到，位置小于当前点",
+												type: "info",
+												timer: 2000
 											});
-											
-											var NewxyData = buildNewxyData({
-												pointArr: newPointArr,
-												xData: _.cloneDeep(option.data.xData[0]),
-												yData: _.cloneDeep(chart.series[Number(!ii)].yData),
-											});
-											chart.xAxis[0].setCategories(NewxyData.xData);
-											chart.series[Number(!ii)].setData(NewxyData.yData);
-											saveMarkerANDaddTr(name, x, y);
-											saveMarkerANDaddTr(name, _.last(newPointArr).x, _.last(newPointArr).y);
-											_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-												var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-												chart.series[ii].data[_.indexOf(NewxyData.yData, v.y)].select(true, true);
+											// 找一对一对的
+											renderPointToChart({
+												iindex: reverseyData1FromIndex,
+												yData1: reverseyData1,
+												y: y,
+												chart: chart,
+												ii: ii,
+												name: name,
+												x: x,
+												flag: "first"
 											});
 										}
-									}else{
+									}else if(iindex == lastYIndex1 && iindex != firstYIndex1){
 										/*找到了*/
-										this.select(true,true);
-										saveMarkerANDaddTr(name, x, y);
-										chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
-										saveMarkerANDaddTr(name, option.data.xData[0][lastYIndex1], y);
+										RF_SP2SwalMixin({
+											title: "Marker打点提示",
+											text: "以y为Key时，当前曲线两点都存在",
+											type: "info",
+											timer: 2000
+										});
+										// this.select(true,true);
+										saveMarkerANDaddTr(name, x, y, false, iindex);
+										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
+										saveMarkerANDaddTr(name, chart.xAxis[0].categories[firstYIndex1], y, false, firstYIndex1);
+									}else if(iindex != lastYIndex1 && iindex == firstYIndex1){
+										/*找到了*/
+										RF_SP2SwalMixin({
+											title: "Marker打点提示",
+											text: "以y为Key时，当前曲线两点都存在",
+											type: "info",
+											timer: 2000
+										});
+										// this.select(true,true);
+										saveMarkerANDaddTr(name, x, y, false, iindex);
+										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
+										saveMarkerANDaddTr(name, chart.xAxis[0].categories[lastYIndex1], y, false, lastYIndex1);
+									}else if(iindex != lastYIndex1 && iindex != firstYIndex1){
+										/*找到了*/
+										RF_SP2SwalMixin({
+											title: "Marker打点提示",
+											text: "以y为Key时，当前曲线两点都存在",
+											type: "info",
+											timer: 2000
+										});
+										// this.select(true,true);
+										saveMarkerANDaddTr(name, chart.xAxis[0].categories[firstYIndex1], y, false, firstYIndex1);
+										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
+										saveMarkerANDaddTr(name, chart.xAxis[0].categories[lastYIndex1], y, false, lastYIndex1);
 									}
 									/*第二步，另一条曲线找*/
+									var anotherXData = chart.xAxis[0].categories;
+									var anotherYData = chart.series[Number(ii)].yData;
+									var hasYDataArr = [];
+									_.forEach(anotherYData, function(cv, ci){
+										if(cv == y){
+											hasYDataArr.push(cv);
+										}
+									});
+									if(hasYDataArr.length == 0){
+										/*没有相同的*/
+										var anotherjudge = judgeIntersect(anotherYData, 0, 0, y);
+										if(anotherjudge){
+											var anotherCombinatorial = findPointCombinatorial({
+												fromIndex: 0,
+												Arr: anotherYData,
+												baseVal: y,
+												flag: "last"
+											});
+											var anotherNewPointArr = [];
+											var anotherNewxyData;
+											if(anotherCombinatorial.length == 1){
+												_.forEach([_.head(anotherCombinatorial)], function(qv, wi){
+													var xx1 = anotherXData[qv.index];
+													var xx2 = anotherXData[qv.index + 1];
+													var yy1 = qv.arr[0];
+													var yy2 = qv.arr[1];
+													anotherNewPointArr.push(getPointXY({
+														one: [xx1, yy1],
+														two: [xx2, yy2],
+														baseVal: y,
+														index: qv.index
+													}));
+												});
+												anotherAddCategories = 1;
+												anotherNewxyData = buildNewxyData({
+													pointArr: anotherNewPointArr,
+													xData: _.cloneDeep(anotherXData),
+													yData: _.cloneDeep(anotherYData),
+													yData2: _.cloneDeep(chart.series[Number(!ii)].yData),
+												});
+												chart.xAxis[0].setCategories(anotherNewxyData.xData);
+												chart.series[Number(ii)].setData(anotherNewxyData.yData);
+												chart.series[Number(!ii)].setData(anotherNewxyData.yData2);
+												saveMarkerANDaddTr(name2, anotherNewPointArr[0].x, y, true, anotherNewPointArr[0].index+1);
+											}else{
+												_.forEach([_.head(anotherCombinatorial), _.last(anotherCombinatorial)], function(qv, wi){
+													var xx1 = anotherXData[qv.index];
+													var xx2 = anotherXData[qv.index + 1];
+													var yy1 = qv.arr[0];
+													var yy2 = qv.arr[1];
+													anotherNewPointArr.push(getPointXY({
+														one: [xx1, yy1],
+														two: [xx2, yy2],
+														baseVal: y,
+														index: qv.index
+													}));
+												});
+												anotherAddCategories = 2;
+												anotherNewxyData = buildNewxyData({
+													pointArr: anotherNewPointArr,
+													xData: _.cloneDeep(anotherXData),
+													yData: _.cloneDeep(anotherYData),
+													yData2: _.cloneDeep(chart.series[Number(!ii)].yData),
+												});
+												chart.xAxis[0].setCategories(anotherNewxyData.xData);
+												chart.series[Number(ii)].setData(anotherNewxyData.yData);
+												chart.series[Number(!ii)].setData(anotherNewxyData.yData2);
+												saveMarkerANDaddTr(name2, anotherNewPointArr[0].x, y, true, anotherNewPointArr[0].index+1);
+												saveMarkerANDaddTr(name2, anotherNewPointArr[1].x, y, true, anotherNewPointArr[1].index+2);
+											}
+											/*判断一个交点和两个交点结束*/
+										}else{
+											/*不相交*/
+											RF_SP2SwalMixin({
+												title: "Marker打点提示",
+												text: "以y为Key时，另一条曲线两点都不存在",
+												type: "error",
+												timer: 2000
+											});
+										}
+										_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+											var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+										});
+										/*第二步，另一条曲线找end*/
+										RF_SP2State.stateObj.key_y = true;
+									}else{
+										/*有相同的*/
+										console.warn("另一条曲线有相同的y");
+									}
+									/*判断另一条曲线是否有相同的y结束*/
 								}
 							}
 						}
@@ -529,7 +651,7 @@ function judgeIntersect(yData1, iindex, cur, y){
 }
 
 /*保存marker和添加表格行*/
-function saveMarkerANDaddTr(name, x, y){
+function saveMarkerANDaddTr(name, x, y, isNew, newIndex){
 	var maxID;
 	if(_.isNil(RF_SP2State.stateObj.splineSelectedArr) || _.isEmpty(RF_SP2State.stateObj.splineSelectedArr)){
 		maxID = 1;
@@ -544,7 +666,9 @@ function saveMarkerANDaddTr(name, x, y){
 		y: y,
 		markerName: markerName,
 		key: RF_SP2State.stateObj.comfirm_key,
-		id: maxID
+		id: maxID,
+		isNew: isNew,
+		newIndex: newIndex
 	});
 	/*RF_SP2State.stateObj.splineSelectedArr.push({
 		name: name2,
@@ -561,12 +685,21 @@ function saveMarkerANDaddTr(name, x, y){
 function findPointCombinatorial(obj){
 	var flagNum = obj.fromIndex;
 	var returnArr = [];
-	_.reduce(obj.Arr, function(result, value, key, arr) {
+	_.reduce(obj.Arr, function(result, value, key, arra) {
 		if(key > obj.fromIndex){
 			if(_.sortBy([result, value])[0] < obj.baseVal && obj.baseVal < _.sortBy([result, value])[1]){
+				var iKey;
+				var iarr;
+				if(obj.flag == "last"){
+					iKey = key - 1;
+					iarr = [result, value];
+				}else if(obj.flag == "first"){
+					iKey = arra.length - key - 1;
+					iarr = [value, result];
+				}
 				returnArr.push({
-					index: key - 1,
-					arr: [result, value]
+					index: iKey,
+					arr: iarr
 				});
 			}
 		  	return value;
@@ -583,16 +716,70 @@ function getPointXY(obj){
 		x: x,
 		y: obj.baseVal,
 		index: obj.index
-	}
+	};
 }
 
 function buildNewxyData(obj){
 	_.forEach(obj.pointArr, function(v, i){
 		obj.xData.splice(v.index+i+1, 0, v.x);
 		obj.yData.splice(v.index+i+1, 0, v.y);
+		obj.yData2.splice(v.index+i+1, 0, obj.yData2[v.index+i]);
 	});
 	return {
 		xData: _.cloneDeep(obj.xData),
-		yData: _.cloneDeep(obj.yData)
+		yData: _.cloneDeep(obj.yData),
+		yData2: _.cloneDeep(obj.yData2),
+	};
+}
+
+function renderPointToChart(obj){
+	var iindex = obj.iindex;
+	var yData1 = obj.yData1;
+	var y = obj.y;
+	var chart = obj.chart;
+	var xData1 = chart.xAxis[0].categories;
+	var ii = obj.ii;
+	var name = obj.name;
+	var x = obj.x;
+	var flag = obj.flag;
+
+	var Combinatorial = findPointCombinatorial({
+		fromIndex: iindex,
+		Arr: yData1,
+		baseVal: y,
+		flag: flag
+	});
+	var newPointArr = [];
+	var analyzeCombinatorial = [];
+	if(flag == "last" || flag == "first"){
+		analyzeCombinatorial[0] = _.last(Combinatorial);
+	}else if(flag == "twoSlide"){
+		// analyzeCombinatorial[0] = _.head(Combinatorial);
+		analyzeCombinatorial[0] = _.last(Combinatorial);
 	}
+	_.forEach(analyzeCombinatorial, function(qv, wi){
+		var xx1 = xData1[qv.index];
+		var xx2 = xData1[qv.index + 1];
+		var yy1 = qv.arr[0];
+		var yy2 = qv.arr[1];
+		newPointArr.push(getPointXY({
+			one: [xx1, yy1],
+			two: [xx2, yy2],
+			baseVal: y,
+			index: qv.index
+		}));
+	});
+	RF_SP2State.stateObj.curLineInsertIndex = analyzeCombinatorial[0].index;
+	var NewxyData = buildNewxyData({
+		pointArr: newPointArr,
+		xData: _.cloneDeep(xData1),
+		yData: _.cloneDeep(chart.series[Number(!ii)].yData),
+		yData2: _.cloneDeep(chart.series[Number(ii)].yData),
+	});
+
+	chart.xAxis[0].setCategories(NewxyData.xData);
+	chart.series[Number(!ii)].setData(NewxyData.yData);
+	chart.series[Number(ii)].setData(NewxyData.yData2);
+	saveMarkerANDaddTr(name, x, y, false, iindex);
+	saveMarkerANDaddTr(name, _.last(newPointArr).x, _.last(newPointArr).y, true, _.last(newPointArr).index+1);
 }
