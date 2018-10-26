@@ -524,10 +524,11 @@ body {
 
 div.pictureline {
 	display: inline-block;
-	padding-top: 20px;
+	padding-top: 17px;
     height: 40px;
 	width: 50px;
 	cursor: pointer;
+	vertical-align: top;
 }
 
 div.smithdata {
@@ -555,8 +556,9 @@ div.smithdata {
 }
 
 .picturebottom_in_l>span, .picturebottom_in_r>span {
-	top: 13px;
+	top: 10px;
 	font-size: 20px;
+	display: none;
 }
 
 .chartWarp>.picturebottom p {
@@ -768,13 +770,28 @@ div.awesomplete {
 
 .signalChart_div_tit {
 	grid-area: signalChart_div_tit;
+	position: relative;
 	height: 40px;
 	line-height: 40px;
 	text-indent: 20px;
 }
 
+.signalChart_div_tit>button.lowflag {
+	position: absolute;
+	top: 1px;
+	right: 25px;
+}
+
+.signalChart_div_tit>button.upflag {
+	position: absolute;
+	top: 1px;
+	right: 145px;
+}
+
 .signalChart_div_body {
 	grid-area: signalChart_div_body;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .signalChart_div_foot {
@@ -786,6 +803,23 @@ div.awesomplete {
 div[id$='_chart_S'] {
 	height: 100%;
 	display: none;
+}
+
+/* 指标 */
+div.popover .row {
+	line-height: 34px;
+}
+
+div.popover .row+.row {
+	margin-top: 10px;
+}
+
+div.popover .row:last-child {
+	text-align: center;
+}
+
+div.popover .row:last-child>div {
+	display: inline-block;
 }
 
 @media screen and (max-width: 1023px) {

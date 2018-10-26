@@ -364,9 +364,11 @@ function smithChart(dom,title,legendName, allData,Type,msgdom) {
                                 horizonLine.style.marginLeft = -marginLeft + 'px';
                                 verticalLine.style.marginTop = -marginTop + 'px';
                                 //加载点信息
-                                var title1 = msgdom.getElementsByClassName("Smith_Msg2")[0];
-                                var data1 = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(_data[t][m][0]/10E6).toFixed(2)+"GHz";
-                                title1.innerText = data1 ;
+                                if(msgdom){
+                                    var title1 = msgdom.getElementsByClassName("Smith_Msg2")[0];
+                                    var data1 = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(_data[t][m][0]/10E6).toFixed(2)+"GHz";
+                                    title1.innerText = data1 ;
+                                }
                             }
                         }
                     }
@@ -374,10 +376,11 @@ function smithChart(dom,title,legendName, allData,Type,msgdom) {
             }, false);
         }
     };
-    
-    var title1 = msgdom.getElementsByClassName("Smith_Msg2")[0];
-    var data1 = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(_data[0][0][0]/10E6).toFixed(2)+"GHz";
-    title1.innerText = data1 ;
+    if(msgdom){
+        var title1 = msgdom.getElementsByClassName("Smith_Msg2")[0];
+        var data1 = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(_data[0][0][0]/10E6).toFixed(2)+"GHz";
+        title1.innerText = data1;
+    }
     SmithPlotObj.prototype.onresize = function (){
        // window.onresize = function () {
             c.setAttribute('width', dom.offsetWidth);

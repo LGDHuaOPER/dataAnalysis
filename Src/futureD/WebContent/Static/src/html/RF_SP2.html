@@ -70,7 +70,7 @@
 								<div class="container-fluid fourChart_div">
 									<div class="row">
 										<div class="col-sm-12 col-md-6 col-lg-6">
-											<div class="chartWarp" id="picture_box1">
+											<div class="chartWarp" id="picture_box1" data-itargetchart="S11_chart_S">
 												<div id="picture1top" class="picturetop"></div>
 												<div id="picture1bottom" class="picturebottom">
 													<div class="picturebottom_in">
@@ -105,7 +105,7 @@
 											</div>
 										</div>
 									  	<div class="col-sm-12 col-md-6 col-lg-6">
-									  		<div class="chartWarp" id="picture_box2" data-iclassify="S12" data-iflag="initial">
+									  		<div class="chartWarp" id="picture_box2" data-itargetchart="S12_chart_S" data-iclassify="S12" data-iflag="initial">
 									  			<div id="picture2top" class="picturetop"></div>
 									  			<div id="picture2bottom" class="picturebottom">
 									  				<div class="picturebottom_in">
@@ -142,7 +142,7 @@
 									</div><!-- row end -->
 									<div class="row">
 										<div class="col-sm-12 col-md-6 col-lg-6">
-											<div class="chartWarp" id="picture_box3" data-iclassify="S21" data-iflag="initial">
+											<div class="chartWarp" id="picture_box3" data-itargetchart="S21_chart_S" data-iclassify="S21" data-iflag="initial">
 												<div id="picture3top" class="picturetop"></div>
 												<div id="picture3bottom" class="picturebottom">
 													<div class="picturebottom_in">
@@ -177,7 +177,7 @@
 											</div><!-- chartWarp end -->
 										</div>
 									  	<div class="col-sm-12 col-md-6 col-lg-6">
-									  		<div class="chartWarp" id="picture_box4">
+									  		<div class="chartWarp" id="picture_box4" data-itargetchart="S22_chart_S">
 									  			<div id="picture4top" class="picturetop"></div>
 									  			<div id="picture4bottom" class="picturebottom">
 									  				<div class="picturebottom_in">
@@ -215,8 +215,14 @@
 								</div><!-- container-fluid end -->
 								<div class="container-fluid signalChart_div">
 									<div class="signalChart_div_tit">
-										<button type="button" class="btn btn-default">
-										  <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> 返回
+										<button type="button" class="btn btn-default backover">
+										  	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> 返回
+										</button>
+										<button type="button" class="btn btn-default upflag" data-toggle="popover" title="设置指标X区间和Y固定值" data-container="body" data-placement="left">
+										  	<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> 高于指标
+										</button>
+										<button type="button" class="btn btn-default lowflag" data-toggle="popover" title="设置指标X区间和Y固定值" data-container="body" data-placement="bottom">
+										  	<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> 低于指标
 										</button>
 									</div>
 									<div class="signalChart_div_body">
@@ -401,14 +407,12 @@
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 	<script src="../script/libs/awesomplete.min.js"></script>
+	<script src="../script/libs/newhighcharts.js"></script>	
+	<script src="../script/libs/highcharts-axis-arrow.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
-	<script src="../script/libs/progressbar.min.js"></script>
-	<script src="../script/modules/RF_SP2/RF_SP2.js"></script>
-
-	<script src="../script/libs/newhighcharts.js"></script>	
 	<script src="../script/libs/drawingSmith.js"></script>
-	<script src="../script/libs/highcharts-axis-arrow.js"></script>
+	<script src="../script/modules/RF_SP2/RF_SP2.js"></script>
 	<!-- <script src="../script/libs/waferdata.js"></script> -->
 	<script src="../script/modules/RF_SP2/RF_SP2_render.js"></script>
 </body>

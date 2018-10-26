@@ -11,7 +11,10 @@ $(document).ready(function(){
 	var CVY=[];*/
 	if(data00.curveinfos.length >= 1){
 		/*dimension == 0*/
-		SmithCurve(data00);
+		initSmithAll({
+			Smith_Paramter: RF_SP2State.waferSelected[0],
+			data: data00
+		});
 	}else{
 		RF_SP2SwalMixin({
 			title: '信息',
@@ -28,15 +31,13 @@ $(document).ready(function(){
 	}
 });
 
-function SmithCurve(data){
-		// 默认加载史密斯信息
-		var Smith_Paramter = RF_SP2State.waferSelected[0];
-	$(".Smith_Paramter").text(Smith_Paramter);
-		
-		var dom1 = document.getElementById("picture1top");
-		var dom2 = document.getElementById("picture4top");
-		var msgdom1  = document.getElementById("picture1bottom");
-		var msgdom2  = document.getElementById("picture4bottom");
+function initSmithAll(obj){
+	$(".Smith_Paramter").text(obj.Smith_Paramter);
+	var data = obj.data;
+	var dom1 = document.getElementById("picture1top");
+	var dom2 = document.getElementById("picture4top");
+	var msgdom1  = document.getElementById("picture1bottom");
+	var msgdom2  = document.getElementById("picture4bottom");
 	var title = [''];
 	var legendName1 = ['S11'];
 	var legendName2 = ['S22'];
@@ -45,16 +46,61 @@ function SmithCurve(data){
 	var smith1 = smithChart(dom1,title,legendName1, data1,'S11',msgdom1);
 	var smith2 = smithChart(dom2,title,legendName2, data2,'S22',msgdom2);
 
+	/*曲线绘制开始*/
 	var DbCurveDom1 = "picture2top";
 	var DbCurveDom2 = "picture3top";
-	var DbCurveData1 = data.curveinfos[2].smithAndCurve.S12;
-	var DbCurveData2 = data.curveinfos[2].smithAndCurve.S21;
-	//曲线
-	drawDbCurve(DbCurveDom1,DbCurveData1,$("#picture2bottom"));
-	drawDbCurve(DbCurveDom2,DbCurveData2,$("#picture3bottom"));
-	//默认加载曲线信息
+	var dataS12 = data.curveinfos[2].smithAndCurve.S12;
+	var dataS21 = data.curveinfos[2].smithAndCurve.S21;
+	var objec = {};
+	objec.xCategories = [];
+	_.forEach(dataS12, function(v, i){
+		objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+	});
+	objec.series = [];
+	objec.series[0] = {};
+	objec.series[0].data = [];
+	_.forEach(dataS12, function(v, i){
+		objec.series[0].data.push(parseFloat(v[1]));
+	});
+	objec.container = DbCurveDom1;
+	objec.msgDom = $("#picture2bottom");
+	objec.resetZoomButton = {
+		position: {
+			align: 'left', // by default
+			// verticalAlign: 'top', // by default
+			x: 0,
+			y: 0
+		},
+		relativeTo: 'chart'
+	};
+	drawDbCurve(objec);
+
+	var objec2 = {};
+	objec2.xCategories = [];
+	_.forEach(dataS21, function(v, i){
+		objec2.xCategories.push(Math.floor(v[0] / 10000000)/100);
+	});
+	objec2.series = [];
+	objec2.series[0] = {};
+	objec2.series[0].data = [];
+	_.forEach(dataS21, function(v, i){
+		objec2.series[0].data.push(parseFloat(v[1]));
+	});
+	objec2.container = DbCurveDom2;
+	objec2.msgDom = $("#picture3bottom");
+	objec.resetZoomButton = {
+		position: {
+			align: 'left', // by default
+			// verticalAlign: 'top', // by default
+			x: 0,
+			y: 0
+		},
+		relativeTo: 'chart'
+	};
+	drawDbCurve(objec2);
+	/*//默认加载曲线信息
 	$("#picture2bottom .Smith_Msg2").text(parseFloat(DbCurveData1[0][1])+" dB,"+(DbCurveData1[0][0]/1000000000).toFixed(2)+"GHz");
-	$("#picture3bottom .Smith_Msg2").text(parseFloat(DbCurveData2[0][1])+" dB,"+(DbCurveData2[0][0]/1000000000).toFixed(2)+"GHz");	
+	$("#picture3bottom .Smith_Msg2").text(parseFloat(DbCurveData2[0][1])+" dB,"+(DbCurveData2[0][0]/1000000000).toFixed(2)+"GHz");*/	
 	
 	window.onresize = function () {
 		smith1.onresize();
@@ -62,31 +108,35 @@ function SmithCurve(data){
 	};
 }
 
-
-function drawDbCurve(dom,data,msgDom){
-	var xData = [];var yData = [];
-	for(var i = 0 ; i < data.length ;i++){
-		xData.push((data[i][0] / 1000000000).toFixed(2));
-		yData.push(parseFloat(data[i][1]));
-	}	
-	var chart = Highcharts.chart(dom, {
+function drawDbCurve(obj){
+	var container = obj.container;
+	var xCategories = obj.xCategories;
+	var series = obj.series;
+	var msgDom = obj.msgDom;
+	var legend_enabled = obj.legend_enabled || false;
+	var zoomType = obj.zoomType || "None";
+	var resetZoomButton = obj.resetZoomButton;
+	var text = obj.text || null;
+	var chart = Highcharts.chart(container, {
 		chart: {
-			type: 'line'
+			type: 'line',
+			zoomType: zoomType,
+			resetZoomButton: resetZoomButton
 		},
 		title: {
-			text: null
+			text: text
 		},
         lang: {
             loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
         },
         legend: {
-			enabled: false
+			enabled: legend_enabled
 		},
 	    xAxis: {
 			title: {
 				text: "GHz",
 			}, 
-			categories : xData,
+			categories : xCategories,
 		}, 
 		yAxis: {
 			title: {
@@ -98,11 +148,17 @@ function drawDbCurve(dom,data,msgDom){
 		      step: 0.01
 	    	}  */
 		},
-		series:  [{
-			data: yData
-		}],
+		series: series,
 		credits: {
 			enabled: false
+		},
+		tooltip: {
+			formatter: function (e) {
+				return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' dB';
+            },
+            useHTML: true
+			/*headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
 		},
 		plotOptions: {
 			series: {
@@ -111,7 +167,7 @@ function drawDbCurve(dom,data,msgDom){
 						mouseOver: function (pa) {
 							/*console.log(this);
 							console.log(pa);*/
-							var x = xData[this.x] ;
+							var x = xCategories[this.x] ;
 							var y = this.y ;
 							var str = y+" dB,"+x+" GHz" ;
 							msgDom && msgDom.find(".Smith_Msg2").text(str);
@@ -121,6 +177,7 @@ function drawDbCurve(dom,data,msgDom){
 			}
 		},
 	});
+	return chart;
 }
 
 // 阻止浏览器默认右键点击事件
