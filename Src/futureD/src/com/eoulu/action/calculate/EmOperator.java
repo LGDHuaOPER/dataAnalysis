@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.eoulu.test;
+package com.eoulu.action.calculate;
 
 /**
  * @author mengdi
@@ -16,17 +16,17 @@ public enum EmOperator {
     MULTIPLY("*", 2, 2, "乘法"),
     DIVIDE("/", 2, 2, "除法"),
     POW("pow", 2, 3, "幂函数"),
-    FACTORIAL("!",1,3,"阶乘"),
+    FACTORIAL("factorial",1,3,"阶乘"),
     SQRT("sqrt", 1, 3, "平方根"),
     LN("ln",1,3,"e为底的对数"),
-    LOG10("log10", 1, 3, "10为底的对数"),
+    LOGT("logt", 1, 3, "10为底的对数"),
     SIN("sin",1,3,"正弦函数"),
     COS("cos",1,3,"余弦函数"),
     TAN("tan",1,3,"正切函数"),
     LEFT_BRACKET("(", 0, Integer.MAX_VALUE, "左括号"),
     RIGHT_BRACKET(")", 0, Integer.MAX_VALUE, "右括号"),
     EXP("e", 1, 3, "指数函数"),
-    PI("π", 1, 3, "π"),
+//    PI("π", 0, 3, "π"),
     ABS("abs", 1, 3, "绝对值"),
     MOD("%", 2, 2, "取模"),
     LOG("log", 1, 3, "自然对数"),

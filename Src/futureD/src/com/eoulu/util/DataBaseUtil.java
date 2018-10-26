@@ -139,6 +139,56 @@ public class DataBaseUtil {
 		}
 		return list;
 	}
+	
+	public List<String> queryList(String sql,Object[] params){
+		List<String> list = new ArrayList<>();
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = getConnection();
+			ps = conn.prepareStatement(sql);
+			if(params!=null){
+				for(int i=0;i<params.length;i++){
+					ps.setObject(i+1, params[i]);
+				}	
+			}
+				
+			rs = ps.executeQuery();
+			while(rs.next()){
+				list.add(rs.getString(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close();
+		}
+		return list;
+	}
+	
+	public List<String> queryList(Connection conn,String sql,Object[] params){
+		List<String> list = new ArrayList<>();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = conn.prepareStatement(sql);
+			if(params!=null){
+				for(int i=0;i<params.length;i++){
+					ps.setObject(i+1, params[i]);
+				}	
+			}
+				
+			rs = ps.executeQuery();
+			while(rs.next()){
+				list.add(rs.getString(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	
 	/**
 	 * 单一查询结果
 	 * @param sql

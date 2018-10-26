@@ -205,6 +205,22 @@ public class CurveDao {
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
+	public List<Integer> getCoordinateId(Connection conn,int waferId){
+		List<Integer> ls = new ArrayList<>();
+		String sql = "select distinct coordinate_id from dm_curve_type  where wafer_id=?";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				ls.add(rs.getInt(1));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ls;
+	}
 	
 	
 	

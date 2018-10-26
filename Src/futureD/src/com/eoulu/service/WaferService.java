@@ -127,4 +127,8 @@ public interface WaferService {
 		 * 删除垃圾数据
 		 */
 		void deleteJunkData();
+		
+		List<String> getWaferParameter(String waferId);
+		
 }
+

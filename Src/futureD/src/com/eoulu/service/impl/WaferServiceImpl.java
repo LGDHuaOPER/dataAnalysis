@@ -679,6 +679,29 @@ public class WaferServiceImpl implements WaferService {
 		
 	}
 
+	@Override
+	public List<String> getWaferParameter(String waferIdStr) {
+		List<String> paramList = new ArrayList<>();
+		List<String> ls = new ArrayList<>();
+		String[] att = waferIdStr.split(",");
+		Connection conn = new DataBaseUtil().getConnection();
+		for(int i=0,length=waferIdStr.length();i<length;i++){
+			if(i==0){
+				paramList = parameterDao.getWaferParameter(conn,Integer.parseInt(att[i]));
+			}else{
+				ls = parameterDao.getWaferParameter(conn,Integer.parseInt(att[i]));
+				paramList.retainAll(ls);
+			}
+			
+		}
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return paramList;
+	}
+
 	
 
 }

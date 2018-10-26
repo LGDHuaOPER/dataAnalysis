@@ -3,6 +3,7 @@
  */
 package com.eoulu.dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -265,5 +266,70 @@ public class WaferDao {
 		return result.size()>0?result.get(0):null;
 	}
 	
+	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType){
+		String sql = "select "+dieType+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number";
+		return db.queryToList(conn, sql, new Object[]{waferId});
+	}
+	
+	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column){
+		String sql = "select alphabetic_coordinate location"+column+",bin from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number";
+		return db.queryToList(conn, sql, new Object[]{waferId});
+	}
+	
+	public String getDieType(Connection conn,int waferId){
+		String sql = "select die_type from dm_wafer where wafer_id=?";
+		Object result = db.queryResult(conn, sql, new Object[]{waferId});
+		return result==null?"":result.toString();
+		
+	}
+	
+	/**
+	 * 每个参数的合格率
+	 * @param conn
+	 * @param waferId
+	 * @param upper
+	 * @param lower
+	 * @param column
+	 * @return
+	 */
+	public double getYieldPerParameter(Connection conn,int waferId,String upper,String lower,String column){
+		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+		double yield = 0;
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			ResultSet rs = ps.executeQuery();
+			int count = 0,qualified = 0;
+			while(rs.next()){
+				count++;
+				if("".equals(upper) || rs.getDouble(1)<=Double.parseDouble(upper) || "".equals(lower) || rs.getDouble(1)>=Double.parseDouble(lower)){
+					qualified++;
+				}
+				
+			}
+			yield = new BigDecimal((double)qualified/count).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return yield;
+	}
+	
+	public List<Map<String,Object>> getSecondary(Connection conn,int waferId){
+		String sql = "select ifnull(wafer_file_name,'') wafer_file_name,ifnull(computer_name,'')computer_name,ifnull(tester,'')tester,"
+				+ "ifnull(test_start_date,'')test_start_date,ifnull(test_end_date,'')test_end_date, ifnull(total_test_time,'')total_test_time,"
+				+ "ifnull(device_number,'')device_number,ifnull(lot_number,'')lot_number,"
+				+ "dm_wafer.wafer_number,die_type from dm_wafer left join dm_wafer_secondary_info on dm_wafer.wafer_number=dm_wafer_secondary_info.wafer_number"
+				+ " where wafer_id=?";
+		return db.queryToList(conn,sql, new Object[]{waferId});
+		
+	}
+	
+	
+	public List<Map<String,Object>> getYieldById(Connection conn,int waferId) {
+		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield,count(*) quantity from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+		return db.queryToList(conn,sql, new Object[]{waferId,waferId});
+
+	}
 	
 }

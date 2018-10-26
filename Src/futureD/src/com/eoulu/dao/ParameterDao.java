@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,8 +150,6 @@ public class ParameterDao {
 		double Diameter=0,DieSizeX=0,DieSizeY = 0,FlatLength = 0;
 		try {
 			String sql="select direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,diameter,die_x_max,die_y_max,cutting_edge_length from dm_wafer_map_parameter where wafer_number='"+waferNO+"'";
-			System.out.println("waferNO"+waferNO);
-			System.out.println(sql);
 			PreparedStatement psm = conn.prepareStatement(sql);
 			ResultSet rs = psm.executeQuery(sql);
 			while(rs.next()){
@@ -248,4 +247,104 @@ public class ParameterDao {
 		String sql = "delete from dm_wafer_parameter where wafer_id=?";
 		return db.operate(conn, sql, new Object[]{waferId});
 	}
+	/**
+	 * 参数是否存在
+	 * @param param
+	 * @return
+	 */
+	public boolean getParameterExsit(Object[] param){
+		String sql = "select parameter_name from dm_wafer_parameter where wafer_id=? and parameter_name=?";
+		List<Map<String, Object>> ls = db.queryToList(sql, param);
+		return ls.size()>0?true:false;
+	}
+	/**
+	 * 获取晶圆的最大参数字段值C_max
+	 * @param param
+	 * @return
+	 */
+	public String getMaxColumn(Connection conn,Object[] param){
+		String sql = "select max(parameter_column) from dm_wafer_parameter where wafer_id=?";
+		Object result = db.queryResult(conn,sql, param);
+		return result==null?"":result.toString();
+	}
+	/**
+	 * 添加自定义参数
+	 * @param param
+	 * @return
+	 */
+	public boolean insertCustomParameter(Connection conn,Object[] param){
+		String sql = "insert into dm_wafer_parameter (wafer_id,parameter_name,parameter_column) values (?,?,?)";
+		return db.operate(conn,sql, param);
+	}
+	
+	
+	public String getColumnByName(Connection conn,String paramName,int waferId){
+		String sql = "select parameter_column from dm_wafer_parameter where wafer_id=? and parameter_name=? ";
+		Object[] param = new Object[]{waferId,paramName};
+		Object result = db.queryResult(conn, sql, param);
+		return result==null?"":result.toString();
+	}
+	
+	public boolean updateParamName(Connection conn,String oldParam,int waferId,String customParam){
+		String sql = "update dm_wafer_parameter set parameter_name=?  where wafer_id=? and parameter_name=? ";
+		Object[] param = new Object[]{customParam,waferId,oldParam};
+		return db.operate(sql, param);
+	}
+	/**
+	 * 取晶圆参数
+	 * @param conn
+	 * @param waferId
+	 * @return
+	 */
+	public List<String> getWaferParameter(Connection conn,int waferId){
+		String sql = "select parameter_name from dm_wafer_parameter where wafer_id=?";
+		return db.queryList(conn,sql, new Object[]{waferId});
+	}
+
+	/**
+	 * 取晶圆参数，不包含自定义参数
+	 * @param conn
+	 * @param waferId
+	 * @return
+	 */
+	public List<String> getParameterNoCustom(Connection conn,int waferId){
+		String sql = "select parameter_name from dm_wafer_parameter where wafer_id=? and parameter_name not in (select custom_parameter parameter_name from dm_marker_calculation where wafer_id=?) ";
+		return db.queryList(conn,sql, new Object[]{waferId});
+	}
+	
+	public List<Map<String,Object>> getMapInfo(Connection conn,String waferNO){
+		String sql = "select direction_x directionX,direction_y directionY,die_x_max dieSizeX,die_y_max dieSizeY,diameter,cutting_edge_length flatLength from dm_wafer_map_parameter where wafer_number=?";
+		return db.queryToList(sql, new Object[]{waferNO});
+		
+	}
+	
+	public Map<String,Object> getWaferDataParameter(Connection conn,int waferId){
+		String sql = "select concat(parameter_name,'(',parameter_unit,')') parameter,parameter_column,ifnull(upper_limit,'') upper_limit,ifnull(lower_limit,'') lower_limit"
+				+ " from dm_wafer_parameter where wafer_id=? and parameter_name not in (select custom_parameter parameter_name from dm_marker_calculation where wafer_id=?) order by parameter_column ";
+		Map<String,Object> result = new HashMap<>();
+		List<String> paramList = new ArrayList<>(), upperList = new ArrayList<>(),lowerList = new ArrayList<>();
+		String column = "";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			ps.setInt(2, waferId);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				paramList.add(rs.getString(1));
+				upperList.add(rs.getString(3));
+				lowerList.add(rs.getString(4));
+				column += ","+rs.getString(2);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		result.put("paramList", paramList);
+		result.put("upperList", upperList);
+		result.put("lowerList", lowerList);
+		result.put("column", column);
+		return result;
+	}
+	
+	
 }

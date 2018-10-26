@@ -3,6 +3,7 @@
  */
 package com.eoulu.service;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -40,18 +41,20 @@ public interface AnalysisService {
 	 * @param waferId
 	 * @return
 	 */
-	Map<String,Object> getSmithData(String[] curveTypeId,String[] legend);
+	Map<String,Object> getSmithData(String[] curveTypeId,String[] legend,String graphStyle,String sParameter);
 	/**
-	 * marker曲线数据
+	 *  marker曲线数据
 	 * key为S2P文件对应的主键
 	 * @param curveTypeId
-	 * @param sParameter  s参数：S11、S12、S21、S22
+	 * @param sParameter
+	 * @param waferId
+	 * @param module
 	 * @return
 	 */
-	Map<String,Object> getMarkerCurve(String[] curveTypeId,String sParameter);
+	Map<String,Object> getMarkerCurve(String[] curveTypeId,String sParameter,int waferId,String module);
 	
 	/**
-	 * 保存分析模型的marker与计算参数
+	 * 应用marker到其他die
 	 * @param marker
 	 * @param calculation
 	 * @param customParameter
@@ -61,7 +64,99 @@ public interface AnalysisService {
 	 * @param module
 	 * @return
 	 */
-	boolean saveMarker(String[] marker,String[] calculation,String[] customParameter,String[] calculationResult,String waferId,String sParameter,String module);
+	boolean saveMarkerByX(int waferId,String module,int coordinateId,String[] att,String sParameter);
+	
+	boolean saveMarkerByY(int waferId,String module,int coordinateId,String[] att,String sParameter);
+	/**
+	 * 判断自定义参数是否存在
+	 * @param waferId
+	 * @param parameter
+	 * @return
+	 */
+	boolean getParameterExsit(int waferId,String parameter);
+	
+	/**
+	 * 计算公式存储
+	 * @param waferId
+	 * @param coordinateId
+	 * @param parameter
+	 * @param calculationFormula
+	 * @param result
+	 * @param module
+	 * @param sParameter
+	 * @return
+	 */
+	boolean saveCalculation(int waferId,int coordinateId,String parameter,String calculationFormula,String userFormula,double result,String module);
+	/**
+	 * 获取计算公式主键
+	 * @param waferId
+	 * @param parameter
+	 * @param module
+	 * @param sParameter
+	 * @return
+	 */
+	
+	int getCalculationId(int waferId,String parameter,String module);
+	
+	
+	/**
+	 * 计算公式修改
+	 * @param oldParam 修改前的自定义参数
+	 * @param customParam 修改的自定义参数
+	 * @param formula 公式
+	 * @param result  计算结果
+	 * @param calculationId
+	 * @param coordinateId
+	 * @param waferId
+	 * @return
+	 */
+	boolean modifyCalculation(String oldParam,String customParam,String formula,String userformula,String result,int calculationId,int coordinateId,int waferId);
+	
+	boolean updateCalculation(int waferId,int coordinateId);
+	
+	/**
+	 * marker是否存在
+	 * @param waferId
+	 * @param markerName
+	 * @param module
+	 * @param sParameter
+	 * @return
+	 */
+	boolean getMarkerExsit(int waferId, String markerName, String module, String sParameter);
+	/**
+	 * 添加、修改、
+	 * @param param
+	 * @param classify
+	 * @return
+	 */
+	boolean operateMarker(Object[] param,String classify);
+	/**
+	 * 删除marker
+	 * @param param
+	 * @return
+	 */
+	boolean deleteMarker(Object[] param);
+	/**
+	 * 获取marker主键
+	 * @param param
+	 * @return
+	 */
+	int getMarkerId(Object[] param);
+	
+	/**
+	 * 计算区域内容
+	 * @param waferId
+	 * @param module
+	 * @return
+	 */
+	List<Map<String,Object>> getCalculation(int waferId,String module);
+	/**
+	 * 清除曲线上的marker点
+	 * @param conn
+	 * @param curveTypeId
+	 * @return
+	 */
+	boolean deleteMarkerById(String[] curveTypeId);
 	
 	
 }

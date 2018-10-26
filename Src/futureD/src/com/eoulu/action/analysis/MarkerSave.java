@@ -35,18 +35,33 @@ public class MarkerSave extends HttpServlet {
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
-		String[] marker = request.getParameterValues("marker[]");
-		String[] calculation = request.getParameterValues("calculation[]");
-		String[] customParameter = request.getParameterValues("customParameter[]");
-		String[] calculationResult = request.getParameterValues("calculationResult[]");
-		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId");
-		String sParameter = request.getParameter("sParameter")==null?"":request.getParameter("sParameter"),module="TCF";
+		String coordinateId = request.getParameter("coordinateId") == null ? ""
+				: request.getParameter("coordinateId").trim(),
+				markerKey = request.getParameter("markerKey") == null ? "" : request.getParameter("markerKey"),
+				 sParam = request.getParameter("sParameter") == null ? "" :
+				 request.getParameter("sParameter").trim(),
+				waferId = request.getParameter("waferId") == null ? "" : request.getParameter("waferId"),
+				module = "TCF";
+		String curveTypeStr[] = request.getParameterValues("curveTypeStr[]");
+
+		boolean flag = false;
 		AnalysisService service = new AnalysisServiceImpl();
-		response.getWriter().write(new Gson().toJson(service.saveMarker(marker, calculation, customParameter, calculationResult, waferId, sParameter, module)));
+		if ("X".equals(markerKey)) {
+			flag = service.saveMarkerByX(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId), curveTypeStr, sParam);
+		}
+		if ("Y".equals(markerKey)) {
+			flag = service.saveMarkerByY(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId), curveTypeStr, sParam);
+		}
+		
+		boolean flag2 = service.updateCalculation(Integer.parseInt(waferId),Integer.parseInt(coordinateId));
+		
+		response.getWriter().write(new Gson().toJson(flag && flag2));
 	}
 
 }

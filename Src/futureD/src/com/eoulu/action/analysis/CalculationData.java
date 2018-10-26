@@ -1,4 +1,4 @@
-package com.eoulu.action;
+package com.eoulu.action.analysis;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -7,34 +7,40 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.eoulu.service.AnalysisService;
+import com.eoulu.service.impl.AnalysisServiceImpl;
+import com.google.gson.Gson;
+
 /**
- * Servlet implementation class Calculator
+ * Servlet implementation class CalculationData
  */
-@WebServlet(description = "计算器", urlPatterns = { "/Calculator" })
-public class Calculator extends HttpServlet {
+@WebServlet(description = "计算区域", urlPatterns = { "/CalculationData" })
+public class CalculationData extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Calculator() {
+    public CalculationData() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+
+		AnalysisService service = new AnalysisServiceImpl();
+		int waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
+		String module = "TCF";
+		response.getWriter().write(new Gson().toJson(service.getCalculation(waferId, module)));
+	
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 

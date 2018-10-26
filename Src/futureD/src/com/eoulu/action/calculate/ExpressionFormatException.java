@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.eoulu.test;
+package com.eoulu.action.calculate;
 
 /**
  * @author mengdi

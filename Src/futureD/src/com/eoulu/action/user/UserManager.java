@@ -1,4 +1,4 @@
-package com.eoulu.controller.user;
+package com.eoulu.action.user;
 
 import java.io.IOException;
 import java.util.Hashtable;

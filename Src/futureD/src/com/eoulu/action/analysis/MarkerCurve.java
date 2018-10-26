@@ -33,8 +33,10 @@ public class MarkerCurve extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		AnalysisService service = new AnalysisServiceImpl();
 		String[] curveTypeId = request.getParameterValues("curveTypeId[]");
-		String sParameter = request.getParameter("sParameter")==null?"":request.getParameter("sParameter");
-		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter);
+		String sParameter = request.getParameter("sParameter")==null?"S11":request.getParameter("sParameter"),
+				module = "TCF";
+		int waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
+		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,waferId,module);
 		response.getWriter().write(new Gson().toJson(map));
 	}
 

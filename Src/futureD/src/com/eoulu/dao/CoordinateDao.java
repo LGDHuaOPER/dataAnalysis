@@ -3,14 +3,19 @@
  */
 package com.eoulu.dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.catalina.tribes.util.Arrays;
 
+import com.eoulu.transfer.WaferMapDTO;
 import com.eoulu.util.DataBaseUtil;
 
 /**
@@ -253,5 +258,148 @@ public class CoordinateDao {
 		return db.operate(conn, sql, new Object[]{waferId});
 	}
 	
+	/**
+	 * 更新die对应的自定义参数结果数据
+	 * @param param
+	 * @param column
+	 * @return
+	 */
+	public boolean updateDieParamByMarker(Connection conn,Object[] param,String column){
+		String sql = "update dm_wafer_coordinate_data set "+column+"=? where coordinate_id=?";
+		return db.operate(conn,sql, param);
+	}
+	
+	/**
+	 * 横坐标最大、最小
+	 * 纵坐标最大、最小
+	 * @param conn
+	 * @param waferNO
+	 * @return
+	 */
+	public List<Map<String, Object>> getCoordinateRange(Connection conn, String waferNO) {
+		String sql = "select min(x_coordinate) minX,max(x_coordinate) maxX,min(y_coordinate) minY,max(y_coordinate) maxY from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?)";
+		return db.queryToList(conn, sql, new Object[] {});
+
+	}
+	
+	public WaferMapDTO getAllParameter(Connection conn,int waferId,String waferNO) {
+		WaferMapDTO wafer = new WaferMapDTO();
+		wafer.setParameter("All");
+		String sql = "select x_coordinate,y_coordinate,bin from dm_wafer_coordinate_data where wafer_id=?";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			Map<String,Object> map = new HashMap<>();
+			Map<String,Object> colorMap = new HashMap<>();
+			int num=0,qualified=0,red=0,green=0;
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				if(rs.getInt(3)!=-1) {
+					num++;
+					if(rs.getInt(3)==1) {
+						qualified++;
+						green++;
+						colorMap.put("color", green);
+					}else{
+						red++;
+						colorMap.put("color", red);
+					}
+					
+				}
+				colorMap.put("bin", rs.getInt(3));
+				map.put(rs.getInt(1)+":"+rs.getInt(2), colorMap);
+			}
+			wafer.setCurrentDieList(map);
+			wafer.setQualifynumber(qualified);
+			wafer.setUnqulifynumber(num-qualified);
+			wafer.setQualifiedRate(new BigDecimal((double)qualified/num).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return wafer;
+	}
+	
+	
+	public Map<String,Object> getOtherDie(Connection conn,int waferId,String waferNO){
+		String sql = "select x_coordinate,y_coordinate from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?) and wafer_id<>?";
+		Map<String,Object> result = new HashMap<>();
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, waferNO);
+			ps.setInt(2, waferId);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				result.put(rs.getInt(1)+":"+rs.getInt(2), 12);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
+	
+	public WaferMapDTO getPerParameter(Connection conn,int waferId,String column,String parameter,double uppper,double lower) {
+		WaferMapDTO wafer = new WaferMapDTO();
+		wafer.setParameter(parameter);
+//		double median = getMedian(conn, waferId, lower, uppper);
+		String sql  = "select x_coordinate,y_coordinate,bin,"+column+" from dm_wafer_coordinate_data where wafer_id=? order by "+column+" desc";
+		Map<String,Object> result = new HashMap<>();
+		Map<String,Object> colorMap = new HashMap<>();
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			ResultSet rs = ps.executeQuery();
+			int num=0,qualified=0;
+			int red = 0,green = 0;
+			while(rs.next()){
+				int bin = -1;//
+				if(rs.getInt(3)!=-1) {
+					num++;
+					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=uppper){
+						bin=1;
+						qualified++;
+						green++;
+						colorMap.put("color", green);
+					}else {
+						bin=255;
+						red++;
+						colorMap.put("color", red);
+					}
+				}
+				colorMap.put("bin", bin);
+				result.put(rs.getInt(1)+":"+rs.getInt(2), colorMap);
+			}
+			wafer.setCurrentDieList(result);
+			wafer.setQualifynumber(qualified);
+			wafer.setUnqulifynumber(num-qualified);
+			wafer.setQualifiedRate(new BigDecimal((double)qualified/num).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return wafer;
+		
+	}
+	
+	/**
+	 * 求中位数
+	 * @param conn
+	 * @param waferId
+	 * @param left
+	 * @param right
+	 * @return
+	 */
+	public double getMedian(Connection conn,int waferId,double left ,double right){
+		String sql = "set @rownum=0;"
+				+ "select a.C1 from "
+				+ " (select  C1,@rownum:=@rownum + 1 AS  num from dm_wafer_coordinate_data where wafer_id=? and c1 between ? and ? order by C1) a "
+				+ "where a.num=(select (count(*)+1)div 2 from dm_wafer_coordinate_data where wafer_id=? and c1 between ? and ? )";
+		Object result = db.queryResult(conn, sql, new Object[]{waferId,left,right,waferId,left,right});
+		return result==null?0:Double.parseDouble(result.toString());
+	}
 	
 }
