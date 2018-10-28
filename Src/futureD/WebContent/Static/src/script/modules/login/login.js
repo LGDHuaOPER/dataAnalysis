@@ -118,16 +118,7 @@ $(".button_div>button").click(function(){
 		item[iuser] = newiuserObj;
 		store.set("futureDT2__userDB", _.assign(loginUserPassObj, item));
 
-		loginSwalMixin({
-		 	title: '是否用安全模式？',
-		 	text: "如果是在公用电脑，建议使用安全模式登录！",
-		 	type: 'info',
-		  	showCancelButton: true,
-		  	confirmButtonText: '是，使用！',
-		  	cancelButtonText: '否，不使用！',
-		  	reverseButtons: false
-		}).then(function(result) {
-		  if (result.value) {
+		if($(".save_login_div [type='checkbox']").prop("checked")){
 		  	store.set("futureDT2__session_classify", "sessionStorage");
 		  	try{
 		  		window.sessionStorage.setItem("futureDT2__sessionStorage", JSON.stringify(futureDT2__session));
@@ -142,15 +133,30 @@ $(".button_div>button").click(function(){
 					timer: 2000,
 		  		});
 		  	}
+		}else{
+		  	store.set("futureDT2__session_classify", "localStorage");
+		  	store.set('futureDT2__session', futureDT2__session);
+		  	window.location.assign("index.html");
+		}
+
+		/*loginSwalMixin({
+		 	title: '是否用安全模式？',
+		 	text: "如果是在公用电脑，建议使用安全模式登录！",
+		 	type: 'info',
+		  	showCancelButton: true,
+		  	confirmButtonText: '是，使用！',
+		  	cancelButtonText: '否，不使用！',
+		  	reverseButtons: false
+		}).then(function(result) {
+		  if (result.value) {
+		  	
 		  } else if (
 		    // Read more about handling dismissals
 		    result.dismiss === swal.DismissReason.cancel
 		  ) {
-		  	store.set("futureDT2__session_classify", "localStorage");
-		  	store.set('futureDT2__session', futureDT2__session);
-		  	window.location.assign("index.html");
+		  	
 		  }
-		});
+		});*/
 	}
 });
 

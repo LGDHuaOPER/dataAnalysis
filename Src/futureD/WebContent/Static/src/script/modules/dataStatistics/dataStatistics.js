@@ -391,8 +391,8 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							bgFillColor: "#eee",
 							waferData: futuredGlobal.S_getMockWaferData()[0],
 							spacePercent: {
-								x: 0.13,
-								y: 0.13
+								x: 0.31,
+								y: 0.05
 							},
 							m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%3].m_DieDataListNew,
 							colorGradation: {

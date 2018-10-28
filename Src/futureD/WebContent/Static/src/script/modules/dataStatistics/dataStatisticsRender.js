@@ -3,7 +3,7 @@ function buildChartContainer(obj){
 	var flag = false;							
 	dataStatisticsState.csvANDparamSelected.param.map(function(v, i, arr){
 		var id = $(".g_bodyin_bodyin_bottom_lsub_mid [data-ishowchartparam='"+v+"']").data("chartcurid");
-		if(i%2 == 0){
+		/*if(i%2 == 0){
 			str+='<div class="row">';
 			flag = false;
 		}else{
@@ -12,7 +12,10 @@ function buildChartContainer(obj){
 		str+='<div class="col-sm-12 col-md-12 col-lg-6"><div id="'+id+'" data-initrenderchart="'+obj.ishowchart+'"></div></div>';
 		if(flag){
 			str+='</div>';
-		}
+		}*/
+		str+='<div class="row">';
+		str+='<div class="col-sm-12 col-md-12 col-lg-12"><div id="'+id+'" data-initrenderchart="'+obj.ishowchart+'"></div></div>';
+		str+='</div>';
 	});
 	$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+obj.ishowchart+"']>.chartBody>.container-fluid").empty().append(str);
 }
@@ -52,17 +55,30 @@ function initRenderChart(obj){
 				},
 				series: [{
 					name: '百分比',
+					type: 'column',
 					data: [
 						// 数据格式： [时间戳, 数值]
-						[0.45, 71.5], 
-						[0.55, 10.4], 
-						[0.65, 19.2], 
-						[0.75, 41.0], 
-						[0.85, 76.0],
-						[0.95,35.6], 
-						[1.05,48.5],
-						[1.15, 49.9]
+						[0.45, 10], 
+						[0.55, 10], 
+						[0.65, 5], 
+						[0.75, 35], 
+						[0.85, 15],
+						[0.95,5], 
+						[1.05,15],
+						[1.15, 5]
 					]
+				},
+				{
+					name: '累加',
+					type: 'line',
+					data: [[0.45, 10], 
+						[0.55, 20], 
+						[0.65, 25], 
+						[0.75, 60], 
+						[0.85, 75],
+						[0.95,80], 
+						[1.05,95],
+						[1.15, 100]]
 				}]
 			})
 		);

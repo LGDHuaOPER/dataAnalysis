@@ -70,6 +70,10 @@ body>.container-fluid {
 	text-align: right;
 }
 
+.save_login_div {
+	margin-bottom: 5px;
+	font-size: 13px;
+}
 
 @media screen and (max-width: 768px) {
     .login_pan {
