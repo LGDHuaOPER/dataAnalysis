@@ -261,11 +261,6 @@
 											</tr>
 										</thead>
 										<tbody>
-											<tr class="canCalc">
-												<td></td>
-												<td></td>
-												<td></td>
-											</tr>
 										</tbody>
 									</table>
 								</div><!-- g_bodyin_bodyin_bottom_lsub_bottom end -->
@@ -274,7 +269,7 @@
 								<div class="g_bodyin_bodyin_bottom_rsubin">
 									<div class="g_bodyin_bodyin_bottom_rsubin_tit">
 										<button type="button" class="btn btn-default">
-										  	<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> Marker设置
+										  	<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 打开Marker设置
 										</button>
 										<div class="buildMarker">
 											<div class="buildMarker_body">
@@ -339,16 +334,11 @@
 		<div class="subAddParam_tit">添加参数<span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
 		<div class="subAddParam_body">
 			<div class="container-fluid">
-				<div class="row">
+				<div class="row addParam">
 					<div class="col-sm-4 col-md-2 col-lg-2">参数名称</div>
-					<div class="col-sm-8 col-md-4 col-lg-4">
-						<select class="form-control" id="calc_text">
-							<option value="TCF_L">TCF_L</option>
-							<option value="TCF_R">TCF_R</option>
-							<option value="TCF">TCF</option>
-						</select>
+					<div class="col-sm-8 col-md-8 col-lg-8">
+						<input type="text" class="form-control" id="calc_text"><button type="button" class="btn btn-default awesomplete_btn" aria-label="Left Align"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></button>
 					</div>
-					<div class="col-sm-12 col-md-6 col-lg-6"><input type="text" id="search_marker" placeholder="输入搜索marker" class="form-control"></div>
 				</div>
 				<div class="row">
 					<div class="col-sm-4 col-md-2 col-lg-2">表达式</div>
@@ -357,30 +347,53 @@
 						<div class="calcin">
 							<div class="container-fluid">
 								<div class="row">
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：sin(3)">sin</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：cos(3)">cos</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：tan(3)">tan</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3)" data-ivalue="sin()" data-ipos="-1">sin</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3)" data-ivalue="cos()" data-ipos="-1">cos</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3)" data-ivalue="tan()" data-ipos="-1">tan</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：ln(9)" data-ivalue="ln()" data-ipos="-1">ln</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：ln(9)">ln</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：log3(9)">log</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：3!">!</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3°)" data-ivalue="sin(°)" data-ipos="-2">sin角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3°)" data-ivalue="cos(°)" data-ipos="-2">cos角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3°)" data-ivalue="tan(°)" data-ipos="-2">tan角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：log(3)(9)" data-ivalue="log()()" data-ipos="-3">log</div></div>
+									
 								</div>
 								<div class="row">
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item">π</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item">e</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：3^2">^</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：3!" data-ivalue="()!" data-ipos="-2">!</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="π" data-ipos="0">π</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="e" data-ipos="0">e</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：3^2" data-ivalue="()^()" data-ipos="-4">^</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item">(</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item">)</div></div>
-									<div class="col-sm-4 col-md-4 col-lg-4"><div class="clac_item" title="规则：√3">√</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="(" data-ipos="0">(</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue=")" data-ipos="0">)</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：√3" data-ivalue="√()" data-ipos="-1">√</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="打开/关闭数组软键盘" data-ivalue="Number">Num</div></div>
+								</div>
+								<div class="row toggleRow">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="0" data-ipos="0">0</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="1" data-ipos="0">1</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="2" data-ipos="0">2</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="3" data-ipos="0">3</div></div>
+								</div>
+								<div class="row toggleRow">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="4" data-ipos="0">4</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="5" data-ipos="0">5</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="6" data-ipos="0">6</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="7" data-ipos="0">7</div></div>
+								</div>
+								<div class="row toggleRow">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="8" data-ipos="0">8</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="9" data-ipos="0">9</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="." data-ipos="0">.</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="退格" data-ipos="0">退格</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item">+</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item">-</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item">*</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item">/</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="+" data-ipos="0">+</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="-" data-ipos="0">-</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="*" data-ipos="0">*</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="/" data-ipos="0">/</div></div>
 								</div>
 							</div>
 						</div>

@@ -729,6 +729,10 @@ span.glyphicon {
 	border-radius: 21px 0px 21px 0px;
 }
 
+.row.toggleRow {
+	display: none;
+}
+
 .subAddParam_foot {
 	text-align: center;
 }
@@ -754,6 +758,17 @@ span.glyphicon {
 
 div.awesomplete {
 	display: block;
+}
+
+.row.addParam div.awesomplete {
+	display: inline-block;
+}
+
+.awesomplete_btn {
+    padding-top: 6px;
+    padding-bottom: 7px;
+    position: relative;
+    top: -2px;
 }
 
 .underline_b {

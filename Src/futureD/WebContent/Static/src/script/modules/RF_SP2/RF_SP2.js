@@ -7,6 +7,8 @@ var RF_SP2SwalMixin = swal.mixin({
 	customClass: 'animated zoomIn'
 });
 
+var S_factorial = eouluGlobal.S_factorial;
+
 var RF_SP2State = new Object();
 RF_SP2State.mock = {
 	curveType: {
@@ -84,17 +86,17 @@ RF_SP2State.MathMap = {
 	},
 	"log": {
 		"replace": "Math.log(##2)/Math.log(##1)",
-		"reg": /log\d+\(\d+\)/g,
-		"reg1": /log(\d+)\((\d+)\)/,
+		"reg": /log\(\d+\)\(\d+\)/g,
+		"reg1": /log\((\d+)\)\((\d+)\)/,
 		"fun": "match",
 		"index": [1, 2]
 	},
 	"!": {
-		"replace": "eouluGlobal.S_factorial(##1)",
-		"reg": /\d+\!/g,
-		"reg1": /\d+(?=\!)/,
+		"replace": "S_factorial(##1)",
+		"reg": /\(\d+\)\!/g,
+		"reg1": /\((\d+)\)(?=\!)/,
 		"fun": "match",
-		"index": 0
+		"index": 1
 	},
 	"π": {
 		"replace": "Math.PI",
@@ -110,20 +112,27 @@ RF_SP2State.MathMap = {
 	},
 	"^": {
 		"replace": "Math.pow(##1, ##2)",
-		"reg": /\d+\^\d+/,
-		"reg1": /(\d+)\^(\d+)/,
+		"reg": /\(\d+\)\^\(\d+\)/,
+		"reg1": /\((\d+)\)\^\((\d+)\)/,
 		"fun": "match",
 		"index": [1, 2]
 	},
 	"√": {
 		"replace": "Math.sqrt(##1)",
-		"reg": /√\d+/g,
-		"reg1": /√(\d+)/,
+		"reg": /√\(\d+\)/g,
+		"reg1": /√\((\d+)\)/,
 		"fun": "match",
 		"index": 1
+	},
+	"°": {
+		"replace": "*Math.PI/180",
+		"reg": null,
+		"reg1": null,
+		"fun": null,
+		"index": -1
 	}
 };
-RF_SP2State.allowKeyCode = [8, 46, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 110, 190];
+RF_SP2State.allowKeyCode = [8, 37, 38, 39, 40, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 77, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 109, 110, 111, 190];
 RF_SP2State.search_markerObj = {
 	awesomplete: null,
 	list: null
@@ -185,9 +194,9 @@ function renderSelectCsv(item, flag, insertDOM){
 function renderNavItem(obj){
 	var str = '';
 	var item = obj.item, type = obj.type, inde = obj.index;
-	var curveTypeArr = _.find(RF_SP2State.mock.curveType, function(o, k){
+	/*var curveTypeArr = _.find(RF_SP2State.mock.curveType, function(o, k){
 		return k == item.curveType;
-	});
+	});*/
 	if(item.curveType == "RF-S2P"){
 		item.curveType = "S2P";
 	}
@@ -200,17 +209,64 @@ function renderNavItem(obj){
 			activeFlag = "active";
 		}
 		str+='<li class="'+activeFlag+'" data-targetclass="g_bodyin_bodyin_bottom_2">TCF</li>';
-		if(!_.isEmpty(curveTypeArr) && !_.isNil(curveTypeArr)){
+		/*if(!_.isEmpty(curveTypeArr) && !_.isNil(curveTypeArr)){
 			curveTypeArr.map(function(v, i){
 				var activeFlag2 = "";
 				if(inde - i == 2) activeFlag2 = "active";
 				str+='<li class="'+activeFlag2+'" data-targetclass="g_bodyin_bodyin_bottom_2">'+v+'</li>';
 			});
-		}
+		}*/
 		str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
 	}
 	$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
 }
+
+/*MarkerReplace*/
+function markerJoinCalc(str){
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(iv, ik){
+		if(str.indexOf(iv.markerName) == -1) return true;
+		var delayArr = str.match(new RegExp(iv.markerName+"\\."+"X", "g"));
+		var delayArr2 = str.match(new RegExp(iv.markerName+"\\."+"Y", "g"));
+		_.forEach(delayArr, function(vv, ii){
+			str = str.replace(vv, iv.x);
+		});
+		_.forEach(delayArr2, function(vv, ii){
+			str = str.replace(vv, iv.y);
+		});
+	});
+	return str;
+}
+function markerMathCalc(str){
+	_.forOwn(RF_SP2State.MathMap, function(v, k){
+		if(str.indexOf(k) == -1) return true;
+		if(v.reg == null){
+			var ireg = new RegExp(k, "g");
+			str = _.replace(str, ireg, v.replace);
+		}else{
+			var delayArr = str.match(v.reg);
+			if(_.isNil(delayArr)) return true;
+			if(_.isNumber(v.index)){
+				_.forEach(delayArr, function(vv, ii){
+					var replaceStr = "("+v.replace+")";
+					var num = vv.match(v.reg1)[v.index];
+					replaceStr = replaceStr.replace("##1", num);
+					str = str.replace(vv, replaceStr);
+				});
+			}else if(_.isArray(v.index)){
+				_.forEach(delayArr, function(vv, ii){
+					var replaceStr = "("+v.replace+")";
+					var num1 = vv.match(v.reg1)[v.index[0]];
+					var num2 = vv.match(v.reg1)[v.index[1]];
+					replaceStr = replaceStr.replace("##1", num1);
+					replaceStr = replaceStr.replace("##2", num2);
+					str = str.replace(vv, replaceStr);
+				});
+			}
+		}
+	});
+	return str;
+}
+
 
 /*before load*/
 $(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv").hide();
@@ -252,6 +308,12 @@ $(function(){
 		eleResize2();
 	});
 
+	/*保存Marker后的动作*/
+	var saveMarkerFlag = store.get("futureD__RF_SP2__saveMarkerFlag");
+	if(saveMarkerFlag == "hasSave"){
+		$(".g_bodyin_bodyin_top_wrap_m_in li[data-targetclass='g_bodyin_bodyin_bottom_2']").trigger("click");
+		store.remove("futureD__RF_SP2__saveMarkerFlag");
+	}
 	/*回显marker*/
 	RF_SP2State.stateObj.splineSelectedArr = store.get("futureD__RF_SP2__splineSelectedArr");
 	RF_SP2State.stateObj.splineSelectedCopyArr = store.get("futureD__RF_SP2__splineSelectedArr");
@@ -261,6 +323,9 @@ $(function(){
 		RF_SP2State.stateObj.key_y = RF_SP2State.stateObj.comfirm_key == "y" ? true : false;
 		var str2 = '';
 		var iArra = [];
+		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+			if(_.isNil(v.x)) v.x = NaN;
+		});
 		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 			str2+='<tr data-iflag="'+(v.name+v.x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+v.markerName+'">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';
 			iArra.push({
@@ -280,11 +345,69 @@ $(function(){
 		$("#comfirm_key_sel").val(RF_SP2State.stateObj.comfirm_key);
 	}
 
-	RF_SP2State.search_markerObj.awesomplete = new Awesomplete(document.getElementById("search_marker"), {
+	/*计算参数回显*/
+	var tableStr = store.get("futureD__RF_SP2__paramCalc_tableStr");
+	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").html(tableStr);
+	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").each(function(){
+		var str = $(this).children("td:eq(2)").text().trim();
+		if(_.isEmpty(str)) return true;
+		str = markerJoinCalc(str);
+		str = markerMathCalc(str);
+		var iVal = eval(str);
+		if(_.isNaN(iVal)){
+			/*RF_SP2SwalMixin({
+				title: "公式提示",
+				text: "公式有误",
+				type: "error",
+				timer: 2000
+			});*/
+			$(this).children("td:eq(1)").text("9E+37");
+		}else{
+			$(this).children("td:eq(1)").text(iVal.toFixed(2));
+		}
+	});
+
+	/*自动填充*/
+	RF_SP2State.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
 		list: RF_SP2State.search_markerObj.list,
 		minChars: 1,
 		maxItems: 10,
-		autoFirst: true
+		autoFirst: true,
+		filter: function (text, input) {
+			var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+			if(input.substring(cp-1, cp) == "M"){
+				return true;
+			}else{
+				return false;
+			}
+			// return text.indexOf(input) === 0;
+		},
+		replace: function(value) {
+			var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+			var s = this.input.value.substring(0, cp - 1) + value.value + this.input.value.substring(cp, this.input.value.length);
+			$("#clac_textarea").val(s);
+			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + value.value.length - 1);
+		}
+	});
+
+	/*计算器里参数自动填充*/
+	/* awesomplete */
+	var comboplete = new Awesomplete('#calc_text', {
+	    minChars: 0,
+	    list: ["TCF_L", "TCF_R", "TCF"]
+	});
+	$('.subAddParam_body button.awesomplete_btn').click(function(){
+	    if (comboplete.ul.childNodes.length === 0) {
+	        comboplete.minChars = 0;
+	        comboplete.evaluate();
+	    }
+	    else if (comboplete.ul.hasAttribute('hidden')) {
+	        comboplete.open();
+	    }
+	    else {
+	        comboplete.close();
+	    }
 	});
 });
 
@@ -383,6 +506,19 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 			});
 			/*导航栏结束*/
 			if(target == "g_bodyin_bodyin_bottom_2"){
+				/*判断重新渲染按钮*/
+				if(RF_SP2State.waferTCFSelected.length == 2){
+					$(".reRenderBtnDiv").css({
+						"left": (310)+"px",
+						"top": (180)+"px"
+					}).slideDown(200);
+				}else{
+					$(".reRenderBtnDiv").css({
+						"left": (310)+"px",
+						"top": (180)+"px"
+					}).slideUp(200);
+				}
+				/*判断重新渲染按钮end*/
 				$('button.upflag, button.lowflag').popover("hide");
 				if(!RF_SP2State.stateObj.renderSelectCsvSub){
 					renderSelectCsv(store.get("futureDT2__projectAnalysis__selectedObj"), 'sub', $(".g_bodyin_bodyin_bottom_lsub_top"));
@@ -428,14 +564,18 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 								chart.series[ii].data[_.indexOf(iyData[ii], v.y)].select(true, true);
 							});*/
 							_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-								var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-								chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+								if(!_.isNil(v.isNew)){
+									var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+									chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+								}
 							});
 						}
 					});
 					RF_SP2State.stateObj.renderSelectCsvSub = true;
 				}
 				/*判断结束*/
+			}else{
+				$(".reRenderBtnDiv").hide();
 			}
 		});
 	}
@@ -486,76 +626,49 @@ $(".g_bodyin_tit_r>.glyphicon-stats").click(function(){
 /*点击出现计算器*/
 $(document).on("click", "tr.canCalc", function(){
 	$(".RF_SP2_cover, .subAddParam").slideDown(200);
+	$("#clac_textarea").val($(this).children("td:eq(2)").text());
 	RF_SP2State.stateObj.calcTableIndex = $(this).index();
 }).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
 	$(".RF_SP2_cover, .subAddParam").slideUp(200);
 }).on("click", ".subAddParam_footin>.btn-primary", function(){
 	var str = $("#clac_textarea").val();
 	if(str == "" || str.trim() == "") return false;
-	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(iv, ik){
-		if(str.indexOf(iv.markerName) == -1) return true;
-		var delayArr = str.match(new RegExp(iv.markerName+"\\."+"X", "g"));
-		var delayArr2 = str.match(new RegExp(iv.markerName+"\\."+"Y", "g"));
-		_.forEach(delayArr, function(vv, ii){
-			str = str.replace(vv, iv.x);
-		});
-		_.forEach(delayArr2, function(vv, ii){
-			str = str.replace(vv, iv.y);
-		});
-	});
-	_.forOwn(RF_SP2State.MathMap, function(v, k){
-		if(str.indexOf(k) == -1) return true;
-		if(v.reg == null){
-			var ireg = new RegExp(k, "g");
-			str = _.replace(str, ireg, v.replace);
-		}else{
-			var delayArr = str.match(v.reg);
-			if(_.isNil(delayArr)) return true;
-			if(_.isNumber(v.index)){
-				_.forEach(delayArr, function(vv, ii){
-					var replaceStr = "("+v.replace+")";
-					var num = vv.match(v.reg1)[v.index];
-					replaceStr = replaceStr.replace("##1", num);
-					str = str.replace(vv, replaceStr);
-				});
-			}else if(_.isArray(v.index)){
-				_.forEach(delayArr, function(vv, ii){
-					var replaceStr = "("+v.replace+")";
-					var num1 = vv.match(v.reg1)[v.index[0]];
-					var num2 = vv.match(v.reg1)[v.index[1]];
-					replaceStr = replaceStr.replace("##1", num1);
-					replaceStr = replaceStr.replace("##2", num2);
-					str = str.replace(vv, replaceStr);
-				});
-			}
-		}
-	});
+	str = markerJoinCalc(str);
+	str = markerMathCalc(str);
 	try{
 		var iVal = eval(str);
+		var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2State.stateObj.calcTableIndex);
 		if(_.isNaN(iVal)){
-			RF_SP2SwalMixin({
+			/*RF_SP2SwalMixin({
 				title: "公式提示",
 				text: "公式有误",
 				type: "error",
 				timer: 2000
-			});
+			});*/
+			tr.children().eq(1).text("9E+37");
 		}else{
-			var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2State.stateObj.calcTableIndex);
-			tr.children().eq(0).text($("#calc_text").val());
 			tr.children().eq(1).text(iVal.toFixed(2));
-			tr.children().eq(2).text($("#clac_textarea").val());
-			var iiflag = false;
-			$(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr:last>td").each(function(){
+		}
+		tr.children().eq(0).text($("#calc_text").val());
+		tr.children().eq(2).text($("#clac_textarea").val());
+		var noEmptyLen = 0;
+		$(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").each(function(){
+			var iiiflag = false;
+			$(this).children("td").each(function(){
 				if($(this).text() != ""){
-					iiflag = true;
+					iiiflag = true;
 					return false;
 				}
 			});
-			if(!iiflag) {
-				$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+			if(iiiflag){
+				noEmptyLen++ ;
 			}
-			$(".subAddParam_footin>.btn-warning").trigger("click");
+		});
+		store.set("futureD__RF_SP2__paramCalc_tableStr", $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").html());
+		if(noEmptyLen == $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").length) {
+			$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
 		}
+		$(".subAddParam_footin>.btn-warning").trigger("click");
 	}catch(err){
 		RF_SP2SwalMixin({
 			title: "公式提示",
@@ -573,18 +686,32 @@ $(".calcin>div>.row>div>div").on({
 	mouseup: function(){
 		$(this).removeClass("active");
 		var t = $("#clac_textarea").val();
-		var k = $(this).text();
+		var k = $(this).data("ivalue");
 		var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
-		var s = t.substring(0,cp) + k + t.substring(cp, t.length);
-		$("#clac_textarea").val(s);
-		eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + k.length);
+		if(k != "Number" && k != "退格"){
+			var s = t.substring(0,cp) + k + t.substring(cp, t.length);
+			$("#clac_textarea").val(s);
+			var correctPos = Number($(this).data("ipos"));
+			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + k.toString().length + correctPos);
+		}else if(k == "Number"){
+			$(".row.toggleRow").slideToggle(150);
+			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp);
+		}else if(k == "退格"){
+			var ss = $("#clac_textarea").val().substring(0, cp - 1) + $("#clac_textarea").val().substring(cp, $("#clac_textarea").val().length);
+			$("#clac_textarea").val(ss);
+			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp - 1);
+		}
 	}
 });
 
 $("#clac_textarea").on("keydown", function(e){
 	var i = e.keyCode || e.which || e.charCode;
-	// alert(i)
 	if(_.indexOf(RF_SP2State.allowKeyCode, i) == -1) return false;
+}).on("input propertychange change", function(){
+	var old = $(this).val();
+	old = old.replace(/[\u4e00-\u9fa5]+/g, "");
+	$("#clac_textarea").val(old);
+	eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]));
 });
 
 /*显示marker设置*/
@@ -594,15 +721,17 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 		$next.toggleClass("clicked");
 		if($next.hasClass("clicked")){
 			$next.slideDown(600);
+			$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 关闭Marker设置');
 		}else{
 			$next.slideUp(600);
+			$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 打开Marker设置');
 		}
 	},
 	mouseover: function(){
 		var $next = $(this).next();
 		if($next.hasClass("clicked")) return false;
-		$next.addClass("clicked");
-		$next.slideDown(600);
+		$next.addClass("clicked").slideDown(600);
+		$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 关闭Marker设置');
 	},
 	/*mouseout: function(){
 		var $next = $(this).next();
@@ -633,7 +762,38 @@ $("#comfirm_key").click(function(){
 		title: "Marker确认Key提示",
 		text: "成功，现在可以选点了，请记得保存",
 		type: "success",
-		timer: 1000
+		timer: 1000,
+		showConfirmButton: false
+	}).then(function(re){
+		if(re.dismiss == "timer"){
+			RF_SP2State.stateObj.key_y = false;
+			var idata = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve.S21;
+			var idata1 = RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21;
+			var ixData = [];
+			ixData[0] = [];
+			ixData[1] = [];
+			var iyData = [];
+			iyData[0] = [];
+			iyData[1] = [];
+			_.forEach(idata, function(v, i){
+				ixData[0].push(v[0]/1000000);
+				iyData[0].push(v[2]);
+			});
+			_.forEach(idata1, function(v, i){
+				ixData[1].push(v[0]/1000000);
+				iyData[1].push(v[2]);
+			});
+			renderSpline({
+				container: "markerChart",
+				title: "marker图",
+				data: {
+					xData: ixData,
+					yData: iyData
+				},
+				name: RF_SP2State.waferTCFSelected,
+			});
+			RF_SP2State.stateObj.renderSelectCsvSub = true;
+		}
 	});
 });
 
@@ -687,14 +847,22 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 		title: "Marker提交提示",
 		text: "保存成功",
 		type: "success",
-		timer: 1000
+		timer: 1200,
+		showConfirmButton: false
+	}).then(function(result){
+		/*console.log(result.dismiss); // timer
+		console.log(swal.DismissReason.cancel); // cancel*/
+		if(result.dismiss == "timer"){
+			store.set("futureD__RF_SP2__saveMarkerFlag", "hasSave");
+			window.location.reload();
+		}
 	});
 });
 
 /*marker搜索*/
 $(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
 	// alert($(this).text())
-	$("#clac_textarea").val($("#clac_textarea").val()+$("#search_marker").val().trim());
+	/*$("#clac_textarea").val($("#clac_textarea").val()+$("#search_marker").val().trim());*/
 });
 
 /*双击4图表*/

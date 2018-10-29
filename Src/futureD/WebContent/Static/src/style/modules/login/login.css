@@ -71,8 +71,10 @@ body>.container-fluid {
 }
 
 .save_login_div {
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 	font-size: 13px;
+	height: 15px;
+    line-height: 15px;
 }
 
 @media screen and (max-width: 768px) {

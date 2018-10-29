@@ -85,8 +85,8 @@ function getProjectAnalysisData(searchVal){
 	var futureDT2__datalist__pageDataObj = store.get('futureDT2__datalist__pageDataObj');
 	if(_.isEmpty(futureDT2__datalist__pageDataObj) || _.isNil(futureDT2__datalist__pageDataObj)){
 		redirectLogin({
-			text: "意外被删除，请重新登录！",
-			url: "login.html"
+			text: "意外被删除，请重新进入下数据列表！",
+			url: "dataList.html"
 		});
 		return false;
 	}else{

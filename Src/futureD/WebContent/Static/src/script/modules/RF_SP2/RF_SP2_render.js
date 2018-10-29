@@ -318,6 +318,8 @@ function renderSpline(option){
 					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, <b class="underline_b">'+this.y+' dB</b>';
 				}else if(RF_SP2State.stateObj.comfirm_key == "x"){
 					return '<b>'+this.series.name+'</b><br><b class="underline_b">'+this.x+' Mhz</b>, '+this.y+' dB';
+				}else{
+					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, '+this.y+' dB';
 				}
             },
             useHTML: true
@@ -467,8 +469,10 @@ function renderSpline(option){
 									}*/
 									/*第二步，另一条曲线找*/
 									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-										var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-										chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(false, true);
+										if(!_.isNil(v.isNew)){
+											var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(false, true);
+										}
 									});
 									RF_SP2State.stateObj.splineSelectedArr = [];
 									$(".buildMarker_body>.container-fluid tbody").empty();
@@ -496,6 +500,7 @@ function renderSpline(option){
 											});
 											// this.select(true,true);
 											saveMarkerANDaddTr(name, x, y, false, iindex);
+											saveMarkerANDaddTr(name, NaN, y, null, -1);
 										}else if(isIntersect && !isIntersect2){
 											RF_SP2SwalMixin({
 												title: "Marker打点提示",
@@ -532,6 +537,8 @@ function renderSpline(option){
 												x: x,
 												flag: "first"
 											});
+										}else if(isIntersect && isIntersect2){
+											console.log("存在两极")
 										}
 									}else if(iindex == lastYIndex1 && iindex != firstYIndex1){
 										/*找到了*/
@@ -614,6 +621,7 @@ function renderSpline(option){
 												chart.xAxis[0].setCategories(anotherNewxyData.xData);
 												chart.series[Number(ii)].setData(anotherNewxyData.yData);
 												chart.series[Number(!ii)].setData(anotherNewxyData.yData2);
+												saveMarkerANDaddTr(name2, NaN, y, null, -1);
 												saveMarkerANDaddTr(name2, anotherNewPointArr[0].x, y, true, anotherNewPointArr[0].index+1);
 											}else{
 												_.forEach([_.head(anotherCombinatorial), _.last(anotherCombinatorial)], function(qv, wi){
@@ -650,10 +658,14 @@ function renderSpline(option){
 												type: "error",
 												timer: 2000
 											});
+											saveMarkerANDaddTr(name2, NaN, y, null, -1);
+											saveMarkerANDaddTr(name2, NaN, y, null, -1);
 										}
 										_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-											var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+											if(!_.isNil(v.isNew)){
+												var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+												chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+											}
 										});
 										/*第二步，另一条曲线找end*/
 										RF_SP2State.stateObj.key_y = true;
