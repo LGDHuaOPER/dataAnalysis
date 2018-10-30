@@ -99,18 +99,18 @@ body {
 .g_bodyin_bodyin {
 	height: 100%;
 	display: grid;
-	grid-template-rows: 35px 1fr;
+	grid-template-rows: 5px 1fr;
 	grid-template-areas: "g_bodyin_bodyin_top"
 						"g_bodyin_bodyin_bottom";
 }
 
 .g_bodyin_bodyin_top {
 	grid-area: g_bodyin_bodyin_top;
+	display: none;
 }
 
 .g_bodyin_bodyin_bottom {
 	grid-area: g_bodyin_bodyin_bottom;
-	padding-top: 20px;
 }
 
 .g_bodyin_bodyin_bottom_1 {
@@ -124,6 +124,7 @@ body {
 	grid-template-columns: 350px 1fr;
 	grid-template-areas: "g_bodyin_bodyin_bottom_lsub g_bodyin_bodyin_bottom_rsub";
 	height: 100%;
+	opacity: 0;
 }
 
 .g_bodyin_bodyin_bottom_lsub {
@@ -162,15 +163,15 @@ body {
 
 .g_bodyin_bodyin_bottom_rsubin {
 	display: grid;
-	grid-template-rows: 30px 1fr 50px;
+	grid-template-rows: 40px 1fr;
 	grid-template-areas: "chartTit"
-						"chartBody"
-						"chartFoot";
+						"chartBody";
 	border: 1px solid #d0d0d0;
 	-webkit-box-shadow: 0 0 3px 2px #e3e3e3;
 	-moz-box-shadow: 0 0 3px 2px #e3e3e3;
 	box-shadow: 0 0 3px 2px #e3e3e3;
 	height: 100%;
+	opacity: 0;
 }
 
 .chartTit {
@@ -195,6 +196,11 @@ body {
 
 .chartBody>div>div {
 	height: 100%;
+	border-bottom: 3px dashed #ccc;
+}
+
+.chartBody>div>div+div {
+	margin-top: 6px;
 }
 
 .chartBody>div>div>div {
@@ -203,10 +209,6 @@ body {
 
 .chartBody>div>div>div>div {
 	height: 100%;
-}
-
-.chartFoot {
-	grid-area: chartFoot;
 }
 
 .g_bodyin_bodyin_bottom_l {
@@ -607,25 +609,27 @@ span.glyphicon, .thumbnail {
 	cursor: pointer;
 }
 
-.thumbnail {
+.g_bodyin_bodyin_bottom_r .thumbnail {
 	position: relative;
 	padding-bottom: 50px;
+	min-height: 190px;
+	height: 190px;
 }
 
-.thumbnail h3 {
+.g_bodyin_bodyin_bottom_r .thumbnail h3 {
 	text-align: center;
 	white-space: nowrap;
 	font-size: 20px;
 }
 
-.thumbnail .caption {
+.g_bodyin_bodyin_bottom_r .thumbnail .caption {
 	position: absolute;
     bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.thumbnail.cannotclick {
+.g_bodyin_bodyin_bottom_r .thumbnail.cannotclick {
 	transition: filter 1.2s;
 	filter: brightness(0.6) contrast(110%);
 	cursor: not-allowed;

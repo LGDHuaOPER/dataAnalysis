@@ -60,7 +60,8 @@ projectAnalysisState.pageSearchObj = {
 };
 projectAnalysisState.searchObj = {
 	hasSearch: false,
-	searchVal: null
+	searchVal: null,
+	searchItem: []
 };
 projectAnalysisState.sellectObj = {
 	selectAll: false,
@@ -81,7 +82,7 @@ function redirectLogin(obj){
 	});
 }
 
-function getProjectAnalysisData(searchVal){
+function getProjectAnalysisData(searchVal, isGetFilterAllData, isGetAllData){
 	var futureDT2__datalist__pageDataObj = store.get('futureDT2__datalist__pageDataObj');
 	if(_.isEmpty(futureDT2__datalist__pageDataObj) || _.isNil(futureDT2__datalist__pageDataObj)){
 		redirectLogin({
@@ -96,18 +97,22 @@ function getProjectAnalysisData(searchVal){
 		if(_.isEmpty(futureDT2__datalist__selectedItem) || _.isNil(futureDT2__datalist__selectedItem)){
 			var returnprojectAnalysisData = [];
 			if(searchVal == null || searchVal == ""){
-				returnprojectAnalysisData = projectAnalysisData;
+				returnprojectAnalysisData = _.cloneDeep(projectAnalysisData);
 			}else{
+				projectAnalysisState.searchObj.searchItem = [];
 				_.forEach(projectAnalysisData, function(v){
 					_.forOwn(v, function(o){
 						if(String(o.value).indexOf(searchVal)>-1){
 							returnprojectAnalysisData.push(v);
+							projectAnalysisState.searchObj.searchItem.push(v.wafer_id.value.toString());
 							return false;
 						}
 					});
 				});
 			}
+			if(isGetAllData) return returnprojectAnalysisData;
 			var filterArray = _.filter(returnprojectAnalysisData, function(o) { return o.delete_status.value == "0"; });
+			if(isGetFilterAllData) return filterArray;
 			var chunkArray = _.chunk(_.reverse(_.sortBy(filterArray, function(o) { return o.test_start_date.value; })), 10);
 			if(projectAnalysisState.searchObj.hasSearch){
 				projectAnalysisState.pageSearchObj.pageCount = chunkArray.length;
@@ -138,7 +143,9 @@ function getProjectAnalysisData(searchVal){
 					});
 				}
 			});
+			if(isGetAllData) return projectAnalysisDataArr;
 			var filterArray2 = _.filter(projectAnalysisDataArr, function(o) { return o.delete_status.value == "0"; });
+			if(isGetFilterAllData) return filterArray2;
 			var chunkArray2 = _.chunk(_.reverse(_.sortBy(filterArray2, function(o) { return o.test_start_date.value; })), 10);
 			if(projectAnalysisState.searchObj.hasSearch){
 				projectAnalysisState.pageSearchObj.pageCount = chunkArray2.length;
@@ -238,26 +245,56 @@ $(function(){
 		  hash: false,
 		  // 页面加载后默认执行一次，然后当分页被切换时再次触发
 		  callback: function(obj) {
-		    // obj.curr：获取当前页码
-		    // obj.limit：获取每页显示数据条数
-		    // obj.isFirst：是否首次加载页面，一般用于初始加载的判断
-		    projectAnalysisState.pageObj.currentPage = obj.curr;
-		    // 首次不执行
-		    if (!obj.isFirst) {
-		      // do something
-		      	var dataArr = getProjectAnalysisData(projectAnalysisState.searchObj.searchVal);
-		      	projectAnalysisRenderData({
-					chunkArr: dataArr,
-					currentPage: projectAnalysisState.pageObj.currentPage
-				});
-		    }
+		    	// obj.curr：获取当前页码
+		    	// obj.limit：获取每页显示数据条数
+		    	// obj.isFirst：是否首次加载页面，一般用于初始加载的判断
+		    	projectAnalysisState.pageObj.currentPage = obj.curr;
+		    	// 首次不执行
+			    if (!obj.isFirst) {
+			      // do something
+			      	var dataArr = getProjectAnalysisData(projectAnalysisState.searchObj.searchVal);
+			      	projectAnalysisRenderData({
+						chunkArr: dataArr,
+						currentPage: projectAnalysisState.pageObj.currentPage
+					});
+			    }
+			    var allData = getProjectAnalysisData(null, false, true);
+			    if(projectAnalysisState.sellectObj.selectItem.length > projectAnalysisState.pageObj.itemLength){
+			    	$("#checkAll").prop("checked", true);
+			    	allData.map(function(v, i){
+			    		if(v.delete_status.value == "1"){
+			    			var ii = v.wafer_id.value;
+			    			if(_.indexOf(projectAnalysisState.sellectObj.selectItem, ii) > -1){
+			    				_.pull(projectAnalysisState.sellectObj.selectItem, ii.toString());
+			    			}
+			    		}
+			    	});
+			    }else if(projectAnalysisState.sellectObj.selectItem.length == projectAnalysisState.pageObj.itemLength){
+			    	$("#checkAll").prop("checked", true);
+			    }
+			    // 左下方填充
+			    var allFilterData = getProjectAnalysisData(null, true);
+			    var allStr = '';
+			    allFilterData.map(function(v, i){
+			    	var ii = v.wafer_id.value;
+			    	if(_.indexOf(projectAnalysisState.sellectObj.selectItem, ii) > -1){
+			    		allStr+='<tr>'+
+			    				'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
+			    				'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
+			    				'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
+			    				'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
+			    				'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
+			    				'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
+			    				'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
+			    				'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
+			    			'</tr>';
+			    	}
+			    });
+			    $(".g_bodyin_body_bottom tbody").empty().append(allStr);
 		  }
 		};
 		// 初始化分页器
 		projectAnalysisState.paginationObj.normal = new Pagination(projectAnalysisState.pageObj.selector, projectAnalysisState.pageObj.pageOption);
-
-		// 左下方填充
-		$(".g_bodyin_body_bottom tbody").empty().append($(".g_bodyin_bodyin_body tbody [type='checkbox']:checked").parent().parent().clone());
 	}
 });
 
@@ -305,7 +342,11 @@ $(document).on("mouseout", ".g_bodyin_bodyin_body td", function(){
 		$(".g_bodyin_body_bottom tbody [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
 	}
 	projectAnalysisState.sellectObj.selectItem = _.uniq(projectAnalysisState.sellectObj.selectItem);
-	$("#checkAll").prop("checked", projectAnalysisState.pageObj.itemLength == projectAnalysisState.sellectObj.selectItem.length);
+	if(projectAnalysisState.searchObj.hasSearch){
+		$("#checkAll").prop("checked", projectAnalysisState.pageSearchObj.itemLength == projectAnalysisState.sellectObj.selectItem.length);
+	}else{
+		$("#checkAll").prop("checked", projectAnalysisState.pageObj.itemLength == projectAnalysisState.sellectObj.selectItem.length);
+	}
 	projectAnalysisState.sellectObj.selectAll = $("#checkAll").prop("checked");
 	if(projectAnalysisState.sellectObj.selectItem.length == 0){
 		$(".g_bodyin_body_bottom tbody").css("border-bottom", "0px solid #fff");
@@ -407,6 +448,7 @@ $("#checkAll").on({
 });*/
 
 $("#search_button").on("click", function(){
+	$("#checkAll").prop("checked", false);
 	var isearch = $("#search_input").val().trim();
 	projectAnalysisState.searchObj.hasSearch = isearch == "" ? false : true;
 	projectAnalysisState.searchObj.searchVal = projectAnalysisState.searchObj.hasSearch == true ? isearch : null;

@@ -1,0 +1,209 @@
+body 
+	display grid
+	grid-template-rows 40px 1fr
+	grid-template-columns 40px 1fr
+	grid-template-areas "g_logo  g_info" "g_menu  g_body"
+	min-height 100vh
+	min-width 900px
+
+.g_logo 
+	grid-area g_logo
+	height 40px
+	line-height 40px
+	background-color #3d89f9
+	text-align center
+	vertical-align middle
+
+.g_info 
+	grid-area g_info
+	height 40px
+	line-height 40px
+
+.g_menu 
+	grid-area g_menu
+	background-color #191C2B
+
+.g_body 
+	grid-area g_body
+	padding 10px
+	background-color #F5F5F5
+
+.g_info_l 
+	position absolute
+	padding-left 10px
+	letter-spacing 2px
+	width 215px
+	color rgb(53, 140, 245)
+	font-weight 600
+
+.g_info_r 
+	padding-left 215px
+	text-align right
+	.glyphicon 
+		margin-right 20px
+		font-size 22px
+		vertical-align middle
+
+.g_bodyin 
+	height 100%
+
+.g_bodyin_tit 
+    margin-bottom 10px
+	height 35px
+	line-height 35px
+
+.g_bodyin_tit_l 
+	position absolute
+	width 30px
+	border-right 2px solid #000
+
+.g_bodyin_tit_r 
+	position relative
+	padding-left 30px
+	.breadcrumb 
+		margin-bottom 10px
+		padding 0px 15px
+
+.g_bodyin_tit_r>span 
+	position absolute
+	font-size 20px
+	right 15px
+	top 7px
+	transform rotateY(180deg)
+	-webkit-transform rotateY(180deg)	/* Safari 和 Chrome */
+	-moz-transform rotateY(180deg)	/* Firefox */
+	display none
+
+.g_bodyin_body 
+	padding 10px
+	height calc(100% - 35px)
+	background-color #fff
+
+.g_bodyin_bodyin 
+	height 100%
+	display grid
+	grid-template-rows 50px 1fr
+	grid-template-areas "g_bodyin_bodyin_top" "g_bodyin_bodyin_bottom"
+
+.g_bodyin_bodyin_top 
+	grid-area g_bodyin_bodyin_top
+
+.g_bodyin_bodyin_bottom 
+	grid-area g_bodyin_bodyin_bottom
+	.tab-content>div[role='tabpanel']
+		height 100%
+
+// 工具栏开始
+.g_bodyin_bodyin_top_wrap
+	height 100%
+	line-height 50px
+	li[role='presentation']>a
+		font-size 15px
+// 工具栏结束
+
+// 主页面
+.home_dataCompare_wrap 
+	display grid
+	grid-template-rows 1fr 1fr
+	grid-template-areas "home_dataCompare_top" "home_dataCompare_bottom"
+	height 100%
+
+.home_dataCompare_top
+	grid-area home_dataCompare_top
+	.top_div
+		padding-right 20px
+		height 40px
+		line-height 40px
+		text-align right
+		.form-inline
+			display inline-block
+			.form-control-feedback
+				top 3px !important
+				z-index 3
+				pointer-events auto
+	.body_div
+		max-height calc(100% - 40px)
+		overflow-y auto
+		table
+			margin-top 10px
+			margin-bottom 10px
+			border 1px solid #bebebe
+			thead tr
+				background-color #3d89f9
+				color #fff
+			tbody>tr:nth-of-type(odd)
+				background #ececec
+			& tbody>tr>td
+			& tfoot>tr>td
+			& thead>tr>th
+				border-top 0px solid #fff
+				text-align center
+				cursor pointer
+			tbody td.not_search .glyphicon
+				font-size 20px
+			tbody td.not_search .glyphicon+.glyphicon
+				margin-left 8px
+		& .futureDT2_page_wrapper
+			text-align center
+			.futureDT2_page
+				display inline-block
+			.futureDT2_page_span
+				display inline-block
+				vertical-align middle
+			.futureDT2_page_span input[type='text']
+				margin-left 3px
+				margin-right 3px
+				width 50px
+			.pagination .pagination-item .pagination-link
+				border-radius 0px
+				&.current
+					background-color #3d89f9
+					color #fff
+			#pagelist
+				vertical-align middle
+		& .td_data_format
+			display none
+
+.home_dataCompare_bottom
+	display grid
+	grid-template-columns 1fr 300px
+	grid-template-areas "left_div right_div"
+	grid-area home_dataCompare_bottom
+	padding-top 10px
+	.left_div
+		grid-area left_div
+		overflow-y auto
+		table
+			margin-top 1px
+			margin-bottom 1px
+			border 1px solid #bebebe
+			thead tr
+				background-color #3d89f9
+				color #fff
+			tbody>tr:nth-of-type(odd)
+				background #ececec
+			& tbody>tr>td
+			& tfoot>tr>td
+			& thead>tr>th
+				border-top 0px solid #fff
+				text-align center
+				cursor pointer
+			& td:nth-child(1)
+			& td:nth-child(7)
+			& td:nth-child(8)
+			& td:nth-child(9)
+				display none
+	& .right_div
+		grid-area right_div
+		padding-top 22px
+		padding-left 10px
+		overflow-y auto
+		.panel-body
+			overflow-y auto
+			li
+				cursor pointer
+// 主页面end
+
+span.glyphicon
+	cursor pointer
+	

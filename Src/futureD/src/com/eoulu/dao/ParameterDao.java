@@ -320,14 +320,13 @@ public class ParameterDao {
 	
 	public Map<String,Object> getWaferDataParameter(Connection conn,int waferId){
 		String sql = "select concat(parameter_name,'(',parameter_unit,')') parameter,parameter_column,ifnull(upper_limit,'') upper_limit,ifnull(lower_limit,'') lower_limit"
-				+ " from dm_wafer_parameter where wafer_id=? and parameter_name not in (select custom_parameter parameter_name from dm_marker_calculation where wafer_id=?) order by parameter_column ";
+				+ " from dm_wafer_parameter where wafer_id=?  order by parameter_column ";
 		Map<String,Object> result = new HashMap<>();
 		List<String> paramList = new ArrayList<>(), upperList = new ArrayList<>(),lowerList = new ArrayList<>();
 		String column = "";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, waferId);
-			ps.setInt(2, waferId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				paramList.add(rs.getString(1));

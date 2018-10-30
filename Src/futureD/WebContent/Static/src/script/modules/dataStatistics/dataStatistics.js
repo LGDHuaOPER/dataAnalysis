@@ -10,9 +10,9 @@ var dataStatisticsSwalMixin = swal.mixin({
 var dataStatisticsState = new Object();
 dataStatisticsState.mock = {
 	curveType: {
-		"DC": ["IL", "BW", "VSWR", "TCF", "CF"],
-		"RTP": ["VSWR", "TCF", "CF","IL", "BW", "VSWR"],
-		"RF-S2P": ["IL", "BW", "VSWR", "TCF", "CF", "IL", "BW", "VSWR", "TCF", "CF", "IL", "BW", "VSWR", "TCF", "CF", "IL", "BW", "VSWR", "TCF", "CF", "IL", "BW", "IL", "BW", "VSWR", "TCF", "CF", "VSWR", "TCF", "CF"]
+		"DC": ["IL", "BW", "VSWR", "CF"],
+		"RTP": ["IL", "BW", "VSWR", "CF"],
+		"RF-S2P": ["IL", "BW", "VSWR", "CF"]
 	},
 	selectedItem: [
 		{
@@ -77,7 +77,8 @@ dataStatisticsState.stateObj = {
 			paramLen: 1
 		}
 	},
-	chartRenderCurID: 0
+	chartRenderCurID: 0,
+	renderColorGradient: false
 };
 dataStatisticsState.chartMap = {
 	"histogram": "column",
@@ -94,8 +95,8 @@ function eleResize(){
 		winHeight = 600;
 	}
 	$("body").height(winHeight);
-	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 200);
-	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 220);
+	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 170);
+	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 170);
 }
 
 function eleResize2(){
@@ -136,7 +137,7 @@ function renderSelectCsv(item, flag, insertDOM){
 	insertDOM.empty().append(str2);
 }
 
-function renderChartValidate(){
+/*function renderChartValidate(){
 	$(".g_bodyin_bodyin_bottom_r .thumbnail:not([data-ichart='correlationgraph'])").addClass("cannotclick");
 	var csvLen = $(".g_bodyin_bodyin_bottom_l_itemin_main.active").length;
 	var paramLen = $(".g_bodyin_bodyin_bottom_l_inbottom a.list-group-item-info").length;
@@ -171,7 +172,7 @@ function changeChartCanClick(item){
 	item.findChart.map(function(v, i){
 		$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='"+v+"']").removeClass("cannotclick");
 	});
-}
+}*/
 
 function renderChartCsvANDParam(obj){
 	var str = '';
@@ -201,6 +202,9 @@ function renderChartCsvANDParam(obj){
 	obj.insertDOM.empty().append(str);
 }
 
+/*preload*/
+$(".g_bodyin_bodyin_bottom_2, .g_bodyin_bodyin_bottom_rsubin").hide().css("opacity", 1);
+
 /*page onload*/
 $(function(){
 	var item = store.get("futureDT2__projectAnalysis__selectedObj");
@@ -225,30 +229,36 @@ $(function(){
 		if(item.curveType == "RF-S2P"){
 			item.curveType = "S2P";
 		}
-		var str = '';
+		// var str = '';
 		var istr = '';
 		if(!_.isEmpty(curveTypeArr) && !_.isNil(curveTypeArr)){
 			curveTypeArr.map(function(v){
-				str+='<li>'+v+'</li>';
+				// str+='<li>'+v+'</li>';
 				istr+='<a href="javascript:;" class="list-group-item" data-iparam="'+v+'"><span class="badge">选中</span>'+v+'</a>';
 			});
 		}
-		str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
-		$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
+		var futureD__RF_SP2__paramCalc_tableStr = store.get("futureD__RF_SP2__paramCalc_tableStr");
+		if(!_.isNil(futureD__RF_SP2__paramCalc_tableStr)){
+			$(futureD__RF_SP2__paramCalc_tableStr).each(function(){
+				var v = $(this).children("td:eq(0)").text();
+				istr+='<a href="javascript:;" class="list-group-item" data-iparam="'+v+'"><span class="badge">选中</span>'+v+'</a>';
+			});
+		}
+		// str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
+		// $(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
+		// $(".g_bodyin_bodyin_top_wrap_m_in>ul>li:first").trigger("click");
 		$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group").empty().append(istr);
-		$(".g_bodyin_bodyin_top_wrap_m_in>ul>li:first").trigger("click");
+		$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group>a").trigger("click");
 
 		/*主页面csv文件渲染*/
 		renderSelectCsv(item, '', $(".g_bodyin_bodyin_bottom_l_intop"));
-		$(".g_bodyin_bodyin_bottom_l_item:first .g_bodyin_bodyin_bottom_l_itemin_main").trigger("click");
+		$(".g_bodyin_bodyin_bottom_l_item .g_bodyin_bodyin_bottom_l_itemin_main").trigger("click");
 
-		if($(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() > $(".g_bodyin_bodyin_top_wrap_m").innerWidth()){
+		/*if($(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() > $(".g_bodyin_bodyin_top_wrap_m").innerWidth()){
 			$(".g_bodyin_bodyin_top_wrap_l>span, .g_bodyin_bodyin_top_wrap_r>span").show();
-		}
+		}*/
 	}
 
-	$(".g_bodyin_bodyin_bottom_2, .g_bodyin_bodyin_bottom_rsubin").hide();
-	
 	eleResize();
 	$(window).on("resize", function(){
 		eleResize();
@@ -268,12 +278,12 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).toggleClass("active");
 	var csv = $(this).data("icsv").toString();
 	$(this).hasClass("active") ? dataStatisticsState.csvANDparamSelected.csv.push(csv) : _.pull(dataStatisticsState.csvANDparamSelected.csv, csv);
-	var item = renderChartValidate();
-	changeChartCanClick(item);
+	/*var item = renderChartValidate();
+	changeChartCanClick(item);*/
 });
 
 /*上部分左右移动*/
-$(".g_bodyin_bodyin_top_wrap_l>span").click(function(){
+/*$(".g_bodyin_bodyin_top_wrap_l>span").click(function(){
 	var oldLeft = parseFloat($(".g_bodyin_bodyin_top_wrap_m_in").css("left"));
 	var width = $(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() - $(".g_bodyin_bodyin_top_wrap_m").innerWidth();
 	var newLeft = oldLeft + 60;
@@ -303,9 +313,9 @@ $(".g_bodyin_bodyin_top_wrap_r>span").click(function(){
 		easing: "swing",
 		queue: false
 	});
-});
+});*/
 
-$(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
+/*$(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 	var target = $(this).data("targetclass");
 	if(target == "add"){
 		dataStatisticsSwalMixin({
@@ -318,7 +328,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 	}else{
 		$(this).addClass("active").siblings().removeClass("active");
 	}
-});
+});*/
 
 /*chart左侧*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_main", function(){
@@ -402,12 +412,15 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							}
 						});
 						$(".colorGradient").width($(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='wafermap']>.chartTit").width() - 200).height($(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='wafermap']>.chartTit").height());
-						_.times(256, function(ii){
-							var color = getGradientColor ('#FF0000', '#0000FF', 256, ii);
-							var height = $(".colorGradient").height();
-							var width = $(".colorGradient").width() / 300;
-							$(".colorGradient").append("<span class='colorGradientSpan' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
-						});
+						if(!dataStatisticsState.stateObj.renderColorGradient){
+							_.times(256, function(ii){
+								var color = getGradientColor ('#FF0000', '#0000FF', 256, ii);
+								var height = $(".colorGradient").height();
+								var width = $(".colorGradient").width() / 300;
+								$(".colorGradient").append("<span class='colorGradientSpan' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+							});
+							dataStatisticsState.stateObj.renderColorGradient = true;
+						}
 					}else{
 						if(type == 'column'){
 							/*chart = {
@@ -564,6 +577,6 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_inbottom>.list-group>a", func
 	that.hasClass("list-group-item-info") ? dataStatisticsState.csvANDparamSelected.param.push(param) : _.pull(dataStatisticsState.csvANDparamSelected.param, param);
 	var a = ["选中", "取消选中"];
 	$(this).children("span").text(a[Number(that.hasClass("list-group-item-info"))]);
-	var item = renderChartValidate();
-	changeChartCanClick(item);
+	/*var item = renderChartValidate();
+	changeChartCanClick(item);*/
 });

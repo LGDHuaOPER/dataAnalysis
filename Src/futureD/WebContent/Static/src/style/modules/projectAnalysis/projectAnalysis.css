@@ -31,7 +31,7 @@ body {
 .g_body {
 	display: grid;
 	grid-area: g_body;
-	padding: 20px;
+	padding: 15px;
 	background-color: rgb(245, 245, 245);
 	grid-template-columns: 1fr 210px;
 	grid-template-areas: "g_body_ll  g_body_rr";
@@ -48,12 +48,12 @@ body {
 }
 
 .g_body_rr_tit {
-	height: 55px;
+	height: 45px;
 }
 
 .g_body_rr_body {
 	position: relative;
-	height: calc(100% - 55px);
+	height: calc(100% - 45px);
 	background-color: #fff;
 	border: 1px solid #ccc;
 }
@@ -115,7 +115,7 @@ body {
 }
 
 .g_bodyin_tit {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 	height: 35px;
 	line-height: 35px;
 }
@@ -131,13 +131,14 @@ body {
 }
 
 .g_bodyin_tit_r .breadcrumb {
+	margin-bottom: 10px;
 	padding: 0px 15px;
 }
 
 .g_bodyin_body {
 	padding: 15px;
-	max-height: calc(100% - 55px);
-	height: calc(100% - 55px);
+	max-height: calc(100% - 45px);
+	height: calc(100% - 45px);
 	background-color: #fff;
 }
 

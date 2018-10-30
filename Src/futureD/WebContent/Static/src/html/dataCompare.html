@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- 为移动设备添加 viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+	<title>futureD数据统计</title>
+	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/modules/dataCompare/dataCompare.css" type="text/css">
+</head>
+<body>
+	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
+	<div class="g_info">
+		<div class="g_info_l">futureD数据管理与分析</div>
+		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+	</div>
+	<div class="g_menu"></div>
+	<div class="g_body">
+		<div class="g_bodyin">
+			<div class="g_bodyin_tit">
+				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_r">
+					<ol class="breadcrumb">
+					  	<li><a href="index.html">主页面</a></li>
+					  	<li class="active">数据对比</li>
+					</ol>
+					<span class="glyphicon glyphicon glyphicon-share-alt" aria-hidden="true" title="返回" data-ipage="g_bodyin_bodyin_bottom_1"></span>
+				</div>
+			</div>
+			<div class="g_bodyin_body">
+				<div class="g_bodyin_bodyin">
+					<div class="g_bodyin_bodyin_top">
+						<div class="g_bodyin_bodyin_top_wrap">
+							<!-- Nav tabs -->
+							<ul class="nav nav-tabs" role="tablist">
+							    <li role="presentation" class="active"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>
+							    <li role="presentation"><a href="#map_good_rate_distribution" aria-controls="map_good_rate_distribution" role="tab" data-toggle="tab">Map良率分布</a></li>
+							    <li role="presentation"><a href="#map_color_order_distribution" aria-controls="map_color_order_distribution" role="tab" data-toggle="tab">Map色阶分布</a></li>
+							    <li role="presentation"><a href="#good_rate" aria-controls="good_rate" role="tab" data-toggle="tab">良品率图</a></li>
+							    <li role="presentation"><a href="#histogram" aria-controls="histogram" role="tab" data-toggle="tab">直方图</a></li>
+							    <li role="presentation"><a href="#boxlinediagram" aria-controls="boxlinediagram" role="tab" data-toggle="tab">箱线图</a></li>
+							    <li role="presentation"><a href="#CPK" aria-controls="CPK" role="tab" data-toggle="tab">CPK图</a></li>
+							    <li role="presentation"><a href="#correlationgraph" aria-controls="correlationgraph" role="tab" data-toggle="tab">相关性图</a></li>
+							    <li role="presentation"><a href="#all_statistics" aria-controls="all_statistics" role="tab" data-toggle="tab">所有统计</a></li>
+							</ul>
+						</div>
+					</div><!-- g_bodyin_bodyin_top end -->
+					<div class="g_bodyin_bodyin_bottom">
+						<div class="tab-content">
+						    <div role="tabpanel" class="tab-pane fade in active" id="home_dataCompare">
+						    	<div class="home_dataCompare_wrap">
+						    		<div class="home_dataCompare_top">
+						    			<div class="top_div">
+						    				<div class="form-inline">
+						    				  	<div class="form-group has-feedback">
+						    				  	  	<div class="input-group">
+						    				  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
+						    				  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找">
+						    				  	  	</div>
+						    				  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+						    				  	</div>
+						    				  	<button class="btn btn-default" disabled="disabled" id="search_button">搜索</button>
+						    				</div>
+						    			</div>
+						    			<div class="body_div">
+						    				<table class="table table-striped">
+						    					<thead>
+						    						<tr>
+						    							<th><input type="checkbox" id="checkAll"></th>
+						    							<th>产品类别</th>
+						    							<th>设备/产品类型</th>
+						    							<th>批次编号</th>
+						    							<th>晶圆编号</th>
+						    							<th>合格率</th>
+						    							<th>测试时间</th>
+						    							<th>上传者</th>
+						    							<th>描述</th>
+						    						</tr>
+						    					</thead>
+						    					<tbody>
+						    					</tbody>
+						    				</table>
+						    				<div class="futureDT2_page_wrapper">
+						    					<div class="futureDT2_page">
+						    						<ol class="pagination" id="pagelist"></ol><span class="futureDT2_page_span">&nbsp;到<input type="text" id="jumpText">页&nbsp;<input type="button" class="btn btn-primary" value="确定" id="jumpPage"></span>
+						    					</div>
+						    				</div>
+						    			</div><!-- body_div end -->
+						    		</div>
+						    		<div class="home_dataCompare_bottom">
+						    			<div class="left_div">
+						    				选中的数据
+						    				<table class="table table-striped">
+						    					<thead>
+						    						<th>产品类别</th>
+						    						<th>设备/产品类型</th>
+						    						<th>批次编号</th>
+						    						<th>晶圆编号</th>
+						    						<th>合格率</th>
+						    					</thead>
+						    					<tbody></tbody>
+						    				</table>
+						    			</div>
+						    			<div class="right_div">
+						    				<div class="panel panel-info">
+						    				  	<div class="panel-heading">
+						    				    	<h3 class="panel-title">共有参数</h3>
+						    				  	</div>
+						    				  <div class="panel-body">
+						    				   		<!-- List group -->
+						    				   		<ul class="list-group">
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>Total Yield</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数2</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数3</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数4</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数5</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数6</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数7</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数8</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数9</li>
+						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数10</li>
+						    				   		</ul>
+						    				  </div>
+						    				</div>
+						    			</div>
+						    		</div>
+						    	</div>
+						    </div>
+						    <!-- Map良率分布 -->
+						    <div role="tabpanel" class="tab-pane fade" id="map_good_rate_distribution">Map良率分布</div><!-- Map良率分布 end -->
+						    <!-- Map色阶分布 -->
+						    <div role="tabpanel" class="tab-pane fade" id="map_color_order_distribution">..3.</div><!-- Map色阶分布end -->
+						    <!-- 良品率图 -->
+						    <div role="tabpanel" class="tab-pane fade" id="good_rate">...4</div><!-- 良品率图end -->
+						    <!-- 直方图 -->
+						    <div role="tabpanel" class="tab-pane fade" id="histogram">直方图</div><!-- 直方图end -->
+						    <!-- 箱线图 -->
+						    <div role="tabpanel" class="tab-pane fade" id="boxlinediagram">...4</div><!-- 箱线图end -->
+						    <!-- CPK图 -->
+						    <div role="tabpanel" class="tab-pane fade" id="CPK">CPK</div><!-- CPK图end -->
+						    <!-- 相关性图 -->
+						    <div role="tabpanel" class="tab-pane fade" id="correlationgraph">相关性图</div><!-- 相关性图end -->
+						    <!-- 所有统计 -->
+						    <div role="tabpanel" class="tab-pane fade" id="all_statistics">所有统计</div><!-- 所有统计end -->
+						 </div>
+					</div><!-- g_bodyin_bodyin_bottom end -->
+				</div><!-- g_bodyin_bodyin end -->
+			</div>
+		</div>
+	</div>
+	<script src="../script/libs/jquery-3.3.1.min.js"></script>
+	<script src="../script/libs/bootstrap.min.js"></script>
+	<script src="../script/libs/lodash.min.js"></script>
+	<script src="../script/libs/store.legacy.min.js"></script>
+	<script src="../script/libs/moment-with-locales.min.js"></script>
+	<script src="../script/common/futureDT2session.js"></script>
+	<script src="../script/common/pagination.min.js"></script>
+	<script src="../script/libs/sweetalert2.min.js"></script>
+	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="../script/common/futureD_config.js"></script>
+	<script src="../script/common/mock.js"></script>
+	<!-- <script src="../script/libs/progressbar.min.js"></script> -->
+	<script src="../script/libs/newhighcharts.js"></script>	
+	<script src="../script/libs/highcharts-axis-arrow.js"></script>
+	<script src="../script/libs/highcharts-more.js"></script>
+	<script src="../script/libs/histogram-bellcurve.js"></script>
+	<script src="../script/modules/dataStatistics/dataStatisticsRender.js"></script>
+	<script src="../script/libs/drawWaferMap.js"></script>
+	<script src="../script/modules/dataCompare/dataCompare.js"></script>
+</body>
+</html>
