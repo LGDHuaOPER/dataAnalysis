@@ -64,7 +64,8 @@ dataCompareState.searchObj = {
 };
 dataCompareState.sellectObj = {
 	selectAll: false,
-	selectItem: []
+	selectItem: [],
+	selectSearchItem: []
 };
 
 function redirectLogin(obj){
@@ -101,6 +102,9 @@ function getdataCompareData(searchVal, isGetFilterAllData, isGetAllData){
 				_.forEach(dataCompareData, function(v){
 					_.forOwn(v, function(o){
 						if(String(o.value).indexOf(searchVal)>-1){
+							if(_.indexOf(dataCompareState.sellectObj.selectItem, v.wafer_id.value)>-1){
+								dataCompareState.sellectObj.selectSearchItem.push(v.wafer_id.value);
+							}
 							returndataCompareData.push(v);
 							return false;
 						}
@@ -134,6 +138,9 @@ function getdataCompareData(searchVal, isGetFilterAllData, isGetAllData){
 					});
 					_.forOwn(item, function(va, ke){
 						if(String(va.value).indexOf(searchVal) > -1){
+							if(_.indexOf(dataCompareState.sellectObj.selectItem, v.wafer_id.value)>-1){
+								dataCompareState.sellectObj.selectSearchItem.push(v.wafer_id.value);
+							}
 							dataCompareDataArr.push(item);
 							return false;
 						}
@@ -177,20 +184,27 @@ function dataCompareRenderData(obj){
 				'</tr>';
 		});
 		$(".home_dataCompare_top tbody").empty().append(str);
-		$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
-			if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-				$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-			}
-		});
+
 		if(dataCompareState.searchObj.hasSearch){
+			$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
+				if(_.indexOf(dataCompareState.sellectObj.selectSearchItem, $(this).data("ivalue").toString()) > -1){
+					$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+				}
+			});
+
 			$(".home_dataCompare_top tbody td:not(.not_search)").each(function(){
 				var iText = $(this).text();
 				var ireplace = "<b style='color:red'>"+dataCompareState.searchObj.searchVal+"</b>";
 				var iHtml = iText.replace(new RegExp(dataCompareState.searchObj.searchVal, 'g'), ireplace);
 				$(this).empty().html(iHtml);
 			});
-			$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectItem.length);
+			$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectSearchItem.length);
 		}else{
+			$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
+				if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
+					$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+				}
+			});
 			$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 		}
 	}
@@ -257,7 +271,7 @@ $(function(){
 						currentPage: dataCompareState.pageObj.currentPage
 					});
 			    }
-		  }
+		  	}
 		};
 		// 初始化分页器
 		dataCompareState.paginationObj.normal = new Pagination(dataCompareState.pageObj.selector, dataCompareState.pageObj.pageOption);
@@ -284,19 +298,23 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 	var ID = $(this).data("ivalue").toString();
 	if($(this).prop("checked")){
 		dataCompareState.sellectObj.selectItem.push(ID);
+		if(dataCompareState.searchObj.hasSearch) dataCompareState.sellectObj.selectSearchItem.push(ID);
 		$(".home_dataCompare_bottom tbody>tr [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
 		$(".home_dataCompare_bottom tbody").append($(this).parent().parent().clone());
 		$(".home_dataCompare_bottom tbody tr, .home_dataCompare_bottom tbody td").removeClass("info warning");
 	}else{
 		_.pull(dataCompareState.sellectObj.selectItem, ID);
+		if(dataCompareState.searchObj.hasSearch) _.pull(dataCompareState.sellectObj.selectSearchItem, ID);
 		$(".home_dataCompare_bottom tbody [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
 	}
 	dataCompareState.sellectObj.selectItem = _.uniq(dataCompareState.sellectObj.selectItem);
-	$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
-	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
-	if(dataCompareState.sellectObj.selectItem.length == 0){
-		$(".home_dataCompare_bottom tbody").css("border-bottom", "0px solid #fff");
+	dataCompareState.sellectObj.selectSearchItem = _.uniq(dataCompareState.sellectObj.selectSearchItem);
+	if(dataCompareState.searchObj.hasSearch){
+		$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectItem.length);
+	}else{
+		$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 	}
+	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
 });
 
 /*点击选中所有*/
@@ -316,56 +334,74 @@ $("#checkAll").on({
 				showConfirmButton: false,
 				showCancelButton: false
 			});
-			dataCompareState.sellectObj.selectItem = [];
-			var str = '';
-			JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data.map(function(v, i, arr){
-				if(v.delete_status.value == "0"){
-					dataCompareState.sellectObj.selectItem.push(v.wafer_id.value);
-				}else{
-					return true;
-				}
-				if(dataCompareState.searchObj.hasSearch){
+			/*判断有没有搜索过*/
+			var idata = JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data;
+			if(dataCompareState.searchObj.hasSearch){
+				dataCompareState.sellectObj.selectSearchItem = [];
+				idata.map(function(v, i){
+					if(v.delete_status.value != "0") return true;
 					_.forOwn(v, function(o){
 						if(String(o.value).indexOf(dataCompareState.searchObj.searchVal)>-1){
-							var ii = v.wafer_id.value;
-							var iii = arr.length - i;
-							str = '<tr>'+
-									'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-									'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-									'<td data-itext="'+v.device_number.value+'">'+v.device_number.value+'</td>'+
-									'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
-									'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
-									'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
-									'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
-									'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
-									'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-								'</tr>' + str;
+							dataCompareState.sellectObj.selectSearchItem.push(v.wafer_id.value);
+							if(_.indexOf(dataCompareState.sellectObj.selectItem, v.wafer_id.value) == -1){
+								dataCompareState.sellectObj.selectItem.push(v.wafer_id.value);
+								var ii = v.wafer_id.value;
+								var str = '<tr>'+
+										'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
+										'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
+										'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
+										'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
+										'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
+										'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
+										'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
+										'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
+									'</tr>';
+								if($(".home_dataCompare_bottom tbody>tr").length){
+									$(".home_dataCompare_bottom tbody>tr:first").before(str);
+								}else{
+									$(".home_dataCompare_bottom tbody").append(str);
+								}
+							}
 							return false;
 						}
 					});
-				}else{
+				});
+				dataCompareState.sellectObj.selectItem = _.uniq(dataCompareState.sellectObj.selectItem);
+			}else{
+				var str2 = '';
+				dataCompareState.sellectObj.selectItem = [];
+				idata.map(function(v, i){
+					if(v.delete_status.value != "0") return true;
+					dataCompareState.sellectObj.selectItem.push(v.wafer_id.value);
 					var ii = v.wafer_id.value;
-					var iii = arr.length - i;
-					str = '<tr>'+
+					str2 = '<tr>'+
 							'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
 							'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-							'<td data-itext="'+v.device_number.value+'">'+v.device_number.value+'</td>'+
 							'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
 							'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
 							'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
 							'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
 							'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
 							'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-						'</tr>' + str;
-				}
-			});
-			$(".home_dataCompare_bottom tbody").empty().append(str);
+						'</tr>' + str2;
+				});
+				$(".home_dataCompare_bottom tbody").empty().append(str2);
+			}
+			
 			setTimeout(function(){
 				swal.clickCancel();
 			}, 2000);
 		}else{
-			dataCompareState.sellectObj.selectItem = [];
-			$(".home_dataCompare_bottom tbody").empty();
+			if(dataCompareState.searchObj.hasSearch){
+				dataCompareState.sellectObj.selectSearchItem.map(function(v){
+					_.pull(dataCompareState.sellectObj.selectItem, v);
+					$(".home_dataCompare_bottom tbody [type='checkbox'][data-ivalue='"+Number(v)+"']").parent().parent().remove();
+				});
+				dataCompareState.sellectObj.selectSearchItem = [];
+			}else{
+				dataCompareState.sellectObj.selectItem = [];
+				$(".home_dataCompare_bottom tbody").empty();
+			}
 		}
 	}
 });
@@ -388,6 +424,10 @@ $("#search_input").on("input propertychange change", function(){
 	}
 });
 $("#search_button").on("click", function(){
+	/*预处理*/
+	$("#checkAll").prop("checked", false);
+	dataCompareState.sellectObj.selectSearchItem = [];
+
 	var isearch = $("#search_input").val().trim();
 	dataCompareState.searchObj.hasSearch = isearch == "" ? false : true;
 	dataCompareState.searchObj.searchVal = dataCompareState.searchObj.hasSearch == true ? isearch : null;

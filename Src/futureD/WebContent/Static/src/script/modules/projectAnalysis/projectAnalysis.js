@@ -1,4 +1,4 @@
-/*variable defined*/
+/* variable defined */
 var projectAnalysisSwalMixin = swal.mixin({
   	confirmButtonClass: 'btn btn-success',
   	cancelButtonClass: 'btn btn-danger',
@@ -65,7 +65,8 @@ projectAnalysisState.searchObj = {
 };
 projectAnalysisState.sellectObj = {
 	selectAll: false,
-	selectItem: []
+	selectItem: [],
+	selectSearchItem: []
 };
 
 function redirectLogin(obj){
@@ -99,12 +100,13 @@ function getProjectAnalysisData(searchVal, isGetFilterAllData, isGetAllData){
 			if(searchVal == null || searchVal == ""){
 				returnprojectAnalysisData = _.cloneDeep(projectAnalysisData);
 			}else{
-				projectAnalysisState.searchObj.searchItem = [];
 				_.forEach(projectAnalysisData, function(v){
 					_.forOwn(v, function(o){
 						if(String(o.value).indexOf(searchVal)>-1){
+							if(_.indexOf(projectAnalysisState.sellectObj.selectItem, v.wafer_id.value)>-1){
+								projectAnalysisState.sellectObj.selectSearchItem.push(v.wafer_id.value);
+							}
 							returnprojectAnalysisData.push(v);
-							projectAnalysisState.searchObj.searchItem.push(v.wafer_id.value.toString());
 							return false;
 						}
 					});
@@ -137,6 +139,9 @@ function getProjectAnalysisData(searchVal, isGetFilterAllData, isGetAllData){
 					});
 					_.forOwn(item, function(va, ke){
 						if(String(va.value).indexOf(searchVal) > -1){
+							if(_.indexOf(projectAnalysisState.sellectObj.selectItem, v.wafer_id.value)>-1){
+								projectAnalysisState.sellectObj.selectSearchItem.push(v.wafer_id.value);
+							}
 							projectAnalysisDataArr.push(item);
 							return false;
 						}
@@ -179,18 +184,29 @@ function projectAnalysisRenderData(obj){
 				'</tr>';
 		});
 		$(".g_bodyin_bodyin_body tbody").empty().append(str);
-		$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-			if(_.indexOf(projectAnalysisState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-				$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-			}
-		});
+
 		if(projectAnalysisState.searchObj.hasSearch){
+			$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
+				if(_.indexOf(projectAnalysisState.sellectObj.selectSearchItem, $(this).data("ivalue").toString()) > -1){
+					$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+				}
+			});
+
 			$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
 				var iText = $(this).text();
 				var ireplace = "<b style='color:red'>"+projectAnalysisState.searchObj.searchVal+"</b>";
 				var iHtml = iText.replace(new RegExp(projectAnalysisState.searchObj.searchVal, 'g'), ireplace);
 				$(this).empty().html(iHtml);
 			});
+			$("#checkAll").prop("checked", projectAnalysisState.pageSearchObj.itemLength == projectAnalysisState.sellectObj.selectSearchItem.length);
+		}else{
+			$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
+				if(_.indexOf(projectAnalysisState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
+					$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+				}
+			});
+
+			$("#checkAll").prop("checked", projectAnalysisState.pageObj.itemLength == projectAnalysisState.sellectObj.selectItem.length);
 		}
 	}
 }
@@ -200,6 +216,15 @@ function analyzeBtn(){
 		$(".g_body_rr_body_btn>input").prop("disabled", false);
 	}else{
 		$(".g_body_rr_body_btn>input").prop("disabled", true);
+	}
+}
+
+function bottomTableANDAnalyzeBtn(){
+	if(projectAnalysisState.sellectObj.selectItem.length == 0){
+		$(".g_bodyin_body_bottom tbody").css("border-bottom", "0px solid #fff");
+		$(".g_body_rr_body_btn>input").prop("disabled", true);
+	}else{
+		analyzeBtn();
 	}
 }
 
@@ -272,29 +297,30 @@ $(function(){
 			    }else if(projectAnalysisState.sellectObj.selectItem.length == projectAnalysisState.pageObj.itemLength){
 			    	$("#checkAll").prop("checked", true);
 			    }
-			    // 左下方填充
-			    var allFilterData = getProjectAnalysisData(null, true);
-			    var allStr = '';
-			    allFilterData.map(function(v, i){
-			    	var ii = v.wafer_id.value;
-			    	if(_.indexOf(projectAnalysisState.sellectObj.selectItem, ii) > -1){
-			    		allStr+='<tr>'+
-			    				'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-			    				'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-			    				'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
-			    				'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
-			    				'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
-			    				'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
-			    				'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
-			    				'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-			    			'</tr>';
-			    	}
-			    });
-			    $(".g_bodyin_body_bottom tbody").empty().append(allStr);
-		  }
+		  	}
 		};
 		// 初始化分页器
 		projectAnalysisState.paginationObj.normal = new Pagination(projectAnalysisState.pageObj.selector, projectAnalysisState.pageObj.pageOption);
+
+		// 左下方填充
+		var allFilterData = getProjectAnalysisData(null, true);
+		var allStr = '';
+		allFilterData.map(function(v, i){
+			var ii = v.wafer_id.value;
+			if(_.indexOf(projectAnalysisState.sellectObj.selectItem, ii) > -1){
+				allStr+='<tr>'+
+						'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
+						'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
+						'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
+						'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
+						'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
+						'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
+						'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
+						'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
+					'</tr>';
+			}
+		});
+		$(".g_bodyin_body_bottom tbody").empty().append(allStr);
 	}
 });
 
@@ -334,26 +360,24 @@ $(document).on("mouseout", ".g_bodyin_bodyin_body td", function(){
 	var ID = $(this).data("ivalue").toString();
 	if($(this).prop("checked")){
 		projectAnalysisState.sellectObj.selectItem.push(ID);
+		if(projectAnalysisState.searchObj.hasSearch) projectAnalysisState.sellectObj.selectSearchItem.push(ID);
 		$(".g_bodyin_body_bottom tbody>tr [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
 		$(".g_bodyin_body_bottom tbody").append($(this).parent().parent().clone());
 		$(".g_bodyin_body_bottom tbody tr, .g_bodyin_body_bottom tbody td").removeClass("info warning");
 	}else{
 		_.pull(projectAnalysisState.sellectObj.selectItem, ID);
+		if(projectAnalysisState.searchObj.hasSearch) _.pull(projectAnalysisState.sellectObj.selectSearchItem, ID);
 		$(".g_bodyin_body_bottom tbody [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
 	}
 	projectAnalysisState.sellectObj.selectItem = _.uniq(projectAnalysisState.sellectObj.selectItem);
+	projectAnalysisState.sellectObj.selectSearchItem = _.uniq(projectAnalysisState.sellectObj.selectSearchItem);
 	if(projectAnalysisState.searchObj.hasSearch){
 		$("#checkAll").prop("checked", projectAnalysisState.pageSearchObj.itemLength == projectAnalysisState.sellectObj.selectItem.length);
 	}else{
 		$("#checkAll").prop("checked", projectAnalysisState.pageObj.itemLength == projectAnalysisState.sellectObj.selectItem.length);
 	}
 	projectAnalysisState.sellectObj.selectAll = $("#checkAll").prop("checked");
-	if(projectAnalysisState.sellectObj.selectItem.length == 0){
-		$(".g_bodyin_body_bottom tbody").css("border-bottom", "0px solid #fff");
-		$(".g_body_rr_body_btn>input").prop("disabled", true);
-	}else{
-		analyzeBtn();
-	}
+	bottomTableANDAnalyzeBtn();
 });
 
 $("#checkAll").on({
@@ -372,36 +396,47 @@ $("#checkAll").on({
 				showConfirmButton: false,
 				showCancelButton: false
 			});
-			projectAnalysisState.sellectObj.selectItem = [];
-			var str = '';
-			JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data.map(function(v, i, arr){
-				if(v.delete_status.value == "0"){
-					projectAnalysisState.sellectObj.selectItem.push(v.wafer_id.value);
-				}else{
-					return true;
-				}
-				if(projectAnalysisState.searchObj.hasSearch){
+			/*判断有没有搜索过*/
+			var idata = JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data;
+			if(projectAnalysisState.searchObj.hasSearch){
+				projectAnalysisState.sellectObj.selectSearchItem = [];
+				idata.map(function(v, i){
+					if(v.delete_status.value != "0") return true;
 					_.forOwn(v, function(o){
 						if(String(o.value).indexOf(projectAnalysisState.searchObj.searchVal)>-1){
-							var ii = v.wafer_id.value;
-							var iii = arr.length - i;
-							str = '<tr>'+
-									'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-									'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-									'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
-									'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
-									'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
-									'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
-									'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
-									'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-								'</tr>' + str;
+							projectAnalysisState.sellectObj.selectSearchItem.push(v.wafer_id.value);
+							if(_.indexOf(projectAnalysisState.sellectObj.selectItem, v.wafer_id.value) == -1){
+								projectAnalysisState.sellectObj.selectItem.push(v.wafer_id.value);
+								var ii = v.wafer_id.value;
+								var str = '<tr>'+
+										'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
+										'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
+										'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
+										'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
+										'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
+										'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
+										'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
+										'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
+									'</tr>';
+								if($(".g_bodyin_body_bottom tbody>tr").length){
+									$(".g_bodyin_body_bottom tbody>tr:first").before(str);
+								}else{
+									$(".g_bodyin_body_bottom tbody").append(str);
+								}
+							}
 							return false;
 						}
 					});
-				}else{
+				});
+				projectAnalysisState.sellectObj.selectItem = _.uniq(projectAnalysisState.sellectObj.selectItem);
+			}else{
+				var str2 = '';
+				projectAnalysisState.sellectObj.selectItem = [];
+				idata.map(function(v, i){
+					if(v.delete_status.value != "0") return true;
+					projectAnalysisState.sellectObj.selectItem.push(v.wafer_id.value);
 					var ii = v.wafer_id.value;
-					var iii = arr.length - i;
-					str = '<tr>'+
+					str2 = '<tr>'+
 							'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
 							'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
 							'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
@@ -410,18 +445,27 @@ $("#checkAll").on({
 							'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
 							'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
 							'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-						'</tr>' + str;
-				}
-			});
-			$(".g_bodyin_body_bottom tbody").empty().append(str);
-			analyzeBtn();
+						'</tr>' + str2;
+				});
+				$(".g_bodyin_body_bottom tbody").empty().append(str2);
+			}
+			
+			bottomTableANDAnalyzeBtn();
 			setTimeout(function(){
 				swal.clickCancel();
 			}, 2000);
 		}else{
-			projectAnalysisState.sellectObj.selectItem = [];
-			$(".g_bodyin_body_bottom tbody").empty();
-			$(".g_body_rr_body_btn>input").prop("disabled", true);
+			if(projectAnalysisState.searchObj.hasSearch){
+				projectAnalysisState.sellectObj.selectSearchItem.map(function(v){
+					_.pull(projectAnalysisState.sellectObj.selectItem, v);
+					$(".g_bodyin_body_bottom tbody [type='checkbox'][data-ivalue='"+Number(v)+"']").parent().parent().remove();
+				});
+				projectAnalysisState.sellectObj.selectSearchItem = [];
+			}else{
+				projectAnalysisState.sellectObj.selectItem = [];
+				$(".g_bodyin_body_bottom tbody").empty();
+			}
+			bottomTableANDAnalyzeBtn();
 		}
 	}
 });
@@ -448,7 +492,10 @@ $("#checkAll").on({
 });*/
 
 $("#search_button").on("click", function(){
+	/*预处理*/
 	$("#checkAll").prop("checked", false);
+	projectAnalysisState.sellectObj.selectSearchItem = [];
+
 	var isearch = $("#search_input").val().trim();
 	projectAnalysisState.searchObj.hasSearch = isearch == "" ? false : true;
 	projectAnalysisState.searchObj.searchVal = projectAnalysisState.searchObj.hasSearch == true ? isearch : null;
