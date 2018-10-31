@@ -21,7 +21,6 @@ function buildChartContainer(obj){
 }
 
 function initRenderChart(obj){
-	console.log(obj);
 	var chart;
 	var baseOption = {
 		chart: {
@@ -87,7 +86,7 @@ function initRenderChart(obj){
 	else if(obj.chart.type == 'boxplot'){
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 				legend: {
-					enabled: false
+					enabled: true
 				},
 				tooltip: {
 					pointFormat: '<span style="color:{point.color}">\u25CF</span> <b> {series.name}</b><br/>' + // eslint-disable-line no-dupe-keys

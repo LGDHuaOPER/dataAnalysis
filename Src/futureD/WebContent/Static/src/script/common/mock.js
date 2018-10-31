@@ -4637,7 +4637,47 @@
                     }
                 ]   // "waferMapDataList"
             }
-        ]
+        ],
+        /*数据对比*/
+        /*箱线图数据*/
+        dataCompare: {
+            boxlinediagram: {
+                "data": {
+                    "5": {
+                        "param3": {
+                            "Q1": 5.23E-6,
+                            "Q3": 5.3E-6,
+                            "ExtremeOutliers": [],
+                            "Median": 5.26E-6,
+                            "UpperOfInner": 6.53E-6,
+                            "lowerOfInner": 5.13E-6,
+                            "ModerateOutlier": []
+                        },
+                        "param1": {
+                            "Q1": 5.23E-6,
+                            "Q3": 6.23E-6,
+                            "ExtremeOutliers": [4.23E-6],
+                            "Median": 5.93E-6,
+                            "UpperOfInner": 7.23E-6,
+                            "lowerOfInner": 4.23E-6,
+                            "ModerateOutlier": []
+                        },
+                        "param2": {
+                            "Q1": 6.23E-6,
+                            "Q3": 7.93E-6,
+                            "ExtremeOutliers": [4.23E-6],
+                            "Median": 7.23E-6,
+                            "UpperOfInner": 9.23E-6,
+                            "lowerOfInner": 3.23E-6,
+                            "ModerateOutlier": []
+                        }
+                    }
+                },
+                "waferidList": [5],
+                "paramter": ["param1", "param2", "param3"],
+                "waferFile": ["wafer2.csv"]
+            }
+        }
     };
 
     // 定义一些api
@@ -4689,6 +4729,10 @@
 
         S_getMockWaferData: function(){
             return _DefaultParam.mockWaferData;
+        },
+
+        S_getDataCompare: function(){
+            return _DefaultParam.dataCompare;
         },
 
         // @数据处理类@

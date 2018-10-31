@@ -67,6 +67,23 @@ dataCompareState.sellectObj = {
 	selectItem: [],
 	selectSearchItem: []
 };
+dataCompareState.stateObj = {
+	canClickParam: false,
+	curParam: null,
+	curChartContainerNum: 0
+};
+dataCompareState.chartTypeMap = {
+	"good_rate": "line",
+	"histogram": "column",
+	"boxlinediagram": "boxplot",
+	"CPK": "line",
+	"correlationgraph": "scatter",
+	// "gaussiandistribution": "gaussiandistribution",
+};
+dataCompareState.mock = {
+	dataCompare: futuredGlobal.S_getDataCompare(),
+	boxlinediagram_data: futuredGlobal.S_getDataCompare().boxlinediagram.data["5"]
+};
 
 function redirectLogin(obj){
 	dataCompareSwalMixin({
@@ -219,8 +236,242 @@ function eleResize(){
 	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 165);
 	$(".g_bodyin_bodyin_bottom>.tab-content").innerHeight(winHeight - 165);
 	$(".home_dataCompare_top .body_div").innerHeight(winHeight / 2 - 123);
-	$(".home_dataCompare_bottom .left_div, .home_dataCompare_bottom .right_div").innerHeight(winHeight / 2 - 88);
-	$(".home_dataCompare_bottom .right_div .panel-body").innerHeight(winHeight / 2 - 171);
+	$(".home_dataCompare_bottom .left_div, .home_dataCompare_bottom .right_div").innerHeight(winHeight / 2 - 92);
+	$(".home_dataCompare_bottom .right_div .panel-body").innerHeight(winHeight / 2 - 175);
+}
+
+function judgeNav(obj){
+	if(obj.classify == "wafer"){
+		if(dataCompareState.sellectObj.selectItem.length == 0){
+			$(".g_bodyin_bodyin_top_wrap>ul").empty().append('<li role="presentation" class="active"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>');
+			dataCompareState.stateObj.canClickParam = false;
+			dataCompareState.stateObj.curParam = null;
+			return false;
+		}else{
+			dataCompareState.stateObj.canClickParam = true;
+			var iArr = judgeNav({
+				classify: "param",
+				param: {
+					TotalYield: obj.param.TotalYield,
+					other: _.cloneDeep(obj.param.other)
+				}
+			});
+			return iArr;
+		}
+	}else if(obj.classify == "param"){
+		var mapArr = [];
+		var mapArr1 = [{
+					href: "map_good_rate_distribution",
+					text: "Map良率分布"
+				},{
+					href: "map_color_order_distribution",
+					text: "Map色阶分布"
+				},{
+					href: "good_rate",
+					text: "良品率图"
+				},{
+					href: "histogram",
+					text: "直方图"
+				},{
+					href: "boxlinediagram",
+					text: "箱线图"
+				},{
+					href: "CPK",
+					text: "CPK图"
+				}];
+		var mapArr2 = [{
+					href: "map_good_rate_distribution",
+					text: "Map良率分布"
+				},{
+					href: "map_color_order_distribution",
+					text: "Map色阶分布"
+				},{
+					href: "good_rate",
+					text: "良品率图"
+				},{
+					href: "histogram",
+					text: "直方图"
+				},{
+					href: "boxlinediagram",
+					text: "箱线图"
+				},{
+					href: "CPK",
+					text: "CPK图"
+				},{
+					href: "correlationgraph",
+					text: "相关性图"
+				}];
+		dataCompareState.stateObj.curParam = _.cloneDeep(obj.param);
+		if(obj.param.TotalYield == 0){
+			if(obj.param.other.length == 0){
+				mapArr = [{
+					href: "map_good_rate_distribution",
+					text: "Map良率分布"
+				}];
+			}else if(obj.param.other.length == 1){
+				mapArr = _.cloneDeep(mapArr1);
+			}else{
+				mapArr = _.cloneDeep(mapArr2);
+			}
+		}else{
+			if(obj.param.other.length == 0){
+				mapArr = [{
+					href: "map_good_rate_distribution",
+					text: "Map良率分布"
+				},{
+					href: "good_rate",
+					text: "良品率图"
+				}];
+			}else if(obj.param.other.length == 1){
+				mapArr = _.cloneDeep(mapArr1);
+			}else{
+				mapArr = _.cloneDeep(mapArr2);
+			}
+		}
+		return mapArr;
+	}
+}
+
+function renderNav(mapArr){
+	if(mapArr !== false){
+		var str = '<li role="presentation" class="active"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>';
+		mapArr.map(function(v, i, arr){
+			str+='<li role="presentation"><a href="#'+v.href+'" aria-controls="'+v.href+'" role="tab" data-toggle="tab">'+v.text+'</a></li>';
+		});
+		if(!_.isEmpty(mapArr)){
+			str+='<li role="presentation"><a href="#all_statistics" aria-controls="all_statistics" role="tab" data-toggle="tab">所有统计</a></li>';
+		}
+		$(".g_bodyin_bodyin_top_wrap>ul").empty().append(str);
+	}
+}
+
+function groupJudgeRenderNav(classify){
+	var iAr = [];
+	$("#home_param_ul>li.list-group-item-info:not([data-iparam='TotalYield'])").each(function(){
+		iAr.push($(this).data("iparam"));
+	});
+	var mapArr = judgeNav({
+		classify: classify,
+		param: {
+			TotalYield: $("#home_param_ul>li.list-group-item-info[data-iparam='TotalYield']").length,
+			other: _.cloneDeep(iAr)
+		}
+	});
+	renderNav(mapArr);
+}
+
+/*渲染图表外部面板*/
+function renderPanel(TotalYield, other, controls){
+	var str = '';
+	if(controls == "map_good_rate_distribution" || controls == "map_color_order_distribution"){
+		if(TotalYield == 1){
+			str += '<div class="panel panel-info">'+
+					  	'<div class="panel-heading">'+
+					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Total Yield'+
+					  	'</div>'+
+					  	'<div class="panel-body">'+
+					    	'<div class="container-fluid">';
+			var inStr = buildMapContainer({
+					    		divi: 4,
+					    		controls: controls,
+					    		iparam: "TotalYield",
+					    		iclassify: "map"
+					    	});
+					    	str+=inStr;
+					    	str+='</div>'+
+					  	'</div>'+
+					'</div>';
+		}
+		other.map(function(v, i){
+			str += '<div class="panel panel-info">'+
+					  	'<div class="panel-heading">'+
+					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+v+
+					  	'</div>'+
+					  	'<div class="panel-body">'+
+					    	'<div class="container-fluid">';
+					    	str+=buildMapContainer({
+					    		divi: 4,
+					    		controls: controls,
+					    		iparam: v,
+					    		iclassify: "map"
+					    	});
+					    	str+='</div>'+
+					  	'</div>'+
+					'</div>';
+		});
+	}else if(["histogram", "boxlinediagram", "good_rate", "CPK", "correlationgraph"].indexOf(controls) > -1){
+		str = buildMapContainer({
+				    		divi: 2,
+				    		controls: controls,
+				    		iparam: null,
+				    		iclassify: "otherSingle"
+				    	});
+	}
+	$("div[role='tabpanel']#"+controls).empty().append(str);
+}
+
+/*map图图表容器构建*/
+function buildMapContainer(obj){
+	var str = '',
+	divi = obj.divi,
+	controls = obj.controls,
+	iparam = obj.iparam,
+	iclassify = obj.iclassify;
+	if(iclassify == "otherSingle"){
+		var paramArr = [];
+		paramArr[dataCompareState.stateObj.curParam.TotalYield] = "TotalYield";
+		_.pullAt(paramArr, 0);
+		var allParam = _.concat(paramArr, dataCompareState.stateObj.curParam.other);
+		var rowss = Math.ceil(allParam.length / divi);
+		var selectItemStr = _.join(_.sortBy(dataCompareState.sellectObj.selectItem));
+		str+='<div class="container-fluid">';
+		_.times(rowss, function(i){
+			str+='<div class="row">';
+			_.times(divi, function(ii){
+				var curI = i*divi+ii;
+				if(curI < allParam.length){
+					str+='<div class="col-sm-12 col-md-6 col-lg-6">';
+						str += '<div class="panel panel-info">'+
+								  	'<div class="panel-heading">'+
+								    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+allParam[curI]+
+								  	'</div>'+
+								  	'<div class="panel-body">'+
+								    	'<div class="chart_otherSingle_tit">头</div>'+
+								    	'<div class="chart_otherSingle_body">'+
+											'<div id="'+(controls+dataCompareState.stateObj.curChartContainerNum)+'" data-ivalue="'+selectItemStr+'" data-ichart="'+controls+'" data-iparam="'+allParam[curI]+'"></div>'+
+										'</div>'+
+										'<div class="chart_otherSingle_foot">脚</div>'+
+								  	'</div>'+
+								'</div>';
+					str+='</div>';
+					dataCompareState.stateObj.curChartContainerNum++;
+				}
+			});
+			str+='</div>';
+		});
+		str+='</div>';
+	}else if(iclassify == "map"){
+		var len = dataCompareState.sellectObj.selectItem.length;
+		var rows = Math.ceil(len / divi);
+		_.times(rows, function(i){
+			str+='<div class="row">';
+			_.times(divi, function(ii){
+				var curI = i*divi+ii;
+				if(curI < len){
+					str+='<div class="col-sm-6 col-md-3 col-lg-3">';
+						str+='<div class="chart_map_tit"></div>';
+							str+='<div class="chart_map_body">'+
+									'<div id="'+(controls+dataCompareState.stateObj.curChartContainerNum)+'" data-ivalue="'+dataCompareState.sellectObj.selectItem[curI]+'" data-ichart="'+controls+'" data-iparam="'+iparam+'">'+dataCompareState.sellectObj.selectItem[curI]+'</div>'+
+								'</div>';
+						str+='<div class="chart_map_foot"></div>';
+					str+='</div>';
+					dataCompareState.stateObj.curChartContainerNum++;
+				}
+			});
+			str+='</div>';
+		});
+	}
+	return str;
 }
 
 /*page preload*/
@@ -315,6 +566,8 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 		$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 	}
 	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
+
+	groupJudgeRenderNav("wafer");
 });
 
 /*点击选中所有*/
@@ -403,6 +656,8 @@ $("#checkAll").on({
 				$(".home_dataCompare_bottom tbody").empty();
 			}
 		}
+
+		groupJudgeRenderNav("wafer");
 	}
 });
 
@@ -521,5 +776,206 @@ $("#jumpPage").on("click", function(){
 
 /*共有参数选择*/
 $(document).on("click", ".home_dataCompare_bottom .panel-body li", function(){
+	if(!dataCompareState.stateObj.canClickParam) return false;
 	$(this).toggleClass("list-group-item-info").children("span").text(["选中", "取消选中"][Number($(this).hasClass("list-group-item-info"))]);
+	groupJudgeRenderNav("param");
+});
+
+$(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"]', function (e) {
+  /*e.target // newly activated tab
+  e.relatedTarget // previous active tab*/
+  	var curParam = dataCompareState.stateObj.curParam;
+  	var controls = $(e.target).attr("aria-controls");
+  	if(controls == "home_dataCompare"){
+
+  	}else if(controls == "all_statistics"){
+
+  	}else{
+  		if(!_.isNil(curParam) && !_.isEmpty(curParam)){
+  			var TotalYield = curParam.TotalYield;
+  			var other = curParam.other;
+  			renderPanel(TotalYield, other, controls);
+  			if(controls == "map_good_rate_distribution"){
+
+  			}else if(controls == "map_color_order_distribution"){
+
+  			}else{
+  				var chartType = _.find(dataCompareState.chartTypeMap, function(o, k){
+  					return k == controls;
+  				});
+  				$("#"+controls+" .chart_otherSingle_body>div").each(function(){
+  					var container = $(this).attr("id"),
+  					title_text,
+  					subtitle_text = null,
+  					xAxis,
+  					yAxis,
+  					series;
+  					var iparam = $(this).data("iparam");
+  					switch(controls){
+  						case "histogram":
+	  						title_text = "直方图-"+iparam;
+	  						var icategories = [["-∞", 0.00000423], [0.00000423, 0.00000448], [0.00000448, 0.0000047300000000000005], [0.0000047300000000000005, 0.00000498], [0.00000498, 0.00000523], [0.00000523, 0.00000548], [0.00000548, 0.000005729999999999999], [0.000005729999999999999, 0.0000059799999999999995], [0.0000059799999999999995, 0.00000623], [0.00000623, "+∞"]];
+	  						var histogram_limits_min = 0.00000423;
+	  						var histogram_limits_max = 0.00000623;
+	  						xAxis = {
+	  							categories: icategories,
+	  							type: 'linear',
+	  							labels: {
+	  								rotation: -45  // 设置轴标签旋转角度
+	  							},
+	  							plotLines: [{
+									color: '#FF0000',
+									width: 2,
+									value: 0.5
+								},{
+									color: '#FF0000',
+									width: 2,
+									value: 8.5
+								}]
+	  						};
+	  						yAxis = {
+	  							title: {
+	  								text: '百分数'
+	  							}
+	  						};
+  							var iserise = [];
+  							_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
+  								var item = {};
+  								item.name = "wafer"+v;
+  								item.type = "column";
+  								item.data = [
+  									2, 8, 10, 5, 15, 20, 3, 7, 10, 20
+  								];
+  								iserise.push(item);
+  							});
+  							series = iserise;
+  						break;
+
+  						case "boxlinediagram":
+	  						title_text = "箱线图-"+iparam;
+	  						xAxis = {
+	  									categories: _.forEach(_.cloneDeep(dataCompareState.sellectObj.selectItem), function(v, i, arr){
+	  										arr[i] = "wafer"+v;
+	  									}),
+	  									title: {
+	  										text: "晶圆"
+	  									}
+	  								};
+	  						yAxis = {
+			  							title: {
+			  								text: '值'
+			  							},
+			  							/*plotLines: [{
+			  								value: 932,
+			  								color: 'red',
+			  								width: 1,
+			  								label: {
+			  									text: '理论模型: 932',
+			  									align: 'center',
+			  									style: {
+			  										color: 'gray'
+			  									}
+			  								}
+			  							}]*/
+			  						};
+			  				var iidata = dataCompareState.mock.boxlinediagram_data;
+			  				var iidata1 = [];
+			  				var iidata2 = [];
+			  				_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
+								var item = [];
+								var ii = i % 3 + 1;
+								item.push(iidata["param"+ii].lowerOfInner);
+								item.push(iidata["param"+ii].Q1);
+								item.push(iidata["param"+ii].Median);
+								item.push(iidata["param"+ii].Q3);
+								item.push(iidata["param"+ii].UpperOfInner);
+								iidata1.push(item);
+								var item2 = [];
+								item2.push("wafer"+v);
+								i % 2 == 0 ? item2.push(iidata["param"+ii].lowerOfInner - 0.000001) : item2.push(iidata["param"+ii].UpperOfInner + 0.000002);
+								iidata2.push(item2);
+							});
+	  						series = [{
+										name: '观测值',
+										data: iidata1,
+										tooltip: {
+											headerFormat: '<em>晶圆： {point.key}</em><br/>'
+										}
+									}, {
+										name: '异常值',
+										color: Highcharts.getOptions().colors[0],
+										type: 'scatter',
+										data: iidata2,
+										marker: {
+											fillColor: 'white',
+											lineWidth: 1,
+											lineColor: Highcharts.getOptions().colors[0]
+										},
+										tooltip: {
+											pointFormat: 'Observation: {point.y}'
+										}
+									}];
+	  					break;
+	  					case "CPK":
+		  					title_text = "CPK-"+iparam;
+		  					var dataLength = 12;
+		  					var iiicategories = _.range(1, dataLength + 1);
+		  					_.forEach(iiicategories, function(v, i, arr){
+		  						arr[i] = eouluGlobal.S_numToChineseSm(v);
+		  					});
+	  						xAxis = {
+	  							categories: iiicategories
+	  						};
+	  						yAxis = {
+	  							title: {
+	  								text: 'values'
+	  							}
+	  						};
+	  						var iiiseries = [];
+	  						_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
+	  							var item = {};
+	  							item.name = "wafer"+v;
+	  							var idata = [];
+	  							_.times(12, function(){
+	  								idata.push(_.random(1, 30, true))
+	  							});
+	  							item.data = idata;
+	  							iiiseries.push(item);
+	  						});
+	  						series = iiiseries;
+	  					break;
+  						default:
+  						null;
+  					}
+  					/*画图*/
+  					dataCompareRenderChart({
+  						container: container,
+  						chart: {
+  							type: chartType
+  						},
+  						title: {
+  							text: title_text
+  						},
+  						subtitle: {
+  							text: subtitle_text
+  						},
+  						xAxis: xAxis,
+  						yAxis: yAxis,
+  						series: _.cloneDeep(series),
+  						chartClassify: controls
+  					});
+  				});
+  			}
+  		}
+  	}
+});
+
+/*点击收起*/
+$(document).on("click", ".g_bodyin_bodyin_bottom div.panel-heading>span.glyphicon", function(){
+	$(this).toggleClass("glyphicon-menu-down glyphicon-menu-right").parent().parent().toggleClass("panel-info panel-success");
+	if($(this).hasClass("glyphicon-menu-right")){
+		$(this).parent().next().slideUp(200);
+	}else{
+		$(this).parent().next().slideDown(200);
+	}
 });

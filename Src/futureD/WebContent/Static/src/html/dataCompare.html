@@ -39,14 +39,14 @@
 							<!-- Nav tabs -->
 							<ul class="nav nav-tabs" role="tablist">
 							    <li role="presentation" class="active"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>
-							    <li role="presentation"><a href="#map_good_rate_distribution" aria-controls="map_good_rate_distribution" role="tab" data-toggle="tab">Map良率分布</a></li>
+							    <!-- <li role="presentation"><a href="#map_good_rate_distribution" aria-controls="map_good_rate_distribution" role="tab" data-toggle="tab">Map良率分布</a></li>
 							    <li role="presentation"><a href="#map_color_order_distribution" aria-controls="map_color_order_distribution" role="tab" data-toggle="tab">Map色阶分布</a></li>
 							    <li role="presentation"><a href="#good_rate" aria-controls="good_rate" role="tab" data-toggle="tab">良品率图</a></li>
 							    <li role="presentation"><a href="#histogram" aria-controls="histogram" role="tab" data-toggle="tab">直方图</a></li>
 							    <li role="presentation"><a href="#boxlinediagram" aria-controls="boxlinediagram" role="tab" data-toggle="tab">箱线图</a></li>
 							    <li role="presentation"><a href="#CPK" aria-controls="CPK" role="tab" data-toggle="tab">CPK图</a></li>
 							    <li role="presentation"><a href="#correlationgraph" aria-controls="correlationgraph" role="tab" data-toggle="tab">相关性图</a></li>
-							    <li role="presentation"><a href="#all_statistics" aria-controls="all_statistics" role="tab" data-toggle="tab">所有统计</a></li>
+							    <li role="presentation"><a href="#all_statistics" aria-controls="all_statistics" role="tab" data-toggle="tab">所有统计</a></li> -->
 							</ul>
 						</div>
 					</div><!-- g_bodyin_bodyin_top end -->
@@ -113,17 +113,17 @@
 						    				  	</div>
 						    				  <div class="panel-body">
 						    				   		<!-- List group -->
-						    				   		<ul class="list-group">
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>Total Yield</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数2</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数3</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数4</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数5</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数6</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数7</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数8</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数9</li>
-						    				   		    <li class="list-group-item"><span class="badge">选中</span>共有参数10</li>
+						    				   		<ul class="list-group" id="home_param_ul">
+						    				   		    <li class="list-group-item" data-iparam="TotalYield"><span class="badge">选中</span>Total Yield</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数2"><span class="badge">选中</span>共有参数2</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数3"><span class="badge">选中</span>共有参数3</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数4"><span class="badge">选中</span>共有参数4</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数5"><span class="badge">选中</span>共有参数5</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数6"><span class="badge">选中</span>共有参数6</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数7"><span class="badge">选中</span>共有参数7</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数8"><span class="badge">选中</span>共有参数8</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数9"><span class="badge">选中</span>共有参数9</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数10"><span class="badge">选中</span>共有参数10</li>
 						    				   		</ul>
 						    				  </div>
 						    				</div>
@@ -132,19 +132,32 @@
 						    	</div>
 						    </div>
 						    <!-- Map良率分布 -->
-						    <div role="tabpanel" class="tab-pane fade" id="map_good_rate_distribution">Map良率分布</div><!-- Map良率分布 end -->
+						    <div role="tabpanel" class="tab-pane fade" id="map_good_rate_distribution">
+								<!-- <div class="panel panel-info">
+								  	<div class="panel-heading">
+								    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Panel title
+								  	</div>
+								  	<div class="panel-body">
+								    	<div class="container-fluid">
+								    		<div class="row">
+								    			<div class="col-sm-6 col-md-3 col-lg-3"></div>
+								    		</div>
+								    	</div>
+								  	</div>
+								</div> -->
+						    </div><!-- Map良率分布 end -->
 						    <!-- Map色阶分布 -->
-						    <div role="tabpanel" class="tab-pane fade" id="map_color_order_distribution">..3.</div><!-- Map色阶分布end -->
+						    <div role="tabpanel" class="tab-pane fade" id="map_color_order_distribution"></div><!-- Map色阶分布end -->
 						    <!-- 良品率图 -->
-						    <div role="tabpanel" class="tab-pane fade" id="good_rate">...4</div><!-- 良品率图end -->
+						    <div role="tabpanel" class="tab-pane fade" id="good_rate"></div><!-- 良品率图end -->
 						    <!-- 直方图 -->
-						    <div role="tabpanel" class="tab-pane fade" id="histogram">直方图</div><!-- 直方图end -->
+						    <div role="tabpanel" class="tab-pane fade" id="histogram"></div><!-- 直方图end -->
 						    <!-- 箱线图 -->
-						    <div role="tabpanel" class="tab-pane fade" id="boxlinediagram">...4</div><!-- 箱线图end -->
+						    <div role="tabpanel" class="tab-pane fade" id="boxlinediagram"></div><!-- 箱线图end -->
 						    <!-- CPK图 -->
-						    <div role="tabpanel" class="tab-pane fade" id="CPK">CPK</div><!-- CPK图end -->
+						    <div role="tabpanel" class="tab-pane fade" id="CPK"></div><!-- CPK图end -->
 						    <!-- 相关性图 -->
-						    <div role="tabpanel" class="tab-pane fade" id="correlationgraph">相关性图</div><!-- 相关性图end -->
+						    <div role="tabpanel" class="tab-pane fade" id="correlationgraph"></div><!-- 相关性图end -->
 						    <!-- 所有统计 -->
 						    <div role="tabpanel" class="tab-pane fade" id="all_statistics">所有统计</div><!-- 所有统计end -->
 						 </div>
@@ -169,7 +182,7 @@
 	<script src="../script/libs/highcharts-axis-arrow.js"></script>
 	<script src="../script/libs/highcharts-more.js"></script>
 	<script src="../script/libs/histogram-bellcurve.js"></script>
-	<script src="../script/modules/dataStatistics/dataStatisticsRender.js"></script>
+	<script src="../script/modules/dataCompare/dataCompareRenderChart.js"></script>
 	<script src="../script/libs/drawWaferMap.js"></script>
 	<script src="../script/modules/dataCompare/dataCompare.js"></script>
 </body>

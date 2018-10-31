@@ -95,6 +95,7 @@ margin-bottom 10px {
 }
 .g_bodyin_bodyin_bottom .tab-content>div[role='tabpanel'] {
   height: 100%;
+  overflow-y: auto;
 }
 .g_bodyin_bodyin_top_wrap {
   height: 100%;
@@ -230,6 +231,10 @@ margin-bottom 10px {
 }
 .home_dataCompare_bottom .right_div .panel-body li {
   cursor: pointer;
+}
+div[role='tabpanel'] div.panel-heading span.glyphicon {
+  margin-right: 5px;
+  font-size: 20px;
 }
 span.glyphicon {
   cursor: pointer;

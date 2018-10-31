@@ -454,7 +454,7 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							}];*/
 							yAxis = {
 								title: {
-									title: '百分数'
+									text: '百分数'
 								}
 							};
 							xAxis = {
