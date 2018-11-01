@@ -21,9 +21,9 @@
 	<div class="g_menu">
 		<!-- Nav tabs -->
 		<ul class="nav nav-tabs" role="tablist">
-		    <li role="presentation" class="active" data-iclassify="allDetail"><a href="#allDetail" aria-controls="allDetail" role="tab" data-toggle="tab" title="您可以快速查看该晶圆的所有信息">所有信息</a></li>
-		    <li role="presentation" data-iclassify="parameterMap"><a href="#parameterMap" aria-controls="parameterMap" role="tab" data-toggle="tab" title="您可以快速预览参数Map">参数图</a></li>
-		    <li role="presentation" data-iclassify="vectorMap"><a href="#vectorMap" aria-controls="vectorMap" role="tab" data-toggle="tab" title="您可以快速预览矢量Map">矢量图</a></li>
+		    <li role="presentation" class="active" data-iclassify="allDetail"><a href="#allDetail" aria-controls="allDetail" role="tab" data-toggle="tab" title="您可以快速查看该晶圆的参数数据">参数数据</a></li>
+		    <li role="presentation" data-iclassify="vectorMap"><a href="#vectorMap" aria-controls="vectorMap" role="tab" data-toggle="tab" title="您可以快速预览矢量数据">矢量数据</a></li>
+		    <li role="presentation" data-iclassify="parameterMap"><a href="#parameterMap" aria-controls="parameterMap" role="tab" data-toggle="tab" title="您可以快速预览参数分布统计">参数分布统计</a></li>
 		</ul>
 	</div>
 	<div class="g_body">
@@ -32,7 +32,7 @@
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
-					  	<li><a href="index.html">主页面</a></li>
+					  	<li><a href="index.html">系统主页面</a></li>
 					  	<li><a href="dataList.html">数据统计</a></li>
 					  	<li class="active">详细信息</li>
 					</ol>
@@ -43,14 +43,14 @@
 					<!-- Tab panes -->
 					<div class="tab-content">
 					    <div role="tabpanel" class="tab-pane fade in active" id="allDetail">
-					    	allDetail
+					    	<div class="table_data"></div>
 					    </div>
-					    <div role="tabpanel" class="tab-pane fade" id="parameterMap">
-					    	<canvas id="canvas_parameterMap"></canvas>
-					    </div><!-- parameterMap end -->
 					    <div role="tabpanel" class="tab-pane fade" id="vectorMap">
 					    	vectorMap
 					    </div><!-- vectorMap end -->
+					    <div role="tabpanel" class="tab-pane fade" id="parameterMap">
+					    	<canvas id="canvas_parameterMap"></canvas>
+					    </div><!-- parameterMap end -->
 					</div><!-- tab-content end -->
 				</div><!-- g_bodyin_bodyin end -->
 			</div>

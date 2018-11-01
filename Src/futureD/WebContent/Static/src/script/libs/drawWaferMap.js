@@ -6,20 +6,20 @@ function HashTable(){
 		{ 
 			size ++ ; 
 		} 
-	entry[key] = value; 
-	} 
+	   entry[key] = value; 
+	};
 	this.getValue = function (key){ 
 		return this.containsKey(key) ? entry[key] : null; 
-	} 
+	};
 	this.remove = function ( key ){ 
 		if( this.containsKey(key) && ( delete entry[key] ) ) 
 		{ 
 		size --; 
 		} 
-	} 
+	};
 	this.containsKey = function ( key ){ 
 		return (key in entry); 
-	} 
+	};
 	this.containsValue = function ( value ){ 
 		for(var prop in entry) 
 		{ 
@@ -29,7 +29,7 @@ function HashTable(){
 			} 
 		} 
 		return false; 
-	} 
+	};
 	this.getValues = function (){ 
 		var values = new Array(); 
 		for(var prop in entry) 
@@ -37,7 +37,7 @@ function HashTable(){
 			values.push(entry[prop]); 
 		} 
 		return values; 
-	} 
+	};
 	this.getKeys = function (){ 
 		var keys = new Array(); 
 		for(var prop in entry) 
@@ -45,14 +45,14 @@ function HashTable(){
 			keys.push(prop); 
 		} 
 		return keys; 
-	} 
+	};
 	this.getSize = function (){ 
 		return size; 
-	} 
+	};
 	this.clear = function (){ 
 		size = 0; 
 		entry = new Object(); 
-	} 
+	};
 } 
 
 //转换为哈希表格式
@@ -60,7 +60,7 @@ function changeHash(obj){
 	var Hash = new HashTable();
 	for(var i = 0 ; i < obj.length ; i++){
 		for(var a in obj[i]){
-			Hash.add(a,obj[i][a])
+			Hash.add(a,obj[i][a]);
 		}
 	}
 	return Hash;
@@ -83,6 +83,7 @@ function WaferMapPlotObj(option) {
     this.coordsArray = option.coordsArray;
     this.positionFlag = option.positionFlag;
     this.FlatLength = option.FlatLength;
+    this.colorOrder = option.colorOrder;
 }
 
 if (WaferMapPlotObj.prototype.type == undefined) {
@@ -97,6 +98,7 @@ if (WaferMapPlotObj.prototype.type == undefined) {
         var x_Min = 999999;
         var y_Max = -999999;
         var y_Min = 999999;
+        var colorOrder = this.colorOrder;
         //计算行列坐标平均值
         for (var i = this.maxRow; i >= this.minRow; i--) {
             for (var j = this.maxCol; j >= this.minCol; j--) {
@@ -155,7 +157,13 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var x = this.centerX - j * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
                         var bin = this.coordsArray.getValue(key);
-                        ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        /*普通分布于色阶分布*/
+                        if(colorOrder === true){
+                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                        }else{
+                            ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        }
+                        /*普通分布于色阶分布end*/
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
                         ctx.fillRect(x, y, dieXZoom, dieYZoom);
@@ -189,7 +197,13 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var x = this.centerX - j * dieXZoom + xmean * dieXZoom - 0.5 * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
                         var bin = this.coordsArray.getValue(key);
-                        ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        /*普通分布于色阶分布*/
+                        if(colorOrder === true){
+                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                        }else{
+                            ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        }
+                        /*普通分布于色阶分布end*/
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
                         ctx.fillRect(x, y, dieXZoom, dieYZoom);
@@ -259,7 +273,8 @@ function renderWaferMapByGetData(obj){
 		maxCol: obj.waferData.maxX,
 		coordsArray: changeHash(obj.m_DieDataListNew), // 晶圆数据
 		positionFlag: (obj.waferData.DirectionX + obj.waferData.DirectionY),
-		FlatLength: obj.waferData.FlatLength
+		FlatLength: obj.waferData.FlatLength,
+        colorOrder: obj.colorOrder
     })).plot();
 }
 
@@ -305,21 +320,42 @@ function getGradientColor (start, end, max, val) {
 
 function buildColorGradation(obj) {
     var colorMap = new HashTable();
-    colorMap.add(-123456, obj.colorGradation.floorColor); //低于下限，也是不合格数据
-    colorMap.add(123456, obj.colorGradation.limitColor); //超出上限，也是不合格数据
-    _.times(256, function(i){
-    	if(i > 0){
-    		colorMap.add(i, getGradientColor (obj.colorGradation.limitColor, obj.colorGradation.floorColor, obj.colorGradation.nums, obj.colorGradation.nums-i));
-    	}
-    });
+    var colorOrder = obj.colorOrder;
+    if(colorOrder === true){
+        var firstMax = obj.firstMax;
+        var firstMin = obj.firstMin;
+        var secondMax = obj.secondMax;
+        var secondMin = obj.secondMin;
+        var firstDiff = firstMax - firstMin;
+        var secondDiff = secondMax - secondMin;
+        _.times(firstDiff, function(i){
+            colorMap.add("1:"+(firstMin+i), getGradientColor (obj.colorGradation.limitColor1, obj.colorGradation.floorColor1, obj.colorGradation.nums1, obj.colorGradation.nums1-i));
+        });
+        _.times(secondDiff, function(i){
+            colorMap.add("255:"+(secondMin+i), getGradientColor (obj.colorGradation.limitColor2, obj.colorGradation.floorColor2, obj.colorGradation.nums2, obj.colorGradation.nums2-i));
+        });
+        _.forOwn(obj.otherColor, function(v, k){
+            colorMap.add(k, v);
+        });
+    }else{
+        colorMap.add(-123456, obj.colorGradation.limitColor); //低于下限，也是不合格数据
+        colorMap.add(123456, obj.colorGradation.limitColor); //超出上限，也是不合格数据
+        _.times(256, function(i){
+            if(i > 0){
+                colorMap.add(i, getGradientColor (obj.colorGradation.limitColor, obj.colorGradation.floorColor, obj.colorGradation.nums, obj.colorGradation.nums-i));
+            }
+        });
+    }
     renderWaferMapByGetData({
-    	width: obj.width,
-    	height: obj.height,
-    	container: obj.container,
-    	bgFillColor: obj.bgFillColor,
-    	colorMap: colorMap,
-    	waferData: obj.waferData,
-    	spacePercent: obj.spacePercent, // {x: 0.1, y: 0.1}
-    	m_DieDataListNew: obj.m_DieDataListNew
+        width: obj.width,
+        height: obj.height,
+        container: obj.container,
+        bgFillColor: obj.bgFillColor,
+        colorMap: colorMap,
+        waferData: obj.waferData,
+        spacePercent: obj.spacePercent, // {x: 0.1, y: 0.1}
+        m_DieDataListNew: obj.m_DieDataListNew,
+        colorOrder: colorOrder
     });
+    console.log("colorMap", colorMap);
 }

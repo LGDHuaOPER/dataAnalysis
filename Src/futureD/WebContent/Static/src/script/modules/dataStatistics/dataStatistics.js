@@ -378,7 +378,7 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 				$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']>.chartBody>.container-fluid [data-initrenderchart]").each(function(i, el){
 					var container = $(this).attr("id");
 					var canvasID = "canvas_"+container;
-					$(this).append("<canvas id='"+canvasID+"'></canvas>")
+					$(this).append("<canvas id='"+canvasID+"'></canvas>");
 					var curLine = $(".g_bodyin_bodyin_bottom_lsub_mid [data-chartcurid='"+container+"']");
 					var subtitle;
 					if(classify == "table"){

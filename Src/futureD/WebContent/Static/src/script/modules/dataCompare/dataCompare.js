@@ -73,7 +73,7 @@ dataCompareState.stateObj = {
 	curChartContainerNum: 0
 };
 dataCompareState.chartTypeMap = {
-	"good_rate": "line",
+	"good_rate": "spline",
 	"histogram": "column",
 	"boxlinediagram": "boxplot",
 	"CPK": "line",
@@ -82,7 +82,7 @@ dataCompareState.chartTypeMap = {
 };
 dataCompareState.mock = {
 	dataCompare: futuredGlobal.S_getDataCompare(),
-	boxlinediagram_data: futuredGlobal.S_getDataCompare().boxlinediagram.data["5"]
+	boxlinediagram_data: futuredGlobal.S_getDataCompare().boxlinediagram.data["5"],
 };
 
 function redirectLogin(obj){
@@ -308,10 +308,10 @@ function judgeNav(obj){
 					href: "map_good_rate_distribution",
 					text: "Map良率分布"
 				}];
-			}else if(obj.param.other.length == 1){
-				mapArr = _.cloneDeep(mapArr1);
-			}else{
+			}else if(obj.param.other.length == 2){
 				mapArr = _.cloneDeep(mapArr2);
+			}else if(obj.param.other.length != 2){
+				mapArr = _.cloneDeep(mapArr1);
 			}
 		}else{
 			if(obj.param.other.length == 0){
@@ -322,10 +322,10 @@ function judgeNav(obj){
 					href: "good_rate",
 					text: "良品率图"
 				}];
-			}else if(obj.param.other.length == 1){
-				mapArr = _.cloneDeep(mapArr1);
-			}else{
+			}else if(obj.param.other.length == 2){
 				mapArr = _.cloneDeep(mapArr2);
+			}else if(obj.param.other.length != 2){
+				mapArr = _.cloneDeep(mapArr1);
 			}
 		}
 		return mapArr;
@@ -364,7 +364,7 @@ function groupJudgeRenderNav(classify){
 function renderPanel(TotalYield, other, controls){
 	var str = '';
 	if(controls == "map_good_rate_distribution" || controls == "map_color_order_distribution"){
-		if(TotalYield == 1){
+		if(TotalYield == 1 && controls == "map_good_rate_distribution"){
 			str += '<div class="panel panel-info">'+
 					  	'<div class="panel-heading">'+
 					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Total Yield'+
@@ -372,7 +372,7 @@ function renderPanel(TotalYield, other, controls){
 					  	'<div class="panel-body">'+
 					    	'<div class="container-fluid">';
 			var inStr = buildMapContainer({
-					    		divi: 4,
+					    		divi: 3,
 					    		controls: controls,
 					    		iparam: "TotalYield",
 					    		iclassify: "map"
@@ -390,7 +390,7 @@ function renderPanel(TotalYield, other, controls){
 					  	'<div class="panel-body">'+
 					    	'<div class="container-fluid">';
 					    	str+=buildMapContainer({
-					    		divi: 4,
+					    		divi: 3,
 					    		controls: controls,
 					    		iparam: v,
 					    		iclassify: "map"
@@ -399,15 +399,29 @@ function renderPanel(TotalYield, other, controls){
 					  	'</div>'+
 					'</div>';
 		});
-	}else if(["histogram", "boxlinediagram", "good_rate", "CPK", "correlationgraph"].indexOf(controls) > -1){
+	}else if(controls == "good_rate"){
 		str = buildMapContainer({
 				    		divi: 2,
 				    		controls: controls,
 				    		iparam: null,
 				    		iclassify: "otherSingle"
 				    	});
+	}else if(["histogram", "boxlinediagram", "CPK"].indexOf(controls) > -1){
+		str = buildMapContainer({
+				    		divi: 2,
+				    		controls: controls,
+				    		iparam: null,
+				    		iclassify: "otherSingleNotTY"
+				    	});
+	}else if(controls == "correlationgraph"){
+		str = buildMapContainer({
+				    		divi: 1,
+				    		controls: controls,
+				    		iparam: dataCompareState.stateObj.curParam.other.join(" VS "),
+				    		iclassify: "correlationgraph"
+				    	});
 	}
-	$("div[role='tabpanel']#"+controls).empty().append(str);
+	$("div[role='tabpanel']#"+controls+">.single_div_in").empty().append(str);
 }
 
 /*map图图表容器构建*/
@@ -417,10 +431,12 @@ function buildMapContainer(obj){
 	controls = obj.controls,
 	iparam = obj.iparam,
 	iclassify = obj.iclassify;
-	if(iclassify == "otherSingle"){
+	if(iclassify == "otherSingle" || iclassify == "otherSingleNotTY"){
 		var paramArr = [];
-		paramArr[dataCompareState.stateObj.curParam.TotalYield] = "TotalYield";
-		_.pullAt(paramArr, 0);
+		if(iclassify == "otherSingle"){
+			paramArr[dataCompareState.stateObj.curParam.TotalYield] = "TotalYield";
+			_.pullAt(paramArr, 0);
+		}
 		var allParam = _.concat(paramArr, dataCompareState.stateObj.curParam.other);
 		var rowss = Math.ceil(allParam.length / divi);
 		var selectItemStr = _.join(_.sortBy(dataCompareState.sellectObj.selectItem));
@@ -458,18 +474,39 @@ function buildMapContainer(obj){
 			_.times(divi, function(ii){
 				var curI = i*divi+ii;
 				if(curI < len){
-					str+='<div class="col-sm-6 col-md-3 col-lg-3">';
-						str+='<div class="chart_map_tit"></div>';
+					str+='<div class="col-sm-6 col-md-'+12/divi+' col-lg-'+12/divi+'">';
+						str+='<div class="chart_map_tit">wafer'+dataCompareState.sellectObj.selectItem[curI]+'</div>';
 							str+='<div class="chart_map_body">'+
-									'<div id="'+(controls+dataCompareState.stateObj.curChartContainerNum)+'" data-ivalue="'+dataCompareState.sellectObj.selectItem[curI]+'" data-ichart="'+controls+'" data-iparam="'+iparam+'">'+dataCompareState.sellectObj.selectItem[curI]+'</div>'+
+									'<div id="'+(controls+dataCompareState.stateObj.curChartContainerNum)+'" data-ivalue="'+dataCompareState.sellectObj.selectItem[curI]+'" data-ichart="'+controls+'" data-iparam="'+iparam+'"></div>'+
 								'</div>';
-						str+='<div class="chart_map_foot"></div>';
+						str+='<div class="chart_map_foot"><div class="colorGradient"></div></div>';
 					str+='</div>';
 					dataCompareState.stateObj.curChartContainerNum++;
 				}
 			});
 			str+='</div>';
 		});
+	}else if(iclassify == "correlationgraph"){
+		var selectItemStr2 = _.join(_.sortBy(dataCompareState.sellectObj.selectItem));
+		str+='<div class="container-fluid">'+
+				'<div class="row">'+
+					'<div class="col-sm-12 col-md-12 col-lg-12">'+
+						'<div class="panel panel-info">'+
+						  	'<div class="panel-heading">'+
+						    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+iparam+
+						  	'</div>'+
+						  	'<div class="panel-body">'+
+						    	'<div class="chart_otherSingle_tit">头</div>'+
+						    	'<div class="chart_otherSingle_body">'+
+									'<div id="'+(controls+dataCompareState.stateObj.curChartContainerNum)+'" data-ivalue="'+selectItemStr2+'" data-ichart="'+controls+'" data-iparam="'+iparam+'"></div>'+
+								'</div>'+
+								'<div class="chart_otherSingle_foot">脚</div>'+
+						  	'</div>'+
+						'</div>'+
+					'</div>'+
+				'</div>'+
+			'</div>';
+		dataCompareState.stateObj.curChartContainerNum++;
 	}
 	return str;
 }
@@ -796,14 +833,137 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   			var other = curParam.other;
   			renderPanel(TotalYield, other, controls);
   			if(controls == "map_good_rate_distribution"){
-
+  				/*Map良率分布*/
+  				$("#map_good_rate_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
+  					var inH = $(this).innerWidth();
+  					$(this).innerHeight(inH);
+  					var canvasID = "canvas_" + $(this).attr("id");
+  					$(this).append("<canvas id='"+canvasID+"'></canvas>");
+  					$(this).append("<div class='criterion_"+canvasID+"'></div>");
+  					buildColorGradation({
+  						width: inH,
+  						height: inH,
+  						container: canvasID,
+  						bgFillColor: "#314067",
+  						waferData: futuredGlobal.S_getMockWaferData()[0],
+  						spacePercent: {
+  							x: 0.05,
+  							y: 0.05
+  						},
+  						m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%5].m_DieDataListNew,
+  						colorGradation: {
+  							limitColor: "#FF0000",
+  							floorColor: "#00FF00",
+  							nums: 256
+  						}
+  					});
+  				});
+  				/*Map良率分布end*/
   			}else if(controls == "map_color_order_distribution"){
+  				dataCompareSwalMixin({
+  					title: '加载数据',
+  					text: "正在绘图中......",
+  					type: 'info',
+  					showConfirmButton: false,
+  					showCancelButton: false,
+  					timer: 1000
+  				}).then(function(){
+  						dataCompareSwalMixin({
+  							title: '加载数据',
+  							text: "正在绘图中......",
+  							type: 'info',
+  							showConfirmButton: false,
+  							showCancelButton: false,
+  						});
+		  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
+		  				var otherColor = {};
+		  				var firstMax = 400;
+		  				var secondMax = 400;
+		  				var firstMinArr = [];
+		  				var secondMinArr = [];
+		  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
+		  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
+		  						_.forOwn(arra[ii], function(vvv, k, obj){
+		  							var iNo = _.random(1, 512, false);
+		  							if(vvv == 1){
+		  								if(iNo > firstMax) iNo = firstMax;
+		  								obj[k] = {bin: 1, color: "1:"+iNo};
+		  								firstMinArr.push(iNo);
+		  							}else if(vvv == 255){
+		  								if(iNo > secondMax) iNo = secondMax;
+		  								obj[k] = {bin: 255, color: "255:"+iNo};
+		  								secondMinArr.push(iNo);
+		  							}else if(vvv == 12){
+		  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
+		  								obj[k] = {bin: 12, color: "12:"};
+		  							}else if(vvv == -1){
+		  								if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+		  								obj[k] = {bin: -1, color: "-1:"};
+		  							}
+		  						});
+		  					});
+		  				});
+		  				var firstMin = _.head(_.sortBy(firstMinArr));
+		  				var secondMin = _.head(_.sortBy(secondMinArr));
+		  				var firstDiff = firstMax - firstMin;
+		  				var secondDiff = secondMax - secondMin;
+		  				/*画图*/
+		  				$("#map_color_order_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
+		  					var inH = $(this).innerWidth();
+		  					$(this).innerHeight(inH);
+		  					var canvasID = "canvas_" + $(this).attr("id");
+		  					$(this).append("<canvas id='"+canvasID+"'></canvas>");
+		  					$(this).append("<div class='criterion_"+canvasID+"'></div>");
+		  					buildColorGradation({
+		  						width: inH,
+		  						height: inH,
+		  						container: canvasID,
+		  						bgFillColor: "#314067",
+		  						waferData: copyData,
+		  						spacePercent: {
+		  							x: 0.05,
+		  							y: 0.05
+		  						},
+		  						m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
+		  						colorGradation: {
+		  							limitColor1: "#00FF00",
+		  							floorColor1: "#0000FF",
+		  							limitColor2: "#FF0000",
+		  							floorColor2: "#0000FF",
+		  							nums1: firstDiff,
+		  							nums2: secondDiff
+		  						},
+		  						colorOrder: true,
+		  						firstMax: firstMax,
+		  						firstMin: firstMin,
+		  						secondMax: secondMax,
+		  						secondMin: secondMin,
+		  						otherColor: otherColor
+		  					});
+		  					/*色阶标尺*/
+		  					var colorGradientDom = $(this).parent().next().children(".colorGradient");
+		  					colorGradientDom.width($(this).parent().next().width() - 60).height($(this).parent().next().height() - 30);
 
+		  					_.times(secondDiff, function(i){
+		  					    var color = getGradientColor ('#0000FF', '#FF0000', secondDiff, secondDiff-i);
+								var height = colorGradientDom.height();
+								var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
+								colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+		  					});
+		  					_.times(firstDiff, function(i){
+		  					    var color = getGradientColor ('#00FF00', '#0000FF', firstDiff, firstDiff-i);
+								var height = colorGradientDom.height();
+								var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
+								colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+		  					});
+		  				});
+		  				swal.clickCancel();
+  				});
   			}else{
   				var chartType = _.find(dataCompareState.chartTypeMap, function(o, k){
   					return k == controls;
   				});
-  				$("#"+controls+" .chart_otherSingle_body>div").each(function(){
+  				$("#"+controls+" .single_div_in .chart_otherSingle_body>div").each(function(){
   					var container = $(this).attr("id"),
   					title_text,
   					subtitle_text = null,
@@ -916,6 +1076,7 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 										}
 									}];
 	  					break;
+
 	  					case "CPK":
 		  					title_text = "CPK-"+iparam;
 		  					var dataLength = 12;
@@ -937,15 +1098,85 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 	  							item.name = "wafer"+v;
 	  							var idata = [];
 	  							_.times(12, function(){
-	  								idata.push(_.random(1, 30, true))
+	  								idata.push(_.round(_.random(1, 30, true), 2));
 	  							});
 	  							item.data = idata;
 	  							iiiseries.push(item);
 	  						});
 	  						series = iiiseries;
 	  					break;
+
+	  					case "correlationgraph":
+	  						title_text = "相关性图-"+iparam;
+		  					xAxis = {
+		  						title: {
+		  							enabled: true,
+		  							text: dataCompareState.stateObj.curParam.other[0],
+		  							/*style:{"fontSize":"16px","fontFamily":"arial","float":"top"}*/
+		  						},
+		  						startOnTick: true,
+		  						endOnTick: true,
+		  						showLastLabel: true,
+		  						/*labels: {
+				                	useHTML: true,
+					                formatter: function () {
+					                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
+				                	}
+				                },*/
+		  					};
+		  					yAxis = {
+		  						title: {
+		  							text: dataCompareState.stateObj.curParam.other[1]
+		  						}
+		  					};
+		  					var iiiidata = dataCompareState.mock.dataCompare.correlationgraph;
+		  					var iiiiseries = [];
+		  					_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
+		  						var item = {};
+		  						item.name = "wafer"+v;
+		  						item.data = [];
+		  						_.forOwn(iiiidata.dataMap, function(vv, k){
+		  							var kk = i%3 + 1;
+		  							if(k == "wafer"+kk){
+		  								if(vv.X.length > 0){
+							    			  _.forEach(vv.X, function(vvv, iii){
+							    			  	item.data.push([vvv, vv.Y[iii]]);
+							    			  });
+							    		  }
+		  							}
+		  						});
+		  						iiiiseries.push(item);
+		  					});
+		  					series = iiiiseries;
+	  					break;
+	  					/*良品率图*/
   						default:
-  						null;
+	  						title_text = "良品率图-"+iparam;
+	  						var item = {};
+	  						item.name = iparam;
+	  						item.data = [];
+	  						var iiiiicategories = [];
+	  						_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
+	  							item.data.push(_.round(_.random(0, 1, true), 4));
+	  							iiiiicategories.push("wafer"+v);
+	  						});
+		  					xAxis = {
+		  						categories: iiiiicategories
+		  					};
+		  					yAxis = {
+		  						title: {
+		  							text: "比率"
+		  						},
+		  						min:0,
+				    	        max:1,
+				    	        tickInterval: 0.1,
+				    	        labels: {
+				    	            formatter: function () {
+				    	                return this.value;
+				    	            }
+				    	        }
+		  					};
+		  					series = [item];
   					}
   					/*画图*/
   					dataCompareRenderChart({

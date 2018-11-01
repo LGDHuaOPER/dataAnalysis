@@ -628,6 +628,15 @@ span.glyphicon {
     word-break: break-all;
 }
 
+/* new */
+.table_data {
+	overflow: auto;
+}
+
+.table_data tr {
+	height: 35px;
+}
+
 @media screen and (max-width: 768px) {
     .staff_authority {
         left: 0px;

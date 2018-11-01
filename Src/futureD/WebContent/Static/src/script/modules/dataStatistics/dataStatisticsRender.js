@@ -26,6 +26,9 @@ function initRenderChart(obj){
 		chart: {
 			type: obj.chart.type
 		},
+		credits: {
+			enabled: false
+		},
 		title: {
 			text: obj.title
 		},

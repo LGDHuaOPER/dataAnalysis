@@ -15,3 +15,11 @@ buildColorGradation({
 		nums: 256
 	}
 });
+
+/*page preload*/
+$(".tab-content div[role='tabpanel']").innerWidth($(".tab-content").innerWidth()).innerHeight($(".tab-content").innerHeight());
+$(".table_data").css("max-height", ($(".tab-content").innerHeight() - 20)+"px");
+/*page onload*/
+$(function(){
+	$("#allDetail>.table_data").html(futuredGlobal.S_getDataListDetail().allDetail);
+});

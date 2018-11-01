@@ -236,6 +236,23 @@ div[role='tabpanel'] div.panel-heading span.glyphicon {
   margin-right: 5px;
   font-size: 20px;
 }
+div[role='tabpanel'] .chart_map_tit {
+  text-align: center;
+}
+div[role='tabpanel'] .chart_map_body {
+  border-bottom: 1px dashed #eee;
+}
+div[role='tabpanel'] .chart_map_foot {
+  height: 60px;
+  text-align: center;
+}
+.colorGradient {
+  margin-bottom: 30px;
+  display: inline-block;
+}
+.colorGradientSpan {
+  display: inline-block;
+}
 span.glyphicon {
   cursor: pointer;
 }
