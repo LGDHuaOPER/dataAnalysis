@@ -637,6 +637,15 @@ span.glyphicon {
 	height: 35px;
 }
 
+.table_data th, .table_data td {
+	min-width: 65px;
+	width: 65px;
+}
+
+.table_data thead tr {
+	background-color: #00aeef;
+}
+
 @media screen and (max-width: 768px) {
     .staff_authority {
         left: 0px;
