@@ -72,7 +72,16 @@ public class DataBaseUtil {
 			}
 		}
 	}
-	
+	public void close(Connection conn2){
+		if(conn2!=null){
+			try {
+				conn2.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				throw new RuntimeException("关闭连接失败",e);
+			}
+		}
+	}
 	
 	/**
 	 * 多条查询结果

@@ -164,6 +164,8 @@ public class ZipFileParser {
 		return resultMap;
 	}
 
+	
+	
 	static void getFiles(String filePath,  String productCatagory,  String description,
 			 int filternum, String currentUser, String dataFormat) {
 		File root = new File(filePath);
@@ -183,6 +185,82 @@ public class ZipFileParser {
 				}
 			}
 		}
+	}
+	
+	
+	
+	public static Map<String, Object> Zip(String filePath, String temp, String filename2,String productCategory, String description, String currentUser) {
+		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
+		String filename = "",status = "",dataFormat="0";// 上传失败的CSV、Map、Excel文件名
+		int filternum = 1;// 标志先导入map文件和CSV文件
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		// 用户上传的是一个压缩包
+		// 若是一个文件夹。
+		File file1 = FileUtil.unZipFiles(filePath, temp + "\\" + filename2);
+		System.out.println(file1.getName());
+		ReadPMSFileService pmsService = new ReadPMSFileService();
+		if(pmsService.isContains(file1.getAbsolutePath(), "pms")){
+			dataFormat = "1";
+			status = pmsService.getPMSFiles(file1.getAbsolutePath(),  productCategory,currentUser, description, dataFormat, "", 0);
+			resultMap.put("status", status);
+			return resultMap;
+		}
+		mapDO = null;
+		logWafer = "";
+		// 导入map
+		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
+				currentUser, dataFormat);
+		// 导入excel文件
+		filternum = 2;
+		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
+				currentUser, dataFormat);
+		// 导入CSV文件
+		filternum = 3;
+		getFiles(file1.getAbsolutePath(), productCategory, description, filternum,
+				currentUser, dataFormat);
+		for (int i = 0; i < filelist.size(); i++) {
+			if (!(filelist.get(i).endsWith(".CSV") || filelist.get(i).endsWith(".csv")
+					|| filelist.get(i).endsWith(".zip") || filelist.get(i).endsWith(".map")
+					|| filelist.get(i).endsWith(".xlsx") || filelist.get(i).endsWith(".xls"))) {
+				errorFile.append(filelist.get(i) + "格式有误,");
+			}
+		}
+		// 上传失败的CSV文件名
+		for (int i = 0; i < faileCSV.size(); i++) {
+			if (i == faileCSV.size() - 1) {
+				filename = filename + faileCSV.get(i);
+			} else {
+				filename = filename + faileCSV.get(i) + ",";
+			}
+		}
+		boolean flag = CSVnum > 0 || Mapnum > 0 || Excelnum > 0 ? false : true;
+		if (!"".equals(filename) || !"".equals(errorFile.toString())) {
+			int failnum;// 上传失败的CSV、map、excel个数
+			// 包含多个上传失败的文件
+			if (filename.contains(",")) {
+				String filenames[] = filename.split(",");
+				failnum = filenames.length;
+			} else {
+				// 包含0个上传失败的文件
+				if ("".equals(filename)) {
+					failnum = 0;
+					// 包含1个上传失败的文件
+				} else {
+					failnum = 1;
+				}
+			}
+			if (failnum == (CSVnum + Mapnum + Excelnum)) {
+				status = "全部上传失败：" + filename + "," + errorFile.toString();
+			} else {
+				status = "部分导入成功，未导入文件有：" + filename + "," + errorFile.toString();
+			}
+		} else {
+			status = "";
+		}
+		resultMap.put("flag", flag);// 存在CSV
+		resultMap.put("status", status);// 上传失败的CSV文件名
+		resultMap.put("logWafer", logWafer);
+		return resultMap;
 	}
 
 	/**

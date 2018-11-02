@@ -13,6 +13,6 @@ import java.util.Map;
  */
 public interface CorrelationService {
 
-	Map<String, Object> getCorrelation(int waferId,String paramX,String paramY,double minX,double maxX,double minY,double maxY);
+	Map<String, Object> getCorrelation(String waferIdStr,String paramX,String paramY,double minX,double maxX,double minY,double maxY);
 	
 }

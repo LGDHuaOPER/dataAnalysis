@@ -1,6 +1,7 @@
 package com.eoulu.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.service.CPKService;
+import com.eoulu.service.HistogramService;
 import com.eoulu.service.impl.CPKServiceImpl;
+import com.eoulu.service.impl.HistogramServiceImpl;
 import com.google.gson.Gson;
 
 /**
@@ -38,19 +41,28 @@ public class CPKServlet extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 		CPKService service = new CPKServiceImpl();
-		int waferId = request.getParameter("waferId") == null ? 0 : Integer.parseInt(request.getParameter("waferId"));
-		String parameter = request.getParameter("parameter") == null ? "" : request.getParameter("parameter");
-		Map<String, List<Double>> result = new HashMap<>();
+		String waferIdStr = request.getParameter("waferIdStr") == null ? "" : request.getParameter("waferIdStr"),
+				parameter = request.getParameter("parameter") == null ? "" : request.getParameter("parameter");
+		Map<String, Object> result = new HashMap<>();
 		if (!"".equals(parameter)) {
-			List<Double> ls = service.getCPK(waferId, parameter);
-			result.put(parameter, ls);
+			result.put(parameter, service.getCPK(waferIdStr, parameter));
 			response.getWriter().write(new Gson().toJson(result));
 			return;
 		}
+		List<String> paramList = null;
+		String[] paramAtt = request.getParameterValues("paramAtt[]");
+		if(paramAtt!=null){
+			paramList = new ArrayList<>();
+			for(int i=0,length=paramAtt.length;i<length;i++){
+				paramList.add(paramAtt[i]);
+			}
+		}else{
+			HistogramService histogram = new HistogramServiceImpl();
+			paramList = histogram.getWaferParameter(waferIdStr);
+		}
 		
-		List<String> paramList = service.getParameter(waferId);
 		for (String param : paramList) {
-			result.put(param, service.getCPK(waferId, param));
+			result.put(param, service.getCPK(waferIdStr, param));
 		}
 		response.getWriter().write(new Gson().toJson(result));
 	

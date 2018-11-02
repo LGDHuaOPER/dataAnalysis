@@ -54,13 +54,13 @@ public class WaferServiceImpl implements WaferService {
 	private ExcelService excelUtil = new ExcelService(dao, parameterDao, excel, coordinate);
 
 	@Override
-	public List<Map<String, Object>> listWafer(PageDTO page, String keyword, String Parameter) {
-		return dao.listWafer(page, keyword, Parameter);
+	public List<Map<String, Object>> listWafer(PageDTO page, String keyword, String Parameter,int deleteStatus) {
+		return dao.listWafer(page, keyword, Parameter, deleteStatus);
 	}
 
 	@Override
-	public int countWafer(String keyword, String Parameter) {
-		return dao.countWafer(keyword, Parameter);
+	public int countWafer(String keyword, String Parameter,int deleteStatus) {
+		return dao.countWafer(keyword, Parameter, deleteStatus);
 	}
 
 	@Override
@@ -700,6 +700,11 @@ public class WaferServiceImpl implements WaferService {
 			e.printStackTrace();
 		}
 		return paramList;
+	}
+
+	@Override
+	public boolean getWafer(String fileName, String editTime) {
+		return dao.getWafer(fileName, editTime);
 	}
 
 	

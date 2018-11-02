@@ -3,6 +3,7 @@
  */
 package com.eoulu.service.impl;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.GaussianDao;
 import com.eoulu.dao.HistogramDao;
 import com.eoulu.service.GaussianService;
@@ -28,11 +30,17 @@ public class GaussianServiceImpl implements GaussianService{
 	@Override
 	public Map<String, Object> getGaussian(int waferId, String param, double left, double right, int equal) {
 		Connection conn = new DataBaseUtil().getConnection();
+		CoordinateDao coordinate = new CoordinateDao();
+		double median = coordinate.getMedian(conn, waferId, left, right);
 		String column = dao.getParameterColumn(conn, waferId, param);
 		Map<String,List<Double>> histogramMap = getHistogram(conn, waferId, column, left, right, equal);
 		List<Map<String,Object>> functionList = dao.getFunctionData(conn, waferId, column);
 		double standard = Double.parseDouble(functionList.get(0).get("standard").toString()),
-				average = Double.parseDouble(functionList.get(0).get("average").toString()),x=0,y=0;
+				variance = new BigDecimal(Math.pow(standard, 2)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(),
+				average = Double.parseDouble(functionList.get(0).get("average").toString()),
+				max =  Double.parseDouble(functionList.get(0).get("max").toString()),
+				min =  Double.parseDouble(functionList.get(0).get("min").toString()),
+				x=0,y=0;
 		List<String> dataList = dao.getParamData(conn, waferId, column),rangeList = getRangeOrderAsc(left, right, equal);
 		List<Double> gaussianList = new ArrayList<>();
 		for(int i=0,size=dataList.size();i<size;i++){
@@ -47,6 +55,12 @@ public class GaussianServiceImpl implements GaussianService{
 		}
 		Map<String,Object> result = new HashMap<>();
 		result.put("average", average);
+		result.put("mean", average);
+		result.put("standard", standard);
+		result.put("variance", variance);
+		result.put("max", max);
+		result.put("min", min);
+		result.put("median", median);
 		result.put("gaussianList", gaussianList);
 		result.put("histogramMap", histogramMap);
 		result.put("rangeX", rangeList);

@@ -428,6 +428,51 @@
                 range.moveStart('character', pos);
                 range.select();
             }
+        },
+        // 获取事件的坐标
+        S_getEventPosition: function(e){
+            var x, y;
+            if (this.S_getBrowserType()[0] == "Firefox") {
+                x = e.originalEvent.layerX;
+                y = e.originalEvent.layerY;
+            } else { 
+                x = e.offsetX;
+                y = e.offsetY;
+            }
+            return {x: x, y: y};
+        },
+
+        // @浏览器
+        S_getBrowserType: function(){
+            var Sys = {};
+            var ua = navigator.userAgent.toLowerCase();
+            var s;
+            (s = ua.match(/msie ([\d.]+)/)) ? Sys.ie = s[1] :
+            (s = ua.match(/firefox\/([\d.]+)/)) ? Sys.firefox = s[1] :
+            (s = ua.match(/chrome\/([\d.]+)/)) ? Sys.chrome = s[1] :
+            (s = ua.match(/opera.([\d.]+)/)) ? Sys.opera = s[1] :
+            (s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1] : 0;
+            var returnArr = [];
+            if (Sys.ie){
+                returnArr[0] = "IE";
+                returnArr[1] = Sys.ie;
+            }else if (Sys.firefox){
+                returnArr[0] = "Firefox";
+                returnArr[1] = Sys.firefox;
+            }else if (Sys.chrome){
+                returnArr[0] = "Chrome";
+                returnArr[1] = Sys.chrome;
+            }else if (Sys.opera){
+                returnArr[0] = "Opera";
+                returnArr[1] = Sys.opera;
+            }else if (Sys.safari){
+                returnArr[0] = "Safari";
+                returnArr[1] = Sys.safari;
+            }else{
+                returnArr[0] = "other";
+                returnArr[1] = "0";
+            }
+            return returnArr;
         }
     };
 

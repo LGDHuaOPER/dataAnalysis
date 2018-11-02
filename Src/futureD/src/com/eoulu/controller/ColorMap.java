@@ -22,16 +22,16 @@ import com.eoulu.service.impl.WaferMapServiceImpl;
 import com.google.gson.Gson;
 
 /**
- * Servlet implementation class Wafer
+ * Servlet implementation class ColorMap
  */
-@WebServlet(name = "WaferMap", description = "晶圆图", urlPatterns = { "/WaferMap" })
-public class Wafer extends HttpServlet {
+@WebServlet(description = "色阶晶圆", urlPatterns = { "/ColorMap" })
+public class ColorMap extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Wafer() {
+    public ColorMap() {
         super();
     }
 
@@ -39,8 +39,6 @@ public class Wafer extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		
 		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr").trim(),
 				parameter = request.getParameter("parameter")==null?"":request.getParameter("parameter").trim();
 		double left = request.getParameter("leftRange")==null?0:Double.parseDouble(request.getParameter("leftRange")),right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
@@ -59,7 +57,7 @@ public class Wafer extends HttpServlet {
 			ls.add(left);
 			rangeList = new HashMap<>();
 			rangeList.put(parameter, ls);
-			result  =  service.getMapInfo( waferAtt, paramList, rangeList);
+			result  =  service.getColorMap( waferAtt, paramList, rangeList);
 			response.getWriter().write(new Gson().toJson(result));
 			return;
 		}
@@ -76,9 +74,8 @@ public class Wafer extends HttpServlet {
 		
 		GaussianService gaussian = new GaussianServiceImpl();
 		rangeList = gaussian.getRangList(paramList, waferIdStr);
-		result = service.getMapInfo( waferAtt, paramList, rangeList);
+		result = service.getColorMap( waferAtt, paramList, rangeList);
 		response.getWriter().write(new Gson().toJson(result));
-		
 	}
 
 	/**

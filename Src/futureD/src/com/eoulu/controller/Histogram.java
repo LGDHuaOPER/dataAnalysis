@@ -47,7 +47,15 @@ public class Histogram extends HttpServlet {
 		List<String> paramList = null;
 		Map<String,List<Double>> rangList = null;
 		if(request.getParameter("parameter")==null){
-			paramList =  service.getWaferParameter(waferIdStr);
+			String[] paramAtt = request.getParameterValues("paramAtt[]");
+			if(paramAtt!=null){
+				paramList = new ArrayList<>();
+				for(int i=0,length=paramAtt.length;i<length;i++){
+					paramList.add(paramAtt[i]);
+				}
+			}else{
+				paramList =  service.getWaferParameter(waferIdStr);	
+			}
 			rangList = gaussian.getRangList(paramList, waferIdStr);
 		}else{
 			paramList = new ArrayList<>();

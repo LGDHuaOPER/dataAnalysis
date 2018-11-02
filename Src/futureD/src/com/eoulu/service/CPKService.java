@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface CPKService {
 
-	List<Double> getCPK(int waferId,String param);
+	Map<String,List<Double>>  getCPK(String waferIdStr,String param);
 	
 	List<String> getParameter(int waferId);
 	

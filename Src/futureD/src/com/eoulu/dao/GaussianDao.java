@@ -47,7 +47,7 @@ public class GaussianDao {
 	}
 	
 	public  List<Map<String,Object>> getFunctionData(Connection conn,int waferId ,String column){
-		String sql = "select STD("+column+") standard,avg("+column+") average from dm_wafer_coordinate_data where wafer_id=?";
+		String sql = "select STD("+column+") standard,avg("+column+") average,max("+column+") max,min("+column+")min  from dm_wafer_coordinate_data where wafer_id=?";
 		return db.queryToList(conn, sql, new Object[]{waferId});
 	}
 	

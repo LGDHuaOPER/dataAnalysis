@@ -41,7 +41,7 @@ public class AnalysisCurve extends HttpServlet {
 		String graphStyle = request.getParameter("graphStyle")==null?"":request.getParameter("graphStyle"),
 				sParameter = request.getParameter("sParameter")==null?"":request.getParameter("sParameter");
 		Map<String,Object> result = new HashMap<>();
-		if(!"".equals(graphStyle) && !"".equals(sParameter)){
+		if("".equals(graphStyle) && "".equals(sParameter)){
 			Map<String,Object> map = service.getSmithData(curveTypeId,legend,"Smith","S11");
 			result.put("S11", map);
 			map = service.getSmithData(curveTypeId,legend,"XYdBOfMagnitude","S12");

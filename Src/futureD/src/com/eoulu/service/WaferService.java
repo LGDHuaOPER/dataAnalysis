@@ -24,13 +24,13 @@ public interface WaferService {
 	 * @param keyword
 	 * @return
 	 */
-	List<Map<String,Object>> listWafer(PageDTO page,String keyword,String Parameter);
+	List<Map<String,Object>> listWafer(PageDTO page,String keyword,String Parameter,int deleteStatus);
 	/**
 	 * 模糊查询，总数量
 	 * @param keyword
 	 * @return
 	 */
-	int countWafer(String keyword,String Parameter);
+	int countWafer(String keyword,String Parameter,int deleteStatus);
 	/**
 	 * 数据列表的删除
 	 * @param waferId
@@ -129,6 +129,8 @@ public interface WaferService {
 		void deleteJunkData();
 		
 		List<String> getWaferParameter(String waferId);
+		
+		boolean getWafer(String fileName,String editTime);
 		
 }
 

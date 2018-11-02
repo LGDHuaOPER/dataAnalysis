@@ -1,3 +1,50 @@
+//判断鼠标当前点击位置是在die上
+function IsInnerRect(rec,p){
+    var contain = false;
+    if((p.x >rec.x && p.x <= rec.x + rec.width) && (p.y >rec.y && p.y <= rec.y + rec.height))
+        contain = true;
+    else
+        contain = false;
+    return contain;
+}
+
+function getEventPosition(ev) {
+    var x, y;
+    if (ev.layerX || ev.layerX == 0) {
+        x = ev.layerX;
+        y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { 
+        x = ev.offsetX;
+        y = ev.offsetY;
+    }
+    return {x: x, y: y};
+}
+
+// 添加高亮
+  function mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom){
+    ctx.strokeStyle="#fff";
+    ctx.lineWidth=dieXZoom*0.06;
+    ctx.beginPath();
+    var sidewidth = dieXZoom*0.037;//绘制高亮边
+    //左上
+    ctx.moveTo(x+dieXZoom/5,y);
+    ctx.lineTo(x,y);
+    ctx.lineTo(x,y+dieYZoom/5);
+    //左下
+    ctx.moveTo(x,y+dieYZoom/5*4);
+    ctx.lineTo(x,y+dieYZoom-sidewidth);
+    ctx.lineTo(x+dieXZoom/5,y+dieYZoom-sidewidth);
+    //右下上
+    ctx.moveTo(x+dieXZoom/5*4,y+dieYZoom-sidewidth);
+    ctx.lineTo(x+dieXZoom-sidewidth,y+dieYZoom-sidewidth);
+    ctx.lineTo(x+dieXZoom-sidewidth,y+dieYZoom/5*4);
+    //右上
+    ctx.moveTo(x+dieXZoom/5*4,y);
+    ctx.lineTo(x+dieXZoom-sidewidth,y);
+    ctx.lineTo(x+dieXZoom-sidewidth,y+dieYZoom/5);
+    ctx.stroke();
+}
+
 function HashTable(){ 
 	var size = 0; 
 	var entry = new Object(); 
@@ -84,9 +131,22 @@ function WaferMapPlotObj(option) {
     this.positionFlag = option.positionFlag;
     this.FlatLength = option.FlatLength;
     this.colorOrder = option.colorOrder;
+    this.filterArr = option.filterArr;
+    this.currentDieCoord = option.currentDieCoord;
+    this.isFirst = option.isFirst;
+    this.coordsArra = option.coordsArra;
+    this.vectorMap = option.vectorMap;
 }
 
 if (WaferMapPlotObj.prototype.type == undefined) {
+    WaferMapPlotObj.prototype.setPlotParam = function(newObj){
+        if(!_.isEmpty(newObj)){
+            _.forOwn(newObj, (function(v, k){
+                this[k] = v;
+            }).bind(this));
+        }
+        return this;
+    };
     WaferMapPlotObj.prototype.plot = function() {
     	var colorMap = this.colorMap;
     	var ctx = this.ctx;
@@ -99,6 +159,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
         var y_Max = -999999;
         var y_Min = 999999;
         var colorOrder = this.colorOrder;
+        var filterArr = this.filterArr;
+        var isFirst = this.isFirst;
+        var coordsArra = this.coordsArra;
+        var vectorMap = this.vectorMap;
         //计算行列坐标平均值
         for (var i = this.maxRow; i >= this.minRow; i--) {
             for (var j = this.maxCol; j >= this.minCol; j--) {
@@ -156,17 +220,80 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var key = j + ":" + i;
                     var x = this.centerX - j * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
+                        dieCount++; ///
                         var bin = this.coordsArray.getValue(key);
+                        var Die = new Object(); ///
+                        var rect = new Object(); ///
                         /*普通分布于色阶分布*/
                         if(colorOrder === true){
                             ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
                         }else{
                             ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }
+                                else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
                         }
                         /*普通分布于色阶分布end*/
+                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ctx.lineWidth = 1;
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
-                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ///
+                        if(vectorMap){
+                            var BBin = bin;
+                            if(colorOrder === true){
+                                BBin = bin.bin;
+                            }
+                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                isFirst = false;
+                                Die.moveFlag = true;                    
+                            }
+                            else if( this.currentDieCoord == key){
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                Die.moveFlag = true;
+                            }
+                            else{
+                                Die.moveFlag = false;
+                            }
+                            rect.x = x;
+                            rect.y = y;
+                            rect.width = dieXZoom;
+                            rect.height = dieYZoom;
+                            //Die.Dieno=dieCount;
+                            Die.Bin = bin;
+                            Die.rect = rect;
+                            coordsArra.add(key, Die);
+                        }
+                        ///
                     } else {
                         ctx.fillStyle = "#20242b";
                     }
@@ -179,11 +306,80 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var key = j + ":" + i;
                     var x = this.centerX + j * dieXZoom - xmean * dieXZoom - 0.5 * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
+                        dieCount++; ///
                         var bin = this.coordsArray.getValue(key);
-                        ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        var Die = new Object(); ///
+                        var rect = new Object(); ///
+                        /*普通分布于色阶分布*/
+                        if(colorOrder === true){
+                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }else{
+                            ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }
+                                else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }
+                        /*普通分布于色阶分布end*/
+                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ctx.lineWidth = 1;
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
-                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ///
+                        if(vectorMap){
+                            var BBin = bin;
+                            if(colorOrder === true){
+                                BBin = bin.bin;
+                            }
+                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                isFirst = false;
+                                Die.moveFlag = true;                    
+                            }
+                            else if( this.currentDieCoord == key){
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                Die.moveFlag = true;
+                            }
+                            else{
+                                Die.moveFlag = false;
+                            }
+                            rect.x = x;
+                            rect.y = y;
+                            rect.width = dieXZoom;
+                            rect.height = dieYZoom;
+                            //Die.Dieno=dieCount;
+                            Die.Bin = bin;
+                            Die.rect = rect;
+                            coordsArra.add(key, Die);
+                        }
+                        ///
                     } else {
                         ctx.fillStyle = "#20242b";
                     }
@@ -196,17 +392,81 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var key = j + ":" + i;
                     var x = this.centerX - j * dieXZoom + xmean * dieXZoom - 0.5 * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
+                        dieCount++; ///
                         var bin = this.coordsArray.getValue(key);
+                        var Die = new Object(); ///
+                        var rect = new Object(); ///
                         /*普通分布于色阶分布*/
                         if(colorOrder === true){
                             ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
                         }else{
                             ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }
+                                else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
                         }
                         /*普通分布于色阶分布end*/
+                        
+                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ctx.lineWidth = 1;
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
-                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ///
+                        if(vectorMap){
+                            var BBin = bin;
+                            if(colorOrder === true){
+                                BBin = bin.bin;
+                            }
+                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                isFirst = false;
+                                Die.moveFlag = true;                    
+                            }
+                            else if( this.currentDieCoord == key){
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                Die.moveFlag = true;
+                            }
+                            else{
+                                Die.moveFlag = false;
+                            }
+                            rect.x = x;
+                            rect.y = y;
+                            rect.width = dieXZoom;
+                            rect.height = dieYZoom;
+                            //Die.Dieno=dieCount;
+                            Die.Bin = bin;
+                            Die.rect = rect;
+                            coordsArra.add(key, Die);
+                        }
+                        ///
                     } else {
                         ctx.fillStyle = "#20242b";
                     }
@@ -219,11 +479,80 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var key = j + ":" + i;
                     var x = this.centerX - j * dieXZoom + xmean * dieXZoom - 0.5 * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
+                        dieCount++; ///
                         var bin = this.coordsArray.getValue(key);
-                        ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        var Die = new Object(); ///
+                        var rect = new Object(); ///
+                        /*普通分布于色阶分布*/
+                        if(colorOrder === true){
+                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }else{
+                            ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }
+                                else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }
+                        /*普通分布于色阶分布end*/
+                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ctx.lineWidth = 1;
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
-                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ///
+                        if(vectorMap){
+                            var BBin = bin;
+                            if(colorOrder === true){
+                                BBin = bin.bin;
+                            }
+                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                isFirst = false;
+                                Die.moveFlag = true;                    
+                            }
+                            else if( this.currentDieCoord == key){
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                Die.moveFlag = true;
+                            }
+                            else{
+                                Die.moveFlag = false;
+                            }
+                            rect.x = x;
+                            rect.y = y;
+                            rect.width = dieXZoom;
+                            rect.height = dieYZoom;
+                            //Die.Dieno=dieCount;
+                            Die.Bin = bin;
+                            Die.rect = rect;
+                            coordsArra.add(key, Die);
+                        }
+                        ///
                     } else {
                         ctx.fillStyle = "#20242b";
                     }
@@ -237,11 +566,80 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     var key = j + ":" + i;
                     var x = this.centerX + j * dieXZoom - xmean * dieXZoom - 0.5 * dieXZoom;
                     if (this.coordsArray.containsKey(key)) {
+                        dieCount++; ///
                         var bin = this.coordsArray.getValue(key);
-                        ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                        var Die = new Object(); ///
+                        var rect = new Object(); ///
+                        /*普通分布于色阶分布*/
+                        if(colorOrder === true){
+                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }else{
+                            ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }
+                                else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }
+                        /*普通分布于色阶分布end*/
+                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ctx.lineWidth = 1;
                         ctx.strokeStyle = "black";
                         ctx.strokeRect(x, y, dieXZoom, dieYZoom);
-                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ///
+                        if(vectorMap){
+                            var BBin = bin;
+                            if(colorOrder === true){
+                                BBin = bin.bin;
+                            }
+                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                isFirst = false;
+                                Die.moveFlag = true;                    
+                            }
+                            else if( this.currentDieCoord == key){
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                Die.moveFlag = true;
+                            }
+                            else{
+                                Die.moveFlag = false;
+                            }
+                            rect.x = x;
+                            rect.y = y;
+                            rect.width = dieXZoom;
+                            rect.height = dieYZoom;
+                            //Die.Dieno=dieCount;
+                            Die.Bin = bin;
+                            Die.rect = rect;
+                            coordsArra.add(key, Die);
+                        }
+                        ///
                     } else {
                         ctx.fillStyle = "#20242b";
                     }
@@ -257,25 +655,408 @@ function renderWaferMapByGetData(obj){
 	var ctx = can.getContext('2d');
 	can.width = obj.width;  
 	can.height = obj.height;
-    (new WaferMapPlotObj({
-		colorMap: obj.colorMap,
-		bgFillColor: obj.bgFillColor,
-		ctx: ctx,
-		r0: obj.waferData.Diameter, //真实晶圆半径
-		r: (obj.width) / 2 - (obj.spacePercent.x * obj.width), //根据分辨率计算的晶圆半径   减去圆两边空白
-		centerX: (obj.width) / 2,
-		centerY: (obj.width) / 2 - (obj.spacePercent.x * obj.width) + (obj.spacePercent.y * obj.height),
-		dieX: obj.waferData.DieSizeX,
-		dieY: obj.waferData.DieSizeY,
-		minRow: obj.waferData.minY,
-		maxRow: obj.waferData.maxY,
-		minCol: obj.waferData.minX,
-		maxCol: obj.waferData.maxX,
-		coordsArray: changeHash(obj.m_DieDataListNew), // 晶圆数据
-		positionFlag: (obj.waferData.DirectionX + obj.waferData.DirectionY),
-		FlatLength: obj.waferData.FlatLength,
-        colorOrder: obj.colorOrder
-    })).plot();
+    var newWaferMap = new WaferMapPlotObj({
+        colorMap: obj.colorMap,
+        bgFillColor: obj.bgFillColor,
+        ctx: ctx,
+        r0: obj.waferData.Diameter, //真实晶圆半径
+        r: (obj.width) / 2 - (obj.spacePercent.x * obj.width), //根据分辨率计算的晶圆半径   减去圆两边空白
+        centerX: (obj.width) / 2,
+        centerY: (obj.width) / 2 - (obj.spacePercent.x * obj.width) + (obj.spacePercent.y * obj.height),
+        dieX: obj.waferData.DieSizeX,
+        dieY: obj.waferData.DieSizeY,
+        minRow: obj.waferData.minY,
+        maxRow: obj.waferData.maxY,
+        minCol: obj.waferData.minX,
+        maxCol: obj.waferData.maxX,
+        coordsArray: changeHash(obj.m_DieDataListNew), // 晶圆数据
+        positionFlag: (obj.waferData.DirectionX + obj.waferData.DirectionY),
+        FlatLength: obj.waferData.FlatLength,
+        colorOrder: obj.colorOrder,
+        filterArr: obj.filterArr,
+        currentDieCoord: obj.currentDieCoord,
+        isFirst: obj.isFirst,
+        coordsArra: obj.coordsArra,
+        vectorMap: obj.vectorMap
+    });
+    newWaferMap.plot();
+    if(obj.addEvent){
+        $(can).off("mousemove click");
+        $(can).on({
+            mousemove: function(e){
+                e.stopPropagation();
+                obj.curSelectedDie = null;
+                var p = eouluGlobal.S_getEventPosition(e);
+                // debugger;
+                for (var i = obj.waferData.maxY; i >= obj.waferData.minY; i--) {
+                    for (var j = obj.waferData.maxX; j >= obj.waferData.minX; j--) {
+                        var key = j + ":" + i;
+                        if (obj.coordsArra.containsKey(key)) {
+                            var die = obj.coordsArra.getValue(key);
+                            if (IsInnerRect(die.rect, p)) {
+                                obj.curSelectedDie = die;
+                                obj.curSelectedDie.x = j;
+                                obj.curSelectedDie.y = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (obj.curSelectedDie != null) break;
+                }
+                if (obj.curSelectedDie !== null) {
+                    $("html, body").css("cursor", "pointer");
+                    $('#in').fadeIn(100);
+                    $('#in').html('<ul style="list-style:none;"><li>DIE信息</li><li>Coord: (' + obj.curSelectedDie.x + ":" + obj.curSelectedDie.y + ')</li><li>Bin:' + obj.curSelectedDie.Bin + '</li>');
+                    $('#in').css({
+                        'left': p.x + 20 + 'px',
+                        'top': p.y + 135 + 'px',
+                        'color': '#000',
+                        'background': '#fff',
+                        'padding': '5px'
+                    });
+                }else{
+                    $('#in').fadeOut(100);
+                    $("html,body").css("cursor","default");
+                }
+            },
+            click: function(e) {
+                e.stopPropagation();
+                obj.curSelectedDie = null;
+                var p = eouluGlobal.S_getEventPosition(e);
+                for (var i = obj.waferData.maxY; i >= obj.waferData.minY; i--) {
+                    for (var j = obj.waferData.minX; j <= obj.waferData.maxX; j++) {
+                        var key = j + ":" + i;
+                        if (obj.coordsArra.containsKey(key)) {
+                            var die = obj.coordsArra.getValue(key);
+                            if (IsInnerRect(die.rect, p)) {
+                                obj.curSelectedDie = die;
+                                obj.curSelectedDie.x = j;
+                                obj.curSelectedDie.y = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (obj.curSelectedDie != null)
+                        break;
+                }
+                if (obj.curSelectedDie != null) {
+                    //  console.log(obj.curSelectedDie.filterFlag )
+                    if (obj.curSelectedDie.filterFlag != "disabled" && obj.curSelectedDie.Bin != -1 && obj.curSelectedDie.Bin != 12) {
+                        if (obj.curSelectedDie.Dieno != '-1') {
+                            var DieX = obj.curSelectedDie.x;
+                            var DieY = obj.curSelectedDie.y;
+                            var currentDieCoord = (DieX + ":" + DieY);
+                            newWaferMap.setPlotParam({
+                                currentDieCoord: currentDieCoord
+                            }).plot();
+                        }
+                    }
+                }
+            }
+        });
+        $(document).off("keydown");
+        $(document).on("keydown", function(e){
+            e.stopPropagation();
+            var code = e.keyCode || e.which || e.charCode;
+            var currentDie_x = "";
+            var currentDie_y = "";
+            for (var i = obj.waferData.maxY; i >= obj.waferData.minY; i--) {
+                for (var j = obj.waferData.minX; j <= obj.waferData.maxX; j++) {
+                    var key = j + ":" + i;
+                    if (obj.coordsArra.containsKey(key)) {
+                        var die = obj.coordsArra.getValue(key);
+                        if (die.moveFlag) {
+                            currentDie_x = j;
+                            currentDie_y = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            var positionFlag = (obj.waferData.DirectionX + obj.waferData.DirectionY);
+            var Die_x = currentDie_x;
+            var Die_y = currentDie_y;
+            var len = obj.coordsArra.getKeys().length;
+            var codeMap = {
+                37: {
+                    "vari": "x",
+                    "Left": "-",
+                    "Right": "+"
+                },
+                38: {
+                    "vari": "y",
+                    "Top": "-",
+                    "Down": "+"
+                },
+                39: {
+                    "vari": "x",
+                    "Left": "+",
+                    "Right": "-"
+                },
+                40: {
+                    "vari": "y",
+                    "Top": "+",
+                    "Down": "-"
+                }
+            };
+            var codeItem = _.find(codeMap, function(v, k){
+                return k == code;
+            });
+            if(_.isNil(codeItem)) return false;
+            for (var i = 1; i < len; i++) {
+                var a = ("Die_"+codeItem["vari"]);
+                var b = ("currentDie_"+codeItem["vari"]);
+                var c = codeItem[eval("obj.waferData.Direction"+codeItem["vari"].toUpperCase())];
+                console.log(a)
+                console.log(b)
+                console.log(c)
+                // a = b + c + i;
+                var ee = a+ " = " + b + c + "i";
+                eval(ee);
+                var newkey = Die_x + ":" + Die_y;
+                if (obj.coordsArra.containsKey(newkey)) {
+                    if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            /*if (positionFlag == "LeftDown") {
+                switch (code) {
+                    case 37:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 38:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 39:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 40:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                }
+            } else if (positionFlag == "RightDown") {
+                switch (code) {
+                    case 37:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 38:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 39:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 40:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                }
+            } else if (positionFlag == "LeftTop") {
+                switch (code) {
+                    case 37:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 38:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 39:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 40:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                }
+            } else if (positionFlag == "RightTop") {
+                switch (code) {
+                    case 37:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 38:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 39:
+                        for (var i = 1; i < len; i++) {
+                            Die_x = currentDie_x - i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case 40:
+                        for (var i = 1; i < len; i++) {
+                            Die_y = currentDie_y + i;
+                            var newkey = Die_x + ":" + Die_y;
+                            if (obj.coordsArra.containsKey(newkey)) {
+                                if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                                    continue;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }*/
+            if (_.indexOf([37, 38, 39, 40], code) > -1) {
+                var newkey = Die_x + ":" + Die_y;
+                if (obj.coordsArra.containsKey(newkey)) {
+                    newWaferMap.setPlotParam({
+                        currentDieCoord: newkey
+                    }).plot();
+                }
+            }
+        });
+    }
+    if(obj.returnFlag){
+        return newWaferMap;
+    }
 }
 
 /**
@@ -345,17 +1126,44 @@ function buildColorGradation(obj) {
                 colorMap.add(i, getGradientColor (obj.colorGradation.limitColor, obj.colorGradation.floorColor, obj.colorGradation.nums, obj.colorGradation.nums-i));
             }
         });
+        colorMap.add(-1,"#314067");
+        colorMap.add(12,"#FFFFFF");
     }
-    renderWaferMapByGetData({
-        width: obj.width,
-        height: obj.height,
+    var width = obj.width;
+    var height = obj.height;
+    if(obj.custom){
+        if(obj.custom.WH === true){
+            width = (obj.waferData.maxX - obj.waferData.minX + 1)*100;
+            height = (obj.waferData.maxY - obj.waferData.minY + 1)*100;
+        }
+        if(width > obj.maxWidth || height > obj.maxHeight){
+            width = height = _.sortBy([obj.maxHeight, obj.maxWidth])[0]
+        }
+    }
+    var newRenderWaferMap = renderWaferMapByGetData({
+        width: width,
+        height: height,
         container: obj.container,
         bgFillColor: obj.bgFillColor,
         colorMap: colorMap,
         waferData: obj.waferData,
         spacePercent: obj.spacePercent, // {x: 0.1, y: 0.1}
         m_DieDataListNew: obj.m_DieDataListNew,
-        colorOrder: colorOrder
+        colorOrder: colorOrder,
+        filterArr: obj.filterArr,
+        currentDieCoord: obj.currentDieCoord,
+        isFirst: obj.isFirst,
+        coordsArra: obj.coordsArra,
+        returnFlag: obj.returnFlag,
+        addEvent: obj.addEvent,
+        curSelectedDie: obj.curSelectedDie,
+        vectorMap: obj.vectorMap
     });
     console.log("colorMap", colorMap);
+    console.log("currentDieCoord", obj.currentDieCoord);
+    var positionFlag = obj.waferData.DirectionX + obj.waferData.DirectionY;
+    obj.callback && obj.callback(positionFlag);
+    if(obj.returnFlag){
+        return newRenderWaferMap;
+    }
 }

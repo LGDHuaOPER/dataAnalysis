@@ -32,13 +32,13 @@ public class WaferDao {
 	 * @param page
 	 * @return
 	 */
-	public List<Map<String,Object>> listWafer(PageDTO page,String keyword,String Parameter){
+	public List<Map<String,Object>> listWafer(PageDTO page,String keyword,String Parameter,int deleteStatus){
 		String sql = "select wafer_id,wafer_number,device_number,lot_number,qualified_rate,left(test_end_date,10)test_end_date,dm_user.user_name test_operator,description from dm_wafer "
 				+ "left join dm_user on dm_user.user_id=dm_wafer.test_operator "
-				+ "where delete_status=0 ";
+				+ "where delete_status="+deleteStatus;
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += " and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
+			sql += "  and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
 			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		}
 		sql += "  order by gmt_modified desc limit ?,? ";
@@ -50,19 +50,24 @@ public class WaferDao {
 	 * @param keyword
 	 * @return
 	 */
-	public int countWafer(String keyword,String Parameter){
+	public int countWafer(String keyword,String Parameter,int deleteStatus){
 		String sql = "select count(*) from dm_wafer   "
 				+ "left join dm_user on dm_user.user_id=dm_wafer.test_operator "
-				+ " where delete_status=0 ";
+				+ " where delete_status="+deleteStatus;
 		Object[] param = null;
 		if(!"".equals(keyword)){
 			if(!"".equals(keyword)){
-				sql += " and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
+				sql += "  and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
 				param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%"};
 			}
 		}
 		Object result = db.queryResult(sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
+	}
+	
+	public boolean getWafer(String fileName,String editTime){
+		String sql = "select wafer_number from dm_wafer where wafer_file_name=? and gmt_create=?";
+		return db.queryResult(sql, new Object[]{fileName,editTime})==null?false:true;
 	}
 	
 	public int getWaferID(Connection conn,String waferNumber,String dieType){
@@ -331,5 +336,7 @@ public class WaferDao {
 		return db.queryToList(conn,sql, new Object[]{waferId,waferId});
 
 	}
+	
+	
 	
 }

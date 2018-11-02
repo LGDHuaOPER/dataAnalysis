@@ -222,6 +222,99 @@ public class CurveDao {
 		return ls;
 	}
 	
+	public List<String> getDeviceGroup(int waferId){
+		String sql = "select distinct device_group from dm_curve_type where wafer_id="+waferId;
+		return db.queryList(sql, null);
+	}
+	/**
+	 * 曲线筛选
+	 * @param coordinateId
+	 * @param subdieName
+	 * @param deviceGroup
+	 * @return
+	 */
+	public List<Map<String, Object>> getCurveType(Connection conn,int coordinateId, String subdieName, String deviceGroup) {
+		String sql = "select curve_type_id,curve_type,curve_file_type from dm_curve_type where coordinate_id=? ";
+		Object[] param = new Object[]{coordinateId};
+		if (!"".equals(deviceGroup)) {
+			sql += " and device_group=? ";
+			param = new Object[]{coordinateId,deviceGroup};
+		}
+		if (!"".equals(subdieName)) {
+			sql += " and  subdie_id in (select subdie_id from dm_wafer_subdie where subdie_name=?) ";
+			param = new Object[]{coordinateId,subdieName};
+		}
+		if (!"".equals(subdieName) && !"".equals(deviceGroup)){
+			param = new Object[]{coordinateId,deviceGroup,subdieName};
+		}
+		return db.queryToList(conn,sql, param);
+	}
 	
+	public Map<String,Object> getCurveColumn(Connection conn,int curvTypeId){
+		String sql = "select curve_parameter,ifnull(curve_unit,''),curve_column from dm_curve_parameter where curve_type_id=? order by curve_column";
+		List<String> paramList = new ArrayList<>();
+		String column = "";
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, curvTypeId);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				if("".equals(rs.getString(2))){
+					paramList.add(rs.getString(1));
+				}else{
+					paramList.add(rs.getString(1)+"("+rs.getString(2)+")");
+				}
+				column += ","+rs.getString(3);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		Map<String,Object> map = new HashMap<>();
+		map.put("paramList", paramList);
+		map.put("column", column.substring(column.indexOf(",")));
+		return map;
+	}
+	
+	public List<List<Double>> getCurveData(Connection conn,int curveTypeId,String column){
+		
+		String[] att = column.split(",");
+		int count = att.length;
+		if(count == 0){
+			return null;
+		}
+		String sql = "select "+column+" from dm_curve_data where curve_type_id=?";
+		PreparedStatement ps;
+		List<List<Double>> result = new ArrayList<>();
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, curveTypeId);
+			ResultSet rs = ps.executeQuery();
+			List<Double> ls = new ArrayList<>();
+			List<Double> ls2 = new ArrayList<>();
+			List<Double> ls3 = new ArrayList<>();
+			while(rs.next()){
+				ls.add(rs.getDouble(1));
+				if(count>1){
+					ls2.add(rs.getDouble(2));
+				}
+				if(count >2){
+					ls3.add(rs.getDouble(3));
+				}
+			}
+			result.add(ls);
+			if(ls2.size()>0){
+				result.add(ls2);
+			}
+			if(ls3.size()>0){
+				result.add(ls3);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
 	
 }

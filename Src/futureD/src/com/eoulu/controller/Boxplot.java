@@ -43,7 +43,16 @@ public class Boxplot extends HttpServlet {
 		HistogramService service = new HistogramServiceImpl();
 		List<String> paramList =  null;
 		if("".equals(parameter)){
-			paramList = service.getWaferParameter(waferIdStr);
+			String[] paramAtt = request.getParameterValues("paramAtt[]");
+			if(paramAtt!=null){
+				paramList = new ArrayList<>();
+				for(int i=0,length=paramAtt.length;i<length;i++){
+					paramList.add(paramAtt[i]);
+				}
+			}else{
+				paramList = service.getWaferParameter(waferIdStr);
+			}
+		
 		}else{
 			paramList = new ArrayList<>();
 			paramList.add(parameter);

@@ -4,6 +4,8 @@
 package com.eoulu.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +28,9 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.eoulu.transfer.ProgressSingleton;
 
@@ -90,10 +95,12 @@ public class FileUtil {
 					// 文件进度长度
 					long progress = 0;
 					if (item.isFormField()) {
+						
 
 					} else {
 						Map<String, String> tempMap = new HashMap<String, String>();
 						fileName = item.getName();
+						
 						if (fileName == null || fileName.trim().equals("")) {
 							continue;
 						}
@@ -137,51 +144,69 @@ public class FileUtil {
 		return map;
 	}
 	
-	public String getForm(File file01,HttpServletRequest request,String fileName,String tempPath) {
+	public Map<String, Object> getForm(File file01, HttpServletRequest request, String fileName, String tempPath) {
 		DiskFileItemFactory factory = new DiskFileItemFactory();
-	    factory.setRepository(file01);//设置临时目录
-	    factory.setSizeThreshold(4096); // 设置缓冲区大小，这里是4kb
-	    ServletFileUpload upload = new ServletFileUpload(factory);
-	    java.util.List<org.apache.commons.fileupload.FileItem> items = null;
-	    try {
+		factory.setRepository(file01);// 设置临时目录
+		factory.setSizeThreshold(4096); // 设置缓冲区大小，这里是4kb
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		java.util.List<org.apache.commons.fileupload.FileItem> items = null;
+		String productCategory = null, currentUser = null, description = null,filePath = null,editTime=null;
+		Map<String,Object> map = new HashMap<>();
+		try {
 			items = upload.parseRequest(request);
 			byte data[] = new byte[1024];
-		    int i = 0;
-		    if (items != null){
-		        for (Iterator iterator = items.iterator(); iterator.hasNext();) {
-		            FileItem item = (FileItem) iterator.next();
-		            if (item.isFormField()) {
-		                //不是file类型的话，就利用getFieldName判断name属性获取相应的值
-		            	
-		               
-		            } else {
-		            	 //获取表单文件，写入项目文件夹中
-		                fileName = item.getName().substring(
-		                        item.getName().lastIndexOf(File.separator) + 1,
-		                        item.getName().length());
-		                InputStream inputStream = item.getInputStream();
-		                OutputStream outputStream = new FileOutputStream(tempPath + fileName);
-		                while ((i = inputStream.read(data)) != -1) {
-		                    outputStream.write(data, 0, i);
-		                }
-		                inputStream.close();
-		                outputStream.close();
-		            }
-		        }
-		    }
+			int i = 0;
+			if (items != null) {
+				for (Iterator iterator = items.iterator(); iterator.hasNext();) {
+					FileItem item = (FileItem) iterator.next();
+					if (item.isFormField()) {
+						// 不是file类型的话，就利用getFieldName判断name属性获取相应的值
+						if ("productCatagories".equals(item.getFieldName())) {
+							productCategory = item.getString("utf-8");
+						}
+						if ("testOperator".equals(item.getFieldName())) {
+							currentUser = item.getString("utf-8");
+						}
+						if ("details".equals(item.getFieldName())) {
+							description = item.getString("utf-8");
+						}
+						if ("editTime".equals(item.getFieldName())) {
+							editTime = item.getString("utf-8");
+						}
+
+					} else {
+						// 获取表单文件，写入项目文件夹中
+						fileName = item.getName().substring(item.getName().lastIndexOf(File.separator) + 1,
+								item.getName().length());
+						InputStream inputStream = item.getInputStream();
+						OutputStream outputStream = new FileOutputStream(tempPath + fileName);
+						while ((i = inputStream.read(data)) != -1) {
+							outputStream.write(data, 0, i);
+						}
+						inputStream.close();
+						outputStream.close();
+						filePath = tempPath+fileName;
+					}
+				}
+			}
 		} catch (FileUploadException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	    
-		return fileName;
+		map.put("fileName", fileName);
+		map.put("filePath", filePath);
+		map.put("productCategory", productCategory);
+		map.put("currentUser", currentUser);
+		map.put("description", description);
+		map.put("editTime", editTime);
+		return map;
 	}
 	
 	
-	public static File unZipFiles(String zipFilePath, String descDir){
+	public static File unZipFiles(String filePath, String descDir){
 		Charset gbk = Charset.forName("GBK");
-		File zipFile = new File(zipFilePath);
+		File zipFile = new File(filePath);
 		File pathFile = new File(descDir);
 		if (!pathFile.exists()){
 			pathFile.mkdirs();
@@ -236,4 +261,49 @@ public class FileUtil {
 	
 	return pathFile;
 	}
+	
+	public Map<String,Object> getDataFormat(String filepath)
+	{
+		Map<String,Object> map = new HashMap<>();
+		String waferID="",dataFormat = "",fileName="";
+		try {
+			FileInputStream excelFileInputStream = new FileInputStream(filepath);
+			XSSFWorkbook workbook;
+			
+				workbook = new XSSFWorkbook(excelFileInputStream);
+				excelFileInputStream.close();
+				XSSFSheet sheet = workbook.getSheetAt(0);
+				for (int rowIndex = 0; rowIndex <= sheet.getLastRowNum()-2; rowIndex++)
+				{
+					XSSFRow row = sheet.getRow(rowIndex);
+					if(rowIndex == 0 && "编号".equals(row.getCell(0).toString())){
+						dataFormat = "2";
+						fileName  = new File(filepath).getName();
+						waferID = fileName.substring(0, fileName.lastIndexOf("."));
+						break;
+					}
+					if( "Device".equals(row.getCell(0).toString()) && "site".equals(row.getCell(1).toString())){
+						dataFormat = "3";
+						fileName  = new File(filepath).getName();
+						waferID = fileName.substring(0, fileName.lastIndexOf("."));
+						break;
+					}
+					if("DeviceID".equals(row.getCell(0).toString()) && "LotID".equals(sheet.getRow(rowIndex+1).getCell(0).toString()) && "WaferID".equals(sheet.getRow(rowIndex+2).getCell(0).toString()))
+					{
+						dataFormat = "1";
+						waferID = sheet.getRow(rowIndex+2).getCell(2).toString();
+					}
+					if("Type".equals(row.getCell(0).toString())){
+						break;
+					}
+				}	
+				map.put("waferNO", waferID);
+				map.put("dataFormat", dataFormat);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return map;
+	}	
 }

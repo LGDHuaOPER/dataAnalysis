@@ -74,7 +74,7 @@ public class UploadStorage extends HttpServlet {
 		boolean flag = false;
 		switch (dataFormat) {
 		case "1":
-			if(!fileName.endsWith(".zip")){
+			if(!fileName.endsWith(".zip") && !fileName.endsWith(".rar")){
 				status="文件格式有误！";
 			}else{
 			result = zipUtil.Zip(filePath, temp, fileName.substring(0, fileName.indexOf(".")), productCategory, description, currentUser, dataFormat, sessionId, 0);

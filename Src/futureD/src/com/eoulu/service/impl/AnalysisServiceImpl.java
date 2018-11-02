@@ -133,7 +133,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 				markerValue.put(str, list);
 			}
 			curve.put("curveData", curveValue);
-			curve.put("curveData", markerValue);
+			curve.put("markerData", markerValue);
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -647,7 +647,6 @@ public class AnalysisServiceImpl implements AnalysisService{
 		return flag;
 	}
 
-	
 
 	
 	

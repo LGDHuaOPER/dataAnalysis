@@ -40,7 +40,7 @@ public class Correlation extends HttpServlet {
 			throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
-		int waferId = request.getParameter("waferId") == null ? 0 : Integer.parseInt(request.getParameter("waferId"));
+		String waferIdStr = request.getParameter("waferIdStr") == null ?"":request.getParameter("waferIdStr");
 		String status = "",paramX = request.getParameter("paramX")==null?"":request.getParameter("paramX").trim(),
 				paramY = request.getParameter("paramY")==null?"":request.getParameter("paramY").trim();
 		double minX= request.getParameter("minX")==null?0:Double.parseDouble(request.getParameter("minX").trim()),
@@ -51,15 +51,15 @@ public class Correlation extends HttpServlet {
 		CorrelationService service2 = new CorrelationServiceImpl();
 		Map<String, Object> result = null;
 		if(!"".equals(paramX) && !"".equals(paramY)){
-			result = service2.getCorrelation(waferId, paramX, paramY, minX, maxX, minY, maxY);
+			result = service2.getCorrelation(waferIdStr, paramX, paramY, minX, maxX, minY, maxY);
 			result.put("status", status);
 			response.getWriter().write(new Gson().toJson(result));
 			return;
 		}
 		HistogramService service = new HistogramServiceImpl();
 		GaussianService gaussian = new GaussianServiceImpl();
-		List<String> paramList = service.getWaferParameter(waferId + "");
-		Map<String, List<Double>> rangList = gaussian.getRangList(paramList, waferId+"");
+		List<String> paramList = service.getWaferParameter(waferIdStr );
+		Map<String, List<Double>> rangList = gaussian.getRangList(paramList, waferIdStr);
 		if (paramList.size() >= 2) {
 			paramX = paramList.get(0);
 			paramY = paramList.get(1);
@@ -67,9 +67,9 @@ public class Correlation extends HttpServlet {
 			maxX = rangList.get(paramX).get(0);
 			minY = rangList.get(paramY).get(1);
 			maxY = rangList.get(paramY).get(0);
-			result = service2.getCorrelation(waferId, paramX, paramY, minX, maxX, minY, maxY);
+			result = service2.getCorrelation(waferIdStr, paramX, paramY, minX, maxX, minY, maxY);
 		} else {
-			status = "此晶圆参数小于两个，无法绘制！";
+			status = "所选晶圆参数小于两个，无法绘制！";
 		}
 		result.put("status", status);
 		response.getWriter().write(new Gson().toJson(result));

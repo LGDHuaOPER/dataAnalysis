@@ -52,13 +52,32 @@
 					<!-- Tab panes -->
 					<div class="tab-content">
 					    <div role="tabpanel" class="tab-pane fade in active" id="allDetail">
-					    	<div class="table_data"></div>
+					    	<div class="allDetail_tit"></div>
+					    	<div class="allDetail_body">
+					    		<div class="table_head">
+					    			<table class="table table-striped table-bordered table-hover table-condensed">
+					    				<thead></thead>
+					    			</table>
+					    		</div>
+					    		<div class="table_body">
+					    			<table class="table table-striped table-bordered table-hover table-condensed">
+					    				<tbody></tbody>
+					    			</table>
+					    		</div>
+					    	</div>
+					    	<div class="allDetail_foot"></div>
 					    </div>
 					    <div role="tabpanel" class="tab-pane fade" id="vectorMap">
-					    	vectorMap
+					    	<div class="vectorMap_l">
+					    		<div class="positionFlag_div">
+					    			<img src="" alt="">
+					    		</div>
+					    	</div>
+					    	<div class="vectorMap_r"><canvas id="canvas_vectorMap"></canvas>
+								<div id="in" style="position: absolute; z-index: 10;"></div>
+					    	</div>
 					    </div><!-- vectorMap end -->
 					    <div role="tabpanel" class="tab-pane fade" id="parameterMap">
-					    	<canvas id="canvas_parameterMap"></canvas>
 					    </div><!-- parameterMap end -->
 					</div><!-- tab-content end -->
 				</div><!-- g_bodyin_bodyin end -->
