@@ -7,6 +7,9 @@ dataListDetailStore.mock = {
 		filterArr: [],
 		waferData: futuredGlobal.S_getMockWaferData()[0],
 		waferData1: futuredGlobal.S_getMockWaferData()[1]
+	},
+	parameterMap: {
+		parameter: ["参数1", "参数2"]
 	}
 };
 dataListDetailStore.state = {
@@ -117,13 +120,14 @@ $(function(){
 	$("#allDetail>.table_data").html(futuredGlobal.S_getDataListDetail().allDetail);
 
 	/*加载矢量图*/
-	var dieData = dataListDetailStore.mock.vectorMap.waferData1.waferMapDataList[0].m_DieDataListNew;
+	var dieDataList = dataListDetailStore.mock.vectorMap.waferData1.waferMapDataList[0];
 	dataListDetailStore.mock.vectorMap.filterArr = [];
 	_.forEach(dieData, function(v, i){
 		dataListDetailStore.mock.vectorMap.filterArr.push(_.keys(v)[0]);
 	});
-	var maxWidth = 1500;
-	var maxHeight = 900;
+	var maxWidth = 700;
+	var maxHeight = 700;
+	var dieData = dataListDetailStore.mock.vectorMap.waferData1.waferMapDataList[0].m_DieDataListNew;
 	dataListDetailStore.state.vectorMap.waferMapObj = buildColorGradation({
 		// 自定义标志
 		custom: {
@@ -136,8 +140,8 @@ $(function(){
 		waferData: dataListDetailStore.mock.vectorMap.waferData1,
 		// 空白空间比例
 		spacePercent: {
-			x: 0.05,
-			y: 0.05
+			x: 0.15,
+			y: 0
 		},
 		m_DieDataListNew: dieData,
 		colorGradation: {
@@ -157,6 +161,27 @@ $(function(){
 		vectorMap: true,
 		callback: function(positionFlag){
 			$(".vectorMap_l .positionFlag_div>img").attr("src", "../img/modules/dataListDetail/"+positionFlag+".png");
+			var Yield = dataListDetailStore.mock.vectorMap.waferData1.waferMapDataList[0].Yield;
+			$(".qualifiedInformation_div .panel-body tbody>tr:eq(1)>td:eq(1)").text(Yield*100 + "%");
+			var countByObj = _.countBy(dieData, function(v, i){
+				var ret;
+				_.forOwn(v, function(vv, kk){
+					ret = vv;
+				});
+				return ret;
+			});
+			var qualifiedNu = countByObj["1"];
+			var unQualifiedNu = countByObj["255"];
+			if(_.isNil(qualifiedNu)) qualifiedNu = 0;
+			if(_.isNil(unQualifiedNu)) unQualifiedNu = 0;
+			$(".qualifiedInformation_div .panel-body tbody>tr:eq(2)>td:eq(1)").text(qualifiedNu);
+			$(".qualifiedInformation_div .panel-body tbody>tr:eq(3)>td:eq(1)").text(unQualifiedNu);
+		},
+		clickCallback: function(cor){
+			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
+		},
+		keydownCallback: function(cor){
+			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
 		}
 	});
 });
@@ -168,4 +193,14 @@ $(".allDetail_body .table_body").on("scroll", function(e){
 	}
 	dataListDetailStore.state.allDetail.tbody.scrollTop = $(this).scrollTop();
 	dataListDetailStore.state.allDetail.tbody.scrollLeft = $(this).scrollLeft();
+});
+
+/*点击收起*/
+$(document).on("click", ".vectorMap_l div.panel-heading>span.glyphicon", function(){
+	$(this).toggleClass("glyphicon-menu-down glyphicon-menu-right").parent().parent().toggleClass("panel-info panel-success");
+	if($(this).hasClass("glyphicon-menu-right")){
+		$(this).parent().next().slideUp(200);
+	}else{
+		$(this).parent().next().slideDown(200);
+	}
 });

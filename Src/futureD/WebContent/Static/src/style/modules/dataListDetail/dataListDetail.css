@@ -184,7 +184,7 @@ div#in ul {
 	padding: 2px;
 }
 
-#vectorMap {
+.vectorMap_in {
 	display: grid;
 	grid-template-columns: 300px 1fr;
 	grid-template-areas: "vectorMap_l  vectorMap_r";
@@ -192,12 +192,18 @@ div#in ul {
 
 .vectorMap_l {
 	grid-area: vectorMap_l;
+	overflow: auto;
 }
 
 .vectorMap_r {
 	grid-area: vectorMap_r;
+	position: relative;
 	height: 100%;
 	overflow: auto;
+}
+
+#parameterMap {
+	overflow-y: auto;
 }
 
 @media screen and (max-width: 768px) {

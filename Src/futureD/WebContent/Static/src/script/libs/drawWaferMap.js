@@ -708,8 +708,8 @@ function renderWaferMapByGetData(obj){
                     $('#in').fadeIn(100);
                     $('#in').html('<ul style="list-style:none;"><li>DIE信息</li><li>Coord: (' + obj.curSelectedDie.x + ":" + obj.curSelectedDie.y + ')</li><li>Bin:' + obj.curSelectedDie.Bin + '</li>');
                     $('#in').css({
-                        'left': p.x + 20 + 'px',
-                        'top': p.y + 135 + 'px',
+                        'left': p.x + 5 + 'px',
+                        'top': p.y + 5 + 'px',
                         'color': '#000',
                         'background': '#fff',
                         'padding': '5px'
@@ -749,6 +749,7 @@ function renderWaferMapByGetData(obj){
                             newWaferMap.setPlotParam({
                                 currentDieCoord: currentDieCoord
                             }).plot();
+                            obj.clickCallback && obj.clickCallback(currentDieCoord);
                         }
                     }
                 }
@@ -1050,6 +1051,7 @@ function renderWaferMapByGetData(obj){
                     newWaferMap.setPlotParam({
                         currentDieCoord: newkey
                     }).plot();
+                    obj.keydownCallback && obj.keydownCallback(newkey);
                 }
             }
         });
@@ -1157,7 +1159,9 @@ function buildColorGradation(obj) {
         returnFlag: obj.returnFlag,
         addEvent: obj.addEvent,
         curSelectedDie: obj.curSelectedDie,
-        vectorMap: obj.vectorMap
+        vectorMap: obj.vectorMap,
+        clickCallback: obj.clickCallback,
+        keydownCallback: obj.keydownCallback,
     });
     console.log("colorMap", colorMap);
     console.log("currentDieCoord", obj.currentDieCoord);

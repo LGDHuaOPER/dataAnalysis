@@ -361,7 +361,7 @@ function groupJudgeRenderNav(classify){
 }
 
 /*渲染图表外部面板*/
-function renderPanel(TotalYield, other, controls){
+function renderPanel(TotalYield, other, controls, isAllStatistics, AllStatistics){
 	var str = '';
 	if(controls == "map_good_rate_distribution" || controls == "map_color_order_distribution"){
 		if(TotalYield == 1 && controls == "map_good_rate_distribution"){
@@ -421,7 +421,11 @@ function renderPanel(TotalYield, other, controls){
 				    		iclassify: "correlationgraph"
 				    	});
 	}
-	$("div[role='tabpanel']#"+controls+">.single_div_in").empty().append(str);
+	if(isAllStatistics === true){
+		AllStatistics && AllStatistics(str);
+	}else{
+		$("div[role='tabpanel']#"+controls+">.single_div_in").empty().append(str);
+	}
 }
 
 /*map图图表容器构建*/
@@ -509,6 +513,318 @@ function buildMapContainer(obj){
 		dataCompareState.stateObj.curChartContainerNum++;
 	}
 	return str;
+}
+
+/*map良率分布图绘制*/
+function draw_map_good_rate_distribution(that, i){
+	var inH = that.innerWidth();
+	that.innerHeight(inH);
+	var canvasID = "canvas_" + that.attr("id");
+	that.append("<canvas id='"+canvasID+"'></canvas>");
+	that.append("<div class='criterion_"+canvasID+"'></div>");
+	buildColorGradation({
+		width: inH,
+		height: inH,
+		container: canvasID,
+		bgFillColor: "#314067",
+		waferData: futuredGlobal.S_getMockWaferData()[0],
+		spacePercent: {
+			x: 0.05,
+			y: 0.05
+		},
+		m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%5].m_DieDataListNew,
+		colorGradation: {
+			limitColor: "#FF0000",
+			floorColor: "#00FF00",
+			nums: 256
+		}
+	});
+}
+
+/*map色阶分布图绘制*/
+function draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor){
+	var inH = that.innerWidth();
+	that.innerHeight(inH);
+	var canvasID = "canvas_" + that.attr("id");
+	that.append("<canvas id='"+canvasID+"'></canvas>");
+	that.append("<div class='criterion_"+canvasID+"'></div>");
+	buildColorGradation({
+		width: inH,
+		height: inH,
+		container: canvasID,
+		bgFillColor: "#314067",
+		waferData: copyData,
+		spacePercent: {
+			x: 0.05,
+			y: 0.05
+		},
+		m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
+		colorGradation: {
+			limitColor1: "#00FF00",
+			floorColor1: "#0000FF",
+			limitColor2: "#FF0000",
+			floorColor2: "#0000FF",
+			nums1: firstDiff,
+			nums2: secondDiff
+		},
+		colorOrder: true,
+		firstMax: firstMax,
+		firstMin: firstMin,
+		secondMax: secondMax,
+		secondMin: secondMin,
+		otherColor: otherColor
+	});
+	/*色阶标尺*/
+	var colorGradientDom = that.parent().next().children(".colorGradient");
+	colorGradientDom.width(that.parent().next().width() - 60).height(that.parent().next().height() - 30);
+
+	_.times(secondDiff, function(ii){
+	    var color = getGradientColor ('#0000FF', '#FF0000', secondDiff, secondDiff-ii);
+		var height = colorGradientDom.height();
+		var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+	});
+	_.times(firstDiff, function(ii){
+	    var color = getGradientColor ('#00FF00', '#0000FF', firstDiff, firstDiff-ii);
+		var height = colorGradientDom.height();
+		var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+	});
+}
+
+/*其他图表绘制*/
+function draw_other_chart(that, controls, chartType){
+	var container = that.attr("id"),
+	title_text,
+	subtitle_text = null,
+	xAxis,
+	yAxis,
+	series;
+	var iparam = that.data("iparam");
+	switch(controls){
+		case "histogram":
+			title_text = "直方图-"+iparam;
+			var icategories = [["-∞", 0.00000423], [0.00000423, 0.00000448], [0.00000448, 0.0000047300000000000005], [0.0000047300000000000005, 0.00000498], [0.00000498, 0.00000523], [0.00000523, 0.00000548], [0.00000548, 0.000005729999999999999], [0.000005729999999999999, 0.0000059799999999999995], [0.0000059799999999999995, 0.00000623], [0.00000623, "+∞"]];
+			var histogram_limits_min = 0.00000423;
+			var histogram_limits_max = 0.00000623;
+			xAxis = {
+				categories: icategories,
+				type: 'linear',
+				labels: {
+					rotation: -45  // 设置轴标签旋转角度
+				},
+				plotLines: [{
+				color: '#FF0000',
+				width: 2,
+				value: 0.5
+			},{
+				color: '#FF0000',
+				width: 2,
+				value: 8.5
+			}]
+			};
+			yAxis = {
+				title: {
+					text: '百分数'
+				}
+			};
+			var iserise = [];
+			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
+				var item = {};
+				item.name = "wafer"+v;
+				item.type = "column";
+				item.data = [
+					2, 8, 10, 5, 15, 20, 3, 7, 10, 20
+				];
+				iserise.push(item);
+			});
+			series = iserise;
+		break;
+
+		case "boxlinediagram":
+			title_text = "箱线图-"+iparam;
+			xAxis = {
+						categories: _.forEach(_.cloneDeep(dataCompareState.sellectObj.selectItem), function(v, i, arr){
+							arr[i] = "wafer"+v;
+						}),
+						title: {
+							text: "晶圆"
+						}
+					};
+			yAxis = {
+						title: {
+							text: '值'
+						},
+						/*plotLines: [{
+							value: 932,
+							color: 'red',
+							width: 1,
+							label: {
+								text: '理论模型: 932',
+								align: 'center',
+								style: {
+									color: 'gray'
+								}
+							}
+						}]*/
+					};
+			var iidata = dataCompareState.mock.boxlinediagram_data;
+			var iidata1 = [];
+			var iidata2 = [];
+			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
+				var item = [];
+				var ii = i % 3 + 1;
+				item.push(iidata["param"+ii].lowerOfInner);
+				item.push(iidata["param"+ii].Q1);
+				item.push(iidata["param"+ii].Median);
+				item.push(iidata["param"+ii].Q3);
+				item.push(iidata["param"+ii].UpperOfInner);
+				iidata1.push(item);
+				var item2 = [];
+				item2.push("wafer"+v);
+				i % 2 == 0 ? item2.push(iidata["param"+ii].lowerOfInner - 0.000001) : item2.push(iidata["param"+ii].UpperOfInner + 0.000002);
+				iidata2.push(item2);
+			});
+			series = [{
+					name: '观测值',
+					data: iidata1,
+					tooltip: {
+						headerFormat: '<em>晶圆： {point.key}</em><br/>'
+					}
+				}, {
+					name: '异常值',
+					color: Highcharts.getOptions().colors[0],
+					type: 'scatter',
+					data: iidata2,
+					marker: {
+						fillColor: 'white',
+						lineWidth: 1,
+						lineColor: Highcharts.getOptions().colors[0]
+					},
+					tooltip: {
+						pointFormat: 'Observation: {point.y}'
+					}
+				}];
+		break;
+
+		case "CPK":
+			title_text = "CPK-"+iparam;
+			var dataLength = 12;
+			var iiicategories = _.range(1, dataLength + 1);
+			_.forEach(iiicategories, function(v, i, arr){
+				arr[i] = eouluGlobal.S_numToChineseSm(v);
+			});
+			xAxis = {
+				categories: iiicategories
+			};
+			yAxis = {
+				title: {
+					text: 'values'
+				}
+			};
+			var iiiseries = [];
+			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
+				var item = {};
+				item.name = "wafer"+v;
+				var idata = [];
+				_.times(12, function(){
+					idata.push(_.round(_.random(1, 30, true), 2));
+				});
+				item.data = idata;
+				iiiseries.push(item);
+			});
+			series = iiiseries;
+		break;
+
+		case "correlationgraph":
+			title_text = "相关性图-"+iparam;
+			xAxis = {
+				title: {
+					enabled: true,
+					text: dataCompareState.stateObj.curParam.other[0],
+					/*style:{"fontSize":"16px","fontFamily":"arial","float":"top"}*/
+				},
+				startOnTick: true,
+				endOnTick: true,
+				showLastLabel: true,
+				/*labels: {
+            	useHTML: true,
+                formatter: function () {
+                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
+            	}
+            },*/
+			};
+			yAxis = {
+				title: {
+					text: dataCompareState.stateObj.curParam.other[1]
+				}
+			};
+			var iiiidata = dataCompareState.mock.dataCompare.correlationgraph;
+			var iiiiseries = [];
+			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
+				var item = {};
+				item.name = "wafer"+v;
+				item.data = [];
+				_.forOwn(iiiidata.dataMap, function(vv, k){
+					var kk = i%3 + 1;
+					if(k == "wafer"+kk){
+						if(vv.X.length > 0){
+		    			  _.forEach(vv.X, function(vvv, iii){
+		    			  	item.data.push([vvv, vv.Y[iii]]);
+		    			  });
+		    		  }
+					}
+				});
+				iiiiseries.push(item);
+			});
+			series = iiiiseries;
+		break;
+		/*良品率图*/
+		default:
+			title_text = "良品率图-"+iparam;
+			var item = {};
+			item.name = iparam;
+			item.data = [];
+			var iiiiicategories = [];
+			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
+				item.data.push(_.round(_.random(0, 1, true), 4));
+				iiiiicategories.push("wafer"+v);
+			});
+			xAxis = {
+				categories: iiiiicategories
+			};
+			yAxis = {
+				title: {
+					text: "比率"
+				},
+				min:0,
+	        max:1,
+	        tickInterval: 0.1,
+	        labels: {
+	            formatter: function () {
+	                return this.value;
+	            }
+	        }
+			};
+			series = [item];
+	}
+	/*画图*/
+	dataCompareRenderChart({
+		container: container,
+		chart: {
+			type: chartType
+		},
+		title: {
+			text: title_text
+		},
+		subtitle: {
+			text: subtitle_text
+		},
+		xAxis: xAxis,
+		yAxis: yAxis,
+		series: _.cloneDeep(series),
+		chartClassify: controls
+	});
 }
 
 /*page preload*/
@@ -826,7 +1142,86 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   	if(controls == "home_dataCompare"){
 
   	}else if(controls == "all_statistics"){
-
+  		dataCompareSwalMixin({
+			title: '加载数据',
+			text: "正在绘图中......",
+			type: 'info',
+			showConfirmButton: false,
+			showCancelButton: false,
+			timer: 1000
+		}).then(function(){
+			dataCompareSwalMixin({
+				title: '加载数据',
+				text: "正在绘图中......",
+				type: 'info',
+				showConfirmButton: false,
+				showCancelButton: false,
+			});
+	  		$("#all_statistics>div.panel>.panel-body").empty();
+	  		$(".g_bodyin_bodyin_top_wrap ul>li[role='presentation']>a:not([aria-controls='home_dataCompare']):not([aria-controls='all_statistics'])").each(function(i, el){
+	  			renderPanel(curParam.TotalYield, curParam.other, $(el).attr("aria-controls"), true, function(str){
+	  				$("#all_statistics>div.panel.panel_"+$(el).attr("aria-controls")+">.panel-body").append(str);
+	  			});
+	  		});
+	  		$("#all_statistics>div.panel").each(function(i, el){
+	  			var iicontrols = $(el).data("iallstatistics");
+	  			if(iicontrols == "map_good_rate_distribution"){
+	  				/*Map良率分布*/
+	  				$(el).children(".panel-body").find(".chart_map_body>div").each(function(i, ele){
+	  					var that = $(this);
+	  					draw_map_good_rate_distribution(that, i);
+	  				});
+	  			}else if(iicontrols == "map_color_order_distribution"){
+	  				/*Map色阶分布*/
+	  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
+	  				var otherColor = {};
+	  				var firstMax = 400;
+	  				var secondMax = 400;
+	  				var firstMinArr = [];
+	  				var secondMinArr = [];
+	  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
+	  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
+	  						_.forOwn(arra[ii], function(vvv, k, obj){
+	  							var iNo = _.random(1, 512, false);
+	  							if(vvv == 1){
+	  								if(iNo > firstMax) iNo = firstMax;
+	  								obj[k] = {bin: 1, color: "1:"+iNo};
+	  								firstMinArr.push(iNo);
+	  							}else if(vvv == 255){
+	  								if(iNo > secondMax) iNo = secondMax;
+	  								obj[k] = {bin: 255, color: "255:"+iNo};
+	  								secondMinArr.push(iNo);
+	  							}else if(vvv == 12){
+	  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
+	  								obj[k] = {bin: 12, color: "12:"};
+	  							}else if(vvv == -1){
+	  								if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+	  								obj[k] = {bin: -1, color: "-1:"};
+	  							}
+	  						});
+	  					});
+	  				});
+	  				var firstMin = _.head(_.sortBy(firstMinArr));
+	  				var secondMin = _.head(_.sortBy(secondMinArr));
+	  				var firstDiff = firstMax - firstMin;
+	  				var secondDiff = secondMax - secondMin;
+	  				/*画图*/
+	  				$(el).children(".panel-body").find(".chart_map_body>div").each(function(i, ele){
+	  					var that = $(this);
+						draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor);
+	  				});
+	  			}else{
+	  				var chartType = _.find(dataCompareState.chartTypeMap, function(o, k){
+	  					return k == controls;
+	  				});
+	  				$(el).children(".panel-body").find(".chart_otherSingle_body>div").each(function(){
+	  					var that = $(this);
+	  					draw_other_chart(that, iicontrols, chartType);
+	  				});
+	  			}
+	  		});
+			swal.clickCancel();
+		});
   	}else{
   		if(!_.isNil(curParam) && !_.isEmpty(curParam)){
   			var TotalYield = curParam.TotalYield;
@@ -835,28 +1230,8 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   			if(controls == "map_good_rate_distribution"){
   				/*Map良率分布*/
   				$("#map_good_rate_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
-  					var inH = $(this).innerWidth();
-  					$(this).innerHeight(inH);
-  					var canvasID = "canvas_" + $(this).attr("id");
-  					$(this).append("<canvas id='"+canvasID+"'></canvas>");
-  					$(this).append("<div class='criterion_"+canvasID+"'></div>");
-  					buildColorGradation({
-  						width: inH,
-  						height: inH,
-  						container: canvasID,
-  						bgFillColor: "#314067",
-  						waferData: futuredGlobal.S_getMockWaferData()[0],
-  						spacePercent: {
-  							x: 0.05,
-  							y: 0.05
-  						},
-  						m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%5].m_DieDataListNew,
-  						colorGradation: {
-  							limitColor: "#FF0000",
-  							floorColor: "#00FF00",
-  							nums: 256
-  						}
-  					});
+  					var that = $(this);
+  					draw_map_good_rate_distribution(that, i);
   				});
   				/*Map良率分布end*/
   			}else if(controls == "map_color_order_distribution"){
@@ -909,53 +1284,8 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 		  				var secondDiff = secondMax - secondMin;
 		  				/*画图*/
 		  				$("#map_color_order_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
-		  					var inH = $(this).innerWidth();
-		  					$(this).innerHeight(inH);
-		  					var canvasID = "canvas_" + $(this).attr("id");
-		  					$(this).append("<canvas id='"+canvasID+"'></canvas>");
-		  					$(this).append("<div class='criterion_"+canvasID+"'></div>");
-		  					buildColorGradation({
-		  						width: inH,
-		  						height: inH,
-		  						container: canvasID,
-		  						bgFillColor: "#314067",
-		  						waferData: copyData,
-		  						spacePercent: {
-		  							x: 0.05,
-		  							y: 0.05
-		  						},
-		  						m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
-		  						colorGradation: {
-		  							limitColor1: "#00FF00",
-		  							floorColor1: "#0000FF",
-		  							limitColor2: "#FF0000",
-		  							floorColor2: "#0000FF",
-		  							nums1: firstDiff,
-		  							nums2: secondDiff
-		  						},
-		  						colorOrder: true,
-		  						firstMax: firstMax,
-		  						firstMin: firstMin,
-		  						secondMax: secondMax,
-		  						secondMin: secondMin,
-		  						otherColor: otherColor
-		  					});
-		  					/*色阶标尺*/
-		  					var colorGradientDom = $(this).parent().next().children(".colorGradient");
-		  					colorGradientDom.width($(this).parent().next().width() - 60).height($(this).parent().next().height() - 30);
-
-		  					_.times(secondDiff, function(i){
-		  					    var color = getGradientColor ('#0000FF', '#FF0000', secondDiff, secondDiff-i);
-								var height = colorGradientDom.height();
-								var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
-								colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
-		  					});
-		  					_.times(firstDiff, function(i){
-		  					    var color = getGradientColor ('#00FF00', '#0000FF', firstDiff, firstDiff-i);
-								var height = colorGradientDom.height();
-								var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
-								colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
-		  					});
+		  					var that = $(this);
+		  					draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor);
 		  				});
 		  				swal.clickCancel();
   				});
@@ -964,237 +1294,8 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   					return k == controls;
   				});
   				$("#"+controls+" .single_div_in .chart_otherSingle_body>div").each(function(){
-  					var container = $(this).attr("id"),
-  					title_text,
-  					subtitle_text = null,
-  					xAxis,
-  					yAxis,
-  					series;
-  					var iparam = $(this).data("iparam");
-  					switch(controls){
-  						case "histogram":
-	  						title_text = "直方图-"+iparam;
-	  						var icategories = [["-∞", 0.00000423], [0.00000423, 0.00000448], [0.00000448, 0.0000047300000000000005], [0.0000047300000000000005, 0.00000498], [0.00000498, 0.00000523], [0.00000523, 0.00000548], [0.00000548, 0.000005729999999999999], [0.000005729999999999999, 0.0000059799999999999995], [0.0000059799999999999995, 0.00000623], [0.00000623, "+∞"]];
-	  						var histogram_limits_min = 0.00000423;
-	  						var histogram_limits_max = 0.00000623;
-	  						xAxis = {
-	  							categories: icategories,
-	  							type: 'linear',
-	  							labels: {
-	  								rotation: -45  // 设置轴标签旋转角度
-	  							},
-	  							plotLines: [{
-									color: '#FF0000',
-									width: 2,
-									value: 0.5
-								},{
-									color: '#FF0000',
-									width: 2,
-									value: 8.5
-								}]
-	  						};
-	  						yAxis = {
-	  							title: {
-	  								text: '百分数'
-	  							}
-	  						};
-  							var iserise = [];
-  							_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
-  								var item = {};
-  								item.name = "wafer"+v;
-  								item.type = "column";
-  								item.data = [
-  									2, 8, 10, 5, 15, 20, 3, 7, 10, 20
-  								];
-  								iserise.push(item);
-  							});
-  							series = iserise;
-  						break;
-
-  						case "boxlinediagram":
-	  						title_text = "箱线图-"+iparam;
-	  						xAxis = {
-	  									categories: _.forEach(_.cloneDeep(dataCompareState.sellectObj.selectItem), function(v, i, arr){
-	  										arr[i] = "wafer"+v;
-	  									}),
-	  									title: {
-	  										text: "晶圆"
-	  									}
-	  								};
-	  						yAxis = {
-			  							title: {
-			  								text: '值'
-			  							},
-			  							/*plotLines: [{
-			  								value: 932,
-			  								color: 'red',
-			  								width: 1,
-			  								label: {
-			  									text: '理论模型: 932',
-			  									align: 'center',
-			  									style: {
-			  										color: 'gray'
-			  									}
-			  								}
-			  							}]*/
-			  						};
-			  				var iidata = dataCompareState.mock.boxlinediagram_data;
-			  				var iidata1 = [];
-			  				var iidata2 = [];
-			  				_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
-								var item = [];
-								var ii = i % 3 + 1;
-								item.push(iidata["param"+ii].lowerOfInner);
-								item.push(iidata["param"+ii].Q1);
-								item.push(iidata["param"+ii].Median);
-								item.push(iidata["param"+ii].Q3);
-								item.push(iidata["param"+ii].UpperOfInner);
-								iidata1.push(item);
-								var item2 = [];
-								item2.push("wafer"+v);
-								i % 2 == 0 ? item2.push(iidata["param"+ii].lowerOfInner - 0.000001) : item2.push(iidata["param"+ii].UpperOfInner + 0.000002);
-								iidata2.push(item2);
-							});
-	  						series = [{
-										name: '观测值',
-										data: iidata1,
-										tooltip: {
-											headerFormat: '<em>晶圆： {point.key}</em><br/>'
-										}
-									}, {
-										name: '异常值',
-										color: Highcharts.getOptions().colors[0],
-										type: 'scatter',
-										data: iidata2,
-										marker: {
-											fillColor: 'white',
-											lineWidth: 1,
-											lineColor: Highcharts.getOptions().colors[0]
-										},
-										tooltip: {
-											pointFormat: 'Observation: {point.y}'
-										}
-									}];
-	  					break;
-
-	  					case "CPK":
-		  					title_text = "CPK-"+iparam;
-		  					var dataLength = 12;
-		  					var iiicategories = _.range(1, dataLength + 1);
-		  					_.forEach(iiicategories, function(v, i, arr){
-		  						arr[i] = eouluGlobal.S_numToChineseSm(v);
-		  					});
-	  						xAxis = {
-	  							categories: iiicategories
-	  						};
-	  						yAxis = {
-	  							title: {
-	  								text: 'values'
-	  							}
-	  						};
-	  						var iiiseries = [];
-	  						_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
-	  							var item = {};
-	  							item.name = "wafer"+v;
-	  							var idata = [];
-	  							_.times(12, function(){
-	  								idata.push(_.round(_.random(1, 30, true), 2));
-	  							});
-	  							item.data = idata;
-	  							iiiseries.push(item);
-	  						});
-	  						series = iiiseries;
-	  					break;
-
-	  					case "correlationgraph":
-	  						title_text = "相关性图-"+iparam;
-		  					xAxis = {
-		  						title: {
-		  							enabled: true,
-		  							text: dataCompareState.stateObj.curParam.other[0],
-		  							/*style:{"fontSize":"16px","fontFamily":"arial","float":"top"}*/
-		  						},
-		  						startOnTick: true,
-		  						endOnTick: true,
-		  						showLastLabel: true,
-		  						/*labels: {
-				                	useHTML: true,
-					                formatter: function () {
-					                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
-				                	}
-				                },*/
-		  					};
-		  					yAxis = {
-		  						title: {
-		  							text: dataCompareState.stateObj.curParam.other[1]
-		  						}
-		  					};
-		  					var iiiidata = dataCompareState.mock.dataCompare.correlationgraph;
-		  					var iiiiseries = [];
-		  					_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
-		  						var item = {};
-		  						item.name = "wafer"+v;
-		  						item.data = [];
-		  						_.forOwn(iiiidata.dataMap, function(vv, k){
-		  							var kk = i%3 + 1;
-		  							if(k == "wafer"+kk){
-		  								if(vv.X.length > 0){
-							    			  _.forEach(vv.X, function(vvv, iii){
-							    			  	item.data.push([vvv, vv.Y[iii]]);
-							    			  });
-							    		  }
-		  							}
-		  						});
-		  						iiiiseries.push(item);
-		  					});
-		  					series = iiiiseries;
-	  					break;
-	  					/*良品率图*/
-  						default:
-	  						title_text = "良品率图-"+iparam;
-	  						var item = {};
-	  						item.name = iparam;
-	  						item.data = [];
-	  						var iiiiicategories = [];
-	  						_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
-	  							item.data.push(_.round(_.random(0, 1, true), 4));
-	  							iiiiicategories.push("wafer"+v);
-	  						});
-		  					xAxis = {
-		  						categories: iiiiicategories
-		  					};
-		  					yAxis = {
-		  						title: {
-		  							text: "比率"
-		  						},
-		  						min:0,
-				    	        max:1,
-				    	        tickInterval: 0.1,
-				    	        labels: {
-				    	            formatter: function () {
-				    	                return this.value;
-				    	            }
-				    	        }
-		  					};
-		  					series = [item];
-  					}
-  					/*画图*/
-  					dataCompareRenderChart({
-  						container: container,
-  						chart: {
-  							type: chartType
-  						},
-  						title: {
-  							text: title_text
-  						},
-  						subtitle: {
-  							text: subtitle_text
-  						},
-  						xAxis: xAxis,
-  						yAxis: yAxis,
-  						series: _.cloneDeep(series),
-  						chartClassify: controls
-  					});
+  					var that = $(this);
+  					draw_other_chart(that, controls, chartType);
   				});
   			}
   		}
