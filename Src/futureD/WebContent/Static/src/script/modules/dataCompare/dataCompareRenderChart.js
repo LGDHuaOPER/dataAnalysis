@@ -121,7 +121,7 @@ function dataCompareRenderChart(obj){
 		);
 	}
 	/*高斯分布*/
-	else if(obj.chart.type == 'gaussiandistribution'){
+	else if(obj.chartClassify == 'gaussiandistribution'){
 		var lowerBound = 10, upperBound = 30;
 		var normalY = function(x, mean, stdDev) {
 			return Math.exp((-0.5) * Math.pow((x - mean) / stdDev, 2)) * 1000;

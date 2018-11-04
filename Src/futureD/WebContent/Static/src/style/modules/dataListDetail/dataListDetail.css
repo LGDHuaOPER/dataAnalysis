@@ -206,6 +206,11 @@ div#in ul {
 	overflow-y: auto;
 }
 
+#parameterMap .panel-body>.container-fluid {
+	margin-left: -15px;
+	margin-right: -15px;
+}
+
 @media screen and (max-width: 768px) {
     .staff_authority {
         left: 0px;

@@ -1212,7 +1212,7 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 	  				});
 	  			}else{
 	  				var chartType = _.find(dataCompareState.chartTypeMap, function(o, k){
-	  					return k == controls;
+	  					return k == iicontrols;
 	  				});
 	  				$(el).children(".panel-body").find(".chart_otherSingle_body>div").each(function(){
 	  					var that = $(this);
