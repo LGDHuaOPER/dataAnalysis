@@ -542,7 +542,7 @@ function draw_map_good_rate_distribution(that, i){
 }
 
 /*map色阶分布图绘制*/
-function draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor){
+function draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor){
 	var inH = that.innerWidth();
 	that.innerHeight(inH);
 	var canvasID = "canvas_" + that.attr("id");
@@ -560,22 +560,26 @@ function draw_map_color_order_distribution(that, i, copyData, firstDiff, secondD
 		},
 		m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
 		colorGradation: {
-			limitColor1: "#00FF00",
-			floorColor1: "#0000FF",
-			limitColor2: "#FF0000",
-			floorColor2: "#0000FF",
-			nums1: firstDiff,
-			nums2: secondDiff
+			theMinColor: "#0000FF",
+			lowwerColor: "#00FFFF",
+			midderColor: "#00FF00",
+			upperColor: "#FFFF00",
+			theMaxColor: "#FF0000",
+			twoDiff: twoDiff,
+			threeDiff: threeDiff,
+			fourDiff: fourDiff,
+			fiveDiff: fiveDiff,
 		},
 		colorOrder: true,
-		firstMax: firstMax,
-		firstMin: firstMin,
-		secondMax: secondMax,
-		secondMin: secondMin,
+		theMin: theMin,
+		lowwer: lowwer,
+		midder: midder,
+		upper: upper,
+		theMax: theMax,
 		otherColor: otherColor
 	});
 	/*色阶标尺*/
-	var colorGradientDom = that.parent().next().children(".colorGradient");
+	/*var colorGradientDom = that.parent().next().children(".colorGradient");
 	colorGradientDom.width(that.parent().next().width() - 60).height(that.parent().next().height() - 30);
 
 	_.times(secondDiff, function(ii){
@@ -589,7 +593,15 @@ function draw_map_color_order_distribution(that, i, copyData, firstDiff, secondD
 		var height = colorGradientDom.height();
 		var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
 		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+	});*/
+	var countObj = _.countBy(copyData.waferMapDataList[i%5].m_DieDataListNew, function(v, i){
+		var retur;
+		_.forOwn(v, function(vv, k){
+			retur = vv.color.split(":")[0];
+		});
+		return retur;
 	});
+	console.log(countObj);
 }
 
 /*其他图表绘制*/
@@ -1252,23 +1264,31 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   						});
 		  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
 		  				var otherColor = {};
-		  				var firstMax = 400;
-		  				var secondMax = 400;
-		  				var firstMinArr = [];
-		  				var secondMinArr = [];
+		  				var theMax = 400;
+		  				var theMin = 100;
+		  				var lowwer = 200;
+		  				var upper = 300;
+		  				var midder = 250;
 		  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
 		  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
 		  						_.forOwn(arra[ii], function(vvv, k, obj){
 		  							var iNo = _.random(1, 512, false);
-		  							if(vvv == 1){
-		  								if(iNo > firstMax) iNo = firstMax;
-		  								obj[k] = {bin: 1, color: "1:"+iNo};
-		  								firstMinArr.push(iNo);
-		  							}else if(vvv == 255){
-		  								if(iNo > secondMax) iNo = secondMax;
-		  								obj[k] = {bin: 255, color: "255:"+iNo};
-		  								secondMinArr.push(iNo);
-		  							}else if(vvv == 12){
+		  							if(iNo<theMin){
+		  								iNo = theMin;
+		  								obj[k] = {bin: vvv, color: "1:"+iNo};
+		  							}else if(theMin<=iNo && iNo<lowwer){
+		  								obj[k] = {bin: vvv, color: "2:"+iNo};
+		  							}else if(lowwer<=iNo && iNo<midder){
+		  								obj[k] = {bin: vvv, color: "3:"+iNo};
+		  							}else if(midder<=iNo && iNo<upper){
+		  								obj[k] = {bin: vvv, color: "4:"+iNo};
+		  							}else if(upper<=iNo && iNo<theMax){
+		  								obj[k] = {bin: vvv, color: "5:"+iNo};
+		  							}else if(theMax<=iNo){
+		  								iNo = theMax;
+		  								obj[k] = {bin: vvv, color: "6:"+iNo};
+		  							}
+		  							if(vvv == 12){
 		  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
 		  								obj[k] = {bin: 12, color: "12:"};
 		  							}else if(vvv == -1){
@@ -1278,14 +1298,14 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 		  						});
 		  					});
 		  				});
-		  				var firstMin = _.head(_.sortBy(firstMinArr));
-		  				var secondMin = _.head(_.sortBy(secondMinArr));
-		  				var firstDiff = firstMax - firstMin;
-		  				var secondDiff = secondMax - secondMin;
+		  				var twoDiff = lowwer - theMin;
+		  				var threeDiff = midder - lowwer;
+		  				var fourDiff = upper - midder;
+		  				var fiveDiff = theMax - upper;
 		  				/*画图*/
 		  				$("#map_color_order_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
 		  					var that = $(this);
-		  					draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor);
+		  					draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor);
 		  				});
 		  				swal.clickCancel();
   				});

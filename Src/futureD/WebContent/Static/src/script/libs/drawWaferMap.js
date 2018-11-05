@@ -1116,18 +1116,29 @@ function buildColorGradation(obj) {
     var colorMap = new HashTable();
     var colorOrder = obj.colorOrder;
     if(colorOrder === true){
-        var firstMax = obj.firstMax;
-        var firstMin = obj.firstMin;
-        var secondMax = obj.secondMax;
-        var secondMin = obj.secondMin;
-        var firstDiff = firstMax - firstMin;
-        var secondDiff = secondMax - secondMin;
-        _.times(firstDiff, function(i){
-            colorMap.add("1:"+(firstMin+i), getGradientColor (obj.colorGradation.limitColor1, obj.colorGradation.floorColor1, obj.colorGradation.nums1, obj.colorGradation.nums1-i));
+        var theMin = obj.theMin;
+        var lowwer = obj.lowwer;
+        var midder = obj.midder;
+        var upper = obj.upper;
+        var theMax = obj.theMax;
+        var twoDiff = obj.colorGradation.twoDiff;
+        var threeDiff = obj.colorGradation.threeDiff;
+        var fourDiff = obj.colorGradation.fourDiff;
+        var fiveDiff = obj.colorGradation.fiveDiff;
+        _.times(twoDiff, function(i){
+            colorMap.add("2:"+(theMin+i), getGradientColor (obj.colorGradation.lowwerColor, obj.colorGradation.theMinColor, obj.colorGradation.twoDiff, obj.colorGradation.twoDiff-i));
         });
-        _.times(secondDiff, function(i){
-            colorMap.add("255:"+(secondMin+i), getGradientColor (obj.colorGradation.limitColor2, obj.colorGradation.floorColor2, obj.colorGradation.nums2, obj.colorGradation.nums2-i));
+        _.times(threeDiff, function(i){
+            colorMap.add("3:"+(lowwer+i), getGradientColor (obj.colorGradation.midderColor, obj.colorGradation.lowwerColor, obj.colorGradation.threeDiff, obj.colorGradation.threeDiff-i));
         });
+        _.times(fourDiff, function(i){
+            colorMap.add("4:"+(midder+i), getGradientColor (obj.colorGradation.upperColor, obj.colorGradation.midderColor, obj.colorGradation.fourDiff, obj.colorGradation.fourDiff-i));
+        });
+        _.times(fiveDiff, function(i){
+            colorMap.add("5:"+(theMax+i), getGradientColor (obj.colorGradation.theMaxColor, obj.colorGradation.upperColor, obj.colorGradation.fiveDiff, obj.colorGradation.fiveDiff-i));
+        });
+        colorMap.add("1:"+theMin, obj.colorGradation.theMinColor);
+        colorMap.add("6:"+theMax, obj.colorGradation.theMaxColor);
         _.forOwn(obj.otherColor, function(v, k){
             colorMap.add(k, v);
         });
@@ -1174,7 +1185,9 @@ function buildColorGradation(obj) {
         clickCallback: obj.clickCallback,
         keydownCallback: obj.keydownCallback,
     });
-    console.log("colorMap", colorMap);
+    console.log("obj.m_DieDataListNew", obj.m_DieDataListNew);
+    /*console.log("colorMap.getKeys", colorMap.getKeys());
+    console.log("colorMap.getValues", colorMap.getValues());*/
     console.log("currentDieCoord", obj.currentDieCoord);
     var positionFlag = obj.waferData.DirectionX + obj.waferData.DirectionY;
     obj.callback && obj.callback(positionFlag);
