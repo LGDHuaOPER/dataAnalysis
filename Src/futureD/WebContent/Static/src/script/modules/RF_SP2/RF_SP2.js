@@ -626,11 +626,21 @@ $(".g_bodyin_tit_r>.glyphicon-stats").click(function(){
 /*点击出现计算器*/
 $(document).on("click", "tr.canCalc", function(){
 	$(".RF_SP2_cover, .subAddParam").slideDown(200);
+	$("#calc_text").val($(this).children("td:eq(0)").text());
 	$("#clac_textarea").val($(this).children("td:eq(2)").text());
 	RF_SP2State.stateObj.calcTableIndex = $(this).index();
 }).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
 	$(".RF_SP2_cover, .subAddParam").slideUp(200);
 }).on("click", ".subAddParam_footin>.btn-primary", function(){
+	if(_.isEmpty($("#calc_text").val().trim())){
+		RF_SP2SwalMixin({
+			title: "公式提示",
+			text: "参数必填",
+			type: "error",
+			timer: 2000
+		});
+		return false;
+	}
 	var str = $("#clac_textarea").val();
 	if(str == "" || str.trim() == "") return false;
 	str = markerJoinCalc(str);

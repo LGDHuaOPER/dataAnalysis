@@ -136,6 +136,7 @@ function WaferMapPlotObj(option) {
     this.isFirst = option.isFirst;
     this.coordsArra = option.coordsArra;
     this.vectorMap = option.vectorMap;
+    this.container = option.container;
 }
 
 if (WaferMapPlotObj.prototype.type == undefined) {
@@ -656,8 +657,10 @@ function renderWaferMapByGetData(obj){
 	can.width = obj.width;  
 	can.height = obj.height;
     var newWaferMap = new WaferMapPlotObj({
+        /*颜色数据*/
         colorMap: obj.colorMap,
         bgFillColor: obj.bgFillColor,
+        /*canvas容器*/
         ctx: ctx,
         r0: obj.waferData.Diameter, //真实晶圆半径
         r: (obj.width) / 2 - (obj.spacePercent.x * obj.width), //根据分辨率计算的晶圆半径   减去圆两边空白
@@ -672,12 +675,20 @@ function renderWaferMapByGetData(obj){
         coordsArray: changeHash(obj.m_DieDataListNew), // 晶圆数据
         positionFlag: (obj.waferData.DirectionX + obj.waferData.DirectionY),
         FlatLength: obj.waferData.FlatLength,
+        /*色阶图标志*/
         colorOrder: obj.colorOrder,
+        /*过滤后的数组*/
         filterArr: obj.filterArr,
+        /*当前die坐标，显示框框*/
         currentDieCoord: obj.currentDieCoord,
+        /*第一次加载标志*/
         isFirst: obj.isFirst,
+        /*矢量图悬浮、点击事件用到的坐标数组*/
         coordsArra: obj.coordsArra,
-        vectorMap: obj.vectorMap
+        /*矢量图标志*/
+        vectorMap: obj.vectorMap,
+        /*容器*/
+        container: obj.container
     });
     newWaferMap.plot();
     if(obj.addEvent){
@@ -708,8 +719,8 @@ function renderWaferMapByGetData(obj){
                     $('#in').fadeIn(100);
                     $('#in').html('<ul style="list-style:none;"><li>DIE信息</li><li>Coord: (' + obj.curSelectedDie.x + ":" + obj.curSelectedDie.y + ')</li><li>Bin:' + obj.curSelectedDie.Bin + '</li>');
                     $('#in').css({
-                        'left': p.x + 5 + 'px',
-                        'top': p.y + 5 + 'px',
+                        'left': p.x + 10 + 'px',
+                        'top': p.y + 10 + 'px',
                         'color': '#000',
                         'background': '#fff',
                         'padding': '5px'
@@ -1135,8 +1146,8 @@ function buildColorGradation(obj) {
     var height = obj.height;
     if(obj.custom){
         if(obj.custom.WH === true){
-            width = (obj.waferData.maxX - obj.waferData.minX + 1)*100;
-            height = (obj.waferData.maxY - obj.waferData.minY + 1)*100;
+            width = (obj.waferData.maxX - obj.waferData.minX + 1)*50;
+            height = (obj.waferData.maxY - obj.waferData.minY + 1)*50;
         }
         if(width > obj.maxWidth || height > obj.maxHeight){
             width = height = _.sortBy([obj.maxHeight, obj.maxWidth])[0]
@@ -1167,6 +1178,7 @@ function buildColorGradation(obj) {
     console.log("currentDieCoord", obj.currentDieCoord);
     var positionFlag = obj.waferData.DirectionX + obj.waferData.DirectionY;
     obj.callback && obj.callback(positionFlag);
+    obj.resizeCallback && obj.resizeCallback(width, height, newRenderWaferMap);
     if(obj.returnFlag){
         return newRenderWaferMap;
     }

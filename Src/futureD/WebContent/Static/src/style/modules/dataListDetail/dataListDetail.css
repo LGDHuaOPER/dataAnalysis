@@ -186,7 +186,7 @@ div#in ul {
 
 .vectorMap_in {
 	display: grid;
-	grid-template-columns: 300px 1fr;
+	grid-template-columns: 600px 1fr;
 	grid-template-areas: "vectorMap_l  vectorMap_r";
 }
 
@@ -209,6 +209,32 @@ div#in ul {
 #parameterMap .panel-body>.container-fluid {
 	margin-left: -15px;
 	margin-right: -15px;
+}
+
+/* 色阶分布 */
+.panel_map_color_order_distribution .chart_body {
+	border-bottom: 1px dashed #ccc;
+}
+
+.panel_map_color_order_distribution .chart_foot {
+	height: 50px;
+    text-align: center;
+}
+
+.colorGradient {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.colorGradientSpan {
+  display: inline-block;
+}
+
+@media screen and (max-width: 992px) {
+    .vectorMap_in {
+    	grid-template-columns: 300px 1fr;
+    }
 }
 
 @media screen and (max-width: 768px) {

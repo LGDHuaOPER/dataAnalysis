@@ -30,7 +30,7 @@ function dataCompareRenderChart(obj){
 				plotOptions: {
 					column: {
 						// pointPlacement: 'between',
-						groupPadding:0,
+						groupPadding: 0.1,
 						pointPadding: 0
 					}
 				},
@@ -122,38 +122,6 @@ function dataCompareRenderChart(obj){
 	}
 	/*高斯分布*/
 	else if(obj.chartClassify == 'gaussiandistribution'){
-		var lowerBound = 10, upperBound = 30;
-		var normalY = function(x, mean, stdDev) {
-			return Math.exp((-0.5) * Math.pow((x - mean) / stdDev, 2)) * 1000;
-		}
-		var getMean = function(lowerBound, upperBound) {
-			return (upperBound + lowerBound) / 2;
-		}
-		// distance between mean and each bound of a 95% confidence interval 
-		// is 2 stdDeviation, so distance between the bounds is 4
-		var getStdDeviation = function(lowerBound, upperBound) {
-			return (upperBound - lowerBound) / 4;
-		}
-		var generatePoints = function(lowerBound, upperBound) {
-			var stdDev = getStdDeviation(lowerBound, upperBound); 
-			var min = lowerBound - 2 * stdDev;
-			var max = upperBound + 2 * stdDev;
-			var unit = (max - min) / 100;
-			return _.range(min, max, unit);
-		}
-		var mean = getMean(lowerBound, upperBound);
-		var stdDev = getStdDeviation(lowerBound, upperBound);
-		var points = generatePoints(lowerBound, upperBound);
-		var seriesData = points.map(function(x){
-			return ({ x: x, y: normalY(x, mean, stdDev)});
-		});
-		var iData = [];
-		_.forEach(seriesData, function(v, i){
-			if(i%8 == 0){
-				iData.push(v.y);
-			}
-		});
-		console.log(iData)
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 				chart: {
 					zoomType: 'xy',
@@ -165,29 +133,13 @@ function dataCompareRenderChart(obj){
 				legend: {
 					layout: 'vertical',
 					align: 'left',
-					x: 120,
+					x: 60,
 					verticalAlign: 'top',
-					y: 100,
+					y: 60,
 					floating: true,
 					backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
 				},
-				series: [{
-					name: '参数一',
-					type: 'column',
-					yAxis: 1,
-					data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
-					tooltip: {
-						valueSuffix: '壹'
-					}
-				}, {
-					name: '参数二',
-					type: 'spline',
-					data: iData,
-					// data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
-					tooltip: {
-						valueSuffix: '贰'
-					}
-				}]
+				series: obj.series
 			})
 		);
 	}
