@@ -15,6 +15,9 @@ body {
   vertical-align: middle;
 }
 .g_info {
+  display: grid;
+  grid-template-columns: 220px 1fr 185px;
+  grid-template-areas: "g_info_l g_info_m g_info_r";
   grid-area: g_info;
   height: 40px;
   line-height: 40px;
@@ -29,16 +32,33 @@ body {
   background-color: #f5f5f5;
 }
 .g_info_l {
-  position: absolute;
-  padding-left: 10px;
-  letter-spacing: 2px;
-  width: 215px;
+  grid-area: g_info_l;
+  letter-spacing: 1px;
   color: #358cf5;
   font-weight: 600;
+  text-align: center;
+}
+.g_info_m {
+  grid-area: g_info_m;
+  text-align: center;
+  line-height: 35px;
+}
+.g_info_m .g_info_m_in {
+  display: inline-block;
+  opacity: 0;
+}
+.g_info_m .g_info_m_in .form-inline {
+  display: inline-block;
+}
+.g_info_m .g_info_m_in .form-inline .form-control-feedback {
+  top: 3px !important;
+  z-index: 3;
+  pointer-events: auto;
 }
 .g_info_r {
-  padding-left: 215px;
+  grid-area: g_info_r;
   text-align: right;
+  line-height: 35px;
 }
 .g_info_r .glyphicon {
   margin-right: 20px;
@@ -113,22 +133,8 @@ margin-bottom 10px {
 .home_dataCompare_top {
   grid-area: home_dataCompare_top;
 }
-.home_dataCompare_top .top_div {
-  padding-right: 20px;
-  height: 40px;
-  line-height: 40px;
-  text-align: right;
-}
-.home_dataCompare_top .top_div .form-inline {
-  display: inline-block;
-}
-.home_dataCompare_top .top_div .form-inline .form-control-feedback {
-  top: 3px !important;
-  z-index: 3;
-  pointer-events: auto;
-}
 .home_dataCompare_top .body_div {
-  max-height: calc(100% - 40px);
+  max-height: calc(100%);
   overflow-y: auto;
 }
 .home_dataCompare_top .body_div table {
@@ -247,16 +253,133 @@ div[role='tabpanel'] .chart_map_body {
   border-bottom: 1px dashed #eee;
 }
 div[role='tabpanel'] .chart_map_foot {
+  text-align: center;
+}
+div[role='tabpanel'] .chart_map_foot table {
+  margin-bottom: 1px;
+}
+div[role='tabpanel'] .chart_map_foot table th {
+  text-align: center;
+  font-size: 13px;
+}
+div[role='tabpanel'] .chart_map_foot table td {
+  font-size: 13px;
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) {
   height: 60px;
   text-align: center;
 }
-.colorGradient {
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient {
   margin-bottom: 30px;
   display: inline-block;
 }
-.colorGradientSpan {
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .colorGradientSpan {
   display: inline-block;
 }
-span.glyphicon {
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .outSpan {
+  position: relative;
+  width: 0px;
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .oneSpan>span:before,
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .twoSpan>span:before,
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .threeSpan>span:before,
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .fourSpan>span:before,
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .fiveSpan>span:before,
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .sixSpan>span:before {
+  position: relative;
+  top: 15px;
+  left: -15px;
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .splitSpan {
+  position: relative;
+  top: 20px;
+  background-color: #000;
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .oneSpan>span:before {
+  content: '1';
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .twoSpan>span:before {
+  content: '2';
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .threeSpan>span:before {
+  content: '3';
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .fourSpan>span:before {
+  content: '4';
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .fiveSpan>span:before {
+  content: '5';
+}
+#map_color_order_distribution .chart_map_body>div:nth-child(2) .colorGradient .sixSpan>span:before {
+  content: '6';
+  left: 8px;
+}
+#all_statistics .chart_map_body>div:nth-child(2) {
+  height: 60px;
+  text-align: center;
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient {
+  margin-bottom: 30px;
+  display: inline-block;
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .colorGradientSpan {
+  display: inline-block;
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .outSpan {
+  position: relative;
+  width: 0px;
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .oneSpan>span:before,
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .twoSpan>span:before,
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .threeSpan>span:before,
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .fourSpan>span:before,
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .fiveSpan>span:before,
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .sixSpan>span:before {
+  position: relative;
+  top: 15px;
+  left: -15px;
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .splitSpan {
+  position: relative;
+  top: 20px;
+  background-color: #000;
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .oneSpan>span:before {
+  content: '1';
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .twoSpan>span:before {
+  content: '2';
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .threeSpan>span:before {
+  content: '3';
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .fourSpan>span:before {
+  content: '4';
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .fiveSpan>span:before {
+  content: '5';
+}
+#all_statistics .chart_map_body>div:nth-child(2) .colorGradient .sixSpan>span:before {
+  content: '6';
+  left: 8px;
+}
+span.glyphicon,
+.g_info_m_in span.input-group-addon {
   cursor: pointer;
+}
+div.container-fluid>.row:not(:last-child)>div {
+  border-bottom: 1px dashed #ccc;
+}
+@media screen and (max-width: 992px) {
+  .panel-body {
+    padding: 5px;
+  }
+  div[role='tabpanel'] .chart_map_foot table th {
+    padding: 2px;
+    font-size: 12px;
+  }
+  div[role='tabpanel'] .chart_map_foot table td {
+    padding: 2px;
+    font-size: 12px;
+  }
 }

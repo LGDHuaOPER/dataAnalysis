@@ -14,7 +14,8 @@ dataListDetailStore.mock = {
 	vectorMap: {
 		filterArr: [],
 		waferData: futuredGlobal.S_getMockWaferData()[0],
-		waferData1: futuredGlobal.S_getMockWaferData()[1]
+		waferData1: futuredGlobal.S_getMockWaferData()[1],
+		curveTypeData: [futuredGlobal.S_getRF_SP2()[0], futuredGlobal.S_getRF_SP2()[1], futuredGlobal.S_getRF_SP2()[2], futuredGlobal.S_getDataListDetail().vectorMapChart[0], futuredGlobal.S_getDataListDetail().vectorMapChart[1]]
 	},
 	parameterMap: {
 		parameter: ["参数1", "参数2", "参数3"]
@@ -33,7 +34,10 @@ dataListDetailStore.state = {
 		canKeydown: false,
 		coordsArray: new HashTable(),
 		waferMapObj: Object.create(null),
-		curSelectedDie: Object.create(null)
+		curSelectedDie: Object.create(null),
+		curveType: ["ID_VD", "OutputCurve", "SP2RF", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
+		curCurveTypeNo: 0,
+		renderChartByCoordFlag: false
 	},
 	parameterMap: {
 		curChartContainerNum: 0,
@@ -114,12 +118,12 @@ function draw_map_good_rate_distribution(that, i){
 }
 
 /*map色阶分布图绘制*/
-function draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor){
+function draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor){
 	var inH = that.innerWidth();
 	that.innerHeight(inH*0.8);
 	var canvasID = "canvas_" + that.attr("id");
 	that.append("<canvas id='"+canvasID+"'></canvas>");
-	that.append("<div class='criterion_"+canvasID+"'></div>");
+	that.after("<div class='criterion_"+canvasID+"'><div class='colorGradient'></div></div>");
 	buildColorGradation({
 		width: inH,
 		height: inH*0.8,
@@ -132,35 +136,70 @@ function draw_map_color_order_distribution(that, i, copyData, firstDiff, secondD
 		},
 		m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
 		colorGradation: {
-			limitColor1: "#00FF00",
-			floorColor1: "#0000FF",
-			limitColor2: "#FF0000",
-			floorColor2: "#0000FF",
-			nums1: firstDiff,
-			nums2: secondDiff
+			theMinColor: "#0000FF",
+			lowwerColor: "#00FFFF",
+			midderColor: "#00FF00",
+			upperColor: "#FFFF00",
+			theMaxColor: "#FF0000",
+			twoDiff: twoDiff,
+			threeDiff: threeDiff,
+			fourDiff: fourDiff,
+			fiveDiff: fiveDiff,
 		},
 		colorOrder: true,
-		firstMax: firstMax,
-		firstMin: firstMin,
-		secondMax: secondMax,
-		secondMin: secondMin,
+		theMin: theMin,
+		lowwer: lowwer,
+		midder: midder,
+		upper: upper,
+		theMax: theMax,
 		otherColor: otherColor
 	});
 	/*色阶标尺*/
-	var colorGradientDom = that.parent().next().children(".colorGradient");
-	colorGradientDom.width(that.parent().next().width() - 60).height(that.parent().next().height() - 20);
-
-	_.times(secondDiff, function(ii){
-	    var color = getGradientColor ('#0000FF', '#FF0000', secondDiff, secondDiff-ii);
-		var height = colorGradientDom.height();
-		var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
-		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+	var colorGradientDom = that.next().find("div.colorGradient");
+	colorGradientDom.width(that.next().width() - 60).height(that.next().height() - 30);
+	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
+	var itemHeight = colorGradientDom.height();
+	var itemWidth = colorGradientDom.width() / (all*1.2);
+	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(twoDiff, function(ii){
+	    var color = getGradientColor ('#00FFFF', '#0000FF', twoDiff, twoDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
 	});
-	_.times(firstDiff, function(ii){
-	    var color = getGradientColor ('#00FF00', '#0000FF', firstDiff, firstDiff-ii);
-		var height = colorGradientDom.height();
-		var width = colorGradientDom.width() / ((firstDiff+secondDiff)*1.2);
-		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan twoSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(threeDiff, function(ii){
+	    var color = getGradientColor ('#00FF00', '#00FFFF', threeDiff, threeDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan threeSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(fourDiff, function(ii){
+	    var color = getGradientColor ('#FFFF00', '#00FF00', fourDiff, fourDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan fourSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(fiveDiff, function(ii){
+	    var color = getGradientColor ('#FF0000', '#FFFF00', fiveDiff, fiveDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan fiveSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	
+	var countObj = _.countBy(copyData.waferMapDataList[i%5].m_DieDataListNew, function(v, i){
+		var retur;
+		_.forOwn(v, function(vv, k){
+			retur = vv.color.split(":")[0];
+		});
+		return retur;
+	});
+	var tableStr = '<table class="table table-striped table-bordered table-condensed"><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>';
+	$(tableStr).appendTo(that.parent().next());
+	_.forOwn(countObj, function(v, k){
+		that.parent().next().find("th").eq(k-1).text(k+"区间");
+		that.parent().next().find("td").eq(k-1).text(v+"个");
 	});
 }
 
@@ -489,6 +528,7 @@ function commonCalcLayout(){
 	}
 }
 
+/*矢量图分页chart绘制*/
 function drawCurve(obj){
 	var dimension = obj.dimension;
 	var curveType = obj.curveType;
@@ -533,44 +573,60 @@ function drawCurve(obj){
 		}],
 	};
 	if(dimension == 3){
-		 var yData  = [];
-		 var newCVZ = [];
-		 for(var i = 0 ; i < CVX.length ; i++){
-			sort(CVX[i],CVY[i]);
-			 var str = {};
-			 str.name = "P="+CVZ[i];
-			 str.data = CVY[i];
-			 yData.push(str);
-		 }
-		 chart = Highcharts.chart('picture', {
-				
-				
-		        
-				
-				series: yData,
-				
+		var yData  = [];
+		var arra = [];
+		_.times(CVX.length, function(i){
+			var item = [];
+			_.forEach(CVX[i], function(vv, ii){
+				var item1 = {};
+				item1.x = CVX[i][ii];
+				item1.y = CVY[i][ii];
+				item1.z = CVZ[i];
+				item.push(item1);
+			});
+			arra.push(item);
 		});
-		 
+		_.forEach(arra, function(v, i){
+			var sortArr = _.sortBy(arra[i], function(vv, ii){
+				return vv.x;
+			});
+			arra[i] = sortArr;
+		});
+		_.forEach(arra, function(v, i){
+			var item = {};
+			item.name = "P="+v[0].z;
+			item.data = [];
+			_.forEach(arra[i], function(vv, ii){
+				item.data.push(vv.y);
+			});
+			yData.push(item);
+		});
+		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
+				tooltip: {
+					headerFormat: '<b>{series.name}</b><br>',
+					pointFormat: '{point.x}, {point.y}'
+				},
+				series: yData
+			})
+		);
 	}
 	else if(dimension == 2){ 
-		chart = Highcharts.chart('picture', {
-			 
-	        
-		
-			
-			series: [ {
-					data: y
-			}],
-			
-		});
+		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
+				tooltip: {
+					headerFormat: '<b>{series.name}</b><br>',
+					pointFormat: '{point.x}, {point.y}'
+				},
+				series: [{data: y}]
+			})
+		);
 	}
 	return chart;
 }
 
-/*绘制矢量Map的曲线图*/
+/*获取矢量Map的曲线数据*/
 function drawVectorChart(obj) {
 	if (!_.isEmpty(obj.data.curveinfos)) {
-		var itemData = _.find(obj.data, function(v, i){
+		var itemData = _.find(obj.data.curveinfos, function(v, i){
 			return v.curveType == obj.curveType;
 		});
 		var dimension = itemData.dimension;
@@ -580,7 +636,7 @@ function drawVectorChart(obj) {
 		var xAxisTitle = itemData.ParamX + (itemData.ParamXUnit == "" ? "" : ("(" + itemData.ParamXUnit + "）"));
 		var yAxisTitle = itemData.ParamY + (itemData.ParamYUnit == "" ? "" : ("(" + itemData.ParamYUnit + "）"));
 		if(dimension == 0){
-			console.log("只加载史密斯")
+			console.log("只加载史密斯");
 		}else if(dimension == 1){
 			dataListDetailSwalMixin({
 				title: '加载数据',
@@ -624,6 +680,50 @@ function drawVectorChart(obj) {
 		}
 		obj.callback && obj.callback(Subdie, DeviceGroup);
 	}
+}
+
+/*矢量图分页chart container Build*/
+function buildChartContainer(curveType){
+	var str = '';
+	if(_.indexOf(dataListDetailStore.state.vectorMap.curveType, curveType) > -1){
+		str='<div id="'+curveType+'_charts_'+dataListDetailStore.state.vectorMap.curCurveTypeNo+'"></div>';
+		$("div.all_charts_rows>div."+curveType+"_col .panel_chart_body").empty().append(str);
+		$("div.all_charts_rows>div."+curveType+"_col").fadeIn(200);
+	}else{
+		str='<div class="col-sm-12 col-md-12 col-lg-12 '+curveType+'_col">'+
+				'<div class="panel panel-info">'+
+				  	'<div class="panel-heading">'+
+				    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+curveType+
+				  	'</div>'+
+				  	'<div class="panel-body">'+
+				    	'<div class="panel_chart_body"><div id="'+curveType+'_charts_'+dataListDetailStore.state.vectorMap.curCurveTypeNo+'"></div></div>'+
+				    	'<div class="panel_chart_foot"></div>'+
+				  	'</div>'+
+				'</div>'+
+			'</div>';
+		$("div.all_charts_rows").append(str);
+		dataListDetailStore.state.vectorMap.curveType.push(curveType.toString());
+	}
+	var returnID = curveType+'_charts_'+dataListDetailStore.state.vectorMap.curCurveTypeNo;
+	dataListDetailStore.state.vectorMap.curCurveTypeNo++;
+	return returnID;
+}
+
+/*根据坐标绘制chart*/
+function renderChartByCoord(){
+	$("div.all_charts_rows>div").fadeOut(100);
+	/*这里是随机数*/
+	var data = dataListDetailStore.mock.vectorMap.curveTypeData[_.random(0, 4, false)];
+	console.log(data.curveinfos);
+	_.forEach(data.curveinfos, function(v, i){
+		var ID = buildChartContainer(v.curveType);
+		drawVectorChart({
+			data: data,
+			curveType: v.curveType,
+			container: ID,
+			callback: null
+		});
+	});
 }
 
 /*page preload*/
@@ -691,6 +791,18 @@ $(function(){
 	var maxWidth = ($(".vectorMap_r").innerHeight() - 20)*1.25;
 	var maxHeight = $(".vectorMap_r").innerHeight() - 20;
 	var dieData = dataListDetailStore.mock.vectorMap.waferData1.waferMapDataList[0].m_DieDataListNew;
+	var currentDieCoord;
+	_.forEach(dieData, function(v, i){
+		var flag = false;
+		_.forOwn(v, function(vv, k){
+			if(vv == 1){
+				currentDieCoord = k.toString();
+				flag = true;
+			}
+		});
+		if(flag) return false;
+	});
+	if(_.isNil(currentDieCoord)) currentDieCoord = "0:0";
 	dataListDetailStore.state.vectorMap.waferMapObj = buildColorGradation({
 		/*// 自定义标志
 		custom: {
@@ -716,7 +828,7 @@ $(function(){
 		},
 		/*存放过滤后数据坐标 "x:y"*/
 		filterArr: dataListDetailStore.mock.vectorMap.filterArr,
-		currentDieCoord: "0:0",
+		currentDieCoord: currentDieCoord,
 		// 第一次加载标志。可以做一些事情
 		isFirst: true,
 		coordsArra: dataListDetailStore.state.vectorMap.coordsArray,
@@ -744,9 +856,11 @@ $(function(){
 		},
 		clickCallback: function(cor){
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
+			renderChartByCoord();
 		},
 		keydownCallback: function(cor){
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
+			renderChartByCoord();
 		},
 		resizeCallback: function(wi, hi, mapObj){
 			$(window).on("resize", _.debounce(function(){
@@ -778,10 +892,6 @@ $(function(){
 				str+='</div>';
 				dataListDetailStore.state.parameterMap.curChartContainerNum++;
 		}else{
-			instr = '';
-			if(["map_good_rate_distribution", "map_color_order_distribution"].indexOf(iicontrols)>-1){
-				instr = '<div class="colorGradient"></div>';
-			}
 			dataListDetailStore.mock.parameterMap.parameter.map(function(v, i){
 				if(i%2 == 0){
 					str+='<div class="row">';
@@ -795,7 +905,7 @@ $(function(){
 					    	'<div class="container-fluid">'+
 					    		'<div class="chart_title"></div>'+
 					    		'<div class="chart_body"><div id="'+(iicontrols+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+v+'"></div></div>'+
-					    		'<div class="chart_foot">'+instr+'</div>'+
+					    		'<div class="chart_foot"></div>'+
 					    	'</div>'+
 					  	'</div>'+
 					'</div>';
@@ -808,6 +918,11 @@ $(function(){
 		}
 		str+='</div>';
 		$(this).children(".panel-body").append(str);
+	});
+
+	/*预加载参数图分页chart容器*/
+	_.forEach(dataListDetailStore.state.vectorMap.curveType, function(v){
+		buildChartContainer(v);
 	});
 });
 
@@ -864,40 +979,48 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 					/*Map色阶分布*/
 					var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
 					var otherColor = {};
-					var firstMax = 400;
-					var secondMax = 400;
-					var firstMinArr = [];
-					var secondMinArr = [];
-					_.forEach(copyData.waferMapDataList, function(v, i, arr){
-						_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
-							_.forOwn(arra[ii], function(vvv, k, obj){
-								var iNo = _.random(1, 512, false);
-								if(vvv == 1){
-									if(iNo > firstMax) iNo = firstMax;
-									obj[k] = {bin: 1, color: "1:"+iNo};
-									firstMinArr.push(iNo);
-								}else if(vvv == 255){
-									if(iNo > secondMax) iNo = secondMax;
-									obj[k] = {bin: 255, color: "255:"+iNo};
-									secondMinArr.push(iNo);
-								}else if(vvv == 12){
-									if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-									obj[k] = {bin: 12, color: "12:"};
-								}else if(vvv == -1){
-									if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-									obj[k] = {bin: -1, color: "-1:"};
-								}
-							});
-						});
-					});
-					var firstMin = _.head(_.sortBy(firstMinArr));
-					var secondMin = _.head(_.sortBy(secondMinArr));
-					var firstDiff = firstMax - firstMin;
-					var secondDiff = secondMax - secondMin;
+					var theMax = 400;
+	  				var theMin = 100;
+	  				var lowwer = 200;
+	  				var upper = 300;
+	  				var midder = 250;
+	  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
+	  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
+	  						_.forOwn(arra[ii], function(vvv, k, obj){
+	  							var iNo = _.random(1, 512, false);
+	  							if(iNo<theMin){
+	  								iNo = theMin;
+	  								obj[k] = {bin: vvv, color: "1:"+iNo};
+	  							}else if(theMin<=iNo && iNo<lowwer){
+	  								obj[k] = {bin: vvv, color: "2:"+iNo};
+	  							}else if(lowwer<=iNo && iNo<midder){
+	  								obj[k] = {bin: vvv, color: "3:"+iNo};
+	  							}else if(midder<=iNo && iNo<upper){
+	  								obj[k] = {bin: vvv, color: "4:"+iNo};
+	  							}else if(upper<=iNo && iNo<theMax){
+	  								obj[k] = {bin: vvv, color: "5:"+iNo};
+	  							}else if(theMax<=iNo){
+	  								iNo = theMax;
+	  								obj[k] = {bin: vvv, color: "6:"+iNo};
+	  							}
+	  							if(vvv == 12){
+	  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
+	  								obj[k] = {bin: 12, color: "12:"};
+	  							}else if(vvv == -1){
+	  								if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+	  								obj[k] = {bin: -1, color: "-1:"};
+	  							}
+	  						});
+	  					});
+	  				});
+	  				var twoDiff = lowwer - theMin;
+	  				var threeDiff = midder - lowwer;
+	  				var fourDiff = upper - midder;
+	  				var fiveDiff = theMax - upper;
 					/*画图*/
 					$(el).children(".panel-body").find(".chart_body>div").each(function(i, ele){
 						var that = $(this);
-						draw_map_color_order_distribution(that, i, copyData, firstDiff, secondDiff, firstMax, firstMin, secondMax, secondMin, otherColor);
+						draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor);
 					});
 				}else{
 					var chartType = _.find(dataListDetailStore.state.chartTypeMap, function(o, k){
@@ -914,5 +1037,9 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 		});
 	}else if(licontrols == "allDetail"){
 		_.debounce(commonCalcLayout, 200)();
+	}else if(licontrols == "vectorMap" && !dataListDetailStore.state.vectorMap.renderChartByCoordFlag){
+		/*初始化曲线图*/
+		renderChartByCoord();
+		dataListDetailStore.state.vectorMap.renderChartByCoordFlag = true;
 	}
 });

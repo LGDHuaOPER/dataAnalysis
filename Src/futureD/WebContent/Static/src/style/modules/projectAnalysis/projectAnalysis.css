@@ -18,9 +18,47 @@ body {
 }
 
 .g_info {
+	display: grid;
+	grid-template-columns: 220px 1fr 185px;
+	grid-template-areas: "g_info_l g_info_m g_info_r";
 	grid-area: g_info;
 	height: 40px;
 	line-height: 40px;
+}
+
+.g_info_l {
+  grid-area: g_info_l;
+  letter-spacing: 1px;
+  color: #358cf5;
+  font-weight: 600;
+  text-align: center;
+}
+.g_info_m {
+  grid-area: g_info_m;
+  text-align: center;
+  line-height: 35px;
+}
+.g_info_m .g_info_m_in {
+  display: inline-block;
+  opacity: 0;
+}
+.g_info_m .g_info_m_in .form-inline {
+  display: inline-block;
+}
+.g_info_m .g_info_m_in .form-inline .form-control-feedback {
+  top: 3px !important;
+  z-index: 3;
+  pointer-events: auto;
+}
+.g_info_r {
+  grid-area: g_info_r;
+  text-align: right;
+  line-height: 35px;
+}
+.g_info_r .glyphicon {
+  margin-right: 20px;
+  font-size: 22px;
+  vertical-align: middle;
 }
 
 .g_menu {
@@ -90,26 +128,6 @@ body {
 	right: 5px;
 }
 
-.g_info_l {
-	position: absolute;
-	padding-left: 10px;
-    letter-spacing: 2px;
-    width: 215px;
-    color: rgb(53, 140, 245);
-    font-weight: 600;
-}
-
-.g_info_r {
-	padding-left: 215px;
-	text-align: right;
-}
-
-.g_info_r .glyphicon {
-	margin-right: 20px;
-	font-size: 22px;
-	vertical-align: middle;
-}
-
 .g_bodyin {
 	height: 100%;
 }
@@ -150,44 +168,13 @@ body {
 
 .g_bodyin_body_bottom {
     margin-top: 10px;
-	height: calc(50% - 10px);
 	max-height: calc(50% - 10px);
 	overflow-y: auto;
-	padding-top: 20px;
+	padding-top: 10px;
 }
 
 .g_bodyin_bodyin {
 	height: 100%;
-}
-
-.g_bodyin_bodyin_tit {
-	height: 40px;
-	line-height: 40px;
-}
-
-.g_bodyin_bodyin_tit_r {
-	padding-left: 90px;
-	padding-right: 10px;
-	height: 40px;
-	text-align: right;
-}
-
-.g_bodyin_bodyin_tit_r>div {
-	max-width: 350px;
-    display: inline-block;
-}
-
-.g_bodyin_bodyin_tit_r .form-inline .form-group {
-	display: inline-block;
-	margin-bottom: 0;
-	vertical-align: middle;
-}
-
-.g_bodyin_bodyin_tit_r .form-control-feedback {
-	top: 2px !important;
-	z-index: 3;
-	line-height: 41px;
-	pointer-events: auto;
 }
 
 #search_button {
@@ -204,7 +191,6 @@ span.glyphicon {
 }
 
 .g_bodyin_bodyin_body table, .g_bodyin_body_bottom table {
-	margin-top: 10px;
 	margin-bottom: 10px;
 	border: 1px solid #bebebe;
 }

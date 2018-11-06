@@ -1,4 +1,4 @@
-body 
+body
 	display grid
 	grid-template-rows 40px 1fr
 	grid-template-columns 40px 1fr
@@ -6,7 +6,7 @@ body
 	min-height 100vh
 	min-width 900px
 
-.g_logo 
+.g_logo
 	grid-area g_logo
 	height 40px
 	line-height 40px
@@ -14,40 +14,57 @@ body
 	text-align center
 	vertical-align middle
 
-.g_info 
+.g_info
+	display grid
+	grid-template-columns 220px 1fr 185px
+	grid-template-areas "g_info_l g_info_m g_info_r"
 	grid-area g_info
 	height 40px
 	line-height 40px
 
-.g_menu 
+.g_menu
 	grid-area g_menu
 	background-color #191C2B
 
-.g_body 
+.g_body
 	grid-area g_body
 	padding 10px
 	background-color #F5F5F5
 
-.g_info_l 
-	position absolute
-	padding-left 10px
-	letter-spacing 2px
-	width 215px
+.g_info_l
+	grid-area g_info_l
+	letter-spacing 1px
 	color rgb(53, 140, 245)
 	font-weight 600
+	text-align center
 
-.g_info_r 
-	padding-left 215px
+.g_info_m
+	grid-area g_info_m
+	text-align center
+	line-height 35px
+	.g_info_m_in
+		display inline-block
+		opacity 0
+		.form-inline
+			display inline-block
+			.form-control-feedback
+				top 3px !important
+				z-index 3
+				pointer-events auto
+
+.g_info_r
+	grid-area g_info_r
 	text-align right
+	line-height 35px
 	.glyphicon 
 		margin-right 20px
 		font-size 22px
 		vertical-align middle
 
-.g_bodyin 
+.g_bodyin
 	height 100%
 
-.g_bodyin_tit 
+.g_bodyin_tit
     margin-bottom 10px
 	height 35px
 	line-height 35px
@@ -111,19 +128,8 @@ body
 
 .home_dataCompare_top
 	grid-area home_dataCompare_top
-	.top_div
-		padding-right 20px
-		height 40px
-		line-height 40px
-		text-align right
-		.form-inline
-			display inline-block
-			.form-control-feedback
-				top 3px !important
-				z-index 3
-				pointer-events auto
 	.body_div
-		max-height calc(100% - 40px)
+		max-height calc(100%)
 		overflow-y auto
 		table
 			margin-top 10px
@@ -222,15 +228,110 @@ div[role='tabpanel']
 	& .chart_map_body
 		border-bottom 1px dashed #eee
 	& .chart_map_foot
-		height 60px
 		text-align center
+		table
+			margin-bottom 1px
+			th
+				text-align center
+				font-size 13px
+			& td
+				font-size 13px
 
-.colorGradient
-	margin-bottom 30px
-	display inline-block
-.colorGradientSpan
-	display inline-block
+// 色阶分布
+#map_color_order_distribution .chart_map_body>div:nth-child(2)
+	height 60px
+	text-align center
+	.colorGradient
+		margin-bottom 30px
+		display inline-block
+		.colorGradientSpan
+			display inline-block
+		& .outSpan
+			position relative
+			width 0px
+		& .oneSpan>span:before
+		& .twoSpan>span:before
+		& .threeSpan>span:before
+		& .fourSpan>span:before
+		& .fiveSpan>span:before
+		& .sixSpan>span:before
+			position relative
+			top 15px
+			left -15px
+		& .splitSpan
+			position relative
+			top 20px
+			background-color #000
+		& .oneSpan>span:before
+			content '1'
+		& .twoSpan>span:before
+			content '2'
+		& .threeSpan>span:before
+			content '3'
+		& .fourSpan>span:before
+			content '4'
+		& .fiveSpan>span:before
+			content '5'
+		& .sixSpan>span:before
+			content '6'
+			left 8px
+
+// 所有统计	
+#all_statistics .chart_map_body>div:nth-child(2)
+	height 60px
+	text-align center
+	.colorGradient
+		margin-bottom 30px
+		display inline-block
+		.colorGradientSpan
+			display inline-block
+		& .outSpan
+			position relative
+			width 0px
+		& .oneSpan>span:before
+		& .twoSpan>span:before
+		& .threeSpan>span:before
+		& .fourSpan>span:before
+		& .fiveSpan>span:before
+		& .sixSpan>span:before
+			position relative
+			top 15px
+			left -15px
+		& .splitSpan
+			position relative
+			top 20px
+			background-color #000
+		& .oneSpan>span:before
+			content '1'
+		& .twoSpan>span:before
+			content '2'
+		& .threeSpan>span:before
+			content '3'
+		& .fourSpan>span:before
+			content '4'
+		& .fiveSpan>span:before
+			content '5'
+		& .sixSpan>span:before
+			content '6'
+			left 8px
 
 span.glyphicon
+.g_info_m_in span.input-group-addon
 	cursor pointer
+
+div.container-fluid>.row:not(:last-child)>div
+	border-bottom 1px dashed #ccc
+
+@media screen and (max-width 992px)
+	.panel-body
+		padding 5px
 	
+	div[role='tabpanel']
+		& .chart_map_foot
+			table
+				th
+					padding 2px
+					font-size 12px
+				& td
+					padding 2px
+					font-size 12px

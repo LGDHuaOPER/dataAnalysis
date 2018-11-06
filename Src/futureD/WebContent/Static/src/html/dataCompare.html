@@ -17,7 +17,21 @@
 	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_m">
+			<div class="g_info_m_in">
+				<div class="form-inline">
+				  	<div class="form-group has-feedback">
+				  	  	<div class="input-group">
+				  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
+				  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找">
+				  	  	</div>
+				  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+				  	</div>
+				  	<button class="btn btn-default" disabled="disabled" id="search_button">搜索</button>
+				</div>
+			</div>
+		</div>
+		<div class="g_info_r"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
@@ -55,18 +69,6 @@
 						    <div role="tabpanel" class="tab-pane fade in active" id="home_dataCompare">
 						    	<div class="home_dataCompare_wrap">
 						    		<div class="home_dataCompare_top">
-						    			<div class="top_div">
-						    				<div class="form-inline">
-						    				  	<div class="form-group has-feedback">
-						    				  	  	<div class="input-group">
-						    				  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
-						    				  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找">
-						    				  	  	</div>
-						    				  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-						    				  	</div>
-						    				  	<button class="btn btn-default" disabled="disabled" id="search_button">搜索</button>
-						    				</div>
-						    			</div>
 						    			<div class="body_div">
 						    				<table class="table table-striped">
 						    					<thead>

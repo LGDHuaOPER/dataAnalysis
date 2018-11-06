@@ -212,26 +212,74 @@ div#in ul {
 }
 
 /* 色阶分布 */
+.panel_map_color_order_distribution .chart_foot {
+  text-align: center;
+}
+.panel_map_color_order_distribution .chart_foot table {
+  margin-bottom: 1px;
+}
+.panel_map_color_order_distribution .chart_foot table th {
+  text-align: center;
+  font-size: 13px;
+}
+.panel_map_color_order_distribution .chart_foot table td {
+  font-size: 13px;
+}
 .panel_map_color_order_distribution .chart_body {
 	border-bottom: 1px dashed #ccc;
 }
-
-.panel_map_color_order_distribution .chart_foot {
-	height: 50px;
-    text-align: center;
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) {
+  height: 60px;
+  text-align: center;
 }
-
-.colorGradient {
-  margin-top: 10px;
-  margin-bottom: 10px;
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient {
+  margin-bottom: 30px;
   display: inline-block;
 }
-
-.colorGradientSpan {
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .colorGradientSpan {
   display: inline-block;
 }
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .outSpan {
+  position: relative;
+  width: 0px;
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .oneSpan>span:before,
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .twoSpan>span:before,
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .threeSpan>span:before,
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .fourSpan>span:before,
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .fiveSpan>span:before,
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .sixSpan>span:before {
+  position: relative;
+  top: 15px;
+  left: -15px;
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .splitSpan {
+  position: relative;
+  top: 20px;
+  background-color: #000;
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .oneSpan>span:before {
+  content: '1';
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .twoSpan>span:before {
+  content: '2';
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .threeSpan>span:before {
+  content: '3';
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .fourSpan>span:before {
+  content: '4';
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .fiveSpan>span:before {
+  content: '5';
+}
+.panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .sixSpan>span:before {
+  content: '6';
+  left: 8px;
+}
 
-@media screen and (max-width: 992px) {
+
+@media screen and (max-width: 1200px) {
     .vectorMap_in {
     	grid-template-columns: 300px 1fr;
     }
