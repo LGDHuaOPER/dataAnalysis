@@ -156,8 +156,8 @@ function eleResize(){
 		winHeight = 600;
 	}
 	$("body").height(winHeight);
-	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 200);
-	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 220);
+	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 180);
+	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 190);
 	$("div.picturetop").each(function(){
 		$(this).innerHeight($(this).parent().height() - 50);
 	});
@@ -1464,6 +1464,7 @@ $(".signalChart_div_tit>.apply_indicatrix").click(function(){
 		});
 		/*线段变色*/
 		_.forEach(RF_SP2State.stateObj.indicatrix_state_arr, function(o, ind){
+			if(_.isEmpty(o.seriesName)) return true;
 			_.find(series, function(oo){
 				return oo.name == o.name;
 			}).update({

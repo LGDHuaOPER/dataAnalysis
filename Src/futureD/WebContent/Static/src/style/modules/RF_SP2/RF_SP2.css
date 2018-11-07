@@ -30,7 +30,7 @@ body {
 
 .g_body {
 	grid-area: g_body;
-	padding: 20px;
+	padding: 10px;
 	background-color: rgb(245, 245, 245);
 }
 
@@ -106,7 +106,7 @@ body {
 
 .g_bodyin_bodyin_bottom {
 	grid-area: g_bodyin_bodyin_bottom;
-	padding-top: 20px;
+	padding-top: 10px;
 }
 
 .g_bodyin_bodyin_bottom_1 {
@@ -468,7 +468,7 @@ body {
 }
 
 .g_bodyin_bodyin_bottom_r>.container-fluid>.row {
-	height: calc(50% - 10px);
+	height: calc(50% - 5px);
 }
 
 .g_bodyin_bodyin_bottom_r>.container-fluid>.row>div {
@@ -571,7 +571,7 @@ div.smithdata {
 }
 
 .g_bodyin_bodyin_bottom_r .row+.row {
-	margin-top: 20px;
+	margin-top: 10px;
 }
 
 .g_bodyin_bodyin_top_wrap {
@@ -877,9 +877,25 @@ div.popover .row:last-child>div {
 	display: inline-block;
 }
 
-@media screen and (max-width: 1023px) {
-	.g_bodyin_bodyin_bottom {
+#S11_chart_S, #S22_chart_S {
+	position: relative;
+}
+
+@media screen and (max-width: 1366px) {
+	.g_bodyin_bodyin_bottom_1, .g_bodyin_bodyin_bottom_2 {
 		grid-template-columns: 300px 1fr;
+	}
+}
+
+@media screen and (max-width: 1200px) {
+	.g_bodyin_bodyin_bottom_1, .g_bodyin_bodyin_bottom_2 {
+		grid-template-columns: 280px 1fr;
+	}
+}
+
+@media screen and (max-width: 1023px) {
+	.g_bodyin_bodyin_bottom_1, .g_bodyin_bodyin_bottom_2 {
+		grid-template-columns: 250px 1fr;
 	}
 }
 
