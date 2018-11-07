@@ -174,6 +174,7 @@ function drawDbCurve(obj){
 						}
 					}
 				},
+				showCheckbox: true
 			}
 		},
 	});

@@ -626,7 +626,9 @@ function draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lo
 	});
 	var tableStr = '<table class="table table-striped table-bordered table-condensed"><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>';
 	$(tableStr).appendTo(that.parent().next());
+	console.log(countObj);
 	_.forOwn(countObj, function(v, k){
+		if(k == -1 || k == 12) return true;
 		that.parent().next().find("th").eq(k-1).text(k+"区间");
 		that.parent().next().find("td").eq(k-1).text(v+"个");
 	});
@@ -1230,17 +1232,17 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 	  				$("#all_statistics>div.panel.panel_"+$(el).attr("aria-controls")+">.panel-body").append(str);
 	  			});
 	  		});
-	  		$("#all_statistics>div.panel").each(function(i, el){
+	  		$("#all_statistics>div.panel").each(function(inde, el){
 	  			var iicontrols = $(el).data("iallstatistics");
 	  			if(iicontrols == "map_good_rate_distribution"){
 	  				/*Map良率分布*/
-	  				$(el).children(".panel-body").find(".chart_map_body>div").each(function(i, ele){
+	  				$(el).children(".panel-body").find(".chart_map_body>div").each(function(ii, ele){
 	  					var that = $(this);
-	  					draw_map_good_rate_distribution(that, i);
+	  					draw_map_good_rate_distribution(that, ii);
 	  				});
 	  			}else if(iicontrols == "map_color_order_distribution"){
 	  				/*Map色阶分布*/
-	  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
+	  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[_.random(0, 1, false)]);
 	  				var otherColor = {};
 	  				var theMax = 400;
 	  				var theMin = 100;
@@ -1325,7 +1327,7 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   							showConfirmButton: false,
   							showCancelButton: false,
   						});
-		  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
+		  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[_.random(0, 1, false)]);
 		  				var otherColor = {};
 		  				var theMax = 400;
 		  				var theMin = 100;

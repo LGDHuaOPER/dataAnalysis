@@ -698,6 +698,53 @@ span.glyphicon {
 	margin-bottom: 10px;
 }
 
+/* 指标线 */
+.indicatrix_div {
+	position: absolute;
+	width: 700px;
+	left: calc(50% - 350px);
+	top: 50px;
+	background-color: #fff;
+	font-size: 15px;
+	border-radius: 5px;
+	z-index: 10;
+	display: none;
+}
+
+.indicatrix_tit {
+	position: relative;
+	height: 35px;
+	line-height: 35px;
+	text-indent: 20px;
+	color: #fff;
+	background-color: rgb(45, 76, 148);
+}
+
+.indicatrix_tit>span {
+	position: absolute;
+	font-size: 20px;
+	right: 20px;
+	top: 8px;
+}
+
+.indicatrix_body {
+	padding-top: 5px;
+}
+
+.indicatrix_foot {
+	text-align: center;
+}
+
+.indicatrix_footin {
+	margin-bottom: 10px;
+	display: inline-block;
+}
+
+.indicatrix_footin>input+input {
+	margin-left: 25px;
+}
+/* 指标线end */
+
 .calcin>div>.row {
 	margin-top: 8px;
 	margin-bottom: 8px;
@@ -789,18 +836,11 @@ div.awesomplete {
 	height: 40px;
 	line-height: 40px;
 	text-indent: 20px;
+	text-align: right;
 }
 
-.signalChart_div_tit>button.lowflag {
-	position: absolute;
-	top: 1px;
-	right: 25px;
-}
-
-.signalChart_div_tit>button.upflag {
-	position: absolute;
-	top: 1px;
-	right: 145px;
+.signalChart_div_tit>button {
+	margin-right: 10px;
 }
 
 .signalChart_div_body {

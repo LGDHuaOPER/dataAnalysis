@@ -1,4 +1,6 @@
 /*variable defined*/
+/*_.find(Highcharts.charts, function(v){if(!_.isNil(v)) return v.renderTo == $("div#S12_chart_S")[0];});
+_.find(Highcharts.charts, function(v){if(!_.isNil(v)) return $(v.renderTo).is("div#S12_chart_S");});*/
 var RF_SP2SwalMixin = swal.mixin({
   	confirmButtonClass: 'btn btn-success',
   	cancelButtonClass: 'btn btn-danger',
@@ -57,7 +59,17 @@ RF_SP2State.stateObj = {
 	comfirm_key: store.get("futureD__RF_SP2__comfirm_key"),
 	key_y: false,
 	curLineInsertIndex: null,
-	smithSXCategories: []
+	smithSXCategories: [],
+	indicatrix_low: [],
+	indicatrix_up: [],
+	indicatrix_min_max: [],
+	indicatrix_state_arr: [],
+	indicatrix_copy: {
+		low: [],
+		up: [],
+		delFlag: false,
+		submitFlag: false
+	}
 };
 RF_SP2State.MathMap = {
 	"sin": {
@@ -267,6 +279,24 @@ function markerMathCalc(str){
 	return str;
 }
 
+/*判断线段有交点*/
+function judgeLineSegmentIntersect(x1, x2, indicatrix){
+	var flag = false;
+	if(_.isEmpty(indicatrix)){
+		flag = false;
+	}else{
+		_.forEach(indicatrix, function(v, i){
+			if((v[0]<x1 && x1<v[1]) || (v[0]<x2 && x2<v[1]) || (x1<v[0] && v[0]<x2) || (x1<v[1] && v[1]<x2)){
+				flag = true;
+			}
+			if(v[0] == x1 && v[1] == x2){
+				flag = true;
+			}
+			if(flag) return false;
+		});
+	}
+	return flag;
+}
 
 /*before load*/
 $(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv").hide();
@@ -896,6 +926,8 @@ $(document).on("dblclick", ".chartWarp", function(){
 						_.forEach(RF_SP2State.mock.RF_SP2[ii].curveinfos[2].smithAndCurve[iclassify], function(v, i){
 							objec.series[ii].data.push(parseFloat(v[1]));
 						});
+						RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
+						RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
 					});
 					objec.container = itargetchart;
 					objec.msgDom = null;
@@ -913,7 +945,7 @@ $(document).on("dblclick", ".chartWarp", function(){
 					objec.text = iclassify;
 					RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
 					drawDbCurve(objec);
-					$(".signalChart_div_tit>.upflag, .signalChart_div_tit>.lowflag").prop("disabled", false);
+					$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
 				}else{
 					/*史密斯图*/
 					var smithDataArr = [];
@@ -924,13 +956,14 @@ $(document).on("dblclick", ".chartWarp", function(){
 					window.onresize = function () {
 						smith1.onresize();
 					};
-					$(".signalChart_div_tit>.upflag, .signalChart_div_tit>.lowflag").prop("disabled", true);
+					$(".signalChart_div_tit>button:not(.backover)").prop("disabled", true);
 				}
 			});
 		});
 	});
 });
 
+/*后退*/
 $(".signalChart_div_tit>button.backover").click(function(){
 	$(".signalChart_div").fadeOut(200, function(){
 		$(".fourChart_div").fadeIn(200);
@@ -940,7 +973,7 @@ $(".signalChart_div_tit>button.backover").click(function(){
 
 /*指标*/
 $(".signalChart_div_tit>button.upflag").popover({
-	content: '<div class="container-fluid">'+
+	content: '<div class="container-fluid upflag_container">'+
 			'<div class="row">'+
 				'<div class="col-sm-6 col-md-6 col-lg-6">X1</div>'+
 				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control upflag_X1 AwesompleteX"></div>'+
@@ -961,7 +994,7 @@ $(".signalChart_div_tit>button.upflag").popover({
 });
 
 $(".signalChart_div_tit>button.lowflag").popover({
-	content: '<div class="container-fluid">'+
+	content: '<div class="container-fluid lowflag_container">'+
 			'<div class="row">'+
 				'<div class="col-sm-6 col-md-6 col-lg-6">X1</div>'+
 				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control lowflag_X1 AwesompleteX"></div>'+
@@ -992,13 +1025,62 @@ $('button.upflag, button.lowflag').on('shown.bs.popover', function () {
   	});
 });
 
+$(document).on("input propertychange change", "div.upflag_container input[type='text'], div.lowflag_container input[type='text']", function(){
+	if($(this).parents().is(".upflag_container")){
+		var upflag_X1 = $(".upflag_X1").val();
+		var upflag_X2 = $(".upflag_X2").val();
+		var upflag_Y0 = $(".upflag_Y0").val();
+		if(_.isEmpty(upflag_X1) || _.isEmpty(upflag_X2) || _.isEmpty(upflag_Y0)){
+			$("#upflag_comfirm").prop("disabled", true);
+		}else{
+			$("#upflag_comfirm").prop("disabled", false);
+		}
+	}else if($(this).parents().is(".lowflag_container")){
+		var lowflag_X1 = $(".lowflag_X1").val();
+		var lowflag_X2 = $(".lowflag_X2").val();
+		var lowflag_Y0 = $(".lowflag_Y0").val();
+		if(_.isEmpty(lowflag_X1) || _.isEmpty(lowflag_X2) || _.isEmpty(lowflag_Y0)){
+			$("#lowflag_comfirm").prop("disabled", true);
+		}else{
+			$("#lowflag_comfirm").prop("disabled", false);
+		}
+	}
+});
+
 $(document).on("click", "#upflag_comfirm", function(){
 	var id = $("[id$='_chart_S']:visible").attr("id");
 	if(!_.isNil(id)){
-		var X1 = Number($(".upflag_X1").val());
-		var X2 = Number($(".upflag_X2").val());
-		var Y0 = Number($(".upflag_Y0").val());
-		var chartsObj = $("#"+id).highcharts();
+		var upflag_X1 = $(".upflag_X1").val();
+		var upflag_X2 = $(".upflag_X2").val();
+		var upflag_Y0 = $(".upflag_Y0").val();
+		if(_.isEmpty(upflag_X1) || _.isEmpty(upflag_X2) || _.isEmpty(upflag_Y0)) return false;
+		/*图表对象*/
+		var curChartObj = _.find(Highcharts.charts, function(v){if(!_.isNil(v)) return $(v.renderTo).is("div#"+id);});
+		var X1 = Math.min(Number(upflag_X1), Number(upflag_X2));
+		var X2 = Math.max(Number(upflag_X1), Number(upflag_X2));
+		var Y0 = Number(upflag_Y0);
+
+		if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2State.stateObj.indicatrix_up, RF_SP2State.stateObj.indicatrix_low))){
+			RF_SP2SwalMixin({
+				title: '选择区间提示',
+				text: "区间与已有区间重合",
+				type: 'info',
+				showConfirmButton: false,
+				timer: 1500,
+			});
+		}else{
+			RF_SP2SwalMixin({
+				title: '选择区间提示',
+				text: "添加成功，点击 应用 展示出来吧，可以多选哦",
+				type: 'success',
+				showConfirmButton: false,
+				timer: 1500,
+			});
+			RF_SP2State.stateObj.indicatrix_up.push([X1, X2, Y0]);
+			RF_SP2State.stateObj.indicatrix_copy.up.push([X1, X2, Y0]);
+			$("#upflag_table>tbody").append('<tr><td>'+X1+'</td><td>'+X2+'</td><td>'+Y0+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>');
+		}
+		/*var chartsObj = $("#"+id).highcharts();
 		var xCategories = chartsObj.xAxis[0].categories;
 		var series = chartsObj.series;
 		var inde1 = _.indexOf(xCategories, X1);
@@ -1045,12 +1127,40 @@ $(document).on("click", "#upflag_comfirm", function(){
 			    id: 'plot-line-6',                //标示线的id，在删除该标示线的时候需要该id标示
 			    dashStyle: "Dash"
 			});
-		});
+		});*/
 	}
 }).on("click", "#lowflag_comfirm", function(){
 	var id = $("[id$='_chart_S']:visible").attr("id");
 	if(!_.isNil(id)){
-		var X1 = Number($(".lowflag_X1").val());
+		var lowflag_X1 = $(".lowflag_X1").val();
+		var lowflag_X2 = $(".lowflag_X2").val();
+		var lowflag_Y0 = $(".lowflag_Y0").val();
+		if(_.isEmpty(lowflag_X1) || _.isEmpty(lowflag_X2) || _.isEmpty(lowflag_Y0)) return false;
+		var X1 = Math.min(Number(lowflag_X1), Number(lowflag_X2));
+		var X2 = Math.max(Number(lowflag_X1), Number(lowflag_X2));
+		var Y0 = Number(lowflag_Y0);
+
+		if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2State.stateObj.indicatrix_up, RF_SP2State.stateObj.indicatrix_low))){
+			RF_SP2SwalMixin({
+				title: '选择区间提示',
+				text: "区间与已有区间重合",
+				type: 'info',
+				showConfirmButton: false,
+				timer: 1500,
+			});
+		}else{
+			RF_SP2SwalMixin({
+				title: '选择区间提示',
+				text: "添加成功，点击 应用 展示出来吧，可以多选哦",
+				type: 'success',
+				showConfirmButton: false,
+				timer: 1500,
+			});
+			RF_SP2State.stateObj.indicatrix_low.push([X1, X2, Y0]);
+			RF_SP2State.stateObj.indicatrix_copy.low.push([X1, X2, Y0]);
+			$("#lowflag_table>tbody").append('<tr><td>'+X1+'</td><td>'+X2+'</td><td>'+Y0+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>');
+		}
+		/*var X1 = Number($(".lowflag_X1").val());
 		var X2 = Number($(".lowflag_X2").val());
 		var Y0 = Number($(".lowflag_Y0").val());
 		var chartsObj = $("#"+id).highcharts();
@@ -1100,6 +1210,299 @@ $(document).on("click", "#upflag_comfirm", function(){
 		    color: 'rgb(0, 176, 255)',                  //标示线的颜色
 		    id: 'plot-line-6',                //标示线的id，在删除该标示线的时候需要该id标示
 		    dashStyle: "Dash"
+		});*/
+	}
+});
+
+/*指标线 2018/11/07*/
+/*显示区间表格*/
+$(".signalChart_div_tit>.open_del_indicatrix").click(function(){
+	$(".RF_SP2_cover, .indicatrix_div").slideDown(200);
+	$('button.upflag, button.lowflag').popover("hide");
+	if(RF_SP2State.stateObj.indicatrix_copy.delFlag && !RF_SP2State.stateObj.indicatrix_copy.submitFlag){
+		var str1 = '';
+		_.forEach(RF_SP2State.stateObj.indicatrix_copy.low, function(v, i){
+			str1+='<tr><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[2]+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
+		});
+		$("#lowflag_table>tbody").empty().append(str1);
+		var str2 = '';
+		_.forEach(RF_SP2State.stateObj.indicatrix_copy.up, function(v, i){
+			str2+='<tr><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[2]+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
+		});
+		$("#upflag_table>tbody").empty().append(str2);
+	}
+});
+$(".indicatrix_tit>span.glyphicon, .indicatrix_footin>.btn-warning").click(function(){
+	$(".RF_SP2_cover, .indicatrix_div").slideUp(200);
+});
+
+/*应用*/
+$(".signalChart_div_tit>.apply_indicatrix").click(function(){
+	/*图表对象*/
+	var id = $("[id$='_chart_S']:visible").attr("id");
+	if(!_.isNil(id)){
+		RF_SP2State.stateObj.indicatrix_state_arr = [];
+		var curChartObj = _.find(Highcharts.charts, function(v) {
+			if (!_.isNil(v)) return $(v.renderTo).is("div#" + id);
+		});
+		var series = curChartObj.series;
+		var remove = 0;
+		var removeArr = [];
+		/*初始化线段都是绿色*/
+		_.forEach(series, function(v, i){
+			if(_.includes(v.name, "低于指标#")) removeArr.push(i);
+			series[i].update({
+				color: "#00FF00"
+			});
+		});
+		_.forEach(series, function(v, i){
+			if(_.includes(v.name, "高于指标#")) removeArr.push(i);
+		});
+		_.forEach(removeArr, function(v, i){
+			series[v-remove].remove();
+			remove++;
+		});
+		/*删除原来的线段结束*/
+		var xCategories = curChartObj.xAxis[0].categories;
+		var diff = (RF_SP2State.stateObj.indicatrix_min_max[1] - RF_SP2State.stateObj.indicatrix_min_max[0])/50;
+		/*判断低于区间*/
+		_.forEach(RF_SP2State.stateObj.indicatrix_low, function(v, i){
+			var data = [];
+			var inde1 = _.indexOf(xCategories, v[0]);
+			var inde2 = _.indexOf(xCategories, v[1]);
+			data.push([inde1, v[2]-diff]);
+			data.push([inde1, v[2]]);
+			data.push([inde2, v[2]]);
+			data.push([inde2, v[2]-diff]);
+			curChartObj.addSeries({
+				name: "低于指标#"+i,
+				data: data,
+				showInLegend: false,
+				enableMouseTracking: true,
+				dataLabels: {
+					enabled: true,
+					formatter: function(){
+						// if(this.y != v[2]){
+						// 	return "";
+						// }else{
+						// 	return this.x;
+						// }
+						return this.x;
+					}
+				},
+				color: "#000",
+				tooltip: {
+					headerFormat: false,
+					pointFormat: false,
+					footerFormat: false
+				},
+				events: {
+					mouseOver: function(){
+						/*console.log(this); // series对象*/
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
+							return this.name == v.name;
+						}).bind(this));
+						_.forEach(curSeriesArr.seriesName, function(v, i){
+							var aa = _.find(series, function(vv, ii){
+								return vv.name == v;
+							});
+							aa.update({
+								lineWidth: 4,
+							});
+							aa.select(true);
+						});
+					},
+					mouseOut: function(){
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
+							return this.name == v.name;
+						}).bind(this));
+						_.forEach(curSeriesArr.seriesName, function(v, i){
+							var aa = _.find(series, function(vv, ii){
+								return vv.name == v;
+							});
+							aa.update({
+								lineWidth: 2,
+							});
+							aa.select(false);
+						});
+					}
+				},
+				point: {
+					events: {
+						mouseOver: undefined
+					}
+				}
+			});
+			/*增加低于区间线段结束*/
+			/*判断是否符合规则*/
+			var iArr = [];
+			_.forEach(series, function(vv, ii){
+				if(_.includes(vv.name, "低于指标#")) return true;
+				if(_.includes(vv.name, "高于指标#")) return true;
+				var data = vv.yData;
+				var flag = false;
+				_.forEach(data, function(vvv, iii){
+					if(inde1<= iii && iii <= inde2){
+						if(vvv > v[2]){
+							flag = true;
+							return false;
+						}
+					}
+				});
+				if(flag){
+					iArr.push(series[ii].name);
+					if(series[ii].color!="#FF0000" && series[ii].color!="#ff0000"){
+						series[ii].update({
+							color: "#FF0000",
+						});
+					}
+				}
+			});
+			RF_SP2State.stateObj.indicatrix_state_arr.push({
+				name: "低于指标#"+i,
+				seriesName: iArr
+			});
+		});
+		/*判断低于区间end*/
+		/*判断高于区间*/
+		_.forEach(RF_SP2State.stateObj.indicatrix_up, function(v, i){
+			var data = [];
+			var inde1 = _.indexOf(xCategories, v[0]);
+			var inde2 = _.indexOf(xCategories, v[1]);
+			data.push([inde1, v[2]+diff]);
+			data.push([inde1, v[2]]);
+			data.push([inde2, v[2]]);
+			data.push([inde2, v[2]+diff]);
+			curChartObj.addSeries({
+				name: "高于指标#"+i,
+				data: data,
+				showInLegend: false,
+				enableMouseTracking: true,
+				dataLabels: {
+					enabled: true,
+					formatter: function(){
+						// if(this.y != v[2]){
+						// 	return "";
+						// }else{
+						// 	return this.x;
+						// }
+						return this.x;
+					}
+				},
+				color: "#000",
+				tooltip: {
+					headerFormat: false,
+					pointFormat: false,
+					footerFormat: false
+				},
+				events: {
+					mouseOver: function(){
+						/*console.log(this); // series对象*/
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
+							return this.name == v.name;
+						}).bind(this));
+						_.forEach(curSeriesArr.seriesName, function(v, i){
+							var aa = _.find(series, function(vv, ii){
+								return vv.name == v;
+							});
+							aa.update({
+								lineWidth: 4,
+							});
+							aa.select(true);
+						});
+					},
+					mouseOut: function(){
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
+							return this.name == v.name;
+						}).bind(this));
+						_.forEach(curSeriesArr.seriesName, function(v, i){
+							var aa = _.find(series, function(vv, ii){
+								return vv.name == v;
+							});
+							aa.update({
+								lineWidth: 2,
+							});
+							aa.select(false);
+						});
+					}
+				},
+				point: {
+					events: {
+						mouseOver: undefined
+					}
+				}
+			});
+			/*增加高于区间线段结束*/
+			/*判断是否符合规则*/
+			var iArr = [];
+			_.forEach(series, function(vv, ii){
+				if(_.includes(vv.name, "低于指标#")) return true;
+				if(_.includes(vv.name, "高于指标#")) return true;
+				var data = vv.yData;
+				var flag = false;
+				_.forEach(data, function(vvv, iii){
+					if(inde1<= iii && iii <= inde2){
+						if(vvv < v[2]){
+							flag = true;
+							return false;
+						}
+					}
+				});
+				if(flag){
+					iArr.push(series[ii].name);
+					if(series[ii].color!="#FF0000" && series[ii].color!="#ff0000"){
+						series[ii].update({
+							color: "#FF0000",
+						});
+					}
+				}
+			});
+			RF_SP2State.stateObj.indicatrix_state_arr.push({
+				name: "高于指标#"+i,
+				seriesName: iArr
+			});
+		});
+		/*线段变色*/
+		_.forEach(RF_SP2State.stateObj.indicatrix_state_arr, function(o, ind){
+			_.find(series, function(oo){
+				return oo.name == o.name;
+			}).update({
+				color: "#FF1493"
+			});
 		});
 	}
+});
+
+/*删除区间*/
+/*RF_SP2State.stateObj.indicatrix_copy low up delFlag submitFlag*/
+$(document).on("click", "#upflag_table>tbody .glyphicon-remove", function(){
+	RF_SP2State.stateObj.indicatrix_copy.delFlag = true;
+	RF_SP2State.stateObj.indicatrix_copy.submitFlag = false;
+	var delArr = [];
+	$(this).parent().siblings("td").each(function(i){
+		if(i<3){
+			delArr[i] = parseFloat($(this).text());
+		}
+	});
+	var pullArr;
+	if($(this).parents("#lowflag_table").length){
+		pullArr = RF_SP2State.stateObj.indicatrix_low;
+	}else{
+		pullArr = RF_SP2State.stateObj.indicatrix_up;
+	}
+	_.pullAt(pullArr, _.findIndex(pullArr, function(v){
+		return _.isEqual(v, delArr);
+	}));
+	/*删除DOM*/
+	$(this).parent().parent().remove();
+});
+
+/*确定并应用*/
+$(".indicatrix_footin>.btn-primary").click(function(){
+	$(".signalChart_div_tit>.apply_indicatrix").trigger("click");
+	RF_SP2State.stateObj.indicatrix_copy.delFlag = false;
+	RF_SP2State.stateObj.indicatrix_copy.submitFlag = true;
+	RF_SP2State.stateObj.indicatrix_copy.low = _.cloneDeep(RF_SP2State.stateObj.indicatrix_low);
+	RF_SP2State.stateObj.indicatrix_copy.up = _.cloneDeep(RF_SP2State.stateObj.indicatrix_up);
+	$(".indicatrix_footin>.btn-warning").trigger("click");
 });
