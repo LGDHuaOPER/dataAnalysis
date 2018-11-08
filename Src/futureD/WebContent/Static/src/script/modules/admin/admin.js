@@ -851,7 +851,9 @@ $(".staff_update_r_foot>.btn-primary").click(function(){
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   	/*e.target // newly activated tab
   	e.relatedTarget // previous active tab*/
+  	$(".g_info .glyphicon-question-sign").show();
   	if($(e.target).parent().data("iclassify") == "operaDailyLog"){
+  		$(".g_info .glyphicon-question-sign").hide();
   		if(!adminState.hasRequestData){
   			var ifutureDT2__userDB = store.get("futureDT2__userDB");
   			if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){

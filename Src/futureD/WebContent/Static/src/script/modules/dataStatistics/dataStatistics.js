@@ -78,7 +78,6 @@ dataStatisticsState.stateObj = {
 		}
 	},
 	chartRenderCurID: 0,
-	renderColorGradient: false
 };
 dataStatisticsState.chartMap = {
 	"histogram": "column",
@@ -95,8 +94,8 @@ function eleResize(){
 		winHeight = 600;
 	}
 	$("body").height(winHeight);
-	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 170);
-	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 170);
+	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 150);
+	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 150);
 }
 
 function eleResize2(){
@@ -200,6 +199,101 @@ function renderChartCsvANDParam(obj){
 		str+='</ul>';
 	}
 	obj.insertDOM.empty().append(str);
+}
+
+/*map色阶分布图绘制*/
+function draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor){
+	var inW = that.innerWidth();
+	var inH = that.innerHeight();
+	var canvasID = "canvas_" + that.attr("id");
+	that.append("<canvas id='"+canvasID+"'></canvas>");
+	that.next().children(".colorOrder_g").append("<div class='colorGradient'></div>");
+	buildColorGradation({
+		width: inW,
+		height: inH,
+		container: canvasID,
+		bgFillColor: "#314067",
+		waferData: copyData,
+		spacePercent: {
+			x: 0.15,
+			y: 0
+		},
+		m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
+		colorGradation: {
+			theMinColor: "#0000FF",
+			lowwerColor: "#00FFFF",
+			midderColor: "#00FF00",
+			upperColor: "#FFFF00",
+			theMaxColor: "#FF0000",
+			twoDiff: twoDiff,
+			threeDiff: threeDiff,
+			fourDiff: fourDiff,
+			fiveDiff: fiveDiff,
+		},
+		colorOrder: true,
+		theMin: theMin,
+		lowwer: lowwer,
+		midder: midder,
+		upper: upper,
+		theMax: theMax,
+		otherColor: otherColor
+	});
+	/*色阶标尺*/
+	var colorGradientDom = that.next().children(".colorOrder_g").find("div.colorGradient");
+	colorGradientDom.width(30).height(inH - 45);
+	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
+	var itemWidth = colorGradientDom.width();
+	var itemHeight = colorGradientDom.height() / (all*1.2);
+	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(twoDiff, function(ii){
+	    var color = getGradientColor ('#00FFFF', '#0000FF', twoDiff, twoDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan twoSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(threeDiff, function(ii){
+	    var color = getGradientColor ('#00FF00', '#00FFFF', threeDiff, threeDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan threeSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(fourDiff, function(ii){
+	    var color = getGradientColor ('#FFFF00', '#00FF00', fourDiff, fourDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan fourSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	_.times(fiveDiff, function(ii){
+	    var color = getGradientColor ('#FF0000', '#FFFF00', fiveDiff, fiveDiff-ii);
+		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
+	});
+	colorGradientDom.append("<span class='colorGradientSpan fiveSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
+	
+	var countObj = _.countBy(copyData.waferMapDataList[i%5].m_DieDataListNew, function(v, i){
+		var retur;
+		_.forOwn(v, function(vv, k){
+			retur = vv.color.split(":")[0];
+		});
+		return retur;
+	});
+	var tableStr = '<table class="table table-striped table-bordered table-condensed"><tbody><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr></tbody></table>';
+	$(tableStr).appendTo(that.next().children(".colorOrder_table"));
+	console.log(countObj);
+	_.forOwn(countObj, function(v, k){
+		if(k == -1 || k == 12) return true;
+		var curTr = that.next().children(".colorOrder_table").find("tr").eq(k-1);
+		curTr.children("td").eq(0).text(k+"区间");
+		curTr.children("td").eq(1).text(v+"个");
+	});
+	that.next().children(".colorOrder_table").find("tr").each(function(i){
+		if(_.isEmpty($(this).children("td").eq(0).text())){
+			$(this).children("td").eq(0).text((i+1)+"区间");
+			$(this).children("td").eq(1).text("0个");
+		}
+	});
 }
 
 /*preload*/
@@ -377,8 +471,6 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 				});
 				$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']>.chartBody>.container-fluid [data-initrenderchart]").each(function(i, el){
 					var container = $(this).attr("id");
-					var canvasID = "canvas_"+container;
-					$(this).append("<canvas id='"+canvasID+"'></canvas>");
 					var curLine = $(".g_bodyin_bodyin_bottom_lsub_mid [data-chartcurid='"+container+"']");
 					var subtitle;
 					if(classify == "table"){
@@ -394,78 +486,134 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 					var xAxis = {};
 					var chart = {};
 					if(type == "wafermap"){
-						buildColorGradation({
-							width: $(this).width(),
-							height: $(this).height(),
-							container: canvasID,
-							bgFillColor: "#eee",
-							waferData: futuredGlobal.S_getMockWaferData()[0],
-							spacePercent: {
-								x: 0.31,
-								y: 0.05
-							},
-							m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%3].m_DieDataListNew,
-							colorGradation: {
-								limitColor: "#FF0000",
-								floorColor: "#0000FF",
-								nums: 256
-							}
-						});
-						$(".colorGradient").width($(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='wafermap']>.chartTit").width() - 200).height($(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='wafermap']>.chartTit").height());
-						if(!dataStatisticsState.stateObj.renderColorGradient){
-							_.times(256, function(ii){
-								var color = getGradientColor ('#FF0000', '#0000FF', 256, ii);
-								var height = $(".colorGradient").height();
-								var width = $(".colorGradient").width() / 300;
-								$(".colorGradient").append("<span class='colorGradientSpan' style='background: "+color+"; height: "+height+"px; width: "+width+"px'></span>");
-							});
-							dataStatisticsState.stateObj.renderColorGradient = true;
-						}
+						/*Map色阶分布*/
+		  				/*1区域，theMin #0000FF，2区域，lowwer #00FFFF，3区域，midder #00FF00，4区域，upper #FFFF00，5区域，theMax #FF0000，6区域*/
+		  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[_.random(0, 1, false)]);
+		  				var otherColor = {};
+		  				var theMin = 100;
+		  				var lowwer = 200;
+		  				var midder = 250;
+		  				var upper = 300;
+		  				var theMax = 400;
+		  				var maxSlide = Math.max(Math.abs(copyData.maxX), Math.abs(copyData.minX));
+		  				var maxR = Math.sqrt(2)*maxSlide;
+		  				/*暂时性数据*/
+		  				var minmin = _.round(theMin*0.8);
+		  				var maxmax = _.round(theMax*1.2);
+		  				_.forEach(copyData.waferMapDataList, function(v, oi, arr){
+		  					_.forEach(arr[oi].m_DieDataListNew, function(vv, ii, arra){
+		  						_.forOwn(arra[ii], function(vvv, k, obj){
+		  							/*虚假数据开始*/
+		  							var iNo = _.random(minmin, maxmax, false);
+		  							// k 1:1
+		  							var k1 = Number(k.toString().split(":")[0]);
+		  							var k2 = Number(k.toString().split(":")[1]);
+									var powR = Math.pow(k1 ,2)+Math.pow(k2 ,2);
+									var lowmid_mean = _.round(_.mean([lowwer, midder]));
+									var midup_mean = _.round(_.mean([midder, upper]));
+									var minlow_mean = _.round(_.mean([theMin, lowwer]));
+									var upmax_mean = _.round(_.mean([upper, theMax]));
+									if(Math.pow(3.2, 2)*powR < Math.pow(maxR ,2)){
+										/*在5/16内，预设3区域中间到4区域中间*/
+										iNo = _.random(lowmid_mean, midup_mean, false);
+									}else if(4*powR < Math.pow(maxR ,2)){
+										/*在二分之一内，预设蓝色至天蓝到黄色*/
+										if(Math.pow(2.67, 2)*powR < Math.pow(maxR ,2)){
+											/*半径3/8以内*/
+											iNo = _.random(lowwer, lowmid_mean, false);
+										}else{
+											iNo = _.random(midup_mean, upper, false);
+										}
+									}else if(Math.pow(1.33, 2)*powR < Math.pow(maxR ,2)){
+										if(Math.pow(1.6, 2)*powR < Math.pow(maxR ,2)){
+											/*半径5/8以内*/
+											iNo = _.random(minlow_mean, lowwer, false);
+										}else{
+											iNo = _.random(upper, upmax_mean, false);
+										}
+									}else if(powR <= Math.pow(maxR ,2)){
+										if((Math.abs(k1)+Math.abs(k2))%2 == 0){
+											iNo = _.random(minmin, minlow_mean, false);
+										}else{
+											iNo = _.random(upmax_mean, maxmax, false);
+										}
+									}
+									/*虚假数据结束*/
+									/*构造数据*/
+		  							if(iNo<theMin){
+		  								iNo = theMin;
+		  								obj[k] = {bin: vvv, color: "1:"+iNo};
+		  							}else if(theMin<=iNo && iNo<lowwer){
+		  								obj[k] = {bin: vvv, color: "2:"+iNo};
+		  							}else if(lowwer<=iNo && iNo<midder){
+		  								obj[k] = {bin: vvv, color: "3:"+iNo};
+		  							}else if(midder<=iNo && iNo<upper){
+		  								obj[k] = {bin: vvv, color: "4:"+iNo};
+		  							}else if(upper<=iNo && iNo<theMax){
+		  								obj[k] = {bin: vvv, color: "5:"+iNo};
+		  							}else if(theMax<=iNo){
+		  								iNo = theMax;
+		  								obj[k] = {bin: vvv, color: "6:"+iNo};
+		  							}
+		  							if(vvv == 12){
+		  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
+		  								obj[k] = {bin: 12, color: "12:"};
+		  							}else if(vvv == -1){
+		  								if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+		  								obj[k] = {bin: -1, color: "-1:"};
+		  							}
+		  						});
+		  					});
+		  				});
+		  				var twoDiff = lowwer - theMin;
+		  				var threeDiff = midder - lowwer;
+		  				var fourDiff = upper - midder;
+		  				var fiveDiff = theMax - upper;
+		  				/*画图*/
+		  				draw_map_color_order_distribution($(el), i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor);
 					}else{
+						var series = null;
 						if(type == 'column'){
-							/*chart = {
-								type: type,
-								plotBorderWidth: 0,
-								zoomType: 'xy'
-							};*/
-							/*xAxis = {
+							var icategories = [["-∞", 0.00000423], [0.00000423, 0.00000448], [0.00000448, 0.0000047300000000000005], [0.0000047300000000000005, 0.00000498], [0.00000498, 0.00000523], [0.00000523, 0.00000548], [0.00000548, 0.000005729999999999999], [0.000005729999999999999, 0.0000059799999999999995], [0.0000059799999999999995, 0.00000623], [0.00000623, "+∞"]];
+							/*var histogram_limits_min = 0.00000423;
+							var histogram_limits_max = 0.00000623;*/
+							xAxis = {
+								categories: icategories,
 								type: 'linear',
-								tickLength: 0
-								// tickmarkPlacement: 'between'
+								labels: {
+									rotation: -45  // 设置轴标签旋转角度
+								},
+								plotLines: [{
+									color: '#FF0000',
+									width: 2,
+									value: 0.5
+								},{
+									color: '#FF0000',
+									width: 2,
+									value: 8.5
+								}]
 							};
-							yAxis = {
-								min: 0,
-								title: {
-									text: '降雨量 (mm)'
-								}
-							};*/
-							/*直方图
-							xAxis = [{
-								title: { text: 'Data' }
-							}, {
-								title: { text: 'Histogram' },
-								opposite: true
-							}];
-							yAxis = [{
-								title: { text: 'Data' }
-							}, {
-								title: { text: 'Histogram' },
-								opposite: true
-							}];*/
 							yAxis = {
 								title: {
 									text: '百分数'
 								}
 							};
-							xAxis = {
-								min: Number(curLine.children("td:eq(1)").text()),
-								max: Number(curLine.children("td:eq(2)").text()),
-								tickAmount: Number(curLine.children("td:eq(3)").text()) + 1,
-								type: 'linear',
-								labels: {
-									rotation: -45  // 设置轴标签旋转角度
-								}
-							};
+							var iserise = [];
+							_.forEach(["93"], function(v, i){
+								var item = {};
+								item.name = "wafer"+v;
+								item.type = "column";
+								item.data = [
+									2, 8, 10, 5, 15, 20, 3, 7, 10, 20
+								];
+								iserise.push(item);
+							});
+							iserise.push({
+								name: "累加",
+								type: "line",
+								data: [2, 10, 20, 25, 40, 60, 63, 70, 80, 100]
+							});
+							series = _.cloneDeep(iserise);
 						}else if(type == 'boxplot'){
 							xAxis = {
 										categories: ['1', '2', '3', '4', '5'],
@@ -558,7 +706,8 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							title: curLine.data("ishowchartparam"),
 							subtitle: subtitle,
 							yAxis: yAxis,
-							xAxis: xAxis
+							xAxis: xAxis,
+							series: series
 						});
 					}
 				});

@@ -30,7 +30,7 @@ body {
 
 .g_body {
 	grid-area: g_body;
-	padding: 20px;
+	padding: 10px;
 	background-color: rgb(245, 245, 245);
 }
 
@@ -180,10 +180,6 @@ body {
 	text-indent: 20px;
 }
 
-.colorGradient, .colorGradientSpan {
-	display: inline-block;
-}
-
 .chartBody {
 	grid-area: chartBody;
 	padding: 0 20px;
@@ -204,11 +200,84 @@ body {
 }
 
 .chartBody>div>div>div {
+	padding-left: 0;
+	padding-right: 0;
 	height: 100%;
 }
 
 .chartBody>div>div>div>div {
 	height: 100%;
+}
+
+/*色阶图*/
+.g_bodyin_bodyin_bottom_rsubin[data-ishowchart="wafermap"] .chartBody>div>div>div {
+	display: grid;
+	grid-template-columns: 1fr 250px;
+	grid-template-areas: "wafermap_wrap colorOrder_wrap";
+}
+
+.g_bodyin_bodyin_bottom_rsubin[data-ishowchart="wafermap"] .chartBody>div>div>div>div:nth-child(1) {
+	grid-area: wafermap_wrap;
+}
+
+.g_bodyin_bodyin_bottom_rsubin[data-ishowchart="wafermap"] .chartBody>div>div>div>div.colorOrder_wrap {
+	grid-area: colorOrder_wrap;
+	display: grid;
+	grid-template-columns: 60px 1fr;
+	grid-template-areas: "colorOrder_g colorOrder_table";
+}
+
+.g_bodyin_bodyin_bottom_rsubin[data-ishowchart="wafermap"] .chartBody>div>div>div>div.colorOrder_wrap>.colorOrder_g {
+	grid-area: colorOrder_g;
+	margin: auto 1px;
+}
+
+.g_bodyin_bodyin_bottom_rsubin[data-ishowchart="wafermap"] .chartBody>div>div>div>div.colorOrder_wrap>.colorOrder_table {
+	grid-area: colorOrder_table;
+}
+
+div.colorOrder_wrap>.colorOrder_g>.colorGradient>span {
+	display: block;
+}
+
+div.colorOrder_wrap>.colorOrder_g>.colorGradient>span.outSpan {
+  position: relative;
+  width: 0px;
+  height: 0px;
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .oneSpan>span:before,
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .twoSpan>span:before,
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .threeSpan>span:before,
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .fourSpan>span:before,
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .fiveSpan>span:before,
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .sixSpan>span:before {
+  position: relative;
+  top: -30px;
+  left: 35px;
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .splitSpan {
+  position: relative;
+  left: 20px;
+  background-color: #000;
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .oneSpan>span:before {
+  content: '1';
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .twoSpan>span:before {
+  content: '2';
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .threeSpan>span:before {
+  content: '3';
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .fourSpan>span:before {
+  content: '4';
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .fiveSpan>span:before {
+  content: '5';
+}
+div.colorOrder_wrap>.colorOrder_g>.colorGradient .sixSpan>span:before {
+  content: '6';
+  top: 8px;
 }
 
 .g_bodyin_bodyin_bottom_l {

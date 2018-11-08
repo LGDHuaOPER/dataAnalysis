@@ -1264,7 +1264,7 @@ $(".signalChart_div_tit>.apply_indicatrix").click(function(){
 		});
 		/*删除原来的线段结束*/
 		var xCategories = curChartObj.xAxis[0].categories;
-		var diff = (RF_SP2State.stateObj.indicatrix_min_max[1] - RF_SP2State.stateObj.indicatrix_min_max[0])/50;
+		var diff = (RF_SP2State.stateObj.indicatrix_min_max[1] - RF_SP2State.stateObj.indicatrix_min_max[0])/40;
 		/*判断低于区间*/
 		_.forEach(RF_SP2State.stateObj.indicatrix_low, function(v, i){
 			var data = [];
