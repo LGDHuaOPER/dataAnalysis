@@ -979,15 +979,56 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 					/*Map色阶分布*/
 					var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[0]);
 					var otherColor = {};
-					var theMax = 400;
 	  				var theMin = 100;
 	  				var lowwer = 200;
-	  				var upper = 300;
 	  				var midder = 250;
+	  				var upper = 300;
+					var theMax = 400;
+					var maxSlide = Math.max(Math.abs(copyData.maxX), Math.abs(copyData.minX));
+					var maxR = Math.sqrt(2)*maxSlide;
+					/*暂时性数据*/
+					var minmin = _.round(theMin*0.8);
+					var maxmax = _.round(theMax*1.2);
 	  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
 	  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
 	  						_.forOwn(arra[ii], function(vvv, k, obj){
-	  							var iNo = _.random(1, 512, false);
+	  							/*虚假数据开始*/
+	  							var iNo = _.random(minmin, maxmax, false);
+	  							// k 1:1
+	  							var k1 = Number(k.toString().split(":")[0]);
+	  							var k2 = Number(k.toString().split(":")[1]);
+								var powR = Math.pow(k1 ,2)+Math.pow(k2 ,2);
+								var lowmid_mean = _.round(_.mean([lowwer, midder]));
+								var midup_mean = _.round(_.mean([midder, upper]));
+								var minlow_mean = _.round(_.mean([theMin, lowwer]));
+								var upmax_mean = _.round(_.mean([upper, theMax]));
+								if(Math.pow(3.2, 2)*powR < Math.pow(maxR ,2)){
+									/*在5/16内，预设3区域中间到4区域中间*/
+									iNo = _.random(lowmid_mean, midup_mean, false);
+								}else if(4*powR < Math.pow(maxR ,2)){
+									/*在二分之一内，预设蓝色至天蓝到黄色*/
+									if(Math.pow(2.67, 2)*powR < Math.pow(maxR ,2)){
+										/*半径3/8以内*/
+										iNo = _.random(lowwer, lowmid_mean, false);
+									}else{
+										iNo = _.random(midup_mean, upper, false);
+									}
+								}else if(Math.pow(1.33, 2)*powR < Math.pow(maxR ,2)){
+									if(Math.pow(1.6, 2)*powR < Math.pow(maxR ,2)){
+										/*半径5/8以内*/
+										iNo = _.random(minlow_mean, lowwer, false);
+									}else{
+										iNo = _.random(upper, upmax_mean, false);
+									}
+								}else if(powR <= Math.pow(maxR ,2)){
+									if((Math.abs(k1)+Math.abs(k2))%2 == 0){
+										iNo = _.random(minmin, minlow_mean, false);
+									}else{
+										iNo = _.random(upmax_mean, maxmax, false);
+									}
+								}
+								/*虚假数据结束*/
+
 	  							if(iNo<theMin){
 	  								iNo = theMin;
 	  								obj[k] = {bin: vvv, color: "1:"+iNo};

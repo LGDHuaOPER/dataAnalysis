@@ -399,6 +399,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                         var rect = new Object(); ///
                         /*普通分布于色阶分布*/
                         if(colorOrder === true){
+                            /*if(_.isNil(colorMap.getValue(bin.color)) || _.isEmpty(colorMap.getValue(bin.color))){
+                                console.log(key)
+                                console.log(bin)
+                            }*/
                             ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
                             ///
                             if(vectorMap){
@@ -1135,7 +1139,7 @@ function buildColorGradation(obj) {
             colorMap.add("4:"+(midder+i), getGradientColor (obj.colorGradation.upperColor, obj.colorGradation.midderColor, obj.colorGradation.fourDiff, obj.colorGradation.fourDiff-i));
         });
         _.times(fiveDiff, function(i){
-            colorMap.add("5:"+(theMax+i), getGradientColor (obj.colorGradation.theMaxColor, obj.colorGradation.upperColor, obj.colorGradation.fiveDiff, obj.colorGradation.fiveDiff-i));
+            colorMap.add("5:"+(upper+i), getGradientColor (obj.colorGradation.theMaxColor, obj.colorGradation.upperColor, obj.colorGradation.fiveDiff, obj.colorGradation.fiveDiff-i));
         });
         colorMap.add("1:"+theMin, obj.colorGradation.theMinColor);
         colorMap.add("6:"+theMax, obj.colorGradation.theMaxColor);
@@ -1185,10 +1189,10 @@ function buildColorGradation(obj) {
         clickCallback: obj.clickCallback,
         keydownCallback: obj.keydownCallback,
     });
-    console.log("obj.m_DieDataListNew", obj.m_DieDataListNew);
-    /*console.log("colorMap.getKeys", colorMap.getKeys());
-    console.log("colorMap.getValues", colorMap.getValues());*/
-    console.log("currentDieCoord", obj.currentDieCoord);
+    // console.log("obj.m_DieDataListNew", obj.m_DieDataListNew);
+    // console.log("colorMap.getKeys", colorMap.getKeys());
+    // console.log("colorMap.getValues", colorMap.getValues());
+    // console.log("currentDieCoord", obj.currentDieCoord);
     var positionFlag = obj.waferData.DirectionX + obj.waferData.DirectionY;
     obj.callback && obj.callback(positionFlag);
     obj.resizeCallback && obj.resizeCallback(width, height, newRenderWaferMap);

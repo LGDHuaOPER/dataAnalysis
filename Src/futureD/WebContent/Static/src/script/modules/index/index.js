@@ -6,12 +6,7 @@ $(function(){
 });
 
 $(".section_in .thumbnail").on("click", function(){
-	var ipage = $(this).data("ipage");
-	if(ipage == "1"){
-		alert("功能尚未开发！");
-	}else{
-		window.location.assign(ipage+".html");
-	}
+	window.location.assign($(this).data("ipage")+".html");
 });
 
 $(".g_info_r>.glyphicon-user").click(function(){
