@@ -22,14 +22,14 @@
 	</div>
 	<div class="g_menu">
 		<!-- Nav tabs -->
-		<ul class="nav nav-tabs bootstro" role="tablist" data-bootstro-title="管理员主页面引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>分页切换区</h4><p>在这里您可以轻松地切换分页，</p><p>查看不同信息，是无刷新的哟</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="0">
+		<ul class="nav nav-tabs bootstro" role="tablist" data-bootstro-title="管理员页面引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>分页切换区</h4><p>在这里您可以轻松地切换分页，</p><p>查看不同信息，是无刷新的哟</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="0">
 		    <li role="presentation" class="active" data-iclassify="staffManage"><a href="#staffManage" aria-controls="staffManage" role="tab" data-toggle="tab" title="您可以快速进行成员管理">成员管理</a></li>
 		    <li role="presentation" data-iclassify="operaDailyLog"><a href="#operaDailyLog" aria-controls="operaDailyLog" role="tab" data-toggle="tab" title="您可以快速进行操作日志的查询">操作日志</a></li>
 		</ul>
 	</div>
 	<div class="g_body">
 		<div class="g_bodyin">
-			<div class="g_bodyin_tit bootstro" data-bootstro-title="管理员主页面引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1">
+			<div class="g_bodyin_tit bootstro" data-bootstro-title="管理员页面引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1">
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
@@ -44,10 +44,10 @@
 					<div class="tab-content">
 					    <div role="tabpanel" class="tab-pane fade in active" id="staffManage">
 					    	<div class="staffManage_tit">
-					    		<div class="staffManage_tit_l bootstro" data-bootstro-title="管理员主页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加用户，删除用户，</p><p>还可以重新生成Mock数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="glyphicon glyphicon-refresh" aria-hidden="true" title="重新生成mock数据"></span></div>
-					    		<div class="staffManage_tit_r bootstro" data-bootstro-title="管理员主页面引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>搜索区域</h4><p>在这里您可以搜索关键词</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
+					    		<div class="staffManage_tit_l bootstro" data-bootstro-title="管理员页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加用户，删除用户，</p><p>还可以重新生成Mock数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="glyphicon glyphicon-refresh" aria-hidden="true" title="重新生成mock数据"></span></div>
+					    		<div class="staffManage_tit_r bootstro" data-bootstro-title="管理员页面引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>搜索区域</h4><p>在这里您可以搜索关键词</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 					    			<div class="staffManage_tit_r_in">
-					    				<div class="input-group">
+					    				<!-- <div class="input-group">
 					    				    <div class="input-group-btn">
 					    				        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="请选择">请选择 <span class="caret"></span></button>
 					    				        <ul class="dropdown-menu">
@@ -55,18 +55,28 @@
 					    				          	<li data-iclass="td__telephone"><a href="javascript:;">电话</a></li>
 					    				          	<li data-iclass="td__email"><a href="javascript:;">Email</a></li>
 					    				          	<li data-iclass="td__role_id"><a href="javascript:;">角色</a></li>
-					    				          	<!-- <li role="separator" class="divider"></li> -->
+					    				          	<li role="separator" class="divider"></li>
 					    				        </ul>
-					    				    </div><!-- /btn-group -->
+					    				    </div>/btn-group
 					    				    <input type="text" class="form-control" aria-label="输入框" data-isearch="search_button" disabled="disabled">
 					    				    <input type="date" class="form-control" aria-label="日期选择框" disabled="disabled">
-					    				</div><!-- /input-group -->
-					    				<input type="button" class="btn btn-primary" id="search_button" value="搜索">
+					    				</div>/input-group
+					    				<input type="button" class="btn btn-primary" id="search_button" value="搜索"> -->
+					    				<div class="form-inline">
+					    				  	<div class="form-group has-feedback">
+					    				  	  	<div class="input-group">
+					    				  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
+					    				  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找">
+					    				  	  	</div>
+					    				  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+					    				  	</div>
+					    				  	<button class="btn btn-default" disabled="disabled" id="search_button">搜索</button>
+					    				</div>
 					    			</div>
 					    		</div>
 					    	</div>
-					    	<div class="staffManage_body bootstro" data-bootstro-title="管理员主页面引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>信息区域</h4><p>主要信息展示都在这里啦！</p><p>可以添加、修改、删除，以及授权管理</p><p>翻页是无刷新的哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="3">
-					    		<table class="table table-striped">
+					    	<div class="staffManage_body">
+					    		<table class="table table-striped bootstro" data-bootstro-title="管理员页面引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>信息区域</h4><p>主要信息展示都在这里啦！</p><p>可以添加、修改、删除，以及授权管理</p><p>翻页是无刷新的哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="3">
 					    			<thead>
 					    				<tr>
 					    					<th><input type="checkbox" id="checkAll"></th>

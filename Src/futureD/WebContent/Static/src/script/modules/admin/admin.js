@@ -236,7 +236,6 @@ $(function(){
 
 	$(".staffManage_tit_l>.glyphicon-refresh").click(function(){
 		adminRender(1, true);
-		$("[data-isearch='search_button']:visible").val("");
 	});
 
 	/*批量删除*/
@@ -551,8 +550,13 @@ $("#checkAll").on({
 	}
 });
 
+/*搜索组件开始*/
+$(".staffManage_tit_r_in .form-control-feedback").click(function(){
+	$(this).prev().children("input").val("");
+});
+
 $("#search_button").on("click", function(){
-	var isearch = $("[data-isearch='search_button']:visible").val().trim();
+	var isearch = $("#search_input").val().trim();
 	$(".staffManage_body tbody td:not(.not_search)").each(function(){
 		var iiText = _.isNil($(this).data("itext")) ? "" : $(this).data("itext");
 		$(this).empty().text(iiText);
@@ -561,8 +565,7 @@ $("#search_button").on("click", function(){
 		adminState.staffHasSearch = false;
 		return false;
 	}else{
-		var iclass = $(".staffManage_tit_r_in li[data-iclass].iclass").data("iclass");
-		$(".staffManage_body tbody td."+iclass).each(function(){
+		$(".staffManage_body tbody td:not(.not_search)").each(function(){
 			var iText = $(this).text();
 			var ireplace = "<b style='color:red'>"+isearch+"</b>";
 			var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
@@ -573,11 +576,20 @@ $("#search_button").on("click", function(){
 	}
 });
 
-$(document).on("click", ".staffManage_tit_r_in li[data-iclass]", function(){
-	$(this).addClass("iclass").siblings().removeClass("iclass");
-	$(this).parent().prev().attr("title", $(this).children().text()).html($(this).children().text()+' <span class="caret"></span>');
-	$("[data-isearch='search_button']:visible").prop("disabled", false);
+$("#search_input").on("input propertychange change", function(){
+	if($(this).val().trim() != ""){
+		$(this).parent().parent().next().removeClass("btn-default").addClass("btn-primary").prop("disabled", false);
+	}else{
+		$(this).val("");
+		$(this).parent().parent().next().removeClass("btn-primary").addClass("btn-default").prop("disabled", true);
+	}
+}).on("keyup", function(e){
+	var i = e.keyCode || e.which || e.charCode;
+	if(i == 13 && $(this).val().trim() != ""){
+		$(this).parent().parent().next().trigger("click");
+	}
 });
+/*搜索组件结束*/
 
 /*添加用户*/
 $(".staffManage_tit_l>.glyphicon-remove-circle").click(function(){

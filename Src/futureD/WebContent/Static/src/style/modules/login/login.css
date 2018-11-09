@@ -61,8 +61,12 @@ body>.container-fluid {
     color: #000;
 }
 
-.button_div button {
+.button_div button, .button_div2 button {
 	width: 100%;
+}
+
+.button_div2 {
+	margin-top: 5px;
 }
 
 .copy_div {

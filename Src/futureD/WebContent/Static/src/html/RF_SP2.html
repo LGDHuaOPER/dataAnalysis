@@ -8,21 +8,22 @@
 	<title>futureD工程分析-RF-SP2分析</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/awesomplete_all.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/RF_SP2/RF_SP2.css" type="text/css">
 </head>
-<body>
+<body data-curpage="RF_SP2">
 	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="RF-SP2引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_bodyin">
-			<div class="g_bodyin_tit">
+			<div class="g_bodyin_tit bootstro" data-bootstro-title="RF-SP2引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，或者跳转工程分析页面，点击右边图标可以跳转数据统计页面。</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
@@ -35,7 +36,7 @@
 			</div>
 			<div class="g_bodyin_body">
 				<div class="g_bodyin_bodyin">
-					<div class="g_bodyin_bodyin_top">
+					<div class="g_bodyin_bodyin_top bootstro" data-bootstro-title="RF-SP2引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>分页区域</h4><p>在这里您可以切换分页查看操作，切换是无刷新的哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 						<div class="g_bodyin_bodyin_top_wrap">
 							<div class="g_bodyin_bodyin_top_wrap_l"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></div>
 							<div class="g_bodyin_bodyin_top_wrap_m">
@@ -49,7 +50,7 @@
 					</div><!-- g_bodyin_bodyin_top end -->
 					<div class="g_bodyin_bodyin_bottom">
 						<div class="g_bodyin_bodyin_bottom_1">
-							<div class="g_bodyin_bodyin_bottom_l">
+							<div class="g_bodyin_bodyin_bottom_l bootstro" data-bootstro-title="RF-SP2引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>CSV文件区域</h4><p>在这里显示的是您在工程分析选择的数据。</p><p>切换到TCF分页后，在这里显示的是CSV文件和参数计算区域，参数计算区域点击表格行可以弹出计算器。</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="3">
 								<div class="g_bodyin_bodyin_bottom_l_intop">
 									<!-- <div class="g_bodyin_bodyin_bottom_l_item">
 										<div class="g_bodyin_bodyin_bottom_l_itemin">
@@ -66,7 +67,7 @@
 								</div><!-- g_bodyin_bodyin_bottom_l_intop end -->
 								<div class="g_bodyin_bodyin_bottom_l_inbottom"><input type="checkbox">全选/全不选</div>
 							</div><!-- g_bodyin_bodyin_bottom_l end -->
-							<div class="g_bodyin_bodyin_bottom_r">
+							<div class="g_bodyin_bodyin_bottom_r bootstro" data-bootstro-title="RF-SP2引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>图表区域</h4><p>在这里显示的是图例，双击某个图例可以查看大图。</p><p>切换到TCF分页后，在这里显示的是具有标记Marker点功能的图表</p></div>" data-bootstro-placement="left" data-bootstro-html="true" data-bootstro-step="4">
 								<div class="container-fluid fourChart_div">
 									<div class="row">
 										<div class="col-sm-12 col-md-6 col-lg-6">
@@ -467,6 +468,8 @@
 	<script src="../script/libs/awesomplete.min.js"></script>
 	<script src="../script/libs/highcharts_6.1.4.js"></script>
 	<script src="../script/libs/highcharts-axis-arrow.js"></script>
+	<script src="../script/libs/bootstro.js"></script>
+	<script src="../script/common/futureD_bootstro.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
 	<script src="../script/libs/drawingSmith.js"></script>

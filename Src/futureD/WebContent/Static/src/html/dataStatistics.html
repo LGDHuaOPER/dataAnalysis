@@ -8,20 +8,21 @@
 	<title>futureD数据统计</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/dataStatistics/dataStatistics.css" type="text/css">
 </head>
-<body>
+<body data-curpage="dataStatistics">
 	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="数据统计引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_bodyin">
-			<div class="g_bodyin_tit">
+			<div class="g_bodyin_tit bootstro" data-bootstro-title="数据统计引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
@@ -47,7 +48,7 @@
 					</div><!-- g_bodyin_bodyin_top end -->
 					<div class="g_bodyin_bodyin_bottom">
 						<div class="g_bodyin_bodyin_bottom_1">
-							<div class="g_bodyin_bodyin_bottom_l">
+							<div class="g_bodyin_bodyin_bottom_l bootstro" data-bootstro-title="数据统计引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>文件和参数区域</h4><p>在这里显示的是您选择的csv文件和参数，选择图表工具切换后，这里显示您二次选择的csv文件和参数</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="2">
 								<div class="g_bodyin_bodyin_bottom_l_intop">
 									<!-- <div class="g_bodyin_bodyin_bottom_l_item">
 										<div class="g_bodyin_bodyin_bottom_l_itemin">
@@ -72,7 +73,7 @@
 									</div>
 								</div>
 							</div><!-- g_bodyin_bodyin_bottom_l end -->
-							<div class="g_bodyin_bodyin_bottom_r">
+							<div class="g_bodyin_bodyin_bottom_r bootstro" data-bootstro-title="数据统计引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>图表工具区域</h4><p>在这里显示的是供选择的图表，选择图表工具切换后，这里显示对应图表</p></div>" data-bootstro-placement="left" data-bootstro-html="true" data-bootstro-step="3">
 								<div class="container-fluid">
 									<div class="row">
 										<div class="col-sm-6 col-md-4 col-lg-4">
@@ -212,6 +213,8 @@
 	<script src="../script/libs/highcharts-more.js"></script>
 	<script src="../script/libs/histogram-bellcurve.js"></script>
 	<!-- highcharts -->
+	<script src="../script/libs/bootstro.js"></script>
+	<script src="../script/common/futureD_bootstro.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
 	<!-- <script src="../script/libs/progressbar.min.js"></script> -->

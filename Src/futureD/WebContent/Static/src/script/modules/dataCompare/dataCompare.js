@@ -305,10 +305,11 @@ function judgeNav(obj){
 		dataCompareState.stateObj.curParam = _.cloneDeep(obj.param);
 		if(obj.param.TotalYield == 0){
 			if(obj.param.other.length == 0){
-				mapArr = [{
+				/*mapArr = [{
 					href: "map_good_rate_distribution",
 					text: "Map良率分布"
-				}];
+				}];*/
+				mapArr.length = 0;
 			}else if(obj.param.other.length == 2){
 				mapArr = _.cloneDeep(mapArr2);
 			}else if(obj.param.other.length != 2){
@@ -1212,9 +1213,9 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   e.relatedTarget // previous active tab*/
   	var curParam = dataCompareState.stateObj.curParam;
   	var controls = $(e.target).attr("aria-controls");
-  	$(".g_info_m, .g_info_r .glyphicon-search").hide();
+  	$(".g_info_m, .g_info_r .glyphicon-search, .g_info .glyphicon-question-sign").hide();
   	if(controls == "home_dataCompare"){
-  		$(".g_info_m").show();
+  		$(".g_info_m, .g_info .glyphicon-question-sign").show();
   		if(dataCompareState.stateObj.searchShow) $(".g_info_r .glyphicon-search").show();
   	}else if(controls == "all_statistics"){
   		dataCompareSwalMixin({

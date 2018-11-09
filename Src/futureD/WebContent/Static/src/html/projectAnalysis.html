@@ -8,12 +8,13 @@
 	<title>futureD工程分析</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
 </head>
-<body>
+<body data-curpage="projectAnalysis">
 	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -31,13 +32,13 @@
 				</div>
 			</div>
 		</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="工程分析引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_body_ll">
 			<div class="g_bodyin">
-				<div class="g_bodyin_tit">
+				<div class="g_bodyin_tit bootstro" data-bootstro-title="工程分析引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
 					<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 					<div class="g_bodyin_tit_r">
 						<ol class="breadcrumb">
@@ -47,7 +48,7 @@
 					</div>
 				</div>
 				<div class="g_bodyin_body">
-					<div class="g_bodyin_body_top">
+					<div class="g_bodyin_body_top bootstro" data-bootstro-title="工程分析引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>数据池</h4><p>所有的原始数据都在这里啦，您可以进行选择，</p><p>被选择的数据将会成为待分析待查阅数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 						<div class="g_bodyin_bodyin">
 							<div class="g_bodyin_bodyin_body">
 								<table class="table table-striped">
@@ -74,7 +75,7 @@
 							</div><!-- g_bodyin_bodyin_body end -->
 						</div>
 					</div>
-					<div class="g_bodyin_body_bottom">
+					<div class="g_bodyin_body_bottom bootstro" data-bootstro-title="工程分析引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>被选中的数据</h4><p>被选中的数据将会放在这里，以便查阅</p></div>" data-bootstro-placement="top" data-bootstro-html="true" data-bootstro-step="3">
 						需要分析的数据：
 						<table class="table table-striped">
 							<thead>
@@ -99,7 +100,7 @@
 		</div><!-- g_body_ll end -->
 		<div class="g_body_rr">
 			<div class="g_body_rr_tit"></div>
-			<div class="g_body_rr_body">
+			<div class="g_body_rr_body bootstro" data-bootstro-title="工程分析引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>分析曲线</h4><p>在这里您可以选择要分析的曲线，需要首先选择数据哟，然后点击 Analyze 按钮</p></div>" data-bootstro-placement="left" data-bootstro-html="true" data-bootstro-step="4">
 				<div class="g_body_rr_body_item" data-icurvetype="DC">
 					&nbsp;<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span> DC
 					<div class="g_body_rr_body_itemin">
@@ -135,6 +136,8 @@
 	<script src="../script/common/pagination.min.js"></script>
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="../script/libs/bootstro.js"></script>
+	<script src="../script/common/futureD_bootstro.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
 	<script src="../script/modules/projectAnalysis/projectAnalysis.js"></script>

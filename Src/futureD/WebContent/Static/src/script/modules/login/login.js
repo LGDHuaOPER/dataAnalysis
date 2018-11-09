@@ -9,6 +9,12 @@ var loginSwalMixin = swal.mixin({
 var futureDT2Mock;
 var loginUserPassObj = store.get("futureDT2__userDB");
 
+function login_session_login_judge(){
+	/*有权限并且未超期*/
+	window.location.assign("index.html");
+	/*有权限并且未超期end*/
+}
+
 /*page onload*/
 $(function(){
 	/*保存mock数据*/
@@ -63,6 +69,13 @@ $(function(){
 			});
 		}
 	}
+
+	if(window.location.href.indexOf("file:\/\/\/") !== 0 && window.location.href.indexOf("file:///") !== 0){
+		$(".button_div2>button").prop("disabled", false);
+	}else{
+		$(".button_div2>button").prop("disabled", true);
+	}
+
 });
 
 /*event handler*/
@@ -167,4 +180,55 @@ $("#login_user, #login_password").on("keyup", function(e){
 			$(".button_div>button").trigger("click");
 		}
 	}
+});
+
+$(".button_div2>button").click(function(){
+	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
+	var ip;
+	var overdueLength;
+	$.get("https://api.ipify.org/?format=json", function(data, status, xhr){
+		if(status == "success"){
+			ip = data.ip;
+			$.get("https://www.easy-mock.com/mock/5be5483eb9983d342035d96d/futureDT2/overdueLength", function(res, statu){
+				if(statu == "success"){
+					overdueLength = res.data;
+					var num = Number(overdueLength.num);
+					var iHash = eouluGlobal.S_getBrowserType()[0]+eouluGlobal.S_getBrowserType()[1]+"##"+ip+"##"+eouluGlobal.S_getOSInfo();
+					var ivisit = store.get("futureDT2__visit__"+encodeURI(iHash));
+					var inow = Date.now();
+					if(ivisit !== null && ivisit !== undefined){
+						var ioverdueLength = ivisit.overdueLength;
+						if(ioverdueLength < inow){
+							/*超期了*/
+							alert("访客模式已超期，请联系管理员！");
+							setTimeout(function(){
+								window.location.assign("login.html");
+							}, 500);
+						}else{
+							/*未超期*/
+							login_session_login_judge();
+						}
+					}else{
+						/*初始化访客模式*/
+						store.set("futureDT2__visit__"+encodeURI(iHash), {
+							visit: "visit",
+							overdueLength: inow+num
+						});
+						login_session_login_judge();
+					}
+				}else{
+					alert("请求出错，请检查网络连接！");
+					setTimeout(function(){
+						window.location.assign("login.html");
+					}, 500);
+				}
+			});
+		}else{
+			alert("请求出错，请检查网络连接！");
+			setTimeout(function(){
+				window.location.assign("login.html");
+			}, 500);
+		}
+	});
+	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
 });

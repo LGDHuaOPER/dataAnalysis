@@ -162,8 +162,7 @@ body {
 
 .staffManage_tit_r>div {
 	position: relative;
-	padding-right: 54px;
-	max-width: 350px;
+	padding-right: 5px;
     display: inline-block;
 }
 
@@ -173,9 +172,10 @@ body {
 	top: 0;
 }
 
-.staffManage_tit_r_in>.input-group>.input-group-btn {
-	position: relative;
-    top: -3px;
+.staffManage_tit_r_in .form-control-feedback {
+	z-index: 3;
+	line-height: 41px;
+	pointer-events: auto;
 }
 
 .operaDailyLog_tit {
@@ -214,7 +214,6 @@ body {
 }
 
 .operaDailyLog_tit_r .form-control-feedback {
-	top: 2px !important;
 	z-index: 3;
 	line-height: 41px;
 	pointer-events: auto;
@@ -605,11 +604,11 @@ span.glyphicon {
 	margin-left: 20px;
 }
 
-.form-control-feedback {
+/* .form-control-feedback {
 	z-index: 11;
 	pointer-events: auto;
 	cursor: pointer;
-}
+} */
 
 .td__password.not_search, .td__authority.not_search {
 	display: none;

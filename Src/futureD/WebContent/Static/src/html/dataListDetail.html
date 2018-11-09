@@ -5,20 +5,21 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
-	<title>futureD数据统计-详细信息</title>
+	<title>futureD数据列表-详细信息</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/dataListDetail/dataListDetail.css" type="text/css">
 </head>
-<body>
+<body data-curpage="dataListDetail">
 	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="详细信息引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
 	</div>
-	<div class="g_menu">
+	<div class="g_menu bootstro" data-bootstro-title="详细信息引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>分页区域</h4><p>在这里您可以选择不同的分页查看操作，切换分页是无刷新的哟</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="0">
 		<!-- Nav tabs -->
 		<ul class="nav nav-tabs" role="tablist">
 		    <li role="presentation" class="active" data-iclassify="allDetail"><a href="#allDetail" aria-controls="allDetail" role="tab" data-toggle="tab" title="您可以快速查看该晶圆的参数数据">参数数据</a></li>
@@ -28,7 +29,7 @@
 	</div>
 	<div class="g_body">
 		<div class="g_bodyin">
-			<div class="g_bodyin_tit">
+			<div class="g_bodyin_tit bootstro" data-bootstro-title="详细信息引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，或者跳转数据列表页面。</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<div class="container-fluid">
@@ -36,7 +37,7 @@
 							<div class="col-sm-12 col-md-8 col-lg-8">
 								<ol class="breadcrumb">
 								  	<li><a href="index.html">系统主页面</a></li>
-								  	<li><a href="dataList.html">数据统计</a></li>
+								  	<li><a href="dataList.html">数据列表</a></li>
 								  	<li class="active">详细信息</li>
 								</ol>
 							</div>
@@ -292,13 +293,15 @@
 	<script src="../script/common/futureDT2session.js"></script>
 	<script src="../script/libs/sweetalert2.min.js"></script>
 	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="../script/common/futureD_config.js"></script>
-	<script src="../script/common/mock.js"></script>
 	<!-- <script src="../script/libs/progressbar.min.js"></script> -->
 	<script src="../script/libs/newhighcharts.js"></script>	
 	<script src="../script/libs/highcharts-axis-arrow.js"></script>
 	<script src="../script/libs/highcharts-more.js"></script>
 	<script src="../script/libs/histogram-bellcurve.js"></script>
+	<script src="../script/libs/bootstro.js"></script>
+	<script src="../script/common/futureD_bootstro.js"></script>
+	<script src="../script/common/futureD_config.js"></script>
+	<script src="../script/common/mock.js"></script>
 	<script src="../script/modules/dataCompare/dataCompareRenderChart.js"></script>
 	<script src="../script/libs/drawWaferMap.js"></script>
 	<script src="../script/modules/dataListDetail/dataListDetail.js"></script>

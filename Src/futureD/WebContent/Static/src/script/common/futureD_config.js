@@ -473,7 +473,63 @@
                 returnArr[1] = "0";
             }
             return returnArr;
-        }
+        },
+
+        // @操作系统
+        S_getOSInfo: function() {
+            var _pf = navigator.platform;
+            var appVer = navigator.userAgent;
+            var _bit;
+            if (_pf == "Win32" || _pf == "Windows") {
+                if (appVer.indexOf("WOW64") > -1 || appVer.indexOf("Win64") > -1) {
+                    _bit = "64位";
+                } else {
+                    _bit = "32位";
+                }
+                /*Windows_vista 判断*/
+                if (appVer.indexOf("Windows NT 6.0") > -1 || appVer.indexOf("Windows Vista") > -1) {
+                    if (_bit == '64位' || appVer.indexOf("Windows Vista") > -1) {
+                        return 'Windows_vista ' + _bit;
+                    } else {
+                        return "Unknow_Windows_vista";
+                    }
+                }
+                /*Windows_7 判断*/
+                else if (appVer.indexOf("Windows NT 6.1") > -1 || appVer.indexOf("Windows 7") > -1) {
+                    return 'Windows_7 ' + _bit;
+                }
+                /*Windows_8 判断*/
+                else if (appVer.indexOf("Windows NT 6.2") > -1 || appVer.indexOf("Windows 8") > -1) {
+                    return 'Windows_8 ' + _bit;
+                }
+                /*Windows_8.1 判断*/
+                else if (appVer.indexOf("Windows NT 6.3") > -1 || appVer.indexOf("Windows 8.1") > -1) {
+                    return 'Windows_8.1 ' + _bit;
+                }
+                /*Windows_10 判断*/
+                else if (appVer.indexOf("Windows NT 10") > -1 || appVer.indexOf("Windows NT 10.0") > -1) {
+                    return 'Windows_10 ' + _bit;
+                }
+                else {
+                    try {
+                        var _winName = Array('2000', 'XP', '2003');
+                        var _ntNum = appVer.match(/Windows NT 5.\d/i).toString();
+                        return 'Windows_' + _winName[_ntNum.replace(/Windows NT 5.(\d)/i, "$1")] + " " + _bit;
+                    } catch (e) {
+                        return 'Unknow_Windows';
+                    }
+                }
+            } else if (_pf == "Mac68K" || _pf == "MacPPC" || _pf == "Macintosh") {
+                return "Mac";
+            } else if (_pf == "X11") {
+                return "Unix";
+            } else if (String(_pf).indexOf("Linux") > -1) {
+                return "Linux";
+            } else {
+                return "Unknow_";
+            }
+        },
+        /*S_getOSInfo end*/
     };
 
     // 最后将插件对象暴露给全局对象

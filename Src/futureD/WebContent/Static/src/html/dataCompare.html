@@ -8,12 +8,13 @@
 	<title>futureD数据对比</title>
 	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="../style/modules/dataCompare/dataCompare.css" type="text/css">
 </head>
-<body>
+<body data-curpage="dataCompare">
 	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -31,12 +32,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="数据对比引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_bodyin">
-			<div class="g_bodyin_tit">
+			<div class="g_bodyin_tit bootstro" data-bootstro-title="数据对比引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
@@ -48,7 +49,7 @@
 			</div>
 			<div class="g_bodyin_body">
 				<div class="g_bodyin_bodyin">
-					<div class="g_bodyin_bodyin_top">
+					<div class="g_bodyin_bodyin_top bootstro" data-bootstro-title="数据对比引导：第六步" data-bootstro-content="<div class='well well-sm'><h4>分析工具</h4><p>在选择完数据、共有参数后，即可选择相应的工具进行分析，还可以直接查看所有统计哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="5">
 						<div class="g_bodyin_bodyin_top_wrap">
 							<!-- Nav tabs -->
 							<ul class="nav nav-tabs" role="tablist">
@@ -68,7 +69,7 @@
 						<div class="tab-content">
 						    <div role="tabpanel" class="tab-pane fade in active" id="home_dataCompare">
 						    	<div class="home_dataCompare_wrap">
-						    		<div class="home_dataCompare_top">
+						    		<div class="home_dataCompare_top bootstro" data-bootstro-title="数据对比引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>数据池</h4><p>所有的原始数据都在这里啦，您可以进行选择，</p><p>被选择的数据将会成为待分析待查阅数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 						    			<div class="body_div">
 						    				<table class="table table-striped">
 						    					<thead>
@@ -95,7 +96,7 @@
 						    			</div><!-- body_div end -->
 						    		</div>
 						    		<div class="home_dataCompare_bottom">
-						    			<div class="left_div">
+						    			<div class="left_div bootstro" data-bootstro-title="数据对比引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>被选中的数据</h4><p>被选中的数据将会放在这里，以便查阅</p></div>" data-bootstro-placement="top" data-bootstro-html="true" data-bootstro-step="3">
 						    				选中的数据
 						    				<table class="table table-striped">
 						    					<thead>
@@ -108,7 +109,7 @@
 						    					<tbody></tbody>
 						    				</table>
 						    			</div>
-						    			<div class="right_div">
+						    			<div class="right_div bootstro" data-bootstro-title="数据对比引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>共有参数列表</h4><p>被选中的数据的共有参数将会放在这里，选择不同的参数将会有不同的规则来分析数据</p></div>" data-bootstro-placement="top" data-bootstro-html="true" data-bootstro-step="4">
 						    				<div class="panel panel-info">
 						    				  	<div class="panel-heading">
 						    				    	<h3 class="panel-title">共有参数</h3>
@@ -264,6 +265,8 @@
 	<script src="../script/libs/highcharts-axis-arrow.js"></script>
 	<script src="../script/libs/highcharts-more.js"></script>
 	<script src="../script/libs/histogram-bellcurve.js"></script>
+	<script src="../script/libs/bootstro.js"></script>
+	<script src="../script/common/futureD_bootstro.js"></script>
 	<script src="../script/common/futureD_config.js"></script>
 	<script src="../script/common/mock.js"></script>
 	<!-- <script src="../script/libs/progressbar.min.js"></script> -->

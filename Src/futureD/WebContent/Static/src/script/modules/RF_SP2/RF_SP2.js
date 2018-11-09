@@ -536,6 +536,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 			});
 			/*导航栏结束*/
 			if(target == "g_bodyin_bodyin_bottom_2"){
+				$(".g_info .glyphicon-question-sign").hide();
 				/*判断重新渲染按钮*/
 				if(RF_SP2State.waferTCFSelected.length == 2){
 					$(".reRenderBtnDiv").css({
@@ -606,6 +607,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 				/*判断结束*/
 			}else{
 				$(".reRenderBtnDiv").hide();
+				$(".g_info .glyphicon-question-sign").show();
 			}
 		});
 	}
@@ -1476,7 +1478,7 @@ $(".signalChart_div_tit>.apply_indicatrix").click(function(){
 
 /*删除区间*/
 /*RF_SP2State.stateObj.indicatrix_copy low up delFlag submitFlag*/
-$(document).on("click", "#upflag_table>tbody .glyphicon-remove", function(){
+$(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>tbody .glyphicon-remove", function(){
 	RF_SP2State.stateObj.indicatrix_copy.delFlag = true;
 	RF_SP2State.stateObj.indicatrix_copy.submitFlag = false;
 	var delArr = [];
