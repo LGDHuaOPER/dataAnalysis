@@ -1,55 +1,96 @@
 ;(function(){
-	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
-	if(window.location.href.indexOf("file:\/\/\/") !== 0 && window.location.href.indexOf("file:///") !== 0){
-		var ip;
-		var overdueLength;
-		$.get("https://api.ipify.org/?format=json", function(data, status, xhr){
-			if(status == "success"){
-				ip = data.ip;
-				$.get("https://www.easy-mock.com/mock/5be5483eb9983d342035d96d/futureDT2/overdueLength", function(res, statu){
-					if(statu == "success"){
-						overdueLength = res.data;
-						var num = Number(overdueLength.num);
-						var iHash = eouluGlobal.S_getBrowserType()[0]+eouluGlobal.S_getBrowserType()[1]+"##"+ip+"##"+eouluGlobal.S_getOSInfo();
-						var ivisit = store.get("futureDT2__visit__"+encodeURI(iHash));
-						var inow = Date.now();
-						if(ivisit !== null && ivisit !== undefined){
-							var ioverdueLength = ivisit.overdueLength;
-							if(ioverdueLength < inow){
-								/*超期了*/
-								alert("访客模式已超期，请联系管理员！");
-								setTimeout(function(){
-									window.location.assign("login.html");
-								}, 500);
+	if(store.get("futureDT2__login_mode") == "visit"){
+		/*如果是访客模式登录*/
+		/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
+		if(window.location.href.indexOf("file:\/\/\/") !== 0 && window.location.href.indexOf("file:///") !== 0){
+			var ip;
+			var overdueLength;
+			$.get("https://api.ipify.org/?format=json", function(data, status, xhr){
+				if(status == "success"){
+					ip = data.ip;
+					$.get("https://www.easy-mock.com/mock/5be5483eb9983d342035d96d/futureDT2/overdueLength", function(res, statu){
+						if(statu == "success"){
+							overdueLength = res.data;
+							var num = Number(overdueLength.num);
+							var refresh = overdueLength.refresh;
+							var iHash = eouluGlobal.S_getBrowserType()[0]+eouluGlobal.S_getBrowserType()[1]+"##"+ip+"##"+eouluGlobal.S_getOSInfo();
+							var ivisit = store.get("futureDT2__visit__"+encodeURI(iHash));
+							var inow = Date.now();
+							if(ivisit !== null && ivisit !== undefined){
+								if(refresh === true || refresh == "true"){
+									/*表示立即刷新，继续可以使用，在当前时间基础上加超期期限*/
+									store.set("futureDT2__visit__"+encodeURI(iHash), {
+										visit: "visit",
+										overdueLength: inow+num,
+										start: inow,
+										oldNum: num
+									});
+									visit_login_judge();
+								}else{
+									/*不是立即刷新*/
+									var ioverdueLength = ivisit.overdueLength;
+									var oldNum = ivisit.oldNum;
+									var start = ivisit.start;
+									if(num != oldNum){
+										/*num改变了*/
+										if(start+num < inow){
+											/*超期了*/
+											alert("管理员改变了使用时长，访客模式已超期，请联系管理员！");
+											window.location.assign("login.html");
+										}else{
+											/*未超期*/
+											console.log("管理员改变了使用时长，但没有立即刷新，访客模式未超期");
+											store.set("futureDT2__visit__"+encodeURI(iHash), {
+												visit: "visit",
+												overdueLength: start+num,
+												start: start,
+												oldNum: num
+											});
+											visit_login_judge();
+										}
+									}else{
+										/*num未改变*/
+										if(ioverdueLength < inow){
+											alert("您的访客模式已超期，请联系管理员！");
+											window.location.assign("login.html");
+										}else{
+											/*未超期*/
+											console.log("管理员未改变使用时长，也没有立即刷新，访客模式未超期");
+											visit_login_judge();
+										}
+									}
+								}
 							}else{
-								/*未超期*/
-								session_login_judge();
+								/*初始化访客模式*/
+								store.set("futureDT2__visit__"+encodeURI(iHash), {
+									visit: "visit",
+									overdueLength: inow+num,
+									start: inow,
+									oldNum: num
+								});
+								visit_login_judge();
 							}
 						}else{
-							/*初始化访客模式*/
-							store.set("futureDT2__visit__"+encodeURI(iHash), {
-								visit: "visit",
-								overdueLength: inow+num
-							});
-							session_login_judge();
-						}
-					}else{
-						alert("请求出错，请检查网络连接！");
-						setTimeout(function(){
+							alert("请求出错，请检查网络连接！");
 							window.location.assign("login.html");
-						}, 500);
-					}
-				});
-			}else{
-				alert("请求出错，请检查网络连接！");
-				setTimeout(function(){
+						}
+					});
+				}else{
+					alert("请求出错，请检查网络连接！");
 					window.location.assign("login.html");
-				}, 500);
-			}
-		});
+				}
+			});
+		}
+		/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
+		else{
+			alert("本地file协议不支持访客模式登录！");
+			window.location.assign("login.html");
+		}
+	}else{
+		/*不是访客模式*/
+		session_login_judge();
 	}
-	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
-
+	
 	function session_login_judge(){
 		/*有权限并且未超期*/
 		var iclassify = store.get('futureDT2__session_classify');
@@ -89,6 +130,12 @@
 			window.location.assign("login.html");
 		});
 		/*有权限并且未超期end*/
+	}
+
+	function visit_login_judge() {
+		$(document).on("click", ".g_info_r .glyphicon-off", function(){
+			window.location.assign("login.html");
+		});
 	}
 
 	/*window.onbeforeunload = function (e) {

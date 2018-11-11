@@ -11,7 +11,10 @@ var loginUserPassObj = store.get("futureDT2__userDB");
 
 function login_session_login_judge(){
 	/*有权限并且未超期*/
-	window.location.assign("index.html");
+	store.set("futureDT2__login_mode", "visit");
+	setTimeout(function(){
+		window.location.assign("index.html");
+	}, 100);
 	/*有权限并且未超期end*/
 }
 
@@ -136,6 +139,7 @@ $(".button_div>button").click(function(){
 		  	try{
 		  		window.sessionStorage.setItem("futureDT2__sessionStorage", JSON.stringify(futureDT2__session));
 		  		store.set('futureDT2__session', futureDT2__session);
+		  		store.set("futureDT2__login_mode", "sessionStorage");
 		  		window.location.assign("index.html");
 		  	}catch(err){
 		  		loginSwalMixin({
@@ -149,6 +153,7 @@ $(".button_div>button").click(function(){
 		}else{
 		  	store.set("futureDT2__session_classify", "localStorage");
 		  	store.set('futureDT2__session', futureDT2__session);
+		  	store.set("futureDT2__login_mode", "localStorage");
 		  	window.location.assign("index.html");
 		}
 
@@ -183,6 +188,9 @@ $("#login_user, #login_password").on("keyup", function(e){
 });
 
 $(".button_div2>button").click(function(){
+	if(window.location.href.indexOf("file:\/\/\/") === 0 || window.location.href.indexOf("file:///") === 0) return false;
+	var iThat = $(this);
+	eouluGlobal.C_btnDisabled(iThat, true, "登陆中...");
 	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
 	var ip;
 	var overdueLength;
@@ -193,41 +201,75 @@ $(".button_div2>button").click(function(){
 				if(statu == "success"){
 					overdueLength = res.data;
 					var num = Number(overdueLength.num);
+					var refresh = overdueLength.refresh;
 					var iHash = eouluGlobal.S_getBrowserType()[0]+eouluGlobal.S_getBrowserType()[1]+"##"+ip+"##"+eouluGlobal.S_getOSInfo();
 					var ivisit = store.get("futureDT2__visit__"+encodeURI(iHash));
 					var inow = Date.now();
 					if(ivisit !== null && ivisit !== undefined){
-						var ioverdueLength = ivisit.overdueLength;
-						if(ioverdueLength < inow){
-							/*超期了*/
-							alert("访客模式已超期，请联系管理员！");
-							setTimeout(function(){
-								window.location.assign("login.html");
-							}, 500);
-						}else{
-							/*未超期*/
+						if(refresh === true || refresh == "true"){
+							/*表示立即刷新，继续可以使用，在当前时间基础上加超期期限*/
+							store.set("futureDT2__visit__"+encodeURI(iHash), {
+								visit: "visit",
+								overdueLength: inow+num,
+								start: inow,
+								oldNum: num
+							});
+							eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
 							login_session_login_judge();
+						}else{
+							/*不是立即刷新*/
+							var ioverdueLength = ivisit.overdueLength;
+							var oldNum = ivisit.oldNum;
+							var start = ivisit.start;
+							if(num != oldNum){
+								/*num改变了*/
+								if(start+num < inow){
+									/*超期了*/
+									alert("管理员改变了使用时长，访客模式已超期，请联系管理员！");
+									eouluGlobal.C_btnAbled(iThat, true, "访客登录");
+								}else{
+									/*未超期*/
+									console.log("管理员改变了使用时长，但没有立即刷新，访客模式未超期");
+									store.set("futureDT2__visit__"+encodeURI(iHash), {
+										visit: "visit",
+										overdueLength: start+num,
+										start: start,
+										oldNum: num
+									});
+									eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
+									login_session_login_judge();
+								}
+							}else{
+								/*num未改变*/
+								if(ioverdueLength < inow){
+									alert("您的访客模式已超期，请联系管理员！");
+									eouluGlobal.C_btnAbled(iThat, true, "访客登录");
+								}else{
+									/*未超期*/
+									console.log("管理员未改变使用时长，也没有立即刷新，访客模式未超期");
+									eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
+									login_session_login_judge();
+								}
+							}
 						}
 					}else{
 						/*初始化访客模式*/
 						store.set("futureDT2__visit__"+encodeURI(iHash), {
 							visit: "visit",
-							overdueLength: inow+num
+							overdueLength: inow+num,
+							start: inow,
+							oldNum: num
 						});
 						login_session_login_judge();
 					}
 				}else{
 					alert("请求出错，请检查网络连接！");
-					setTimeout(function(){
-						window.location.assign("login.html");
-					}, 500);
+					eouluGlobal.C_btnAbled(iThat, true, "访客登录");
 				}
 			});
 		}else{
 			alert("请求出错，请检查网络连接！");
-			setTimeout(function(){
-				window.location.assign("login.html");
-			}, 500);
+			eouluGlobal.C_btnAbled(iThat, true, "访客登录");
 		}
 	});
 	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/

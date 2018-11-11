@@ -28,7 +28,7 @@ function futureD_bootstro_start() {
 		},
 		onExit: function(params) {
 			if(params.idx+1 == params.count ) return false;
-			alert("您在第" + (params.idx + 1) +"步退出了页面引导，下次进入该页面不会再次出现！");
+			alert("您在第" + (params.idx + 1) +"步退出了页面引导，可以点击帮助再次查看！");
 		},
         onStep: function(params) {
         	// console.log(params);

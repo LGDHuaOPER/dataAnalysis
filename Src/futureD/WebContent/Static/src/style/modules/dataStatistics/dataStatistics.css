@@ -280,6 +280,10 @@ div.colorOrder_wrap>.colorOrder_g>.colorGradient .sixSpan>span:before {
   top: 8px;
 }
 
+div.colorOrder_wrap>.colorOrder_table>table {
+	margin-top: 20px;
+}
+
 .g_bodyin_bodyin_bottom_l {
 	display: grid;
 	grid-template-rows: 1fr 20px 1fr;
