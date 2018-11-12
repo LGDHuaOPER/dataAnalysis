@@ -1078,10 +1078,10 @@ $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>t
 	/*删除DOM*/
 	$(this).parent().parent().remove();
 	/*判断是否可以应用*/
-	var uphasOk = $("#upflag_table tr.hasOk").length;
-	var lowhasOk = $("#lowflag_table tr.hasOk").length;
-	var upTr = $("#upflag_table tr").length;
-	var lowTr = $("#lowflag_table tr").length;
+	var uphasOk = $("#upflag_table tbody tr.hasOk").length;
+	var lowhasOk = $("#lowflag_table tbody tr.hasOk").length;
+	var upTr = $("#upflag_table tbody tr").length;
+	var lowTr = $("#lowflag_table tbody tr").length;
 	if(uphasOk === 0 && lowhasOk === 0){
 		drawSmithS12S21({
 			iclassify: iclassify,
@@ -1093,6 +1093,10 @@ $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>t
 	}
 	var uplegend = $("#upflag_table").prev().children("span");
 	var lowlegend = $("#lowflag_table").prev().children("span");
+	console.log(upTr)
+	console.log(uphasOk)
+	console.log(lowTr)
+	console.log(lowhasOk)
 	if(upTr === 0 || upTr === uphasOk){
 		uplegend.fadeIn(100);
 	}else{
