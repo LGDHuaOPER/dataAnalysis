@@ -731,8 +731,25 @@ span.glyphicon {
 	padding-top: 5px;
 }
 
-.indicatrix_foot {
+.indicatrix_body legend {
+	margin-bottom: 5px;
+	font-size: 16px;
+}
+
+.indicatrix_body th, .indicatrix_body td, .indicatrix_foot {
 	text-align: center;
+}
+
+.indicatrix_body th:nth-child(1), .indicatrix_body th:nth-child(2), .indicatrix_body th:nth-child(3), .indicatrix_body td:nth-child(1), .indicatrix_body td:nth-child(2), .indicatrix_body td:nth-child(3) {
+	width: 180px;
+}
+
+.indicatrix_body td:nth-child(4) {
+	line-height: 34px;
+}
+
+.indicatrix_body td:nth-child(4)>span+span {
+	margin-left: 10px;
 }
 
 .indicatrix_footin {

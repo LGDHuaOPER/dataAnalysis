@@ -35,11 +35,42 @@ public class CoordinateDao {
 	 * @param str
 	 * @return
 	 */
+	public String insertCoordinate(Connection conn,List<Object[]> list,String column,String str,int waferId){
+		String sql = "insert into dm_wafer_coordinate_data (wafer_id,alphabetic_coordinate,x_coordinate,y_coordinate,die_number,bin,test_time"+column+") values (?,?,?,?,?,?,?"+str+") ";
+		PreparedStatement ps;
+		String flag = "success";
+		try {
+			ps = conn.prepareStatement(sql);
+			if(list!=null){
+				int interval = 10000;
+				Object[] params = null;
+				System.out.println(Arrays.toString(list.get(0)));
+				for(int i=0,size=list.size();i<size;i++){
+					params = list.get(i);
+					ps.setObject(1, waferId);
+					for(int j=0,length=params.length;j<length;j++){
+						ps.setObject(j+2, params[j]);
+					}
+					ps.addBatch();
+					if((i+1)%interval==0){
+						ps.executeBatch();
+					}
+				}
+				if(list.size()%interval>0){
+					ps.executeBatch();
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			flag = "晶圆die数据添加失败！";
+		}
+		return flag;
+	}
+	
 	public String insertCoordinate(Connection conn,List<Object[]> list,String column,String str){
 		String sql = "insert into dm_wafer_coordinate_data (wafer_id,alphabetic_coordinate,x_coordinate,y_coordinate,die_number,bin,test_time"+column+") values (?,?,?,?,?,?,?"+str+") ";
 		PreparedStatement ps;
 		String flag = "success";
-		String id = "0";
 		try {
 			ps = conn.prepareStatement(sql);
 			if(list!=null){
@@ -48,9 +79,6 @@ public class CoordinateDao {
 				for(int i=0,size=list.size();i<size;i++){
 					params = list.get(i);
 					for(int j=0,length=params.length;j<length;j++){
-						if(i==0){
-							id = params[0].toString();
-						}
 						ps.setObject(j+1, params[j]);
 					}
 					ps.addBatch();
@@ -368,6 +396,12 @@ public class CoordinateDao {
 		
 		return wafer;
 		
+	}
+	
+	public double getYield(Connection conn,int waferId){
+		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+		Object result = db.queryResult(conn, sql, new Object[]{waferId,waferId});
+		return result==null?0:Double.parseDouble(result.toString());
 	}
 	
 	public WaferMapDTO getColorMap(Connection conn,int waferId,String column,String parameter,double uppper,double lower) {

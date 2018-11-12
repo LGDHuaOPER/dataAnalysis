@@ -46,7 +46,7 @@ public class YieldServiceImpl implements YieldService{
 				right = ls.get(1);
 				left = ls.get(0);
 				if(left == Double.NaN || right == Double.NaN){
-					yield = 0;
+					yield = 1;
 				}else{
 					column = dao.getParameterColumn(conn, waferId, parameter);
 					yield = wafer.getYieldPerParameter(conn, waferId, right+"", left+"", column);

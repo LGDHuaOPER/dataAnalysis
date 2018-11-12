@@ -4,6 +4,7 @@
 package com.eoulu.dao.user;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
@@ -55,12 +56,13 @@ public class UserDao {
 		return result == null ? "" : result.toString();
 	}
 
-	public String getUserId(Connection conn, String userName) {
-		String sql = "select user_id from dm_user where user_name=?";
-		Object result = db.queryResult(conn, sql, new Object[] { userName });
+	public static String getUserId(Connection conn, String userName) {
+		String sql = "select user_id from dm_user where user_name='"+userName+"' and 1";
+		Object result = db.queryResult(conn, sql, null);
 		return result == null ? "" : result.toString();
 	}
 
+	
 	public String getUserName(int userId) {
 		String sql = "select user_name from dm_user where user_id=?";
 		Object result = db.queryResult(sql, new Object[] { userId });

@@ -54,7 +54,7 @@ public class ZipService {
 	 * @return
 	 */
 	public String saveWaferInfo(Connection conn,  WaferDO wafer,
-			Map<String, List<Object[]>> parameterList,MapParameterDO mapDO,String tester,String totalTestTime ) {
+			Map<String, List<Object[]>> parameterList,String tester,String totalTestTime ) {
 		int waferFlag = 0;
 		String status = null;
 		for (String dieType:parameterList.keySet()) {
@@ -300,6 +300,7 @@ public class ZipService {
 						fileName = name.substring(0, curve.getName().indexOf(".")).split("_");
 					}
 					if (fileName.length < 3) {
+						System.out.println("curveType:"+curveType+"----"+name);
 						status = "曲线数据文件名格式有误！";
 						break;
 					}

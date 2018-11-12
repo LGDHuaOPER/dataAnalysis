@@ -60,8 +60,14 @@ RF_SP2State.stateObj = {
 	key_y: false,
 	curLineInsertIndex: null,
 	smithSXCategories: [],
-	indicatrix_low: [],
-	indicatrix_up: [],
+	S12: {
+		indicatrix_low: [],
+		indicatrix_up: [],
+	},
+	S21: {
+		indicatrix_low: [],
+		indicatrix_up: [],
+	},
 	indicatrix_min_max: [],
 	indicatrix_state_arr: [],
 	indicatrix_copy: {
@@ -286,7 +292,7 @@ function judgeLineSegmentIntersect(x1, x2, indicatrix){
 		flag = false;
 	}else{
 		_.forEach(indicatrix, function(v, i){
-			if((v[0]<x1 && x1<v[1]) || (v[0]<x2 && x2<v[1]) || (x1<v[0] && v[0]<x2) || (x1<v[1] && v[1]<x2)){
+			if((v[0]<=x1 && x1<=v[1]) || (v[0]<=x2 && x2<=v[1]) || (x1<=v[0] && v[0]<=x2) || (x1<=v[1] && v[1]<=x2)){
 				flag = true;
 			}
 			if(v[0] == x1 && v[1] == x2){
@@ -296,6 +302,43 @@ function judgeLineSegmentIntersect(x1, x2, indicatrix){
 		});
 	}
 	return flag;
+}
+
+/*史密斯图S12 S21绘制图形*/
+function drawSmithS12S21(obj){
+	var iclassify = obj.iclassify;
+	var itargetchart = obj.itargetchart;
+	var objec = {};
+	objec.xCategories = [];
+	_.forEach(RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
+		objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+	});
+	objec.series = [];
+	_.times(3, function(ii){
+		objec.series[ii] = {};
+		objec.series[ii].data = [];
+		_.forEach(RF_SP2State.mock.RF_SP2[ii].curveinfos[2].smithAndCurve[iclassify], function(v, i){
+			objec.series[ii].data.push(parseFloat(v[1]));
+		});
+		RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
+		RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
+	});
+	objec.container = itargetchart;
+	objec.msgDom = null;
+	objec.legend_enabled = true;
+	objec.zoomType = 'x';
+	objec.resetZoomButton = {
+		position: {
+			align: 'left', // by default
+			// verticalAlign: 'top', // by default
+			x: 90,
+			y: 10
+		},
+		relativeTo: 'chart'
+	};
+	objec.text = iclassify;
+	RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
+	drawDbCurve(objec);
 }
 
 /*before load*/
@@ -550,7 +593,6 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 					}).slideUp(200);
 				}
 				/*判断重新渲染按钮end*/
-				$('button.upflag, button.lowflag').popover("hide");
 				if(!RF_SP2State.stateObj.renderSelectCsvSub){
 					renderSelectCsv(store.get("futureDT2__projectAnalysis__selectedObj"), 'sub', $(".g_bodyin_bodyin_bottom_lsub_top"));
 					eleResize2();
@@ -916,37 +958,10 @@ $(document).on("dblclick", ".chartWarp", function(){
 			$("#"+itargetchart).fadeIn(100, function(){
 				var iclassify = itargetchart.replace("_chart_S", "");
 				if(iclassify == "S12" || iclassify == "S21"){
-					var objec = {};
-					objec.xCategories = [];
-					_.forEach(RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
-						objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+					drawSmithS12S21({
+						iclassify: iclassify,
+						itargetchart: itargetchart
 					});
-					objec.series = [];
-					_.times(3, function(ii){
-						objec.series[ii] = {};
-						objec.series[ii].data = [];
-						_.forEach(RF_SP2State.mock.RF_SP2[ii].curveinfos[2].smithAndCurve[iclassify], function(v, i){
-							objec.series[ii].data.push(parseFloat(v[1]));
-						});
-						RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
-						RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
-					});
-					objec.container = itargetchart;
-					objec.msgDom = null;
-					objec.legend_enabled = true;
-					objec.zoomType = 'x';
-					objec.resetZoomButton = {
-						position: {
-							align: 'left', // by default
-							// verticalAlign: 'top', // by default
-							x: 90,
-							y: 10
-						},
-						relativeTo: 'chart'
-					};
-					objec.text = iclassify;
-					RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
-					drawDbCurve(objec);
 					$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
 				}else{
 					/*史密斯图*/
@@ -969,259 +984,14 @@ $(document).on("dblclick", ".chartWarp", function(){
 $(".signalChart_div_tit>button.backover").click(function(){
 	$(".signalChart_div").fadeOut(200, function(){
 		$(".fourChart_div").fadeIn(200);
-		$('button.upflag, button.lowflag').popover("hide");
 	});
-});
-
-/*指标*/
-$(".signalChart_div_tit>button.upflag").popover({
-	content: '<div class="container-fluid upflag_container">'+
-			'<div class="row">'+
-				'<div class="col-sm-6 col-md-6 col-lg-6">X1</div>'+
-				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control upflag_X1 AwesompleteX"></div>'+
-			'</div>'+
-			'<div class="row">'+
-				'<div class="col-sm-6 col-md-6 col-lg-6">X2</div>'+
-				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control upflag_X2 AwesompleteX"></div>'+
-			'</div>'+
-			'<div class="row">'+
-				'<div class="col-sm-6 col-md-6 col-lg-6">固定值Y0</div>'+
-				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control upflag_Y0"></div>'+
-			'</div>'+
-			'<div class="row">'+
-				'<div><input input="button" class="btn btn-primary" value="确定" id="upflag_comfirm" readonly></div>'+
-			'</div>'+
-		'</div>',
-	html: true
-});
-
-$(".signalChart_div_tit>button.lowflag").popover({
-	content: '<div class="container-fluid lowflag_container">'+
-			'<div class="row">'+
-				'<div class="col-sm-6 col-md-6 col-lg-6">X1</div>'+
-				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control lowflag_X1 AwesompleteX"></div>'+
-			'</div>'+
-			'<div class="row">'+
-				'<div class="col-sm-6 col-md-6 col-lg-6">X2</div>'+
-				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control lowflag_X2 AwesompleteX"></div>'+
-			'</div>'+
-			'<div class="row">'+
-				'<div class="col-sm-6 col-md-6 col-lg-6">固定值Y0</div>'+
-				'<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control lowflag_Y0"></div>'+
-			'</div>'+
-			'<div class="row">'+
-				'<div><input input="button" class="btn btn-primary" value="确定" id="lowflag_comfirm" readonly></div>'+
-			'</div>'+
-		'</div>',
-	html: true
-});
-
-$('button.upflag, button.lowflag').on('shown.bs.popover', function () {
-  	$("input.AwesompleteX").each(function(i, el){
-  		new Awesomplete(el, {
-  			list: RF_SP2State.stateObj.smithSXCategories,
-  			minChars: 1,
-  			maxItems: 12,
-  			autoFirst: true
-  		});
-  	});
-});
-
-$(document).on("input propertychange change", "div.upflag_container input[type='text'], div.lowflag_container input[type='text']", function(){
-	if($(this).parents().is(".upflag_container")){
-		var upflag_X1 = $(".upflag_X1").val();
-		var upflag_X2 = $(".upflag_X2").val();
-		var upflag_Y0 = $(".upflag_Y0").val();
-		if(_.isEmpty(upflag_X1) || _.isEmpty(upflag_X2) || _.isEmpty(upflag_Y0)){
-			$("#upflag_comfirm").prop("disabled", true);
-		}else{
-			$("#upflag_comfirm").prop("disabled", false);
-		}
-	}else if($(this).parents().is(".lowflag_container")){
-		var lowflag_X1 = $(".lowflag_X1").val();
-		var lowflag_X2 = $(".lowflag_X2").val();
-		var lowflag_Y0 = $(".lowflag_Y0").val();
-		if(_.isEmpty(lowflag_X1) || _.isEmpty(lowflag_X2) || _.isEmpty(lowflag_Y0)){
-			$("#lowflag_comfirm").prop("disabled", true);
-		}else{
-			$("#lowflag_comfirm").prop("disabled", false);
-		}
-	}
-});
-
-$(document).on("click", "#upflag_comfirm", function(){
-	var id = $("[id$='_chart_S']:visible").attr("id");
-	if(!_.isNil(id)){
-		var upflag_X1 = $(".upflag_X1").val();
-		var upflag_X2 = $(".upflag_X2").val();
-		var upflag_Y0 = $(".upflag_Y0").val();
-		if(_.isEmpty(upflag_X1) || _.isEmpty(upflag_X2) || _.isEmpty(upflag_Y0)) return false;
-		/*图表对象*/
-		var curChartObj = _.find(Highcharts.charts, function(v){if(!_.isNil(v)) return $(v.renderTo).is("div#"+id);});
-		var X1 = Math.min(Number(upflag_X1), Number(upflag_X2));
-		var X2 = Math.max(Number(upflag_X1), Number(upflag_X2));
-		var Y0 = Number(upflag_Y0);
-
-		if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2State.stateObj.indicatrix_up, RF_SP2State.stateObj.indicatrix_low))){
-			RF_SP2SwalMixin({
-				title: '选择区间提示',
-				text: "区间与已有区间重合",
-				type: 'info',
-				showConfirmButton: false,
-				timer: 1500,
-			});
-		}else{
-			RF_SP2SwalMixin({
-				title: '选择区间提示',
-				text: "添加成功，点击 应用 展示出来吧，可以多选哦",
-				type: 'success',
-				showConfirmButton: false,
-				timer: 1500,
-			});
-			RF_SP2State.stateObj.indicatrix_up.push([X1, X2, Y0]);
-			RF_SP2State.stateObj.indicatrix_copy.up.push([X1, X2, Y0]);
-			$("#upflag_table>tbody").append('<tr><td>'+X1+'</td><td>'+X2+'</td><td>'+Y0+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>');
-		}
-		/*var chartsObj = $("#"+id).highcharts();
-		var xCategories = chartsObj.xAxis[0].categories;
-		var series = chartsObj.series;
-		var inde1 = _.indexOf(xCategories, X1);
-		var inde2 = _.indexOf(xCategories, X2);
-		_.forEach(series, function(v, i){
-			var data = v.yData;
-			var flag = false;
-			_.forEach(data, function(vv, ii){
-				if(inde1<= ii && ii <= inde2){
-					if(vv > Y0){
-						flag = true;
-						return false;
-					}
-				}
-			});
-			var icolor = "#00ff00";
-			if(flag){
-				icolor = "#ff0000";
-			}
-			chartsObj.series[i].update({
-				color: icolor,
-			});
-			chartsObj.xAxis[0].removePlotLine('plot-line-4');
-			chartsObj.xAxis[0].removePlotLine('plot-line-5');
-			chartsObj.yAxis[0].removePlotLine('plot-line-6');
-			chartsObj.xAxis[0].addPlotLine({           //在x轴上增加
-			    value: inde1,                           //在值为2的地方
-			    width: 2,                           //标示线的宽度为2px
-			    color: '#00aeef',                  //标示线的颜色
-			    id: 'plot-line-4',                //标示线的id，在删除该标示线的时候需要该id标示
-			    dashStyle: "Dot"
-			});
-			chartsObj.xAxis[0].addPlotLine({           //在x轴上增加
-			    value: inde2,                           //在值为2的地方
-			    width: 2,                           //标示线的宽度为2px
-			    color: '#00aeef',                  //标示线的颜色
-			    id: 'plot-line-5',                //标示线的id，在删除该标示线的时候需要该id标示
-			    dashStyle: "Dot"
-			});
-			chartsObj.yAxis[0].addPlotLine({           //在x轴上增加
-			    value: Y0,                           //在值为2的地方
-			    width: 2,                           //标示线的宽度为2px
-			    color: 'rgb(0, 176, 255)',                  //标示线的颜色
-			    id: 'plot-line-6',                //标示线的id，在删除该标示线的时候需要该id标示
-			    dashStyle: "Dash"
-			});
-		});*/
-	}
-}).on("click", "#lowflag_comfirm", function(){
-	var id = $("[id$='_chart_S']:visible").attr("id");
-	if(!_.isNil(id)){
-		var lowflag_X1 = $(".lowflag_X1").val();
-		var lowflag_X2 = $(".lowflag_X2").val();
-		var lowflag_Y0 = $(".lowflag_Y0").val();
-		if(_.isEmpty(lowflag_X1) || _.isEmpty(lowflag_X2) || _.isEmpty(lowflag_Y0)) return false;
-		var X1 = Math.min(Number(lowflag_X1), Number(lowflag_X2));
-		var X2 = Math.max(Number(lowflag_X1), Number(lowflag_X2));
-		var Y0 = Number(lowflag_Y0);
-
-		if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2State.stateObj.indicatrix_up, RF_SP2State.stateObj.indicatrix_low))){
-			RF_SP2SwalMixin({
-				title: '选择区间提示',
-				text: "区间与已有区间重合",
-				type: 'info',
-				showConfirmButton: false,
-				timer: 1500,
-			});
-		}else{
-			RF_SP2SwalMixin({
-				title: '选择区间提示',
-				text: "添加成功，点击 应用 展示出来吧，可以多选哦",
-				type: 'success',
-				showConfirmButton: false,
-				timer: 1500,
-			});
-			RF_SP2State.stateObj.indicatrix_low.push([X1, X2, Y0]);
-			RF_SP2State.stateObj.indicatrix_copy.low.push([X1, X2, Y0]);
-			$("#lowflag_table>tbody").append('<tr><td>'+X1+'</td><td>'+X2+'</td><td>'+Y0+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>');
-		}
-		/*var X1 = Number($(".lowflag_X1").val());
-		var X2 = Number($(".lowflag_X2").val());
-		var Y0 = Number($(".lowflag_Y0").val());
-		var chartsObj = $("#"+id).highcharts();
-		var xCategories = chartsObj.xAxis[0].categories;
-		var series = chartsObj.series;
-		var inde1 = _.indexOf(xCategories, X1);
-		var inde2 = _.indexOf(xCategories, X2);
-		_.forEach(series, function(v, i){
-			var data = v.yData;
-			var flag = false;
-			_.forEach(data, function(vv, ii){
-				if(inde1<= ii && ii <= inde2){
-					if(vv < Y0){
-						flag = true;
-						return false;
-					}
-				}
-			});
-			var icolor = "#00ff00";
-			if(flag){
-				icolor = "#ff0000";
-			}
-			chartsObj.series[i].update({
-				color: icolor,
-			});
-		});
-		chartsObj.xAxis[0].removePlotLine('plot-line-4');
-		chartsObj.xAxis[0].removePlotLine('plot-line-5');
-		chartsObj.yAxis[0].removePlotLine('plot-line-6');
-		chartsObj.xAxis[0].addPlotLine({           //在x轴上增加
-		    value: inde1,                           //在值为2的地方
-		    width: 2,                           //标示线的宽度为2px
-		    color: '#00aeef',                  //标示线的颜色
-		    id: 'plot-line-4',                //标示线的id，在删除该标示线的时候需要该id标示
-		    dashStyle: "Dot"
-		});
-		chartsObj.xAxis[0].addPlotLine({           //在x轴上增加
-		    value: inde2,                           //在值为2的地方
-		    width: 2,                           //标示线的宽度为2px
-		    color: '#00aeef',                  //标示线的颜色
-		    id: 'plot-line-5',                //标示线的id，在删除该标示线的时候需要该id标示
-		    dashStyle: "Dot"
-		});
-		chartsObj.yAxis[0].addPlotLine({           //在x轴上增加
-		    value: Y0,                           //在值为2的地方
-		    width: 2,                           //标示线的宽度为2px
-		    color: 'rgb(0, 176, 255)',                  //标示线的颜色
-		    id: 'plot-line-6',                //标示线的id，在删除该标示线的时候需要该id标示
-		    dashStyle: "Dash"
-		});*/
-	}
 });
 
 /*指标线 2018/11/07*/
 /*显示区间表格*/
 $(".signalChart_div_tit>.open_del_indicatrix").click(function(){
 	$(".RF_SP2_cover, .indicatrix_div").slideDown(200);
-	$('button.upflag, button.lowflag').popover("hide");
-	if(RF_SP2State.stateObj.indicatrix_copy.delFlag && !RF_SP2State.stateObj.indicatrix_copy.submitFlag){
+	/*if(RF_SP2State.stateObj.indicatrix_copy.delFlag && !RF_SP2State.stateObj.indicatrix_copy.submitFlag){
 		var str1 = '';
 		_.forEach(RF_SP2State.stateObj.indicatrix_copy.low, function(v, i){
 			str1+='<tr><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[2]+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
@@ -1232,16 +1002,115 @@ $(".signalChart_div_tit>.open_del_indicatrix").click(function(){
 			str2+='<tr><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[2]+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
 		});
 		$("#upflag_table>tbody").empty().append(str2);
-	}
+	}*/
+	var id = $("[id$='_chart_S']:visible").attr("id");
+	if(_.isNil(id)) return false;
+	var iclassify = id.replace("_chart_S", "");
+	var strup = '', strlow = '';
+	_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_up, function(v, i){
+		strup+=
+		'<tr><td><input type="text" class="form-control AwesompleteX input_X1" value="'+v[0]+'"></td><td><input type="text" class="form-control AwesompleteX input_X2" value="'+v[1]+'"></td><td><input type="text" class="form-control input_Y0" value="'+v[2]+'"></td><td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
+	});
+	_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_low, function(v, i){
+		strlow+=
+		'<tr><td><input type="text" class="form-control AwesompleteX input_X1" value="'+v[0]+'"></td><td><input type="text" class="form-control AwesompleteX input_X2" value="'+v[1]+'"></td><td><input type="text" class="form-control input_Y0" value="'+v[2]+'"></td><td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
+	});
+	RF_SP2State.stateObj[iclassify].indicatrix_up.length = 0;
+	RF_SP2State.stateObj[iclassify].indicatrix_low.length = 0;
+	$(".indicatrix_body #upflag_table tbody").empty().append(strup).find(".glyphicon-ok").trigger("click");
+	$(".indicatrix_body #lowflag_table tbody").empty().append(strlow).find(".glyphicon-ok").trigger("click");
+	$(".indicatrix_body tbody").find("input[type='text']").each(function(i, el){
+		new Awesomplete(el, {
+			list: RF_SP2State.stateObj.smithSXCategories,
+			minChars: 1,
+			maxItems: 15,
+			autoFirst: true
+		});
+	});
 });
 $(".indicatrix_tit>span.glyphicon, .indicatrix_footin>.btn-warning").click(function(){
 	$(".RF_SP2_cover, .indicatrix_div").slideUp(200);
 });
 
 /*应用*/
-$(".signalChart_div_tit>.apply_indicatrix").click(function(){
+/*chartsObj.xAxis[0].addPlotLine({ //在x轴上增加
+	value: inde2, //在值为2的地方
+	width: 2, //标示线的宽度为2px
+	color: '#00aeef', //标示线的颜色
+	id: 'plot-line-5', //标示线的id，在删除该标示线的时候需要该id标示
+	dashStyle: "Dot"
+});
+chartsObj.yAxis[0].addPlotLine({ //在x轴上增加
+	value: Y0, //在值为2的地方
+	width: 2, //标示线的宽度为2px
+	color: 'rgb(0, 176, 255)', //标示线的颜色
+	id: 'plot-line-6', //标示线的id，在删除该标示线的时候需要该id标示
+	dashStyle: "Dash"
+});*/
+
+/*删除区间*/
+/*RF_SP2State.stateObj.indicatrix_copy low up delFlag submitFlag*/
+$(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>tbody .glyphicon-remove", function(){
+	/*RF_SP2State.stateObj.indicatrix_copy.delFlag = true;
+	RF_SP2State.stateObj.indicatrix_copy.submitFlag = false;*/
+	var id = $("[id$='_chart_S']:visible").attr("id");
+	if(_.isNil(id)) return false;
+	var iclassify = id.replace("_chart_S", "");
+	
+	if($(this).parent().parent().hasClass("hasOk")){
+		var delArr = [];
+		$(this).parent().siblings("td").each(function(i){
+			if(i<3){
+				delArr[i] = parseFloat($(this).find("input[type='text']").val());
+			}
+		});
+		var pullArr;
+		if($(this).parents("#lowflag_table").length){
+			pullArr = RF_SP2State.stateObj[iclassify].indicatrix_low;
+		}else{
+			pullArr = RF_SP2State.stateObj[iclassify].indicatrix_up;
+		}
+		_.pullAt(pullArr, _.findIndex(pullArr, function(v){
+			return _.isEqual(v, delArr);
+		}));
+	}
+	/*var legendDom = $(this).parent().parent().parent().parent().prev().children("span");*/
+	/*删除DOM*/
+	$(this).parent().parent().remove();
+	/*判断是否可以应用*/
+	var uphasOk = $("#upflag_table tr.hasOk").length;
+	var lowhasOk = $("#lowflag_table tr.hasOk").length;
+	var upTr = $("#upflag_table tr").length;
+	var lowTr = $("#lowflag_table tr").length;
+	if(uphasOk === 0 && lowhasOk === 0){
+		drawSmithS12S21({
+			iclassify: iclassify,
+			itargetchart: id
+		});
+		$(".indicatrix_footin>.btn-success").prop("disabled", true);
+	}else{
+		$(".indicatrix_footin>.btn-success").prop("disabled", false);
+	}
+	var uplegend = $("#upflag_table").prev().children("span");
+	var lowlegend = $("#lowflag_table").prev().children("span");
+	if(upTr === 0 || upTr === uphasOk){
+		uplegend.fadeIn(100);
+	}else{
+		uplegend.fadeOut(100);
+	}
+	if(lowTr === 0 || lowTr === lowhasOk){
+		lowlegend.fadeIn(100);
+	}else{
+		lowlegend.fadeOut(100);
+	}
+});
+
+/*确定并应用*/
+$(".indicatrix_footin>.btn-success").click(function(){
 	/*图表对象*/
 	var id = $("[id$='_chart_S']:visible").attr("id");
+	if(_.isNil(id)) return false;
+	var iclassify = id.replace("_chart_S", "");
 	if(!_.isNil(id)){
 		RF_SP2State.stateObj.indicatrix_state_arr = [];
 		var curChartObj = _.find(Highcharts.charts, function(v) {
@@ -1268,7 +1137,7 @@ $(".signalChart_div_tit>.apply_indicatrix").click(function(){
 		var xCategories = curChartObj.xAxis[0].categories;
 		var diff = (RF_SP2State.stateObj.indicatrix_min_max[1] - RF_SP2State.stateObj.indicatrix_min_max[0])/40;
 		/*判断低于区间*/
-		_.forEach(RF_SP2State.stateObj.indicatrix_low, function(v, i){
+		_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_low, function(v, i){
 			var data = [];
 			var inde1 = _.indexOf(xCategories, v[0]);
 			var inde2 = _.indexOf(xCategories, v[1]);
@@ -1367,7 +1236,7 @@ $(".signalChart_div_tit>.apply_indicatrix").click(function(){
 		});
 		/*判断低于区间end*/
 		/*判断高于区间*/
-		_.forEach(RF_SP2State.stateObj.indicatrix_up, function(v, i){
+		_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_up, function(v, i){
 			var data = [];
 			var inde1 = _.indexOf(xCategories, v[0]);
 			var inde2 = _.indexOf(xCategories, v[1]);
@@ -1474,38 +1343,89 @@ $(".signalChart_div_tit>.apply_indicatrix").click(function(){
 			});
 		});
 	}
-});
-
-/*删除区间*/
-/*RF_SP2State.stateObj.indicatrix_copy low up delFlag submitFlag*/
-$(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>tbody .glyphicon-remove", function(){
-	RF_SP2State.stateObj.indicatrix_copy.delFlag = true;
-	RF_SP2State.stateObj.indicatrix_copy.submitFlag = false;
-	var delArr = [];
-	$(this).parent().siblings("td").each(function(i){
-		if(i<3){
-			delArr[i] = parseFloat($(this).text());
-		}
-	});
-	var pullArr;
-	if($(this).parents("#lowflag_table").length){
-		pullArr = RF_SP2State.stateObj.indicatrix_low;
-	}else{
-		pullArr = RF_SP2State.stateObj.indicatrix_up;
-	}
-	_.pullAt(pullArr, _.findIndex(pullArr, function(v){
-		return _.isEqual(v, delArr);
-	}));
-	/*删除DOM*/
-	$(this).parent().parent().remove();
-});
-
-/*确定并应用*/
-$(".indicatrix_footin>.btn-primary").click(function(){
-	$(".signalChart_div_tit>.apply_indicatrix").trigger("click");
-	RF_SP2State.stateObj.indicatrix_copy.delFlag = false;
-	RF_SP2State.stateObj.indicatrix_copy.submitFlag = true;
-	RF_SP2State.stateObj.indicatrix_copy.low = _.cloneDeep(RF_SP2State.stateObj.indicatrix_low);
-	RF_SP2State.stateObj.indicatrix_copy.up = _.cloneDeep(RF_SP2State.stateObj.indicatrix_up);
+	/*RF_SP2State.stateObj.indicatrix_copy.delFlag = false;
+	RF_SP2State.stateObj.indicatrix_copy.submitFlag = true;*/
+	/*RF_SP2State.stateObj.indicatrix_copy.low = _.cloneDeep(RF_SP2State.stateObj.indicatrix_low);
+	RF_SP2State.stateObj.indicatrix_copy.up = _.cloneDeep(RF_SP2State.stateObj.indicatrix_up);*/
 	$(".indicatrix_footin>.btn-warning").trigger("click");
+});
+
+/*2018-11-12更新*/
+$(".indicatrix_body legend>span").click(function(){
+	$('<tr><td><input type="text" class="form-control AwesompleteX input_X1"></td><td><input type="text" class="form-control AwesompleteX input_X2"></td><td><input type="text" class="form-control input_Y0"></td><td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>').appendTo($(this).parent().next().children("tbody")).find("input.AwesompleteX")
+	.each(function(i, el){
+		new Awesomplete(el, {
+			list: RF_SP2State.stateObj.smithSXCategories,
+			minChars: 1,
+			maxItems: 15,
+			autoFirst: true
+		});
+	});
+	$(this).fadeOut(100);
+});
+
+$(document).on("click", ".indicatrix_body tbody span.glyphicon-ok", function(){
+	var id = $("[id$='_chart_S']:visible").attr("id");
+	if(_.isNil(id)) return false;
+	var iclassify = id.replace("_chart_S", "");
+	/*验证*/
+	var tr = $(this).parent().parent();
+	var input_X1 = tr.find(".input_X1").val().trim();
+	var input_X2 = tr.find(".input_X2").val().trim();
+	var input_Y0 = tr.find(".input_Y0").val().trim();
+	if(_.isEmpty(input_X1) || _.isEmpty(input_X2) || _.isEmpty(input_Y0)) return false;
+	var indicatrixArr;
+	if($(this).parents().is("#upflag_table")){
+		indicatrixArr = RF_SP2State.stateObj[iclassify].indicatrix_up;
+		/*indicatrix_copyArr = RF_SP2State.stateObj.indicatrix_copy.up;*/
+	}else if($(this).parents().is("#lowflag_table")){
+		indicatrixArr = RF_SP2State.stateObj[iclassify].indicatrix_low;
+		/*indicatrix_copyArr = RF_SP2State.stateObj.indicatrix_copy.low;*/
+	}
+	var X1 = Math.min(Number(input_X1), Number(input_X2));
+	var X2 = Math.max(Number(input_X1), Number(input_X2));
+	var Y0 = Number(input_Y0);
+	if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2State.stateObj[iclassify].indicatrix_up, RF_SP2State.stateObj[iclassify].indicatrix_low))){
+		RF_SP2SwalMixin({
+			title: '选择区间提示',
+			text: "区间与已有区间重合，请重选",
+			type: 'info',
+			showConfirmButton: false,
+			timer: 1500,
+		});
+	}else{
+		indicatrixArr.push([X1, X2, Y0]);
+		/*indicatrix_copyArr.push([X1, X2, Y0]);*/
+		tr.find(".input_Y0").val(Y0);
+		$(".indicatrix_footin>.btn-success").prop("disabled", false);
+		$(this).fadeOut(100).parent().parent().parent().parent().prev().children("span").fadeIn(100);
+		tr.addClass("hasOk").find("input[type='text']").prop("disabled", true);
+	}
+})
+/*Y0验证数字*/
+.on("input propertychange change", ".input_Y0", function(){
+	/*正数、负数、和小数：^(\-|\+)?\d+(\.\d+)?$*/
+	if(_.isNil($(this).val().match(/(\-|\+)?\d*\.?\d*/g))){
+		$(this).val("");
+	}else{
+		$(this).val(_.head($(this).val().match(/(\-|\+)?\d*\.?\d*/g)));
+	}
+});
+
+/*删除所有区间并重置*/
+$(".indicatrix_footin>.btn-danger").click(function(){
+	var id = $("[id$='_chart_S']:visible").attr("id");
+	if(_.isNil(id)) return false;
+	var iclassify = id.replace("_chart_S", "");
+	if(_.isEmpty(_.concat(RF_SP2State.stateObj[iclassify].indicatrix_up, RF_SP2State.stateObj[iclassify].indicatrix_low))) return false;
+	$(".indicatrix_footin>.btn-warning").trigger("click");
+	$("#upflag_table>tbody, #lowflag_table>tbody").empty();
+	RF_SP2State.stateObj[iclassify].indicatrix_up.length = 0;
+	RF_SP2State.stateObj[iclassify].indicatrix_low.length = 0;
+	$(".indicatrix_footin>.btn-success").prop("disabled", true);
+	$(".indicatrix_body legend>span").fadeIn(100);
+	drawSmithS12S21({
+		iclassify: iclassify,
+		itargetchart: id
+	});
 });

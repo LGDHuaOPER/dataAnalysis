@@ -38,6 +38,20 @@ public interface WaferService {
 	 */
 	boolean remove(String waferId);
 	/**
+	 * 回收站删除
+	 * @param waferId
+	 * @return
+	 */
+	boolean delete(String waferId);
+	/**
+	 * 回收站恢复
+	 * @param waferId
+	 * @return
+	 */
+	boolean recovery(String waferId);
+	
+	
+	/**
 	 * 单条晶圆修改
 	 * @param waferId
 	 * @return
@@ -74,7 +88,7 @@ public interface WaferService {
 	 * @param invalidationList 无效die，来自map文件
 	 * @return
 	 */
-	 String saveZipData(Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel,MapParameterDO mapDO,List<String> invalidationList);
+	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel);
 	 
 	 /**
 	  * EOULU标准Excel
@@ -83,7 +97,7 @@ public interface WaferService {
 	  * @param coordinateFlag
 	  * @return
 	  */
-	 public String saveExcelData( Map<String,Object> map, WaferDO wafer,boolean coordinateFlag);
+	 public String saveExcelData(Connection conn, Map<String,Object> map, WaferDO wafer,boolean coordinateFlag);
 	
 	 
 	 /**

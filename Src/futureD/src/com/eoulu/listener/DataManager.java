@@ -67,4 +67,10 @@ public class DataManager implements ServletContextListener {
 			 service.scheduleAtFixedRate(runnable, (b.getTime()-now.getTime())/1000, 24*60*60, TimeUnit.SECONDS);  
     }
 	
+    public static void main(String[] args) {
+    	WaferService waferService = new WaferServiceImpl();
+    	waferService.deleteJunkData();
+    	System.out.println("end");
+	}
+    
 }

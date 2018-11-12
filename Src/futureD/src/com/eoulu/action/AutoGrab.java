@@ -2,6 +2,7 @@ package com.eoulu.action;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -69,9 +70,16 @@ public class AutoGrab extends HttpServlet {
 			return;
 		}
 		if (fileName.endsWith(".zip") || fileName.endsWith(".rar")) {
+			Map<String,Object> transport = new HashMap<String, Object>();
+			transport.put("filePath", filePath);
+			transport.put("temp", temp);
+			transport.put("fileName", fileName.substring(0, fileName.indexOf(".")));
+			transport.put("productCategory", productCategory);
+			transport.put("description", description);
+			transport.put("currentUser", currentUser);
+
 			ZipFileParser zipUtil = new ZipFileParser();
-			result = zipUtil.Zip(filePath, temp, fileName.substring(0, fileName.indexOf(".")),
-					productCategory, description, currentUser);
+			result = zipUtil.Zip(transport);
 			flag = (Boolean) result.get("flag");
 			status = result.get("status").toString();
 			logWafer = result.get("logWafer").toString();
@@ -85,7 +93,7 @@ public class AutoGrab extends HttpServlet {
 			String dataFormat = result.get("dataFormat").toString();
 			logWafer = result.get("waferNO").toString();
 			if ("0".equals(dataFormat)) {
-				status = ExcelParser.getExcelData(filePath, productCategory, description, currentUser, dataFormat);
+				status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat);
 			}
 			
 			if ("2".equals(dataFormat)) {

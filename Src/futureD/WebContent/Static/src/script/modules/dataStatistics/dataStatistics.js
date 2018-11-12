@@ -187,7 +187,7 @@ function renderChartCsvANDParam(obj){
 		str+='<table class="table table-striped table-bordered table-hover table-condensed"><thead><tr><th>参数名称</th><th>下限</th><th>上限</th><th>等分数</th></tr></thead><tbody>';
 		obj.param.map(function(v, i){
 			var id = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
-			str+='<tr data-chartcurid="'+id+'" data-ishowchartparam="'+v+'"><td>'+v+'</td><td>0.32</td><td>1.4</td><td>8</td></tr>';
+			str+='<tr data-chartcurid="'+id+'" data-ishowchartparam="'+v+'"><td>'+v+'</td><td>0.32</td><td>1.4</td><td>6</td></tr>';
 		});
 		str+='</tbody></table>';
 	}else if(obj.classify == "ul"){
@@ -215,7 +215,7 @@ function draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lo
 		bgFillColor: "#314067",
 		waferData: copyData,
 		spacePercent: {
-			x: 0.15,
+			x: 0.2,
 			y: 0
 		},
 		m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,

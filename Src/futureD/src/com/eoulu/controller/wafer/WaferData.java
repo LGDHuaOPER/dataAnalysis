@@ -67,5 +67,14 @@ public class WaferData extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
+	
+	public static void main(String[] args) {
+		WaferDataService service = new WaferDataServiceImpl();
+		long time = System.currentTimeMillis();
+//		service.getWaferData(183);
+		System.out.println(service.getWaferData(183));
+		System.out.println(System.currentTimeMillis()-time);
+		
+	}
 
 }

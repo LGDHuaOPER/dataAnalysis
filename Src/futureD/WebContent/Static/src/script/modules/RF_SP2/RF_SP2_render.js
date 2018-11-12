@@ -186,7 +186,7 @@ $(document).on("contextmenu", "#picture_box2, #picture_box3, div.swal2-container
 	// e.preventDefault();
     return false;
 });
-$("#picture_box2,#picture_box3").mousedown(function(e) {
+$("#picture_box2, #picture_box3").mousedown(function(e) {
 	if (3 == e.which) {
 		// e.preventDefault();
 		$(this).data("iflag", RF_SP2State.contextObj.flagArr[Number($(this).data("iflag") == "initial")]);
@@ -211,7 +211,30 @@ $("#picture_box2,#picture_box3").mousedown(function(e) {
 				if(RF_SP2State.contextObj.flag == "initial"){
 					originData = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve;
 				}
-				drawDbCurve(iThat.children(".picturetop").attr("id"), originData[RF_SP2State.contextObj.classify], iThat.children(".picturebottom"));
+				var iiData = originData[RF_SP2State.contextObj.classify];
+				var objec = {};
+				objec.xCategories = [];
+				_.forEach(iiData, function(v, i){
+					objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+				});
+				objec.series = [];
+				objec.series[0] = {};
+				objec.series[0].data = [];
+				_.forEach(iiData, function(v, i){
+					objec.series[0].data.push(parseFloat(v[1]));
+				});
+				objec.container = iThat.children(".picturetop").attr("id");
+				objec.msgDom = iThat.children(".picturebottom");
+				objec.resetZoomButton = {
+					position: {
+						align: 'left', // by default
+						// verticalAlign: 'top', // by default
+						x: 0,
+						y: 0
+					},
+					relativeTo: 'chart'
+				};
+				drawDbCurve(objec);
 		    RF_SP2SwalMixin({
 		    	title: '切换成功！',
 		    	text: "新数据已被绘制到图表",

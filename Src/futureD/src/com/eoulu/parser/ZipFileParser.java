@@ -62,34 +62,27 @@ public class ZipFileParser {
 	public static int Mapnum = 0;
 	// Excel总个数
 	public static int Excelnum = 0;
-	private static MapParameterDO mapDO = null;
 	private static String logWafer = "";
-	public static void main(String[] args) {
-		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\20180709-futureD.zip";
-		String fileName = "20180709-futureD.zip";
-		String temp = "E:/test";
-		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
-		String productCatagory="1";
-		String testOperator="Admin";
-		String description="测试Smith";
-		String currentUser="TEST";
-		String dataFormat = "0";
-		long time = System.currentTimeMillis();
-		Map<String, Object> map = Zip(filePath, temp, filename2, productCatagory, description, currentUser, dataFormat, "", 0);
-		System.out.println(System.currentTimeMillis()-time);
-		System.out.println(map);
-	}
 
-	public static Map<String, Object> Zip(String filePath, String temp, String filename2,String productCategory, String description, String currentUser,
-			String dataFormat,String sessionId,int interval) {
+	public static Map<String, Object> Zip(Map<String,Object> map ) {
 		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
 		String filename = "";// 上传失败的CSV、Map、Excel文件名
-		String status = "";
-		int filternum = 1;// 标志先导入map文件和CSV文件
+		String status = "",
+				 filePath = map.get("filePath")==null?"":map.get("filePath").toString(), 
+				 temp = map.get("temp")==null?"":map.get("temp").toString(),  
+				 filename2 = map.get("fileName")==null?"":map.get("fileName").toString(), 
+				 dataFormat = map.get("dataFormat")==null?"0":map.get("dataFormat").toString(), sessionId = map.get("sessionId")==null?"":map.get("sessionId").toString();
+		int interval = Integer.parseInt(map.get("interval")==null?"0":map.get("interval").toString()), filternum = 1;// 标志先导入map文件和CSV文件
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		// 用户上传的是一个压缩包
 		// 若是一个文件夹。
-		File file1 = FileUtil.unZipFiles(filePath, temp + "\\" + filename2);
+		File file1 = null;
+		if(filePath.endsWith(".zip")){
+			file1 = FileUtil.unZip(filePath, temp + "\\" + filename2);
+		}
+		if(filePath.endsWith(".rar")){
+			file1 = FileUtil.unRar(filePath, temp + "\\" + filename2);
+		}
 		System.out.println(file1.getName());
 //		if ("0".equals(dataFormat)) {
 //			resultMap.put("flag", false);
@@ -98,7 +91,7 @@ public class ZipFileParser {
 //		}
 		ReadPMSFileService pmsService = new ReadPMSFileService();
 		if(pmsService.isContains(file1.getAbsolutePath(), "pms")){
-			status = pmsService.getPMSFiles(file1.getAbsolutePath(),  productCategory,currentUser, description, dataFormat, sessionId, interval);
+//			status = pmsService.getPMSFiles(file1.getAbsolutePath(),  productCategory,currentUser, description, dataFormat, sessionId, interval);
 			resultMap.put("status", status);
 			return resultMap;
 		}
@@ -106,19 +99,28 @@ public class ZipFileParser {
 			resultMap.put("status", "文件与数据格式不一致！");
 			return resultMap;
 		}
-		mapDO = null;
 		logWafer = "";
-		// 导入map
-		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
-				currentUser, dataFormat);
-		// 导入excel文件
-		filternum = 2;
-		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
-				currentUser, dataFormat);
-		// 导入CSV文件
-		filternum = 3;
-		getFiles(file1.getAbsolutePath(), productCategory, description, filternum,
-				currentUser, dataFormat);
+		Connection conn = new DataBaseUtil().getConnection();
+		try {
+			conn.setAutoCommit(false);
+			// 导入map
+			getFiles(conn,file1.getAbsolutePath(),  filternum,map);
+			// 导入excel文件
+			filternum = 2;
+			getFiles(conn,file1.getAbsolutePath(), filternum,map);
+			// 导入CSV文件
+			filternum = 3;
+			getFiles(conn,file1.getAbsolutePath(),  filternum,map);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	
 		for (int i = 0; i < filelist.size(); i++) {
 			if (!(filelist.get(i).endsWith(".CSV") || filelist.get(i).endsWith(".csv")
 					|| filelist.get(i).endsWith(".zip") || filelist.get(i).endsWith(".map")
@@ -156,7 +158,7 @@ public class ZipFileParser {
 				status = "部分导入成功，未导入文件有：" + filename + "," + errorFile.toString();
 			}
 		} else {
-			status = "";
+			status = "success";
 		}
 		resultMap.put("flag", flag);// 存在CSV
 		resultMap.put("status", status);// 上传失败的CSV文件名
@@ -166,18 +168,16 @@ public class ZipFileParser {
 
 	
 	
-	static void getFiles(String filePath,  String productCatagory,  String description,
-			 int filternum, String currentUser, String dataFormat) {
+	static void getFiles(Connection conn,String filePath,
+			 int filternum,Map<String,Object> map) {
 		File root = new File(filePath);
 		File[] files = root.listFiles();// 获取当前目录下的所有文件与文件夹
 		boolean flagDirectory = isExist(files);
-		CSV(filePath,  productCatagory,  description, filternum, currentUser,
-				flagDirectory, dataFormat);
+		CSV(conn,filePath,   filternum, map);
 		for (File file : files) {
 			if (file.isDirectory()) {
 				if (!flagDirectory) {// 没有曲线数据时，才进入向下一级文件夹目录；当前路径下若有文件夹且包含.csv与.map文件，则在读取.csv文件后取读取曲线数据
-					getFiles(file.getAbsolutePath(), productCatagory,  description, 
-							filternum, currentUser, dataFormat);
+					getFiles(conn,file.getAbsolutePath(), filternum, map);
 				}
 			} else {
 				if (filternum == 1 && !flagDirectory) {
@@ -187,81 +187,6 @@ public class ZipFileParser {
 		}
 	}
 	
-	
-	
-	public static Map<String, Object> Zip(String filePath, String temp, String filename2,String productCategory, String description, String currentUser) {
-		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
-		String filename = "",status = "",dataFormat="0";// 上传失败的CSV、Map、Excel文件名
-		int filternum = 1;// 标志先导入map文件和CSV文件
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		// 用户上传的是一个压缩包
-		// 若是一个文件夹。
-		File file1 = FileUtil.unZipFiles(filePath, temp + "\\" + filename2);
-		System.out.println(file1.getName());
-		ReadPMSFileService pmsService = new ReadPMSFileService();
-		if(pmsService.isContains(file1.getAbsolutePath(), "pms")){
-			dataFormat = "1";
-			status = pmsService.getPMSFiles(file1.getAbsolutePath(),  productCategory,currentUser, description, dataFormat, "", 0);
-			resultMap.put("status", status);
-			return resultMap;
-		}
-		mapDO = null;
-		logWafer = "";
-		// 导入map
-		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
-				currentUser, dataFormat);
-		// 导入excel文件
-		filternum = 2;
-		getFiles(file1.getAbsolutePath(),  productCategory, description,  filternum,
-				currentUser, dataFormat);
-		// 导入CSV文件
-		filternum = 3;
-		getFiles(file1.getAbsolutePath(), productCategory, description, filternum,
-				currentUser, dataFormat);
-		for (int i = 0; i < filelist.size(); i++) {
-			if (!(filelist.get(i).endsWith(".CSV") || filelist.get(i).endsWith(".csv")
-					|| filelist.get(i).endsWith(".zip") || filelist.get(i).endsWith(".map")
-					|| filelist.get(i).endsWith(".xlsx") || filelist.get(i).endsWith(".xls"))) {
-				errorFile.append(filelist.get(i) + "格式有误,");
-			}
-		}
-		// 上传失败的CSV文件名
-		for (int i = 0; i < faileCSV.size(); i++) {
-			if (i == faileCSV.size() - 1) {
-				filename = filename + faileCSV.get(i);
-			} else {
-				filename = filename + faileCSV.get(i) + ",";
-			}
-		}
-		boolean flag = CSVnum > 0 || Mapnum > 0 || Excelnum > 0 ? false : true;
-		if (!"".equals(filename) || !"".equals(errorFile.toString())) {
-			int failnum;// 上传失败的CSV、map、excel个数
-			// 包含多个上传失败的文件
-			if (filename.contains(",")) {
-				String filenames[] = filename.split(",");
-				failnum = filenames.length;
-			} else {
-				// 包含0个上传失败的文件
-				if ("".equals(filename)) {
-					failnum = 0;
-					// 包含1个上传失败的文件
-				} else {
-					failnum = 1;
-				}
-			}
-			if (failnum == (CSVnum + Mapnum + Excelnum)) {
-				status = "全部上传失败：" + filename + "," + errorFile.toString();
-			} else {
-				status = "部分导入成功，未导入文件有：" + filename + "," + errorFile.toString();
-			}
-		} else {
-			status = "";
-		}
-		resultMap.put("flag", flag);// 存在CSV
-		resultMap.put("status", status);// 上传失败的CSV文件名
-		resultMap.put("logWafer", logWafer);
-		return resultMap;
-	}
 
 	/**
 	 * 曲线数据判断 判断当前路径下是否包含.csv与.map文件，且包含文件夹
@@ -289,13 +214,17 @@ public class ZipFileParser {
 		return temp1 && temp2;
 	}
 
-	public static void CSV(String path, String productCategory, String description, int filternum, String currentUser,
-			boolean flagDirectory, String dataFormat) {
+	public static void CSV(Connection conn,String path,int filternum, Map<String,Object> map) {
 		WaferDao fileDao = new WaferDao();
+		ParameterDao parameterDao = new ParameterDao();
 		File file1 = new File(path);
 		FileFilterTool filetool = new FileFilterTool();
-		String failcsv;// 上传失败的CSV文件
-		String status = "";// 上传文件的返回值
+		// 上传失败的CSV文件
+		String failcsv, status = "",
+		 productCategory = map.get("productCategory").toString(),  
+				 description = map.get("description").toString(), 
+				 currentUser = map.get("currentUser").toString(),
+				dataFormat = map.get("dataFormat").toString();
 		if (filternum == 1) {
 			filetool.addType(".map");
 		} else if (filternum == 2) {
@@ -311,57 +240,53 @@ public class ZipFileParser {
 				// zip,调用Zip方法
 				if (files1[i].getName().endsWith(".CSV") || files1[i].getName().endsWith(".csv")) {
 					CSVnum = CSVnum + 1;
-					// WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));// 把map文件内容写入CSV文件
+//					 WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));// 把map文件内容写入CSV文件
 					long timeCSV = System.currentTimeMillis();
 					WaferService service = new WaferServiceImpl();
-					status = service.saveZipData(mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
-							description, files1[i].getAbsolutePath(), mapDO,invalidationList);
+					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
+							description, files1[i].getAbsolutePath());
 					// 未找到对应的map文件
 					long timeCSV2 = System.currentTimeMillis();
 					System.out.println("how long:" + (timeCSV2 - timeCSV));
 					failcsv = getReturn(files1[i].getName(), status);
-					if (!"".equals(failcsv)) {
+					if (!"success".equals(failcsv)) {
 						faileCSV.add(failcsv);
 					}
 				} else if (files1[i].getName().endsWith(".map")) {
 					Mapnum = Mapnum + 1;
-					Map<String, Object> resultMap = getMapFile(files1[i].getAbsolutePath());// SaveMapFile(files1[i].getAbsolutePath());
+					Map<String, Object> resultMap = getMapFile( conn,parameterDao,files1[i].getAbsolutePath());// SaveMapFile(files1[i].getAbsolutePath());
 					status = (String) resultMap.get("status");
 					if ("success".equals(status)) {
-						mapfilelist.put(resultMap.get("waferNO").toString(), resultMap.get("waferNO"));
 						logWafer = resultMap.get("waferNO").toString();
 					}
 					failcsv = getReturn(files1[i].getName(), status);
 					
-					if (!"".equals(failcsv)) {
+					if (!"success".equals(failcsv)) {
 						faileCSV.add(failcsv);
 					}
 				} else if (files1[i].getName().endsWith(".xlsx") || files1[i].getName().endsWith(".xls")) {
 					Excelnum = Excelnum + 1;
 					String waferid = ExcelParser.getExcelWaferNumber(files1[i].getAbsolutePath());
-					Connection conn = new DataBaseUtil().getConnection();
-					boolean flag2 = fileDao.queryWaferinfo(conn, waferid);
+//					boolean flag2 = fileDao.queryWaferinfo(conn, waferid);
 					// excel文件中晶圆编号为空
 					if ("上传失败，文件中的晶圆编号为空值！".equals(waferid)) {
 						failcsv = getReturn(files1[i].getName(), waferid);
 						faileCSV.add(failcsv);
-						conn.close();
+						
 						continue;
 					}
-					if (flag2) {
-						status = "文件已经上传！";
-						failcsv = getReturn(files1[i].getName(), status);
-						faileCSV.add(failcsv);
-						conn.close();
-						continue;
-					}
+//					if (flag2) {
+//						status = "文件已经上传！";
+//						failcsv = getReturn(files1[i].getName(), status);
+//						faileCSV.add(failcsv);
+//						continue;
+//					}
 					// 找到对应的map文件
 					if (mapfilelist.get(waferid) != null) {
 						String CSVname = ExcelParser.readfile(files1[i].getAbsolutePath(),
 								(String) mapfilelist.get(waferid));
 						if (!(CSVname.contains("WaferID"))) {
 							status = CSVname;
-							conn.close();
 							// 导入转换后的CSV文件。
 						} else {
 							String CSV[] = CSVname.split("\n");
@@ -369,24 +294,24 @@ public class ZipFileParser {
 							for (int j = 0; j < CSV.length; j++) {
 								filelist.add(CSV[j]);
 							}
-							status = ExcelParser.getExcelData(files1[i].getAbsolutePath(), productCategory, description,
+							status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
 									currentUser, dataFormat);
 						}
 						// 未找到对应的map文件
 					} else {
-						status = ExcelParser.getExcelData(files1[i].getAbsolutePath(), productCategory, description,
+						status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
 								currentUser, dataFormat);
 					}
 					failcsv = getReturn(files1[i].getName(), status);
-					if (!"".equals(failcsv)) {
+					if (!"success".equals(failcsv)) {
 						faileCSV.add(failcsv);
 					}
 				}
-			} catch (SQLException e) {
-				ExceptionLog.printException(e);
-				failcsv = getReturn(files1[i].getName(), "数据库操作异常！");
-				faileCSV.add(failcsv);
-				continue;
+//			} catch (SQLException e) {
+//				ExceptionLog.printException(e);
+//				failcsv = getReturn(files1[i].getName(), "数据库操作异常！");
+//				faileCSV.add(failcsv);
+//				continue;
 			} catch (Exception e) {
 				ExceptionLog.printException(e);
 				failcsv = getReturn(files1[i].getName(), "未知错误！");
@@ -478,7 +403,7 @@ public class ZipFileParser {
 			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(参数名存在空值)";
 			break;
 		case "success":
-			name = "";
+			name = "success";
 			break;
 		case "重复数据":
 			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(重复数据)";
@@ -868,18 +793,17 @@ public class ZipFileParser {
 			}
 			return resultmap;
 		}
-		private static List<String> invalidationList = new ArrayList<String>();
 		/**
-		 * 获取map文件中8个参数和晶圆编号、晶圆直径
+		 * 获取并存储map文件中8个参数
 		 * @param file
 		 * @return
 		 * @throws IOException
 		 * @throws Exception
 		 */
-		public static Map<String, Object> getMapFile(String file){
+		public static Map<String, Object> getMapFile(Connection conn,ParameterDao parameterDao,String file){
 			Map<String, Object> MapFileResult=new HashMap<String, Object>();
-			List<String> filelist1=new ArrayList<String>();//存放所有文件
-			List<String> filelist=new ArrayList<String>();//存放8个参数
+			//存放所有文件
+			List<String> filelist1=new ArrayList<String>(),filelist=new ArrayList<String>(),invalidationList = new ArrayList<String>();//存放8个参数
 			FileInputStream fis = null;
 			String status="success";//map文件标志信息
 			String waferNO="";
@@ -918,14 +842,14 @@ public class ZipFileParser {
 				e.printStackTrace();
 			}
 			invalidationList.clear();
-			String s,dieno,diexy;
+			String s,dieno,diexy,str = "";
 			String[] diexdiey;
-			String str = "";
 			int indexFlag = 0;
 			for(int i=0;i<filelist1.size();i++){
 				s = filelist1.get(i);
 				if(filelist1.get(i).contains("WaferID=")){
 					waferNO=s.substring(s.indexOf("=")+1);
+					
 					continue;
 				}
 				if(s.contains("Diameter=")&&!s.contains("NotchDiameter=")){
@@ -1034,29 +958,30 @@ public class ZipFileParser {
 				}
 				
 				}
+				if("success".equals(status)){
+					MapParameterDO mapDO = new MapParameterDO();
+					mapDO.setDiameter(diameter);
+					mapDO.setDieXMax(dieSizeX);
+					mapDO.setDieYMax(dieSizeY);
+					mapDO.setCuttingEdgeLength(flatLength);
+					mapDO.setWaferNumber(waferNO);
+					mapDO.setDirectionX(filelist.size()>0?filelist.get(0):"Right");
+					mapDO.setDirectionY(filelist.size()>0?filelist.get(1):"Top");
+					mapDO.setSetCoorX(filelist.size()>0?filelist.get(2):"Right");
+					mapDO.setSetCoorY(filelist.size()>0?filelist.get(3):"Down");
+					mapDO.setSetCoorDieX(filelist.size()>0?Integer.parseInt(filelist.get(4)):0);
+					mapDO.setSetCoorDieY(filelist.size()>0?Integer.parseInt(filelist.get(5)):1);
+					mapDO.setStandCoorDieX(filelist.size()>0?filelist.get(6):"AAAA");
+					mapDO.setStandCoorDieY(filelist.size()>0?filelist.get(7):"AAAA");
+					if(parameterDao.getMapParameter(conn, waferNO)){
+						status = parameterDao.updateMapParameter(conn, mapDO);
+					}else{
+						status = parameterDao.insertMapParameter(conn,mapDO);
+					}
+				}
 				MapFileResult.put("status", status);
 				MapFileResult.put("waferNO", waferNO);
-				MapFileResult.put("Diameter", diameter);
-				MapFileResult.put("DieSizeX", dieSizeX);
-				MapFileResult.put("DieSizeY", dieSizeY);
-				MapFileResult.put("FlatLength", flatLength);
-				MapFileResult.put("filelist", filelist);
-				MapFileResult.put("invalidationList", invalidationList);
-				mapDO = new MapParameterDO();
-				mapDO.setDiameter(diameter);
-				mapDO.setDieXMax(dieSizeX);
-				mapDO.setDieYMax(dieSizeY);
-				mapDO.setCuttingEdgeLength(flatLength);
-				mapDO.setDirectionX(filelist.size()>0?filelist.get(0):"Right");
-				mapDO.setDirectionY(filelist.size()>0?filelist.get(1):"Top");
-				mapDO.setSetCoorX(filelist.size()>0?filelist.get(2):"Right");
-				mapDO.setSetCoorY(filelist.size()>0?filelist.get(3):"Down");
-				mapDO.setSetCoorDieX(filelist.size()>0?Integer.parseInt(filelist.get(4)):0);
-				mapDO.setSetCoorDieY(filelist.size()>0?Integer.parseInt(filelist.get(5)):1);
-				mapDO.setStandCoorDieX(filelist.size()>0?filelist.get(6):"AAAA");
-				mapDO.setStandCoorDieY(filelist.size()>0?filelist.get(7):"AAAA");
-				mapDO.setWaferId(0);
-				mapDO.setWaferNumber(waferNO);
+				mapfilelist.put(waferNO, invalidationList);
 				return MapFileResult;
 			}
 		}
@@ -1117,12 +1042,12 @@ public class ZipFileParser {
 				}
 				System.out.println(Arrays.toString(Min));
 				System.out.println(Arrays.toString(Max));
-				String column = "C";
+				String column = "";
 				Object[] obj = null;
 				String min="";
 				String max="";
 				for(int dp=1;dp<length;dp++){
-					column = column+dp;
+					column = "C"+dp;
 					parameterNameUnit=dealparam[6+dp];//参数名字加单位
 					String parameterUnit=" ";
 					String parameterName=" ";
@@ -1152,24 +1077,6 @@ public class ZipFileParser {
 			
 			
 			return parametermap;
-		}
-		/**
-		 * map文件数据存储
-		 * @param file
-		 * @return
-		 */
-		public static Map<String, Object> SaveMapFile(String file){
-			String status=null;
-			Map<String, Object> resultMap=new HashMap<String, Object>();
-				Map<String, Object> mapFileResult=getMapFile(file);
-				status=(String) mapFileResult.get("status");
-				if(status!=null){
-					resultMap.put("status", status);
-					return resultMap;
-				}else{
-					resultMap.put("status", "success");
-				}
-			return resultMap;
 		}
 		
 		/**

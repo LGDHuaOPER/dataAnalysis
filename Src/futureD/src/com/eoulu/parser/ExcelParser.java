@@ -10,14 +10,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -30,6 +35,7 @@ import com.eoulu.entity.WaferDO;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.eoulu.transfer.AlpToNumber;
+import com.eoulu.util.DataBaseUtil;
 
 
 /**
@@ -115,14 +121,14 @@ public class ExcelParser {
 		return num[1];
 	}
 
-	public static String getExcelData(String filepath, String productCategory, String details,
+	public static String getExcelData(Connection conn,String filepath, String productCategory, String details,
 			String currentUser, String dataFormat) {
 		boolean limit = false;
 		boolean databool = false;
 		int datanum = 1;
 		Date date = new Date();
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String time = format.format(date);
+		String time = format.format(date),status="";
 		FileInputStream excelFileInputStream;
 		XSSFSheet sheet = null;;
 		try {
@@ -138,42 +144,57 @@ public class ExcelParser {
 	
 		int paramNum = 0;
 		// 变量定义
-		String Tester = "";
-		String TestStarTime = "";
-		String TestStopTime = "";
-		String WaferID = "";
-		String LotID = "";
-		String DeviceID = "";
-		String FileName = "";
-		String ComputerName = "";
-		String TotalTestTime = "";
-		boolean coordinateFlag = false;
+		String Tester = "", TestStarTime = "",TestStopTime = "",WaferID = "",LotID = "",DeviceID = "",FileName = "",ComputerName = "", TotalTestTime = "";
+		boolean coordinateFlag = false,flag = false;
 		/* 存放参数以及上下限,key:dieType;[]:参数名、参数单位、参数字段、上限、下限 */
 		Map<String, List<String>> limitMap = new HashMap<String, List<String>>();
-		// 存放数据
-		Map<String, List<String>> dataMap = new HashMap<String, List<String>>();
-		// 存放参数
-		List<String> paramList = new ArrayList<String>();
-		// 存放参数单位
-		List<String> unitList = new ArrayList<String>();
-		// 存放坐标
-		List<String> positionList = new ArrayList<String>();
+		
+		List<List<String>> params = new ArrayList<>();
+		List<String> paramLs = null;
+		String columnStr = "",condition = "";
+		
+		Map<String,List<Object[]>> dieMap = new HashMap<>();//key:dieType;value:器件类型对应的die信息
+		List<Object[]> dieList = new ArrayList<>();
+		Object[] att = null; //字母坐标，X坐标，Y坐标，die编号，bin，testtime,结果参数
+		
 		// 传参之用
 		Map<String, Object> map = new HashMap<>();
 		System.out.println("总行数：" + sheet.getLastRowNum());
-
+		
+		int maxX = 0, minX = 10000000, maxY = 0, minY = 10000000,x=0,y=0,dieNO=0;
+		String alphabetic = "";
 		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
 			XSSFRow row = sheet.getRow(i);
 			if (row == null || row.getCell(0) == null || "".equals(row.getCell(0).toString())) {
 				continue;
 
 			}
-			if ("Type".equals(row.getCell(0).toString()) && "DieX".equals(row.getCell(2).toString())) {
-				coordinateFlag = true;
-				break;
+			if (row != null && "Type".equals(row.getCell(0).toString())) {
+				if("DieX".equals(row.getCell(2).toString())){
+					coordinateFlag = true;
+				}
+				flag = true;
+				continue;
+			}
+			if(!"Type Yield".equals(row.getCell(0).toString()) && flag){
+				alphabetic = row.getCell(1).toString();
+				x = Cal(alphabetic.split("/")[1]);
+				y = Cal(alphabetic.split("/")[0]);
+				maxX = maxX>x?maxX:x;
+				minX = minX<x?minX:x;
+				maxY = maxY>y?minY:y;
+				minY = minY<y?minY:y;
 			}
 		}
-		System.out.println(coordinateFlag);
+		Map<String,Integer> dieLimit = new HashMap<>();
+		dieLimit.put("maxX", maxX);
+		dieLimit.put("minX", minX);
+		dieLimit.put("maxY", maxY);
+		dieLimit.put("minY", minY);
+		  double sizeX = 200000/(maxX-minX+1),sizeY = 200000/(maxY-minY+1);
+		System.out.println("dieLimit:"+dieLimit);
+		String str1 = "-?[0-9]+.?[0-9]+", str2 = "-?[0-9]+.[0-9]+E[0-9]+";
+		Pattern pattern = Pattern.compile(str1), pattern2 = Pattern.compile(str2);
 		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
 			XSSFRow row = sheet.getRow(i);
 			if (row == null) {
@@ -317,7 +338,7 @@ public class ExcelParser {
 			if ("Type".equals(row.getCell(0).toString())) {
 				databool = true;
 				paramNum = 0;
-				int j = 2;
+				int j = 2,count=0;
 				if (row.getCell(j) != null) {
 					if ("DieX".equalsIgnoreCase(row.getCell(j).toString())) {
 						coordinateFlag = true;
@@ -325,19 +346,26 @@ public class ExcelParser {
 					}
 				}
 				while (row.getCell(j) != null && !"".equals(row.getCell(j).toString().trim())) {
+					count ++;
+					paramLs = new ArrayList<>();
 					String paramStr = row.getCell(j).toString();
 					String[] param = paramStr.split("\\(");
 					if (param.length > 1) {
-						paramList.add(param[0]);
+						paramLs.add(param[0]);
 						if (param[1].split("\\)").length == 0) {
-							unitList.add("");
+							paramLs.add("");
 						} else {
-							unitList.add(param[1].split("\\)")[0]);
+							paramLs.add(param[1].split("\\)")[0]);
 						}
+						paramLs.add("C"+count);
 					} else {
-						paramList.add(paramStr);
-						unitList.add("");
+						paramLs.add(paramStr);
+						paramLs.add("");
+						paramLs.add("C"+count);
 					}
+					params.add(paramLs);
+					columnStr += ",C"+count;
+					condition +=",?";
 					j++;
 				}
 				paramNum = j - 2;
@@ -348,44 +376,72 @@ public class ExcelParser {
 				if ("Type Yield".equals(row.getCell(0).toString())) {
 					continue;
 				} else {
-					if (positionList.contains(row.getCell(1).toString().trim())) {
-						continue;
-					} else {
-						positionList.add(row.getCell(1).toString().trim());
-						String DieType = row.getCell(0).toString().trim();
+						String DieType = row.getCell(0).toString().trim(),value=null;
+						List<String> ls = limitMap.get(DieType);
 						if (row.getCell(1) == null || !row.getCell(1).toString().contains("/")) {
 							continue;
 						}
-						if (dataMap.containsKey(DieType)) {
-							StringBuilder dataStr = new StringBuilder();
-							for (int j = 1; j <= paramNum; j++) {
+						att = new Object[6+paramNum-1];
+						att[0] = row.getCell(1).toString().trim();
+						String str = getDieXY(row.getCell(1).toString().trim(), dieLimit);
+						att[1] = str.split(",")[0];
+						att[2] = str.split(",")[1];
+						dieNO++;
+						att[3] = dieNO;
+						att[5] = 0;
+						boolean bin=true;
+						if (dieMap.containsKey(DieType)) {
+							
+							for (int j = 2; j <= paramNum; j++) {
 								if (row.getCell(j) == null || "".equals(row.getCell(j).toString().trim())) {
-									dataStr.append(" ,");
+									value = " ";
 								} else {
-									dataStr.append(row.getCell(j).toString() + ",");
+									value = row.getCell(j).toString();
 								}
+								Matcher isNum = pattern.matcher(value);
+								Matcher isNum2 = pattern2.matcher(value);
+								if (isNum.matches()) {
+								} else if (isNum2.matches()) {
+								} else if ("infinity".equals(value)) {
+									value = "9E31";
+								} else {
+									value = "-10000";
+								}
+								att[5+j-1] = value;
+								bin = bin && ((Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0])) || value==null ||"".equals(value) );
 							}
-							dataStr.append(datanum);
-							dataMap.get(DieType).add(dataStr.toString());
+							att[4] = bin?1:255;
+							dieMap.get(DieType).add(att);
 						} else {
-							List<String> list = new ArrayList<String>();
-							StringBuilder dataStr = new StringBuilder();
-							for (int j = 1; j <= paramNum; j++) {
+							dieList = new ArrayList<>();
+							for (int j = 2; j <= paramNum; j++) {
 								if (row.getCell(j) == null || "".equals(row.getCell(j).toString().trim())) {
-									dataStr.append(" ,");
+									value = " ";
 								} else {
-									dataStr.append(row.getCell(j).toString() + ",");
+									value = row.getCell(j).toString();
 								}
+								Matcher isNum = pattern.matcher(value);
+								Matcher isNum2 = pattern2.matcher(value);
+								if (isNum.matches()) {
+								} else if (isNum2.matches()) {
+								} else if ("infinity".equals(value)) {
+									value = "9E31";
+								} else {
+									value = "-10000";
+								}
+								att[5+j-1] = value;
+								bin = bin && ((Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0])) || value==null ||"".equals(value) );
+							
 							}
-							dataStr.append(datanum);
-							list.add(dataStr.toString());
-							dataMap.put(DieType, list);
+							att[4] = bin?1:255;
+							dieList.add(att);
+							dieMap.put(DieType, dieList);
 						}
 						datanum++;
-					}
 				}
 			}
 		}
+		FileName = new File(filepath).getName();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		WaferDO wafer = new WaferDO();
 		wafer.setWaferNumber(WaferID);
@@ -406,18 +462,49 @@ public class ExcelParser {
 		map.put("filepath", filepath);
 		map.put("currentUser", currentUser);
 		map.put("time", time);
-		map.put("fileName", FileName);
 		map.put("computerName", ComputerName);
 		map.put("totalTestTime", TotalTestTime);
 		map.put("dataFormat", dataFormat);
 		map.put("limitMap", limitMap);
-		map.put("dataMap", dataMap);
-		map.put("paramList", paramList);
-		map.put("unitList", unitList);
+		map.put("dataMap", dieMap);
+		map.put("paramList", params);
+		map.put("columnStr", columnStr.substring(0, columnStr.lastIndexOf(",")));
+		map.put("condition", condition.substring(0, condition.lastIndexOf(",")));
+		map.put("sizeX",sizeX);
+		map.put("sizeY", sizeY);
 		System.out.println("读完了么");
+//		for(String key:dieMap.keySet()){
+//			System.out.println(Arrays.toString(dieMap.get(key).get(0)));
+//		}
+//		
 		WaferService service = new WaferServiceImpl();
-		System.out.println("还没存好么");
-		return service.saveExcelData(map, wafer, coordinateFlag);
+		if(conn==null){
+			conn = new DataBaseUtil().getConnection();
+			try {
+				conn.setAutoCommit(false);
+				status = service.saveExcelData(conn,map, wafer, coordinateFlag);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}finally{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}else{
+			status = service.saveExcelData(conn,map, wafer, coordinateFlag);
+		}
+
+		return status;
+	}
+	
+	public static void main(String[] args) {
+		DataBaseUtil db = new DataBaseUtil();
+		String sql = "select alphabetic_coordinate from dm_wafer_coordinate_data where wafer_id=118 limit 0,10";
+		List<String> ls = db.queryList(sql, null);
+		System.out.println(getDieXY(ls, new String[]{"Y","AB"}));
+		
 	}
 
 	public static String getDieXY(List<String> coor, String[] coorArr) {
@@ -435,12 +522,8 @@ public class ExcelParser {
 		int markYCoord = Cal(markY);
 		int x = 0;
 		int y = 0;
-		List<Integer> XAxis = new ArrayList<Integer>();
-		List<Integer> YAxis = new ArrayList<Integer>();
-		int maxX = 0;
-		int minX = 10000000;
-		int maxY = 0;
-		int minY = 10000000;
+		List<Integer> XAxis = new ArrayList<Integer>(), YAxis = new ArrayList<Integer>();
+		int maxX = 0, minX = 10000000, maxY = 0, minY = 10000000;
 		for (String m : coor) {
 			String[] cc = m.split("/");
 			x = Cal(cc[1]);
@@ -454,17 +537,16 @@ public class ExcelParser {
 			if (!YAxis.contains(y))
 				YAxis.add(y);
 		}
-		int xmean = (maxX + minX) / 2 + xOffset;
-		int ymean = (maxY + minY) / 2 + yOffset;
-		double sizeX = 200000 / (maxX - minX + 1);
-		double sizeY = 200000 / (maxY - minY + 1);
+		int xmean = (maxX + minX) / 2 + xOffset, ymean = (maxY + minY) / 2 + yOffset;
+		double sizeX = 200000 / (maxX - minX + 1), sizeY = 200000 / (maxY - minY + 1);
 
-		int xRet = markXCoord - xmean;
-		int yRet = markYCoord - ymean;
+		int xRet = markXCoord - xmean, yRet = markYCoord - ymean;
 		String ret = xRet + "," + yRet + "," + sizeX + "," + sizeY;
 
 		return ret;
 	}
+	
+	
 
 	private static int Cal(String s) {
 		int ret = 0;
@@ -474,6 +556,29 @@ public class ExcelParser {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param alphabetic 当前die的字母坐标
+	 * @param map 当前晶圆的最大X、Y，最小X、Y
+	 * @return
+	 */
+	public static String getDieXY(String alphabetic,Map<String,Integer> map){
+		String mapDirX = "Right";
+		String mapDirY = "Down";
+		int xOffset = 1;
+		int yOffset = 1;
+		if (mapDirX != "Right")
+			xOffset = 0;
+		if (mapDirY != "Top")
+			yOffset = 0;
+		 String[] coorArr = alphabetic.split("/");
+		 int markXCoord = Cal(coorArr[1]),markYCoord = Cal(coorArr[0]),maxX=map.get("maxX"),minX=map.get("minX"),maxY=map.get("maxY"),minY=map.get("minY");
+		 int xmean = (maxX + minX) / 2 + xOffset, ymean = (maxY + minY) / 2 + yOffset;
+		 int xRet = markXCoord - xmean, yRet = markYCoord - ymean;
+		
+		 return xRet+","+yRet;
+	}
+	
 	/**
 	 * 获取Excel中的晶圆编号
 	 * 

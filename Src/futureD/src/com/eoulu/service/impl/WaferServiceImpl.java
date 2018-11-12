@@ -45,32 +45,25 @@ import com.eoulu.util.Md5Util;
  */
 public class WaferServiceImpl implements WaferService {
 
-	private static WaferDao dao = new WaferDao();
-	private static ParameterDao parameterDao = new ParameterDao();
-	private static CoordinateDao coordinate = new CoordinateDao();
-	private ZipFileParser util = new ZipFileParser();
-	private ExcelParser excel = new ExcelParser();
-	private ZipService zipUtil = new ZipService(dao, parameterDao, util, coordinate);
-	private ExcelService excelUtil = new ExcelService(dao, parameterDao, excel, coordinate);
 
 	@Override
 	public List<Map<String, Object>> listWafer(PageDTO page, String keyword, String Parameter,int deleteStatus) {
-		return dao.listWafer(page, keyword, Parameter, deleteStatus);
+		return new WaferDao().listWafer(page, keyword, Parameter, deleteStatus);
 	}
 
 	@Override
 	public int countWafer(String keyword, String Parameter,int deleteStatus) {
-		return dao.countWafer(keyword, Parameter, deleteStatus);
+		return new WaferDao().countWafer(keyword, Parameter, deleteStatus);
 	}
 
 	@Override
 	public boolean remove(String waferId) {
-		return dao.remove(waferId,1);
+		return new WaferDao().remove(waferId,1);
 	}
 
 	@Override
 	public boolean update(WaferDO wafer) {
-		return dao.update(wafer);
+		return new WaferDao().update(wafer);
 	}
 
 	@Override
@@ -80,18 +73,23 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public List<Map<String, Object>> getProductCategory() {
-		return dao.getProductCategory();
+		return new WaferDao().getProductCategory();
 	}
 
 	@Override
 	public String getWaferNO(int waferId) {
-		return dao.getWaferNO(waferId);
+		return new WaferDao().getWaferNO(waferId);
 	}
 	
 	@Override
-	public synchronized String saveZipData(Map<String,Object> mapFileList,String file, String productCategory, String archiveUser,
-			String description, String csvExcel, MapParameterDO mapDO,List<String> invalidationList) {
-		List<String> filelist = util.getFile(file);
+	public synchronized String saveZipData(Connection conn,Map<String,Object> mapFileList,String file, String productCategory, String archiveUser,
+			String description, String csvExcel) {
+		WaferDao dao = new WaferDao();
+		ParameterDao parameterDao = new ParameterDao();
+		ZipFileParser util = new ZipFileParser();
+		CoordinateDao coordinate = new CoordinateDao();
+		ZipService zipUtil = new ZipService(dao, parameterDao, util, coordinate);
+		List<String> filelist = util.getFile(file),invalidationList = new ArrayList<>();
 		Map<String, Object> messageMap = util.getMessage(filelist, productCategory);
 		String status = (String) messageMap.get("status");
 		String testStarTime = "";
@@ -129,18 +127,17 @@ public class WaferServiceImpl implements WaferService {
 			totalTestTime = messageMap.get("totalTestTime").toString();
 		}
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Connection conn = null;
-		try {
-			conn = new DataBaseUtil().getConnection();
-			conn.setAutoCommit(false);// 更改JDBC事务的默认提交方式
-			// 判断文件是否上传
+		try {	
+		// 判断文件是否上传
 			Map<Integer, Object> dietypeName = util.getDieTypeName(filelist, testerWaferSerialIDnum, limitnum);
+			
 			String tester = operator;
 			UserDao userDao = new UserDao();
+			operator = operator.trim();
 			operator = userDao.getUserId(conn,operator);
 			if ("".equals(operator)) {
 				UserDO user = new UserDO();
-				user.setUserName(operator);
+				user.setUserName(tester);
 				user.setTelephone("");
 				user.setAuthority("");
 				user.setPassword(Md5Util.md5("EOULU2018"));
@@ -149,7 +146,7 @@ public class WaferServiceImpl implements WaferService {
 				user.setEmail("");
 				boolean flag = userDao.insert(conn,user);
 				if (flag) {
-					operator = userDao.getUserId(conn,operator);
+					operator = userDao.getUserId(conn,tester);
 				}
 			}
 			if (archiveUser.equals(operator)) {
@@ -176,7 +173,7 @@ public class WaferServiceImpl implements WaferService {
 			wafer.setTotalTestQuantity(0);
 			Map<String, List<Object[]>> parameterList = util.getParameter(filelist, datanum, testerWaferSerialIDnum,
 					limitnum, dieTypeList);
-			status = zipUtil.saveWaferInfo(conn,  wafer, parameterList,mapDO,tester,totalTestTime);
+			status = zipUtil.saveWaferInfo(conn,  wafer, parameterList,tester,totalTestTime);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
@@ -193,17 +190,6 @@ public class WaferServiceImpl implements WaferService {
 				return status;
 			}
 			
-			//晶圆参数
-			mapDO.setWaferNumber(waferID);
-			if(parameterDao.getMapParameter(conn, waferID)){
-				status = parameterDao.updateMapParameter(conn, mapDO);
-			}else{
-				status = parameterDao.insertMapParameter(conn,mapDO);
-			}
-			if (!"success".equals(status)) {
-				conn.rollback();
-				return status;
-			}
 			
 			List<String> mapparameters = parameterDao.getEightParameter(conn, waferID);
 			status = zipUtil.saveCoordinateData(conn, filelist, datanum, dietypeName, mapparameters, waferID,invalidationList);
@@ -225,91 +211,47 @@ public class WaferServiceImpl implements WaferService {
 			}
 			System.out.println("curve:"+status);
 			conn.commit();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
 		} catch (IOException e) {
+			e.printStackTrace();
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
-				status = "回滚失败";
-			}
-			status = "重复数据";
-		} catch (Exception e) {
-			e.printStackTrace();
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
-
 		return status;
 	}
 
-	public static void main(String[] args) {
-		Connection conn = new DataBaseUtil().getConnection();
-		CurveDao curveDao = new CurveDao();
-		SmithDao smithDao = new SmithDao();
-		List<String> ls = dao.getJunkWaferId(conn);
-		int waferId = 0;
-		for(int i=0,size=ls.size();i<size;i++){
-			waferId = Integer.parseInt(ls.get(i));
-			parameterDao.delete(conn, waferId);
-			coordinate.delete(conn, waferId);
-			coordinate.deleteSubdie(conn, waferId);
-			curveDao.deleteCurveData(conn, waferId);
-			curveDao.deleteCurveParameter(conn, waferId);
-			curveDao.deleteCurveType(conn, waferId);
-			smithDao.deleteSmithData(conn, waferId);
-			smithDao.deleteMarker(conn, waferId);
-			smithDao.deleteMarkerCalculation(conn, waferId);
-			
-		}
-		dao.delete(conn);
-		try {
-			conn.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		System.out.println("end");
-	}
 	
 	
 	@Override
-	public String saveExcelData(Map<String,Object> map, WaferDO wafer, boolean coordinateFlag) {
+	public String saveExcelData(Connection conn, Map<String, Object> map, WaferDO wafer, boolean coordinateFlag) {
+		ParameterDao parameterDao = new ParameterDao();
+		ExcelParser excel = new ExcelParser();
+		CoordinateDao coordinate = new CoordinateDao();
+		WaferDao dao = new WaferDao();
+		ExcelService excelUtil = new ExcelService(dao, parameterDao, excel, coordinate);
 		String status = "";
-		String operator = map.get("operator").toString();
-		String currentUser = map.get("currentUser").toString();
-		String computerName = map.get("computerName").toString();
-		String totalTestTime = map.get("totalTestTime").toString();
-		List<String> unitList =  (List<String>) map.get("unitList");
-		List<String> paramList =  (List<String>) map.get("paramList");
+		String operator = map.get("operator") == null ? "" : map.get("operator").toString(), tester = operator,
+				currentUser = map.get("currentUser") == null ? "" : map.get("currentUser").toString(),
+				computerName = map.get("computerName") == null ? "" : map.get("computerName").toString(),
+				totalTestTime = map.get("totalTestTime") == null ? "" : map.get("totalTestTime").toString(),
+				columnStr = map.get("columnStr") == null ? "" : map.get("columnStr").toString(),
+				condtion = map.get("condition") == null ? "" : map.get("condition").toString();
+		double sizeX = Double.parseDouble(map.get("sizeX")==null?"0":map.get("sizeX").toString()),sizeY = Double.parseDouble(map.get("sizeY")==null?"0":map.get("sizeY").toString());
+		List<List<String>> paramList = (List<List<String>>) map.get("paramList");
 		Map<String, List<String>> limitMap = (Map<String, List<String>>) map.get("limitMap");
-		Map<String, List<String>> dataMap =  (Map<String, List<String>>) map.get("dataMap");
-		Connection conn = new DataBaseUtil().getConnection();
+		Map<String, List<Object[]>> dataMap = (Map<String, List<Object[]>>) map.get("dataMap");
 		try {
-			conn.setAutoCommit(false);
 			UserDao userDao = new UserDao();
-			operator = userDao.getUserId(conn,operator);
+			operator = userDao.getUserId(conn, operator);
 			if ("".equals(operator)) {
 				UserDO user = new UserDO();
 				user.setUserName(operator);
@@ -319,38 +261,55 @@ public class WaferServiceImpl implements WaferService {
 				user.setRoleId(1);
 				user.setSex("男");
 				user.setEmail("");
-				boolean flag = userDao.insert(conn,user);
+				boolean flag = userDao.insert(conn, user);
 				if (flag) {
-					operator = userDao.getUserId(conn,operator);
+					operator = userDao.getUserId(conn, operator);
 				}
 			}
 			if (currentUser.equals(operator)) {
 				currentUser = operator;
 			} else {
-				currentUser = userDao.getUserId(conn,currentUser);
+				currentUser = userDao.getUserId(conn, currentUser);
 			}
 			wafer.setArchiveUser(Integer.parseInt(currentUser));
 			wafer.setTestOperator(Integer.parseInt(operator));
-			//晶圆，参数
-			status = excelUtil.saveWaferParameter(conn, unitList, paramList, limitMap, wafer, dataMap);
+			// 晶圆，参数
+			status = excelUtil.saveWaferParameter(conn, paramList, limitMap, wafer);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
 			}
-			//次要信息
-			int waferId = dao.getMaxWaferID(conn, wafer.getWaferNumber());
-			Object[] param = new Object[] { waferId, computerName, wafer.getArchiveUser(), totalTestTime };
-			status = dao.insertSecondaryInfo(conn, param);
+			// 次要信息
+			boolean exsit = dao.getSecondaryExsit(conn, wafer.getWaferNumber());
+			Object[] param = new Object[] { wafer.getWaferNumber(), computerName, tester, totalTestTime };
+			if (exsit) {
+				status = dao.updateSecondaryInfo(conn, param);
+			} else {
+
+				status = dao.insertSecondaryInfo(conn, param);
+			}
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
 			}
-			status = excelUtil.saveCoordinate(conn, limitMap, wafer, dataMap, wafer.getWaferNumber(), coordinateFlag);
+			long time4 = System.currentTimeMillis();
+			status = excelUtil.saveCoordinate(conn, limitMap, dataMap, wafer.getWaferNumber(), coordinateFlag,
+					columnStr, condtion);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
 			}
-			status = excelUtil.saveMap(conn, waferId, wafer.getWaferNumber());
+			
+			long time5 = System.currentTimeMillis();
+			System.out.println("update yield:" + (time5 - time4));
+			status = excelUtil.updateYield(conn, limitMap, wafer.getWaferNumber());
+			if (!"success".equals(status)) {
+				conn.rollback();
+				return status;
+			}
+
+			exsit = parameterDao.getMapParameter(conn, wafer.getWaferNumber());
+			status = excelUtil.saveMap(conn, wafer.getWaferNumber(), exsit,sizeX,sizeY);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
@@ -358,13 +317,12 @@ public class WaferServiceImpl implements WaferService {
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			status = "添加失败！";
-		}finally{
 			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
 			}
+			status = "添加失败！";
 		}
 		return status;
 	}
@@ -372,6 +330,9 @@ public class WaferServiceImpl implements WaferService {
 	@Override
 	public String saveExcel(String path, String waferNO, String productCategory,
 			String description, String currentUser, String progress, int interval) {
+		ParameterDao parameterDao = new ParameterDao();
+		WaferDao dao = new WaferDao();
+		CoordinateDao coordinate = new CoordinateDao();
 		Map<String, Object> dataMap = new ReadExcel().readExcel(path);
 		List<String> paramList = (List<String>) dataMap.get("paramList");
 		List<String> unitList = (List<String>) dataMap.get("unitList");
@@ -473,6 +434,11 @@ public class WaferServiceImpl implements WaferService {
 	@Override
 	public String saveTxtToExcel(String path, String productCategory,  String description,
 			String currentUser, String fileName, int interval) {
+		 ExcelParser excel = new ExcelParser();
+		 WaferDao dao = new WaferDao();
+		 ParameterDao parameterDao = new ParameterDao();
+		 CoordinateDao coordinate = new CoordinateDao();
+		 ExcelService excelUtil = new ExcelService(dao, parameterDao, excel, coordinate);
 		Map<String, Object> dataMap = new ReadExcel().getExcelDataByTxt(path);
 		interval += 10;
 		String status = dataMap.get("status").toString();
@@ -652,6 +618,9 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public  void deleteJunkData() {
+		WaferDao dao = new WaferDao();
+		ParameterDao parameterDao = new ParameterDao();
+		CoordinateDao coordinate = new CoordinateDao();
 		Connection conn = new DataBaseUtil().getConnection();
 		CurveDao curveDao = new CurveDao();
 		SmithDao smithDao = new SmithDao();
@@ -681,6 +650,7 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public List<String> getWaferParameter(String waferIdStr) {
+		ParameterDao parameterDao = new ParameterDao();
 		List<String> paramList = new ArrayList<>();
 		List<String> ls = new ArrayList<>();
 		String[] att = waferIdStr.split(",");
@@ -704,9 +674,20 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public boolean getWafer(String fileName, String editTime) {
-		return dao.getWafer(fileName, editTime);
+		return new WaferDao().getWafer(fileName, editTime);
 	}
 
+	@Override
+	public boolean delete(String waferId) {
+		
+		return new WaferDao().remove(waferId, 2);
+	}
+
+	@Override
+	public boolean recovery(String waferId) {
+		return new WaferDao().remove(waferId, 0);
+	}
+	
 	
 
 }

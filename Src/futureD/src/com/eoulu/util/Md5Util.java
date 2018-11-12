@@ -30,6 +30,6 @@ public class Md5Util {
 		return buf.toString();
 	}
 	public static void main(String[] args) {
-		System.out.println(Md5Util.md5("admin"));
+		System.out.println(Md5Util.md5("EOULU201511"));
 	}
 }

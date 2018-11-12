@@ -384,7 +384,7 @@ function smithChart(dom,title,legendName, allData,Type,msgdom) {
     SmithPlotObj.prototype.onresize = function (){
        // window.onresize = function () {
             c.setAttribute('width', dom.offsetWidth);
-            c.setAttribute('height', dom.offsetHeight -30);
+            c.setAttribute('height', dom.offsetHeight -20);
             cWidth = c.width;
             cHeight = c.height;
             titleLength = 0;

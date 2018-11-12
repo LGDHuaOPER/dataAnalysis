@@ -1,4 +1,4 @@
-package com.eoulu.controller.list;
+package com.eoulu.action.list;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -59,6 +59,18 @@ public class DataListUpdate extends HttpServlet {
 			new LogServiceImpl().insertLog(userName, "数据列表", "修改了晶圆"+service.getWaferNO(waferId), request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
+		
+	}
+	
+	public static void main(String[] args) {
+		WaferService service = new WaferServiceImpl();
+		WaferDO wafer = new WaferDO();
+		wafer.setDescription("测试修改");
+		wafer.setTestEndDate("2018-11-07");
+		wafer.setTestOperator(2);
+		wafer.setProductCategory("mm");
+		wafer.setWaferId(137);
+		boolean flag = service.update(wafer);
 		
 	}
 

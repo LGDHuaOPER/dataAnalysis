@@ -278,10 +278,13 @@ div#in ul {
   left: 8px;
 }
 
+div[data-dbcurveandsmith] div.picturetop {
+	position: relative;
+}
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1199px) {
     .vectorMap_in {
-    	grid-template-columns: 300px 1fr;
+    	grid-template-columns: 350px 1fr;
     }
 }
 

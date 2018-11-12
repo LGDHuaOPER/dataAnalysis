@@ -125,6 +125,18 @@ public class WaferDao {
 	}
 	
 	/**
+	 * 修改良率
+	 * @param conn
+	 * @param yield
+	 * @param waferId
+	 * @return
+	 */
+	public boolean updateYield(Connection conn,double yield,int waferId){
+		String sql = "update dm_wafer set qualified_rate=? where wafer_id=?";
+		return db.operate(conn, sql, new Object[]{yield,waferId});
+	}
+	
+	/**
 	 * 修改晶圆信息
 	 * @param wafer
 	 * @return
@@ -145,6 +157,11 @@ public class WaferDao {
 		}
 		String sql = "update dm_wafer set delete_status="+deleteStatus+" where wafer_id in ("+waferId+") ";
 		return db.operate(sql, null);
+	}
+	
+	public boolean remove(Connection conn,int waferId,int deleteStatus){
+		String sql = "update dm_wafer set delete_status="+deleteStatus+" where wafer_id in ("+waferId+") ";
+		return db.operate(conn,sql, null);
 	}
 	
 	public boolean delete(Connection conn,int waferId){
@@ -232,6 +249,12 @@ public class WaferDao {
 		
 		return flag;
 	}
+	
+	public boolean  getSecondaryExsit(Connection conn,String waferNO){
+		String sql = "select wafer_number from dm_wafer_secondary_info where wafer_number=?";
+		Object result = db.queryResult(conn, sql, new Object[]{waferNO});
+		return result==null?false:true;
+	}
 
 	/**
 	 * 判断晶圆是否存在
@@ -253,12 +276,26 @@ public class WaferDao {
 		}
 		return flag;
 	}
-	
+	/**
+	 * 判断晶圆是否存在（4个条件）
+	 * @param waferNO
+	 * @param lot
+	 * @param device
+	 * @param dieType
+	 * @return
+	 */
 	public  int queryWaferinfo(String waferNO,String lot,String device,String dieType){
 		String sql="select wafer_id from dm_wafer where wafer_number=? and lot_number=? and device_number=? and die_type=?";
 		Object result = db.queryResult(sql, new Object[]{waferNO,lot,device,dieType});
 		return result==null?0:Integer.parseInt(result.toString());
 	}
+	public  int queryWaferinfo(Connection conn,String waferNO,String lot,String device,String dieType){
+		String sql="select wafer_id from dm_wafer where wafer_number=? and lot_number=? and device_number=? and die_type=? and delete_status<>2";
+		Object result = db.queryResult(conn,sql, new Object[]{waferNO,lot,device,dieType});
+		return result==null?0:Integer.parseInt(result.toString());
+	}
+	
+	
 	public  boolean queryWaferinfo(String waferNO){
 		String sql="select wafer_number from dm_wafer where wafer_number=?";
 		return db.queryResult(sql, new Object[]{waferNO})==null?false:true;
@@ -272,7 +309,7 @@ public class WaferDao {
 	}
 	
 	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType){
-		String sql = "select "+dieType+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number";
+		String sql = "select "+("".equals(dieType)?"":"concat('"+dieType+"','') die_type,")+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number+0";
 		return db.queryToList(conn, sql, new Object[]{waferId});
 	}
 	

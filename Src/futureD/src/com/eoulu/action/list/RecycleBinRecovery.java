@@ -1,4 +1,4 @@
-package com.eoulu.controller.list;
+package com.eoulu.action.list;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -13,16 +13,16 @@ import com.eoulu.service.impl.WaferServiceImpl;
 import com.google.gson.Gson;
 
 /**
- * Servlet implementation class DataListRemove
+ * Servlet implementation class RecycleBinRecovery
  */
-@WebServlet(description = "数据列表的删除", urlPatterns = { "/DataListRemove" })
-public class DataListRemove extends HttpServlet {
+@WebServlet(description = "回收站恢复", urlPatterns = { "/RecycleBinRecovery" })
+public class RecycleBinRecovery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DataListRemove() {
+    public RecycleBinRecovery() {
         super();
     }
 
@@ -34,14 +34,14 @@ public class DataListRemove extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		WaferService service = new WaferServiceImpl();
 		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId");
-		boolean flag = service.remove(waferId);
+		boolean flag = service.recovery(waferId);
 		if(flag){
-			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "数据列表", "删除晶圆"+service.getWaferNO(Integer.parseInt(waferId))+"至回收站", request.getSession());
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "回收站", "恢复晶圆"+service.getWaferNO(Integer.parseInt(waferId))+"至数据列表", request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
-	
 	}
 
+	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */

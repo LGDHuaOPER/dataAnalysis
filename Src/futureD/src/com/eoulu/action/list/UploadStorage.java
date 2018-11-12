@@ -2,6 +2,7 @@ package com.eoulu.action.list;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -12,12 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.parser.ExcelImageRead;
 import com.eoulu.parser.ExcelParser;
+import com.eoulu.parser.FileDelete;
 import com.eoulu.parser.ZipFileParser;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.eoulu.util.FileUtil;
 import com.google.gson.Gson;
+
 
 
 /**
@@ -68,16 +71,26 @@ public class UploadStorage extends HttpServlet {
 						temp = pathMap.get("temp").toString(),
 						status = null,logWafer="";
 		description = currentUser+":"+description;
+		Map<String,Object> result = null,map=new HashMap<String, Object>();
+		map.put("filePath", filePath);
+		map.put("temp", temp);
+		map.put("fileName", fileName.substring(0, fileName.indexOf(".")));
+		map.put("productCategory", productCategory);
+		map.put("description", description);
+		map.put("currentUser", currentUser);
+		map.put("dataFormat", dataFormat);
+		map.put("sessionId", sessionId);
+		map.put("interval", 0);
 		WaferService service = new WaferServiceImpl();
 		ZipFileParser zipUtil = new ZipFileParser();
-		Map<String,Object> result = null;
+		
 		boolean flag = false;
 		switch (dataFormat) {
 		case "1":
 			if(!fileName.endsWith(".zip") && !fileName.endsWith(".rar")){
 				status="文件格式有误！";
 			}else{
-			result = zipUtil.Zip(filePath, temp, fileName.substring(0, fileName.indexOf(".")), productCategory, description, currentUser, dataFormat, sessionId, 0);
+//			result = zipUtil.Zip(filePath, temp, fileName.substring(0, fileName.indexOf(".")), productCategory, description, currentUser, dataFormat, sessionId, 0);
 			flag = (Boolean) result.get("flag");
 			if(flag){
 				status="上传失败，zip压缩文件中不包含任何一个CSV或者Excel文件！";
@@ -103,7 +116,7 @@ public class UploadStorage extends HttpServlet {
 			break;
 		default:
 			if(fileName.endsWith(".zip") ){
-				result = zipUtil.Zip(filePath, temp, fileName.substring(0, fileName.indexOf(".")), productCategory, description, currentUser, dataFormat, sessionId, 0);
+				result = zipUtil.Zip(map);
 				flag = (Boolean) result.get("flag");
 				status = result.get("status").toString();
 				logWafer = result.get("logWafer").toString();
@@ -111,17 +124,54 @@ public class UploadStorage extends HttpServlet {
 					status="上传失败，zip压缩文件中不包含任何一个CSV或者Excel文件！";
 				}
 			}else if(fileName.endsWith(".xlsx")){
-				status = ExcelParser.getExcelData(filePath, productCategory, description, currentUser, dataFormat);
+				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat);
 			}else{
 				status="文件格式有误！";
 			}
 			break;
 		}
+		new FileDelete().deleteDirectory(temp);
 		if("success".equals(status)){
 			new LogServiceImpl().insertLog(currentUser, "数据列表", "导入了晶圆数据"+logWafer, request.getSession());
 		}
 		status = "success".equals(status)?"上传成功！":status;
 		response.getWriter().write(new Gson().toJson(status));
+	}
+	
+	
+	public static void main(String[] args) {
+		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\wafer51.xlsx";
+		String fileName = "wafer51.xlsx";
+		String temp = "E:/test";
+		File file = new File(temp);
+		if(!file.exists()){
+			file.mkdirs();
+		}
+		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
+		String productCatagory="1";
+		String description="TEST：测试Excel上传speed";
+		String currentUser="TEST";
+		String dataFormat = "0";
+		Map<String,Object> result = null,map=new HashMap<String, Object>();
+		map.put("filePath", filePath);
+		map.put("temp", temp);
+		map.put("fileName", fileName.substring(0, fileName.indexOf(".")));
+		map.put("productCategory", productCatagory);
+		map.put("description", description);
+		map.put("currentUser", currentUser);
+		map.put("dataFormat", dataFormat);
+		map.put("sessionId", "");
+		map.put("interval", 0);
+		long time = System.currentTimeMillis();
+		ZipFileParser util = new ZipFileParser();
+		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat);
+//	   result = util.Zip(map);
+	   new FileDelete().deleteDirectory(temp);
+		System.out.println(System.currentTimeMillis()-time);
+//		System.out.println(result);
+		System.out.println(status);
+		
+		
 	}
 
 }

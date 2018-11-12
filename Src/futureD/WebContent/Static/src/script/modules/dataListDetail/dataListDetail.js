@@ -37,7 +37,8 @@ dataListDetailStore.state = {
 		curSelectedDie: Object.create(null),
 		curveType: ["ID_VD", "OutputCurve", "SP2RF", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
 		curCurveTypeNo: 0,
-		renderChartByCoordFlag: false
+		renderChartByCoordFlag: false,
+		smithObjArr: []
 	},
 	parameterMap: {
 		curChartContainerNum: 0,
@@ -528,6 +529,207 @@ function commonCalcLayout(){
 	}
 }
 
+function drawDbCurve(obj){
+	var container = obj.container;
+	var xCategories = obj.xCategories;
+	var series = obj.series;
+	var msgDom = obj.msgDom;
+	var legend_enabled = obj.legend_enabled || false;
+	var zoomType = obj.zoomType || "None";
+	var resetZoomButton = obj.resetZoomButton;
+	var text = obj.text || null;
+	var chart = Highcharts.chart(container, {
+		chart: {
+			type: 'line',
+			zoomType: zoomType,
+			resetZoomButton: resetZoomButton
+		},
+		title: {
+			text: text
+		},
+        lang: {
+            loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
+        },
+        legend: {
+			enabled: legend_enabled
+		},
+	    xAxis: {
+			title: {
+				text: "GHz",
+			}, 
+			categories : xCategories,
+		}, 
+		yAxis: {
+			title: {
+				text: "dB",
+			},
+		    gridLineColor: '#eee',
+		    gridLineWidth: 1,
+		  /*  labels: {
+		      step: 0.01
+	    	}  */
+		},
+		series: series,
+		credits: {
+			enabled: false
+		},
+		tooltip: {
+			formatter: function (e) {
+				return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' dB';
+            },
+            useHTML: true
+			/*headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
+		},
+		plotOptions: {
+			series: {
+				point: {
+					events: {
+						mouseOver: function (pa) {
+							/*console.log(this);
+							console.log(pa);*/
+							var x = xCategories[this.x] ;
+							var y = this.y ;
+							var str = y+" dB,"+x+" GHz" ;
+							msgDom && msgDom.find(".Smith_Msg2").text(str);
+						}
+					}
+				},
+				showCheckbox: true
+			}
+		},
+	});
+	return chart;
+}
+
+/*矢量图分页SP2RF绘制*/
+function drawDbCurveANDSmith(obj) {
+	var smithAndCurve = obj.smithAndCurve;
+	var container = obj.container;
+	/*首先构造内部容器*/
+	var str = '<div class="panel panel-info" data-dbcurveandsmith="S11">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S11'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>'+
+    			'<div class="panel panel-info" data-dbcurveandsmith="S12">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S12'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S12</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>'+
+    			'<div class="panel panel-info" data-dbcurveandsmith="S21">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S21'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S21</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>'+
+    			'<div class="panel panel-info" data-dbcurveandsmith="S22">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S22'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S22</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>';
+    $("#"+container).empty().append(str).find("[data-dbcurveandsmith]").each(function(){
+    	var dbcurveandsmith = $(this).data("dbcurveandsmith");
+    	var iW = $(this).find(".panel-body").innerWidth();
+    	var multiples = 0.5;
+    	if($(window).width() <= 1199) multiples = 1;
+    	$(this).find(".picturetop").innerHeight(iW*multiples);
+    	if(dbcurveandsmith == "S11" || dbcurveandsmith == "S22"){
+    		var dom1 = $(this).find(".picturetop")[0];
+    		var msgdom1  = $(this).find(".picturebottom")[0];
+    		var title = [''];
+    		var legendName1 = [dbcurveandsmith];
+    		var smith1 = smithChart(dom1, title, legendName1, [smithAndCurve[dbcurveandsmith]], dbcurveandsmith, msgdom1);
+    		if(dataListDetailStore.state.vectorMap.smithObjArr.length == 2){
+    			dataListDetailStore.state.vectorMap.smithObjArr.length = 0;
+    		}
+    		dataListDetailStore.state.vectorMap.smithObjArr.push(smith1);
+    	}else{
+    		$('<div id="'+container+'_'+dbcurveandsmith+'"></div>').appendTo($(this).find(".picturetop")).innerHeight($(this).find(".picturetop").innerHeight());
+    		//曲线
+    		var iiData = smithAndCurve[dbcurveandsmith];
+    		var objec = {};
+    		objec.xCategories = [];
+    		_.forEach(iiData, function(v, i){
+    			objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+    		});
+    		objec.series = [];
+    		objec.series[0] = {};
+    		objec.series[0].data = [];
+    		_.forEach(iiData, function(v, i){
+    			objec.series[0].data.push(parseFloat(v[1]));
+    		});
+    		objec.container = $(this).find(".picturetop").children("div").attr("id");
+    		objec.msgDom = $(this).find(".picturebottom");
+    		objec.resetZoomButton = {
+    			position: {
+    				align: 'left', // by default
+    				// verticalAlign: 'top', // by default
+    				x: 0,
+    				y: 0
+    			},
+    			relativeTo: 'chart'
+    		};
+    		drawDbCurve(objec);
+    	}
+    });
+}
+
 /*矢量图分页chart绘制*/
 function drawCurve(obj){
 	var dimension = obj.dimension;
@@ -637,6 +839,11 @@ function drawVectorChart(obj) {
 		var yAxisTitle = itemData.ParamY + (itemData.ParamYUnit == "" ? "" : ("(" + itemData.ParamYUnit + "）"));
 		if(dimension == 0){
 			console.log("只加载史密斯");
+			var smithAndCurve = itemData.smithAndCurve;
+			drawDbCurveANDSmith({
+				smithAndCurve: smithAndCurve,
+				container: obj.container
+			});
 		}else if(dimension == 1){
 			dataListDetailSwalMixin({
 				title: '加载数据',
@@ -717,6 +924,7 @@ function renderChartByCoord(){
 	console.log(data.curveinfos);
 	_.forEach(data.curveinfos, function(v, i){
 		var ID = buildChartContainer(v.curveType);
+		console.log(ID)
 		drawVectorChart({
 			data: data,
 			curveType: v.curveType,
@@ -929,6 +1137,12 @@ $(function(){
 /*event handler*/
 /*浏览器窗口大小改变普通事件*/
 $(window).on("resize", _.debounce(commonCalcLayout, 200));
+$(window).on("resize", _.debounce(function(){
+	11111
+	_.forEach(dataListDetailStore.state.vectorMap.smithObjArr, function(v, i, arr){
+		arr[i].onresize();
+	});
+}, 200));
 
 $(".allDetail_body .table_body").on("scroll", function(e){
 	if(dataListDetailStore.state.allDetail.tbody.scrollTop - 1 < $(this).scrollTop() && dataListDetailStore.state.allDetail.tbody.scrollTop + 1 > $(this).scrollTop()){

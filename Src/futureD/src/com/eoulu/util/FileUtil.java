@@ -13,14 +13,14 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,6 +33,10 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.eoulu.transfer.ProgressSingleton;
+
+import de.innosystec.unrar.Archive;
+import de.innosystec.unrar.exception.RarException;
+import de.innosystec.unrar.rarfile.FileHeader;
 
 /**
  * @author mengdi
@@ -204,18 +208,18 @@ public class FileUtil {
 	}
 	
 	
-	public static File unZipFiles(String filePath, String descDir){
+	public static File unZip(String filePath, String descDir){
 		Charset gbk = Charset.forName("GBK");
 		File zipFile = new File(filePath);
 		File pathFile = new File(descDir);
 		if (!pathFile.exists()){
 			pathFile.mkdirs();
 		}
-		java.util.zip.ZipFile zip = null;
+		ZipFile zip = null;
 		InputStream in = null;
 		OutputStream out = null;
 		try{
-			zip = new java.util.zip.ZipFile(zipFile,gbk);
+			zip = new ZipFile(zipFile,gbk);
 			for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();){
 			ZipEntry entry = entries.nextElement();
 			String zipEntryName = entry.getName();
@@ -261,6 +265,69 @@ public class FileUtil {
 	
 	return pathFile;
 	}
+	
+	public static File unRar(String filePath, String descDir) {
+		FileOutputStream os = null;
+		Archive archive = null;
+		File inputFile = new File(filePath);
+		
+		File destFile = new File(descDir);
+		if(!destFile.exists()){
+			destFile.mkdirs();
+		}
+		try {
+			// 创建rar文件
+			 archive = new Archive(new File(filePath));
+			if (archive == null) {
+				return null;
+			}
+			FileHeader header = archive.nextFileHeader();
+			File destFileName = null;
+			
+			while (header != null) {
+				String compressFileName = header.getFileNameW().isEmpty()?header.getFileNameString().trim():header.getFileNameW();
+				destFileName = new File(destFile.getAbsolutePath() + "/" + compressFileName);
+				if (header.isDirectory()) {
+					if (!destFileName.exists()) {
+						destFileName.mkdirs();
+					}
+					header = archive.nextFileHeader();
+					continue;
+				}
+				if (!destFileName.getParentFile().exists()) {
+					destFileName.getParentFile().mkdirs();
+				}
+				os = new FileOutputStream(destFileName);
+				archive.extractFile(header, os);
+				os.close();
+				os = null;
+				header = archive.nextFileHeader();
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (RarException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(archive !=null){
+					archive.close();
+				}
+				if(os !=null){
+					os.close();
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+
+		return destFile;
+	}
+	
+	
+	
 	
 	public Map<String,Object> getDataFormat(String filepath)
 	{
