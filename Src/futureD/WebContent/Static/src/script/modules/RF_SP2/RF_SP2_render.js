@@ -1,69 +1,24 @@
-$(document).ready(function(){
-	/*var chart = Highcharts.chart('picture', {credits: {enabled: false}});   //获取图表对象
-	chart.showLoading();
-	chart.hideLoading();*/
-	var data00 = RF_SP2State.mock.RF_SP2[0];
-		//默认加载第一个曲线
-	/*var x=[];
-	var y=[];
-	var CVZ= [];
-	var CVX=[];
-	var CVY=[];*/
-	if(data00.curveinfos.length >= 1){
-		/*dimension == 0*/
-		initSmithAll({
-			Smith_Paramter: RF_SP2State.waferSelected[0],
-			data: data00
-		});
-	}else{
-		RF_SP2SwalMixin({
-			title: '信息',
-			text: "此晶圆无曲线数据！",
-			type: 'info',
-			showConfirmButton: false,
-			showCancelButton: false,
-			timer: 2000
-		}).then(function(result){
-			if(result.dismiss == "timer"){
-				
-			}
-		});
-	}
-});
-
-function initSmithAll(obj){
-	$(".Smith_Paramter").text(obj.Smith_Paramter);
-	var data = obj.data;
-	var dom1 = document.getElementById("picture1top");
-	var dom2 = document.getElementById("picture4top");
-	var msgdom1  = document.getElementById("picture1bottom");
-	var msgdom2  = document.getElementById("picture4bottom");
-	var title = [''];
-	var legendName1 = ['S11'];
-	var legendName2 = ['S22'];
-	var data1 = [data.curveinfos[2].smithAndCurve.S11];
-	var data2 = [data.curveinfos[2].smithAndCurve.S22];
-	var smith1 = smithChart(dom1,title,legendName1, data1,'S11',msgdom1);
-	var smith2 = smithChart(dom2,title,legendName2, data2,'S22',msgdom2);
-
-	/*曲线绘制开始*/
-	var DbCurveDom1 = "picture2top";
-	var DbCurveDom2 = "picture3top";
-	var dataS12 = data.curveinfos[2].smithAndCurve.S12;
-	var dataS21 = data.curveinfos[2].smithAndCurve.S21;
+/*单独获取数据，构造数据，绘制S12,S21*/
+function getDataBuildS12S21(obj){
+	var allData = obj.allData;
 	var objec = {};
 	objec.xCategories = [];
-	_.forEach(dataS12, function(v, i){
+	_.forEach(allData[0].data, function(v, i){
 		objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
 	});
 	objec.series = [];
-	objec.series[0] = {};
-	objec.series[0].data = [];
-	_.forEach(dataS12, function(v, i){
-		objec.series[0].data.push(parseFloat(v[1]));
-	});
-	objec.container = DbCurveDom1;
-	objec.msgDom = $("#picture2bottom");
+	if(obj.renderData){
+		_.forEach(allData, function(v, i){
+			var item = {};
+			item.name = v.name;
+			item.data = [];
+			_.forEach(v.data, function(vv, ii){
+				item.data.push(parseFloat(vv[1]));
+			});
+		});
+	}
+	objec.container = obj.container;
+	objec.zoomType = obj.zoomType;
 	objec.resetZoomButton = {
 		position: {
 			align: 'left', // by default
@@ -73,50 +28,33 @@ function initSmithAll(obj){
 		},
 		relativeTo: 'chart'
 	};
-	drawDbCurve(objec);
-
-	var objec2 = {};
-	objec2.xCategories = [];
-	_.forEach(dataS21, function(v, i){
-		objec2.xCategories.push(Math.floor(v[0] / 10000000)/100);
-	});
-	objec2.series = [];
-	objec2.series[0] = {};
-	objec2.series[0].data = [];
-	_.forEach(dataS21, function(v, i){
-		objec2.series[0].data.push(parseFloat(v[1]));
-	});
-	objec2.container = DbCurveDom2;
-	objec2.msgDom = $("#picture3bottom");
-	objec.resetZoomButton = {
-		position: {
-			align: 'left', // by default
-			// verticalAlign: 'top', // by default
-			x: 0,
-			y: 0
-		},
-		relativeTo: 'chart'
-	};
-	drawDbCurve(objec2);
-	/*//默认加载曲线信息
-	$("#picture2bottom .Smith_Msg2").text(parseFloat(DbCurveData1[0][1])+" dB,"+(DbCurveData1[0][0]/1000000000).toFixed(2)+"GHz");
-	$("#picture3bottom .Smith_Msg2").text(parseFloat(DbCurveData2[0][1])+" dB,"+(DbCurveData2[0][0]/1000000000).toFixed(2)+"GHz");*/	
-	
-	window.onresize = function () {
-		smith1.onresize();
-		smith2.onresize();
-	};
+	objec.showCheckbox = obj.showCheckbox;
+	drawRealS12S21(objec);
 }
 
-function drawDbCurve(obj){
+function getDataBuildS11S22(obj) {
+	var smith1 = smithChart(obj.wrapDOM, obj.title, obj.legendName, obj.data, obj.classify, obj.msgDOM, obj.lineColorArray, obj.msgFun);
+	_.isFunction(obj.callback) && obj.callback(smith1);
+}
+
+function initSmithAll(obj){
+	
+	/*//默认加载曲线信息
+	$("#picture2bottom .Smith_Msg2").text(parseFloat(DbCurveData1[0][1])+" dB,"+(DbCurveData1[0][0]/1000000000).toFixed(2)+"GHz");
+	$("#picture3bottom .Smith_Msg2").text(parseFloat(DbCurveData2[0][1])+" dB,"+(DbCurveData2[0][0]/1000000000).toFixed(2)+"GHz");*/
+}
+
+/*实际绘制S12 S21*/
+function drawRealS12S21(obj){
 	var container = obj.container;
 	var xCategories = obj.xCategories;
 	var series = obj.series;
 	var msgDom = obj.msgDom;
-	var legend_enabled = obj.legend_enabled || false;
+	var legend_enabled = obj.legend_enabled || true;
 	var zoomType = obj.zoomType || "None";
 	var resetZoomButton = obj.resetZoomButton;
 	var text = obj.text || null;
+	var showCheckbox = obj.showCheckbox || false;
 	var chart = Highcharts.chart(container, {
 		chart: {
 			type: 'line',
@@ -164,20 +102,21 @@ function drawDbCurve(obj){
 			series: {
 				point: {
 					events: {
-						mouseOver: function (pa) {
-							/*console.log(this);
-							console.log(pa);*/
-							var x = xCategories[this.x] ;
+						mouseOver: function (ev) {
+							var point = this;
+							/*var x = xCategories[this.x] ;
 							var y = this.y ;
 							var str = y+" dB,"+x+" GHz" ;
-							msgDom && msgDom.find(".Smith_Msg2").text(str);
+							msgDom && msgDom.find(".Smith_Msg2").text(str);*/
+							_.isFunction(obj.pointMouseOverCallback) && obj.pointMouseOverCallback(point, chart, ev);
 						}
 					}
 				},
-				showCheckbox: true
+				showCheckbox: showCheckbox
 			}
 		},
 	});
+	_.isFunction(obj.callback) && obj.callback(chart);
 	return chart;
 }
 
@@ -234,7 +173,7 @@ $("#picture_box2, #picture_box3").mousedown(function(e) {
 					},
 					relativeTo: 'chart'
 				};
-				drawDbCurve(objec);
+				drawRealS12S21(objec);
 		    RF_SP2SwalMixin({
 		    	title: '切换成功！',
 		    	text: "新数据已被绘制到图表",

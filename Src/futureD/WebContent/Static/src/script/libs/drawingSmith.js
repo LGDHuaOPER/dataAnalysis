@@ -1,6 +1,6 @@
 
 // smith图
-function smithChart(dom,title,legendName, allData,Type,msgdom) {
+function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, msgFun) {
 
     // 公式是(x-x0)^2 + (y-y0)^2 = r^2
     dom.innerHTML = '';
@@ -376,10 +376,13 @@ function smithChart(dom,title,legendName, allData,Type,msgdom) {
             }, false);
         }
     };
-    if(msgdom){
-        var title1 = msgdom.getElementsByClassName("Smith_Msg2")[0];
-        var data1 = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(_data[0][0][0]/10E6).toFixed(2)+"GHz";
-        title1.innerText = data1;
+    if(msgdom && allData.length){
+        var messag = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(_data[0][0][0]/10E6).toFixed(2)+"GHz";
+        if(msgFun){
+            msgFun(messag);
+        }else{
+            msgdom.getElementsByClassName("Smith_Msg2")[0].innerText = messag;
+        }
     }
     SmithPlotObj.prototype.onresize = function (){
        // window.onresize = function () {
@@ -408,10 +411,10 @@ function smithChart(dom,title,legendName, allData,Type,msgdom) {
    //显示坐标点类型
     var valueType = 'cross';
     // 顺序依次为圆的颜色，坐标颜色，数据线颜色，数据值字体颜色，数据点颜色，数据框背景颜色,图例字体颜色
-    var  color = ['grey', 'black', ['#1baee1', 'red'], 'white', ['#1baee1', 'red'], 'rgba(128, 128, 128, 0.75)', 'grey','#028BCD'];
+    var lineColorArray = lineColorArray || ['#1baee1', 'red'];
+    var color = ['grey', 'black', lineColorArray, 'white', ['#1baee1', 'red'], 'rgba(128, 128, 128, 0.75)', 'grey','#028BCD'];
     var smith = new SmithPlotObj(Type, false, valueType, false, color);
    // smith.plot();
     smith.onresize(); 
     return smith;
-
 }

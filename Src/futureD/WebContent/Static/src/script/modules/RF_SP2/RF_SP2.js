@@ -76,7 +76,12 @@ RF_SP2State.stateObj = {
 		delFlag: false,
 		submitFlag: false
 	},
-	S2PCanRenderChart: true
+	S2PCanRenderChart: true,
+	S2PSmallChartSmithArr: [],
+	S2PSmallChartSmithData: {
+		S11: [],
+		S22: [],
+	}
 };
 RF_SP2State.MathMap = {
 	"sin": {
@@ -166,7 +171,16 @@ function eleResize(){
 	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 180);
 	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 190);
 	$("div.picturetop").each(function(){
-		$(this).innerHeight($(this).parent().height() - 50);
+		if($(this).is("#picture2top") || $(this).is("#picture3top")){
+			var radios = 1, minus = 0;
+			if(RF_SP2State.waferSelected.length > 3) {
+				radios = 2;
+				minus = 7;
+			}
+			$(this).innerHeight($(this).parent().height()*radios).innerWidth($(this).parent().width()-minus);
+		}else{
+			$(this).innerHeight($(this).parent().height() - 50);
+		}
 	});
 
 	$(".picturebottom_in_m ul>li").innerWidth($(".picturebottom_in_m").innerWidth());
@@ -339,11 +353,30 @@ function drawSmithS12S21(obj){
 	};
 	objec.text = iclassify;
 	RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
-	drawDbCurve(objec);
+	drawRealS12S21(objec);
+}
+
+/*Smith图例S11 S22构建*/
+function buildS11ANDS22Bottom(classify, bottomJQDOM, callback){
+	var str = '';
+	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v, i){
+		var prevParam = v.name.split(" ")[1].replace(/\..*/, "");
+		str+='<li data-iparamter="'+v.name+'">'+
+				'<div class="pictureline">'+
+					'<p style="background: '+v.color+'"></p>'+
+				'</div>'+
+				'<div class="smithdata">'+
+					'<p class="smithdata1"><span class="Smith_Paramter">'+prevParam+' Paramter</span> (<span class="Smith_Msg1">'+classify+'</span>)</p>'+
+					'<p class="smithdata2"><span class="Smith_Paramter">'+prevParam+' Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+				'</div>'+
+			'</li>';
+	});
+	bottomJQDOM.empty().append(str);
+	_.isFunction(callback) && callback();
 }
 
 /*before load*/
-$(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv").hide();
+$(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv, .g_bodyin_bodyin_top_wrap_m_in li[data-targetclass='add']").hide();
 
 /*page onload*/
 $(function(){
@@ -361,6 +394,57 @@ $(function(){
 			}
 		});
 	}else{
+		eleResize();
+		$(window).on("resize", function(){
+			eleResize();
+			eleResize2();
+		});
+		/*初始化图例*/
+		/*var x=[];
+		var y=[];
+		var CVZ= [];
+		var CVX=[];
+		var CVY=[];*/
+		var data00 = RF_SP2State.mock.RF_SP2[0];
+		if(data00.curveinfos.length >= 1){
+			/*dimension == 0*/
+			var smithAndCurve = data00.curveinfos[2].smithAndCurve;
+			getDataBuildS12S21({
+				allData: [{
+					name: '',
+					data: smithAndCurve.S12
+				}],
+				renderData: false,
+				container: "picture2top",
+				zoomType: "None",
+				showCheckbox: false
+			});
+			getDataBuildS12S21({
+				allData: [{
+					name: '',
+					data: smithAndCurve.S21
+				}],
+				renderData: false,
+				container: "picture3top",
+				zoomType: "None",
+				showCheckbox: false
+			});
+		}else{
+			RF_SP2SwalMixin({
+				title: '信息',
+				text: "此晶圆无曲线数据！",
+				type: 'info',
+				showConfirmButton: false,
+				showCancelButton: false,
+				timer: 2000
+			}).then(function(result){
+				if(result.dismiss == "timer"){
+					
+				}
+			});
+		}
+		/*初始化图例end*/
+
 		/*导航栏*/
 		renderNavItem({
 			item: item,
@@ -375,12 +459,6 @@ $(function(){
 			$(".g_bodyin_bodyin_top_wrap_l>span, .g_bodyin_bodyin_top_wrap_r>span").show();
 		}
 	}
-	
-	eleResize();
-	$(window).on("resize", function(){
-		eleResize();
-		eleResize2();
-	});
 
 	/*保存Marker后的动作*/
 	var saveMarkerFlag = store.get("futureD__RF_SP2__saveMarkerFlag");
@@ -490,6 +568,12 @@ $(".g_info_r>.glyphicon-user").click(function(){
 	window.location.assign("admin.html");
 });
 
+$(window).on("resize", function(){
+	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithArr, function(v, i, arr){
+		arr[i].onresize();
+	});
+});
+
 /*S2P分页左侧切换*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).toggleClass("selected");
@@ -497,11 +581,257 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).hasClass("selected") ? RF_SP2State.waferSelected.push(item) : _.pull(RF_SP2State.waferSelected, item);
 	if(RF_SP2State.stateObj.S2PCanRenderChart){
 		/*可以画图*/
-		/*RF_SP2State.mock.RF_SP2[i];*/
-		var inewData = [];
-		$("#picture2top").highcharts().addSeries({
-			data: inewData
-		});
+		if($(this).hasClass("selected")){
+			/*增加数据列*/
+			var ioldData = _.cloneDeep(RF_SP2State.mock.RF_SP2[RF_SP2State.waferSelected.length % 3]);
+			if(ioldData.curveinfos.length >= 1){
+				_.forEach(ioldData.curveinfos[2].smithAndCurve.S12, function(vv, ii, arra){
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length /1000;
+				});
+				_.forEach(ioldData.curveinfos[2].smithAndCurve.S21, function(vv, ii, arra){
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length /1000;
+				});
+				_.forEach(ioldData.curveinfos[2].smithAndCurve.S11, function(vv, ii, arra){
+					arra[ii][0] = arra[ii][0] + RF_SP2State.waferSelected.length * 1000;
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length / 1000;
+				});
+				_.forEach(ioldData.curveinfos[2].smithAndCurve.S22, function(vv, ii, arra){
+					arra[ii][0] = arra[ii][0] + RF_SP2State.waferSelected.length * 1000;
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length / 1000;
+				});
+				var inewDataS12 = [];
+				var inewDataS21 = [];
+				_.forEach(ioldData.curveinfos[2].smithAndCurve.S12, function(v, i){
+					inewDataS12.push(parseFloat(v[1]));
+				});
+				_.forEach(ioldData.curveinfos[2].smithAndCurve.S21, function(v, i){
+					inewDataS21.push(parseFloat(v[1]));
+				});
+				$("#picture2top").highcharts().addSeries({
+					name: item,
+					data: inewDataS12,
+					showInLegend: true,
+					enableMouseTracking: true,
+					events: {
+						mouseOver: function(){
+							/*console.log(this); // series对象*/
+							/*var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
+								return this.name == v.name;
+							}).bind(this));
+							_.forEach(curSeriesArr.seriesName, function(v, i){
+								var aa = _.find(series, function(vv, ii){
+									return vv.name == v;
+								});
+								aa.update({
+									lineWidth: 4,
+								});
+								aa.select(true);
+							});*/
+						},
+					},
+					point: {
+						events: {
+							mouseOver: undefined
+						}
+					}
+				});
+				$("#picture3top").highcharts().addSeries({
+					name: item,
+					data: inewDataS21,
+					showInLegend: true,
+					enableMouseTracking: true,
+					events: {
+						mouseOver: function(){
+							/*console.log(this); // series对象*/
+							/*var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
+								return this.name == v.name;
+							}).bind(this));
+							_.forEach(curSeriesArr.seriesName, function(v, i){
+								var aa = _.find(series, function(vv, ii){
+									return vv.name == v;
+								});
+								aa.update({
+									lineWidth: 4,
+								});
+								aa.select(true);
+							});*/
+						},
+					},
+					point: {
+						events: {
+							mouseOver: undefined
+						}
+					}
+				});
+				if(RF_SP2State.waferSelected.length > 3){
+					var oldHeight = $("#picture_box2").innerHeight();
+					var oldWidth = $("#picture_box2").innerWidth();
+					var radios = 2;
+					if(RF_SP2State.waferSelected.length > 8){
+						radios = 3;
+					}
+					$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-7);
+					$("#picture2top").highcharts().setSize(oldWidth-7, oldHeight*radios);
+					$("#picture3top").highcharts().setSize(oldWidth-7, oldHeight*radios);
+				}
+				// 史密斯图
+				var lineColorArray = [];
+				var smithS11Data = [];
+				var smithS22Data = [];
+
+				RF_SP2State.stateObj.S2PSmallChartSmithData.S11.push({
+					name: item,
+					data: _.cloneDeep(ioldData.curveinfos[2].smithAndCurve.S11),
+					color: _.find($("#picture2top").highcharts().series, function(o){
+						return o.name == item;
+					}).color
+				});
+				RF_SP2State.stateObj.S2PSmallChartSmithData.S22.push({
+					name: item,
+					data: _.cloneDeep(ioldData.curveinfos[2].smithAndCurve.S22),
+					color: _.find($("#picture2top").highcharts().series, function(o){
+						return o.name == item;
+					}).color
+				});
+
+				_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
+					smithS11Data.push(_.cloneDeep(v.data));
+					lineColorArray.push(v.color);
+				});
+				_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
+					smithS22Data.push(_.cloneDeep(v.data));
+				});
+
+				getDataBuildS11S22({
+					wrapDOM: document.getElementById("picture1top"),
+					title: [''],
+					legendName: ['S11'],
+					data: smithS11Data,
+					classify: 'S11',
+					msgDOM: document.getElementById("picture1bottom"),
+					lineColorArray: lineColorArray,
+					msgFun: function(messag){
+						$("#picture1bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
+					},
+					callback: function(smith1){
+						if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+						RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
+						buildS11ANDS22Bottom('S11', $("#picture1bottom .picturebottom_in_m_in ul"), function(){
+							$("#picture1bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture1bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture1bottom .picturebottom_in_m").innerWidth());
+							$("#picture1bottom .picturebottom_in_m_in ul>li[data-iparamter='"+item+"']").addClass("active");
+						});
+					}
+				});
+				getDataBuildS11S22({
+					wrapDOM: document.getElementById("picture4top"),
+					title: [''],
+					legendName: ['S22'],
+					data: smithS22Data,
+					classify: 'S22',
+					msgDOM: document.getElementById("picture4bottom"),
+					lineColorArray: lineColorArray,
+					msgFun: function(messag){
+						$("#picture4bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
+					},
+					callback: function(smith1){
+						if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+						RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
+						buildS11ANDS22Bottom('S22', $("#picture4bottom .picturebottom_in_m_in ul"), function(){
+							$("#picture4bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture4bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture4bottom .picturebottom_in_m").innerWidth());
+							$("#picture4bottom .picturebottom_in_m_in ul>li[data-iparamter='"+item+"']").addClass("active");
+						});
+					}
+				});
+			}else{
+				var iiThat = $(this);
+				RF_SP2SwalMixin({
+					title: '信息',
+					text: "此晶圆无曲线数据！",
+					type: 'info',
+					showConfirmButton: false,
+					showCancelButton: false,
+					timer: 2000
+				}).then(function(result){
+					iiThat.trigger("click");
+				});
+			}
+		}else{
+			/*删除数据列*/
+			var itemChart = _.find($("#picture2top").highcharts().series, function(o){
+				return o.name == item;
+			});
+			if(!_.isNil(itemChart)){
+				itemChart.remove();
+				_.find($("#picture3top").highcharts().series, function(o){
+					return o.name == item;
+				}).remove();
+				if(RF_SP2State.waferSelected.length < 4){
+					var oldHeight = $("#picture_box2").innerHeight();
+					var oldWidth = $("#picture_box2").innerWidth();
+					$("#picture2top, #picture3top").innerHeight(oldHeight).innerWidth(oldWidth);
+					$("#picture2top").highcharts().setSize(oldWidth, oldHeight);
+					$("#picture3top").highcharts().setSize(oldWidth, oldHeight);
+				}
+			}
+			// 史密斯图
+			var lineColorArray2 = [];
+			_.pullAt(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, _.findIndex(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
+				return v.name == item;
+			}));
+			_.pullAt(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, _.findIndex(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
+				return v.name == item;
+			}));
+			var smithS11Data = [];
+			_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
+				smithS11Data.push(_.cloneDeep(v.data));
+				lineColorArray2.push(v.color);
+			});
+			var smithS22Data = [];
+			_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
+				smithS22Data.push(_.cloneDeep(v.data));
+			});
+
+			getDataBuildS11S22({
+				wrapDOM: document.getElementById("picture1top"),
+				title: [''],
+				legendName: ['S11'],
+				data: smithS11Data,
+				classify: 'S11',
+				msgDOM: document.getElementById("picture1bottom"),
+				lineColorArray: lineColorArray2,
+				msgFun: function(messag){
+					$("#picture1bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
+				},
+				callback: function(smith1){
+					if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+					RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
+					buildS11ANDS22Bottom('S11', $("#picture1bottom .picturebottom_in_m_in ul"), function(){
+						$("#picture1bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture1bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture1bottom .picturebottom_in_m").innerWidth());
+						$("#picture1bottom .picturebottom_in_m_in ul>li:first").addClass("active");
+					});
+				}
+			});
+			getDataBuildS11S22({
+				wrapDOM: document.getElementById("picture4top"),
+				title: [''],
+				legendName: ['S22'],
+				data: smithS22Data,
+				classify: 'S22',
+				msgDOM: document.getElementById("picture4bottom"),
+				lineColorArray: lineColorArray2,
+				msgFun: function(messag){
+					$("#picture4bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
+				},
+				callback: function(smith1){
+					if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+					RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
+					buildS11ANDS22Bottom('S22', $("#picture4bottom .picturebottom_in_m_in ul"), function(){
+						$("#picture4bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture4bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture4bottom .picturebottom_in_m").innerWidth());
+						$("#picture4bottom .picturebottom_in_m_in ul>li:first").addClass("active");
+					});
+				}
+			});
+		}
 	}
 }).on("click", ".g_bodyin_bodyin_bottom_l_itemin_main", function(){
 	if($(this).hasClass("active")){
@@ -517,18 +847,53 @@ $(".g_bodyin_bodyin_bottom_l_inbottom>input").click(function(){
 		$(".g_bodyin_bodyin_bottom_l_itemin_main").each(function(){
 			$(this).addClass("active").next().slideDown(1000);
 		});
-		RF_SP2State.waferSelected = [];
-		$(".g_bodyin_bodyin_bottom_l_itemin_subin").each(function(){
-			$(this).addClass("selected");
-			var item = $(this).parent().data("parentfile") +" "+$(this).text();
-			RF_SP2State.waferSelected.push(item);
+		RF_SP2SwalMixin({
+			title: '信息',
+			text: "正在绘图",
+			type: 'info',
+			showConfirmButton: false,
+			showCancelButton: false,
+			timer: 2000
+		}).then(function(result){
+			RF_SP2SwalMixin({
+				title: '信息',
+				text: "正在绘图",
+				type: 'info',
+				showConfirmButton: false,
+				showCancelButton: false,
+			});
+			$(".g_bodyin_bodyin_bottom_l_itemin_subin").each(function(){
+				if($(this).hasClass("selected")) return true;
+				$(this).trigger("click");
+			});
+			swal.clickCancel();
 		});
 	}else{
 		$(".g_bodyin_bodyin_bottom_l_itemin_main").each(function(){
 			$(this).removeClass("active").next().slideUp(1000);
 		});
-		RF_SP2State.waferSelected = [];
-		$(".g_bodyin_bodyin_bottom_l_itemin_subin").removeClass("selected");
+		RF_SP2SwalMixin({
+			title: '信息',
+			text: "正在绘图",
+			type: 'info',
+			showConfirmButton: false,
+			showCancelButton: false,
+			timer: 2000
+		}).then(function(result){
+			RF_SP2SwalMixin({
+				title: '信息',
+				text: "正在绘图",
+				type: 'info',
+				showConfirmButton: false,
+				showCancelButton: false,
+			});
+			$(".g_bodyin_bodyin_bottom_l_itemin_subin").each(function(){
+				if(!$(this).hasClass("selected")) return true;
+				$(this).trigger("click");
+			});
+			$("#picture1bottom .picturebottom_in_m_in ul, #picture4bottom .picturebottom_in_m_in ul").empty();
+			swal.clickCancel();
+		});
 	}
 });
 

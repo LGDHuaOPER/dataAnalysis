@@ -20,14 +20,14 @@ body>.container-fluid {
 .login_pan {
 	position: absolute;
 	top: 100px;
-	right: 170px;
-	width: 450px;
+	right: 120px;
+	width: 430px;
 	background: #fff;
 	border-radius: 8px;
 }
 
 .login_panin {
-	margin: 40px;
+	margin: 35px;
 }
 
 .login_panin legend {
