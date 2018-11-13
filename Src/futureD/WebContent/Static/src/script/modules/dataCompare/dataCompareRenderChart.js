@@ -154,5 +154,6 @@ function dataCompareRenderChart(obj){
 			})
 		);
 	}
+	_.isFunction(obj.callback) && obj.callback(chart);
 	return chart;
 }

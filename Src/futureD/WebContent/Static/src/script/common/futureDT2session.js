@@ -3,6 +3,7 @@
 		/*如果是访客模式登录*/
 		/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
 		if(window.location.href.indexOf("file:\/\/\/") !== 0 && window.location.href.indexOf("file:///") !== 0){
+			/*线上环境*/
 			var ip;
 			var overdueLength;
 			$.get("https://api.ipify.org/?format=json", function(data, status, xhr){
@@ -83,8 +84,40 @@
 		}
 		/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
 		else{
-			alert("本地file协议不支持访客模式登录！");
-			window.location.assign("login.html");
+			/*线下环境*/
+			var offline_visit = store.get("futureDT2__offline_visit");
+			var iinow = Date.now();
+			var iinum = 30*60*1000;
+			if(_.isNil(offline_visit)){
+				/*没有本地存储*/
+				store.set("futureDT2__offline_visit", {
+					visit: "offline_visit",
+					overdueLength: iinow+iinum,
+					start: iinow,
+					oldNum: iinum
+				});
+				visit_login_judge();
+			}else{
+				var iioverdueLength = offline_visit.overdueLength;
+				if(iinow > iioverdueLength){
+					/*已超期*/
+					swal({
+					  	position: 'center',
+					  	type: 'info',
+					  	title: '温馨提示',
+		  		 		text: "您的线下访客模式已超期！请联系管理员",
+					  	showConfirmButton: false,
+					  	timer: 2000
+					}).then(function(result){
+						if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+							window.location.assign("login.html");
+						}
+					});
+				}else{
+					/*未超期*/
+					visit_login_judge();
+				}
+			}
 		}
 	}else{
 		/*不是访客模式*/

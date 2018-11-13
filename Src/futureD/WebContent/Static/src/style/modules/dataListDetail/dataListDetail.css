@@ -278,6 +278,14 @@ div#in ul {
   left: 8px;
 }
 
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot th, div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
+	text-align: center;
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 div[data-dbcurveandsmith] div.picturetop {
 	position: relative;
 }

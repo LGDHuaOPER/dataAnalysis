@@ -310,7 +310,7 @@ $(function(){
 			showConfirmButton: false,
 			timer: 2000,
 		}).then(function(result){
-			if(result.dismiss == "timer"){
+			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 				window.location.assign("projectAnalysis.html");
 			}
 		});
@@ -664,33 +664,32 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							};
 						}else if(type == 'gaussiandistribution'){
 							xAxis = [{
-								/*categories: [30, 60, 90, 120, 150, 180,
-											 210, 240, 270, 300, 330, 360],*/
+								categories: _.range(1, 13, 1),
 								crosshair: true,
 								type: 'linear',
 							}];
 							yAxis = [{ // Primary yAxis
 								labels: {
-									format: '{value}一一',
+									format: '{value}',
 									style: {
 										color: Highcharts.getOptions().colors[1]
 									}
 								},
 								title: {
-									text: '参数一',
+									text: '频率',
 									style: {
 										color: Highcharts.getOptions().colors[1]
 									}
 								}
 							}, { // Secondary yAxis
 								title: {
-									text: '参数二',
+									text: '正太分布',
 									style: {
 										color: Highcharts.getOptions().colors[0]
 									}
 								},
 								labels: {
-									format: '{value}二二',
+									format: '{value}',
 									style: {
 										color: Highcharts.getOptions().colors[0]
 									}

@@ -75,7 +75,8 @@ RF_SP2State.stateObj = {
 		up: [],
 		delFlag: false,
 		submitFlag: false
-	}
+	},
+	S2PCanRenderChart: true
 };
 RF_SP2State.MathMap = {
 	"sin": {
@@ -355,7 +356,7 @@ $(function(){
 			showConfirmButton: false,
 			timer: 2000,
 		}).then(function(result){
-			if(result.dismiss == "timer"){
+			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 				window.location.assign("projectAnalysis.html");
 			}
 		});
@@ -489,11 +490,19 @@ $(".g_info_r>.glyphicon-user").click(function(){
 	window.location.assign("admin.html");
 });
 
-/*左侧切换*/
+/*S2P分页左侧切换*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).toggleClass("selected");
 	var item = $(this).parent().data("parentfile") +" "+$(this).text();
 	$(this).hasClass("selected") ? RF_SP2State.waferSelected.push(item) : _.pull(RF_SP2State.waferSelected, item);
+	if(RF_SP2State.stateObj.S2PCanRenderChart){
+		/*可以画图*/
+		/*RF_SP2State.mock.RF_SP2[i];*/
+		var inewData = [];
+		$("#picture2top").highcharts().addSeries({
+			data: inewData
+		});
+	}
 }).on("click", ".g_bodyin_bodyin_bottom_l_itemin_main", function(){
 	if($(this).hasClass("active")){
 		$(this).next().slideUp(1000);
@@ -936,7 +945,15 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 	}).then(function(result){
 		/*console.log(result.dismiss); // timer
 		console.log(swal.DismissReason.cancel); // cancel*/
-		if(result.dismiss == "timer"){
+		/*直接点遮罩层*/
+		/*console.log(result.dismiss) // overlay
+		console.log(swal.DismissReason.cancel) // cancel
+		console.log(result.dismiss == "timer") // false
+		console.log(result.dismiss == swal.DismissReason.cancel) // false*/
+		/*console.log(swal.DismissReason.backdrop) // overlay
+		console.log(swal.DismissReason.esc) // esc
+		console.log(swal.DismissReason.timer) // timer*/
+		if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 			store.set("futureD__RF_SP2__saveMarkerFlag", "hasSave");
 			window.location.reload();
 		}
@@ -1093,10 +1110,7 @@ $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>t
 	}
 	var uplegend = $("#upflag_table").prev().children("span");
 	var lowlegend = $("#lowflag_table").prev().children("span");
-	console.log(upTr)
-	console.log(uphasOk)
-	console.log(lowTr)
-	console.log(lowhasOk)
+	
 	if(upTr === 0 || upTr === uphasOk){
 		uplegend.fadeIn(100);
 	}else{

@@ -232,7 +232,7 @@ function searchRenderData(currentPage, isearch){
 					showConfirmButton: false,
 					timer: 2500,
 				}).then(function(result){
-					if(result.dismiss == "timer"){
+					if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 						window.location.assign("login.html");
 					}
 				});

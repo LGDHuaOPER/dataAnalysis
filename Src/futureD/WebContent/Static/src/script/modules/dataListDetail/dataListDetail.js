@@ -57,6 +57,7 @@ dataListDetailStore.sellectObj = {
 	selectItem: ["93"]
 };
 
+/*绘制参数数据分页表格*/
 function renderTheadTbody(obj){
 	var str = '<tr>';
 	if(obj.th){
@@ -211,7 +212,8 @@ function draw_other_chart(that, controls, chartType){
 	subtitle_text = null,
 	xAxis,
 	yAxis,
-	series;
+	series,
+	callback = null;
 	var iparam = that.data("iparam");
 	switch(controls){
 		case "histogram":
@@ -360,8 +362,7 @@ function draw_other_chart(that, controls, chartType){
 		case "gaussiandistribution":
 			title_text = "高斯分布图-"+iparam;
 			xAxis = [{
-				/*categories: [30, 60, 90, 120, 150, 180,
-							 210, 240, 270, 300, 330, 360],*/
+				categories: _.range(1, 9, 1),
 				crosshair: true,
 				type: 'linear',
 			}];
@@ -373,7 +374,7 @@ function draw_other_chart(that, controls, chartType){
 					}
 				},
 				title: {
-					text: '频数',
+					text: '频率',
 					style: {
 						color: Highcharts.getOptions().colors[1]
 					}
@@ -421,21 +422,21 @@ function draw_other_chart(that, controls, chartType){
 			});
 			var iiiiData = [];
 			_.forEach(seriesData, function(v, i){
-				if(i%8 == 0){
+				if(i%13 == 0){
 					iiiiData.push(v.y/10);
 				}
 			});
 			iiiiseries = [{
-					name: '频数',
+					name: '频率',
 					type: 'column',
-					yAxis: 1,
-					data: [4.99, 7.15, 10.64, 12.92, 14.40, 17.60, 13.56, 14.85, 21.64, 19.41, 9.56, 5.44, 3.22],
+					data: [0.5, 2.5, 7, 26, 38, 20, 5.5, 0.5],
 					tooltip: {
 						valueSuffix: '%'
 					}
 				}, {
 					name: '正态分布',
 					type: 'spline',
+					yAxis: 1,
 					data: iiiiData,
 					// data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
 					tooltip: {
@@ -443,6 +444,21 @@ function draw_other_chart(that, controls, chartType){
 					}
 				}];
 			series = iiiiseries;
+			callback = function(ichart){
+				var $chart_foot = $("#"+container).parent().next();
+				var $table1_tds = $chart_foot.find("div.row>div").eq(0).find("tbody td");
+				var $table2_tds = $chart_foot.find("div.row>div").eq(1).find("tbody td");
+				$table1_tds.eq(0).data("ivalue", 0.00000498);
+				$table1_tds.eq(1).data("ivalue", 0.000005);
+				$table1_tds.eq(2).data("ivalue", 0.00000623);
+				$table1_tds.eq(3).data("ivalue", 0.00000423);
+				$table2_tds.eq(0).data("ivalue", 0.000004991);
+				$table2_tds.eq(1).data("ivalue", Math.sqrt(0.000005*1.5));
+				$table2_tds.eq(2).data("ivalue", 0.000005*1e8*1.5/1e8);
+				$chart_foot.find("tbody td").each(function(){
+					$(this).attr("title", $(this).data("ivalue")).text($(this).data("ivalue"));
+				});
+			};
 		break;
 		/*良品率图*/
 		default:
@@ -488,7 +504,8 @@ function draw_other_chart(that, controls, chartType){
 		xAxis: xAxis,
 		yAxis: yAxis,
 		series: _.cloneDeep(series),
-		chartClassify: controls
+		chartClassify: controls,
+		callback: callback
 	});
 }
 
@@ -1100,6 +1117,51 @@ $(function(){
 				str+='</div>';
 				dataListDetailStore.state.parameterMap.curChartContainerNum++;
 		}else{
+			var inStr = '';
+			if(_.indexOf(["gaussiandistribution"], iicontrols) > -1){
+				inStr = '<div class="container-fluid">'+
+								'<div class="row">'+
+									'<div class="col-sm-12 col-md-7 col-lg-7">'+
+										'<table class="table table-striped table-bordered table-condensed">'+
+											'<thead>'+
+												'<tr>'+
+													'<th>中值</th>'+
+													'<th>平均值</th>'+
+													'<th>最大值</th>'+
+													'<th>最小值</th>'+
+												'</tr>'+
+											'</thead>'+
+											'<tbody>'+
+												'<tr>'+
+													'<td>中值</td>'+
+													'<td>平均值</td>'+
+													'<td>最大值</td>'+
+													'<td>最小值</td>'+
+												'</tr>'+
+											'</tbody>'+
+										'</table>'+
+									'</div>'+
+									'<div class="col-sm-12 col-md-5 col-lg-5">'+
+										'<table class="table table-striped table-bordered table-condensed">'+
+											'<thead>'+
+												'<tr>'+
+													'<th>期望</th>'+
+													'<th>标准差</th>'+
+													'<th>方差</th>'+
+												'</tr>'+
+											'</thead>'+
+											'<tbody>'+
+												'<tr>'+
+													'<td>期望</td>'+
+													'<td>标准差</td>'+
+													'<td>方差</td>'+
+												'</tr>'+
+											'</tbody>'+
+										'</table>'+
+									'</div>'+
+								'</div>'+
+							'</div>';
+			}
 			dataListDetailStore.mock.parameterMap.parameter.map(function(v, i){
 				if(i%2 == 0){
 					str+='<div class="row">';
@@ -1113,7 +1175,7 @@ $(function(){
 					    	'<div class="container-fluid">'+
 					    		'<div class="chart_title"></div>'+
 					    		'<div class="chart_body"><div id="'+(iicontrols+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+v+'"></div></div>'+
-					    		'<div class="chart_foot"></div>'+
+					    		'<div class="chart_foot">'+inStr+'</div>'+
 					    	'</div>'+
 					  	'</div>'+
 					'</div>';
@@ -1138,7 +1200,6 @@ $(function(){
 /*浏览器窗口大小改变普通事件*/
 $(window).on("resize", _.debounce(commonCalcLayout, 200));
 $(window).on("resize", _.debounce(function(){
-	11111
 	_.forEach(dataListDetailStore.state.vectorMap.smithObjArr, function(v, i, arr){
 		arr[i].onresize();
 	});

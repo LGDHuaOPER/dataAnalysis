@@ -94,7 +94,7 @@ function redirectLogin(obj){
 		showConfirmButton: false,
 		timer: 2500,
 	}).then(function(result){
-		if(result.dismiss == "timer"){
+		if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 			window.location.assign(obj.url);
 		}
 	});
@@ -1192,7 +1192,7 @@ $("#jumpPage").on("click", function(){
 				/*console.log(result.dismiss) // timer*/
 				/*console.log(swal.DismissReason.cancel) // cancel*/
 				/*console.log(result.dismiss == "timer") // true*/
-				if(result.dismiss == "timer" || result.dismiss === swal.DismissReason.timer){
+				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 					window.location.reload();
 				}
 			});

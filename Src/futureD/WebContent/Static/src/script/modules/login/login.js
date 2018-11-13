@@ -74,9 +74,9 @@ $(function(){
 	}
 
 	if(window.location.href.indexOf("file:\/\/\/") !== 0 && window.location.href.indexOf("file:///") !== 0){
-		$(".button_div2>button").prop("disabled", false);
+		$(".button_div2>button").data("env", "online").attr("title", "线上环境访客登录");
 	}else{
-		$(".button_div2>button").prop("disabled", true);
+		$(".button_div2>button").data("env", "offline").attr("title", "线下环境访客登录");
 	}
 
 });
@@ -188,89 +188,152 @@ $("#login_user, #login_password").on("keyup", function(e){
 });
 
 $(".button_div2>button").click(function(){
-	if(window.location.href.indexOf("file:\/\/\/") === 0 || window.location.href.indexOf("file:///") === 0) return false;
 	var iThat = $(this);
 	eouluGlobal.C_btnDisabled(iThat, true, "登陆中...");
-	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
-	var ip;
-	var overdueLength;
-	$.get("https://api.ipify.org/?format=json", function(data, status, xhr){
-		if(status == "success"){
-			ip = data.ip;
-			$.get("https://www.easy-mock.com/mock/5be5483eb9983d342035d96d/futureDT2/overdueLength", function(res, statu){
-				if(statu == "success"){
-					overdueLength = res.data;
-					var num = Number(overdueLength.num);
-					var refresh = overdueLength.refresh;
-					var iHash = eouluGlobal.S_getBrowserType()[0]+eouluGlobal.S_getBrowserType()[1]+"##"+ip+"##"+eouluGlobal.S_getOSInfo();
-					var ivisit = store.get("futureDT2__visit__"+encodeURI(iHash));
-					var inow = Date.now();
-					if(ivisit !== null && ivisit !== undefined){
-						if(refresh === true || refresh == "true"){
-							/*表示立即刷新，继续可以使用，在当前时间基础上加超期期限*/
+	if($(this).data("env") == "offline"){
+		/*线下环境*/
+		var offline_visit = store.get("futureDT2__offline_visit");
+		var iinow = Date.now();
+		var iinum = 30*60*1000;
+		if(_.isNil(offline_visit)){
+			/*没有本地存储*/
+			eouluGlobal.C_btnAbled(iThat, true, "线下访客登录成功");
+			store.set("futureDT2__offline_visit", {
+				visit: "offline_visit",
+				overdueLength: iinow+iinum,
+				start: iinow,
+				oldNum: iinum
+			});
+			login_session_login_judge();
+		}else{
+			var iioverdueLength = offline_visit.overdueLength;
+			if(iinow > iioverdueLength){
+				/*已超期*/
+		  		loginSwalMixin({
+		  		 	title: '温馨提示',
+		  		 	text: "您的线下访客模式已超期！请联系管理员",
+		  		 	type: 'info',
+		  		 	animation: false,
+		  		 	customClass: 'animated zoomIn',
+		  		 	showConfirmButton: false,
+					timer: 2000,
+		  		}).then(function(result){
+		  			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+		  				eouluGlobal.C_btnAbled(iThat, true, "访客登录");
+		  			}
+		  		});
+			}else{
+				/*未超期*/
+				eouluGlobal.C_btnAbled(iThat, true, "正在跳转");
+				login_session_login_judge();
+			}
+		}
+	}else if($(this).data("env") == "online"){
+		/*线上环境*/
+		/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
+		var ip;
+		var overdueLength;
+		$.get("https://api.ipify.org/?format=json", function(data, status, xhr){
+			if(status == "success"){
+				ip = data.ip;
+				$.get("https://www.easy-mock.com/mock/5be5483eb9983d342035d96d/futureDT2/overdueLength", function(res, statu){
+					if(statu == "success"){
+						overdueLength = res.data;
+						var num = Number(overdueLength.num);
+						var refresh = overdueLength.refresh;
+						var iHash = eouluGlobal.S_getBrowserType()[0]+eouluGlobal.S_getBrowserType()[1]+"##"+ip+"##"+eouluGlobal.S_getOSInfo();
+						var ivisit = store.get("futureDT2__visit__"+encodeURI(iHash));
+						var inow = Date.now();
+						if(ivisit !== null && ivisit !== undefined){
+							if(refresh === true || refresh == "true"){
+								/*表示立即刷新，继续可以使用，在当前时间基础上加超期期限*/
+								store.set("futureDT2__visit__"+encodeURI(iHash), {
+									visit: "visit",
+									overdueLength: inow+num,
+									start: inow,
+									oldNum: num
+								});
+								eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
+								login_session_login_judge();
+							}else{
+								/*不是立即刷新*/
+								var ioverdueLength = ivisit.overdueLength;
+								var oldNum = ivisit.oldNum;
+								var start = ivisit.start;
+								if(num != oldNum){
+									/*num改变了*/
+									if(start+num < inow){
+										/*超期了*/
+								  		loginSwalMixin({
+								  		 	title: '温馨提示',
+								  		 	text: "管理员改变了使用时长，访客模式已超期，请联系管理员！",
+								  		 	type: 'info',
+								  		 	animation: false,
+								  		 	customClass: 'animated zoomIn',
+								  		 	showConfirmButton: false,
+											timer: 2500,
+								  		}).then(function(result){
+								  			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+								  				eouluGlobal.C_btnAbled(iThat, true, "访客登录");
+								  			}
+								  		});
+									}else{
+										/*未超期*/
+										console.log("管理员改变了使用时长，但没有立即刷新，访客模式未超期");
+										store.set("futureDT2__visit__"+encodeURI(iHash), {
+											visit: "visit",
+											overdueLength: start+num,
+											start: start,
+											oldNum: num
+										});
+										eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
+										login_session_login_judge();
+									}
+								}else{
+									/*num未改变*/
+									if(ioverdueLength < inow){
+								  		loginSwalMixin({
+								  		 	title: '温馨提示',
+								  		 	text: "您的访客模式已超期，请联系管理员！",
+								  		 	type: 'info',
+								  		 	animation: false,
+								  		 	customClass: 'animated zoomIn',
+								  		 	showConfirmButton: false,
+											timer: 2500,
+								  		}).then(function(result){
+								  			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+								  				eouluGlobal.C_btnAbled(iThat, true, "访客登录");
+								  			}
+								  		});
+									}else{
+										/*未超期*/
+										console.log("管理员未改变使用时长，也没有立即刷新，访客模式未超期");
+										eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
+										login_session_login_judge();
+									}
+								}
+							}
+						}else{
+							eouluGlobal.C_btnAbled(iThat, true, "正在跳转");
+							/*初始化访客模式*/
 							store.set("futureDT2__visit__"+encodeURI(iHash), {
 								visit: "visit",
 								overdueLength: inow+num,
 								start: inow,
 								oldNum: num
 							});
-							eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
 							login_session_login_judge();
-						}else{
-							/*不是立即刷新*/
-							var ioverdueLength = ivisit.overdueLength;
-							var oldNum = ivisit.oldNum;
-							var start = ivisit.start;
-							if(num != oldNum){
-								/*num改变了*/
-								if(start+num < inow){
-									/*超期了*/
-									alert("管理员改变了使用时长，访客模式已超期，请联系管理员！");
-									eouluGlobal.C_btnAbled(iThat, true, "访客登录");
-								}else{
-									/*未超期*/
-									console.log("管理员改变了使用时长，但没有立即刷新，访客模式未超期");
-									store.set("futureDT2__visit__"+encodeURI(iHash), {
-										visit: "visit",
-										overdueLength: start+num,
-										start: start,
-										oldNum: num
-									});
-									eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
-									login_session_login_judge();
-								}
-							}else{
-								/*num未改变*/
-								if(ioverdueLength < inow){
-									alert("您的访客模式已超期，请联系管理员！");
-									eouluGlobal.C_btnAbled(iThat, true, "访客登录");
-								}else{
-									/*未超期*/
-									console.log("管理员未改变使用时长，也没有立即刷新，访客模式未超期");
-									eouluGlobal.C_btnAbled(iThat, true, "访客登录成功");
-									login_session_login_judge();
-								}
-							}
 						}
 					}else{
-						/*初始化访客模式*/
-						store.set("futureDT2__visit__"+encodeURI(iHash), {
-							visit: "visit",
-							overdueLength: inow+num,
-							start: inow,
-							oldNum: num
-						});
-						login_session_login_judge();
+						alert("请求出错，请检查网络连接！");
+						eouluGlobal.C_btnAbled(iThat, true, "访客登录");
 					}
-				}else{
-					alert("请求出错，请检查网络连接！");
-					eouluGlobal.C_btnAbled(iThat, true, "访客登录");
-				}
-			});
-		}else{
-			alert("请求出错，请检查网络连接！");
-			eouluGlobal.C_btnAbled(iThat, true, "访客登录");
-		}
-	});
-	/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
+				});
+			}else{
+				alert("请求出错，请检查网络连接！");
+				eouluGlobal.C_btnAbled(iThat, true, "访客登录");
+			}
+		});
+		/*用当前浏览器类型+浏览版本号+当前IP+操作系统类型+操作系统版本 做下哈希*/
+	}
 });
