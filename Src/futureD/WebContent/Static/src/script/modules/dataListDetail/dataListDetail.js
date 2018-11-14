@@ -1121,7 +1121,7 @@ $(function(){
 			if(_.indexOf(["gaussiandistribution"], iicontrols) > -1){
 				inStr = '<div class="container-fluid">'+
 								'<div class="row">'+
-									'<div class="col-sm-12 col-md-7 col-lg-7">'+
+									'<div class="col-sm-12 col-md-12 col-lg-7">'+
 										'<table class="table table-striped table-bordered table-condensed">'+
 											'<thead>'+
 												'<tr>'+
@@ -1141,7 +1141,7 @@ $(function(){
 											'</tbody>'+
 										'</table>'+
 									'</div>'+
-									'<div class="col-sm-12 col-md-5 col-lg-5">'+
+									'<div class="col-sm-12 col-md-12 col-lg-5">'+
 										'<table class="table table-striped table-bordered table-condensed">'+
 											'<thead>'+
 												'<tr>'+

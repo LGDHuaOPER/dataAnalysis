@@ -59,7 +59,9 @@ RF_SP2State.stateObj = {
 	comfirm_key: store.get("futureD__RF_SP2__comfirm_key"),
 	key_y: false,
 	curLineInsertIndex: null,
+	/*awesomeX坐标备选*/
 	smithSXCategories: [],
+	/*保存指标线区间*/
 	S12: {
 		indicatrix_low: [],
 		indicatrix_up: [],
@@ -68,6 +70,7 @@ RF_SP2State.stateObj = {
 		indicatrix_low: [],
 		indicatrix_up: [],
 	},
+	/*指标线的最大最小值*/
 	indicatrix_min_max: [],
 	indicatrix_state_arr: [],
 	indicatrix_copy: {
@@ -77,11 +80,17 @@ RF_SP2State.stateObj = {
 		submitFlag: false
 	},
 	S2PCanRenderChart: true,
+	/*小图的Smith对象*/
 	S2PSmallChartSmithArr: [],
+	/*保存的数据*/
 	S2PSmallChartSmithData: {
 		S11: [],
+		S12: [],
+		S21: [],
 		S22: [],
-	}
+	},
+	/*双击小图的标志*/
+	dblclickFlag: false
 };
 RF_SP2State.MathMap = {
 	"sin": {
@@ -177,7 +186,7 @@ function eleResize(){
 				radios = 2;
 				minus = 7;
 			}
-			$(this).innerHeight($(this).parent().height()*radios).innerWidth($(this).parent().width()-minus);
+			$(this).innerHeight(~~($(this).parent().height()*radios)).innerWidth(~~($(this).parent().width()-minus));
 		}else{
 			$(this).innerHeight($(this).parent().height() - 50);
 		}
@@ -319,8 +328,8 @@ function judgeLineSegmentIntersect(x1, x2, indicatrix){
 	return flag;
 }
 
-/*史密斯图S12 S21绘制图形*/
-function drawSmithS12S21(obj){
+/*史密斯图S12 S21大图获取数据绘制图形*/
+function getDataBuildBigS12S21(obj){
 	var iclassify = obj.iclassify;
 	var itargetchart = obj.itargetchart;
 	var objec = {};
@@ -328,18 +337,23 @@ function drawSmithS12S21(obj){
 	_.forEach(RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
 		objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
 	});
+	/*真实数据*/
 	objec.series = [];
-	_.times(3, function(ii){
-		objec.series[ii] = {};
-		objec.series[ii].data = [];
-		_.forEach(RF_SP2State.mock.RF_SP2[ii].curveinfos[2].smithAndCurve[iclassify], function(v, i){
-			objec.series[ii].data.push(parseFloat(v[1]));
+	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify], function(v, i){
+		var item = {};
+		item.name = v.name;
+		item.data = [];
+		_.forEach(v.data, function(vv, ii){
+			item.data.push(parseFloat(vv[1]));
 		});
+		item.color = v.color;
+		objec.series.push(item);
+	});
+	_.times(objec.series.length, function(ii){
 		RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
 		RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
 	});
 	objec.container = itargetchart;
-	objec.msgDom = null;
 	objec.legend_enabled = true;
 	objec.zoomType = 'x';
 	objec.resetZoomButton = {
@@ -352,14 +366,61 @@ function drawSmithS12S21(obj){
 		relativeTo: 'chart'
 	};
 	objec.text = iclassify;
+	objec.showCheckbox = true;
 	RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
 	drawRealS12S21(objec);
+}
+
+/*史密斯S11 S22大图获取数据绘制图形*/
+function getDataBuildBigS11S22(obj){
+	var iclassify = obj.iclassify;
+	var itargetchart = obj.itargetchart;
+	var item = obj.item;
+	var reduceData = _.cloneDeep(RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify]);
+	getDataBuildS11S22({
+		wrapDOM: document.getElementById(itargetchart),
+		title: [''],
+		legendName: [iclassify],
+		data: _.reduce(reduceData, function(result, value, i) {
+		  	result.push(_.cloneDeep(value.data));
+		  	return result;
+		}, []),
+		classify: iclassify,
+		msgDOM: true,
+		lineColorArray: _.reduce(reduceData, function(result, value, i) {
+		  	result.push(value.color);
+		  	return result;
+		}, []),
+		msgInitFun: function(messag){
+			buildS11ANDS22Bottom(iclassify, $(".signalChart_div_foot .signalChart_div_foot_in_m_in ul"), function(){
+				$(".signalChart_div_foot_in_m_in ul>li").innerHeight($(".signalChart_div_foot_in_m").innerHeight()).innerWidth($(".signalChart_div_foot_in_m").innerWidth()*0.5-1);
+				if(_.isNil(item)){
+					$(".signalChart_div_foot_in_m_in ul>li:first").addClass("active").next().addClass("active");
+				}else{
+					$(".signalChart_div_foot_in_m_in ul>li[data-iparamter='"+item+"']").addClass("active").next().addClass("active");
+				}
+			});
+			$(".signalChart_div_foot_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
+		},
+		msgFun: function(messag, t, initMess){
+			var iparamter = RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify][t].name;
+			var curDOM = $(".signalChart_div_foot_in_m_in ul>li[data-iparamter='"+iparamter+"']");
+			curDOM.siblings().removeClass("active");
+			curDOM.addClass("active").next().addClass("active").find(".Smith_Msg2").text(initMess);
+			curDOM.find(".Smith_Msg2").text(messag);
+		},
+		callback: function(smith1){
+			window.onresize = function () {
+				smith1.onresize();
+			};
+		}
+	});
 }
 
 /*Smith图例S11 S22构建*/
 function buildS11ANDS22Bottom(classify, bottomJQDOM, callback){
 	var str = '';
-	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v, i){
+	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData[classify], function(v, i){
 		var prevParam = v.name.split(" ")[1].replace(/\..*/, "");
 		str+='<li data-iparamter="'+v.name+'">'+
 				'<div class="pictureline">'+
@@ -367,12 +428,201 @@ function buildS11ANDS22Bottom(classify, bottomJQDOM, callback){
 				'</div>'+
 				'<div class="smithdata">'+
 					'<p class="smithdata1"><span class="Smith_Paramter">'+prevParam+' Paramter</span> (<span class="Smith_Msg1">'+classify+'</span>)</p>'+
-					'<p class="smithdata2"><span class="Smith_Paramter">'+prevParam+' Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+					'<p class="smithdata2"><span class="Smith_Paramter">'+prevParam+' Paramter</span> : <span class="Smith_Msg2"></span></p>'+
 				'</div>'+
 			'</li>';
 	});
 	bottomJQDOM.empty().append(str);
 	_.isFunction(callback) && callback();
+}
+
+/*S11 S22信息bottom显示逻辑*/
+function msgInitFun(inmessage, type, classify, item) {
+	buildS11ANDS22Bottom(type, $("#picture"+classify+"bottom .picturebottom_in_m_in ul"), function(){
+		$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture"+classify+"bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture"+classify+"bottom .picturebottom_in_m").innerWidth());
+		if(item === false){
+			$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li:first").addClass("active");
+		}else{
+			$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li[data-iparamter='"+item+"']").addClass("active");
+		}
+	});
+	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(inmessage);
+}
+function imsgFun(messag, tt, type, classify){
+	/*console.log(this)*/
+	var iparamter = RF_SP2State.stateObj.S2PSmallChartSmithData[type][tt].name;
+	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li[data-iparamter='"+iparamter+"']").addClass("active").siblings().removeClass("active");
+	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
+}
+
+/*TCF获取数据并绘制图形*/
+function getTCFDataANDDrawChart(obj) {
+	var isComfirmKey = obj.isComfirmKey;
+	var oldData1 = _.cloneDeep(RF_SP2State.mock.RF_SP2[_.random(0, 1, false)].curveinfos[2].smithAndCurve.S21);
+	var oldData2 = _.cloneDeep(RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21);
+	_.forEach(oldData1, function(v, i){
+		v[2] = v[2] - _.round(_.random(0.0004, 0.0009, true), 5);
+	});
+	_.forEach(oldData2, function(v, i){
+		v[2] = v[2] + _.round(_.random(0.0004, 0.0009, true), 5);
+	});
+	/*伪造数据结束*/
+	var ixData = [];
+	ixData[0] = [];
+	ixData[1] = [];
+	var iyData = [];
+	iyData[0] = [];
+	iyData[1] = [];
+	_.forEach(oldData1, function(v, i){
+		ixData[0].push(v[0]/1000000);
+		iyData[0].push(v[2]);
+	});
+	_.forEach(oldData2, function(v, i){
+		ixData[1].push(v[0]/1000000);
+		iyData[1].push(v[2]);
+	});
+	/*构造新数据*/
+	var curComfirm_key;
+	if(!_.isEmpty(RF_SP2State.stateObj.splineSelectedArr) && !_.isNil(RF_SP2State.stateObj.splineSelectedArr)){
+		curComfirm_key = RF_SP2State.stateObj.splineSelectedArr[0].key;
+	}
+
+	/*if(RF_SP2State.waferTCFSelected.length == 2 && !isFirst){
+		var nameArr = _.reduce(RF_SP2State.stateObj.splineSelectedArr, function(result, v, i){
+			if(_.indexOf(result, v.name) == -1) result.push(v.name);return result;
+		}, []);
+
+		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+			v.name = RF_SP2State.waferTCFSelected[_.indexOf(nameArr, v.name)];
+		});
+	}
+
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
+		if(v.isNew){
+			ixData[0].splice(v.newIndex, 0, v.x);
+			iyData[_.indexOf(RF_SP2State.waferTCFSelected, v.name)].splice(v.newIndex, 0, v.y);
+			iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))].splice(v.newIndex, 0, iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))][v.newIndex - 1]);
+		}
+	});*/
+	
+	renderSpline({
+		container: "markerChart",
+		title: "marker图",
+		data: {
+			xData: ixData,
+			yData: iyData
+		},
+		name: RF_SP2State.waferTCFSelected,
+		callback: function(chart){
+			/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+				var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+				chart.series[ii].data[_.indexOf(iyData[ii], v.y)].select(true, true);
+			});*/
+			if(!isComfirmKey) {
+				if(curComfirm_key == "y"){
+					RF_SP2State.stateObj.key_y = false;
+					var yArr = _.reduce(RF_SP2State.stateObj.splineSelectedArr, function(result, v, i){
+						if(_.indexOf(result, v.y) == -1) result.push(v.y);return result;
+					}, []);
+					var series0_y = chart.series[0].yData;
+					var series1_y = chart.series[1].yData;
+					RF_SP2State.stateObj.splineSelectedArr.length = 0;
+					$(".buildMarker_body>div tbody").empty();
+					if(_.indexOf(series0_y, yArr[0]) > -1){
+						/*説明原本有點*/
+						chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(series0_y, yArr[0])]);
+					}else if(_.indexOf(series1_y, yArr[0]) > -1){
+						chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(series1_y, yArr[0])]);
+					}else{
+						console.log("兩條曲綫都沒有真實點");
+						var y11, y22, y33, y44, x11, x22, x33, x44, inde1, inde2, copyx, copyy1, copyy2;
+						_.forEach(series0_y, function(v, i, arr){
+							if(v > yArr[0]){
+								y11 = arr[i-1];
+								y22 = arr[i];
+								x11 = chart.xAxis[0].categories[i-1];
+								x22 = chart.xAxis[0].categories[i];
+								inde1 = i;
+								return false;
+							}
+						});
+						if(!_.isNil(y11) && !_.isNil(y22)){
+							var newPoint1 = getPointXY({
+								one: [x11, y11],
+								two: [x22, y22],
+								baseVal: yArr[0],
+							});
+							console.log(newPoint1)
+							copyx = _.cloneDeep(chart.xAxis[0].categories);
+							copyy1 = _.cloneDeep(series0_y);
+							copyy2 = _.cloneDeep(series1_y);
+							copyx.splice(inde1, 0, newPoint1.x);
+							copyy1.splice(inde1, 0, newPoint1.y);
+							copyy2.splice(inde1, 0, series1_y[inde1-1]);
+							chart.xAxis[0].setCategories(copyx);
+							chart.series[0].setData(copyy1);
+							chart.series[1].setData(copyy1);
+							chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(series0_y, yArr[0])]);
+						}else{
+							/*第一条曲线未找到点*/
+							_.forEach(series1_y, function(v, i, arr){
+								if(v > yArr[0]){
+									y33 = arr[i-1];
+									y44 = arr[i];
+									x33 = chart.xAxis[0].categories[i-1];
+									x44 = chart.xAxis[0].categories[i];
+									inde2 = i;
+									return false;
+								}
+							});
+							if(!_.isNil(y33) && !_.isNil(y44)) {
+								var newPoint2 = getPointXY({
+									one: [x11, y11],
+									two: [x22, y22],
+									baseVal: yArr[0],
+								});
+								console.log(newPoint2)
+								chart.xAxis[0].categories.splice(inde2, 0, newPoint2.x);
+								series1_y.splice(inde2, 0, newPoint2.y);
+								series0_y.splice(inde2, 0, series0_y[inde2-1]);
+								chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(series1_y, yArr[0])]);
+							}else{
+								RF_SP2SwalMixin({
+									title: "Marker打点提示",
+									text: "以y为key，两条曲线都未找到点",
+									type: "info",
+									timer: 2000
+								});
+							}
+						}
+					}
+					/*console.log(chart.xAxis[0].categories);
+					console.log(chart.series[0].yData);*/
+				}else if(curComfirm_key == "x"){
+					var xArr = _.reduce(RF_SP2State.stateObj.splineSelectedArr, function(result, v, i){
+						if(_.indexOf(result, v.x) == -1) result.push(v.x);return result;
+					}, []);
+					if(xArr.length == 1){
+						RF_SP2State.stateObj.splineSelectedArr.length = 0;
+						$(".buildMarker_body>div tbody").empty();
+						chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, xArr[0])]);
+					}else if(xArr.length == 2){
+						RF_SP2State.stateObj.splineSelectedArr.length = 0;
+						$(".buildMarker_body>div tbody").empty();
+						chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, xArr[0])]);
+						chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(chart.xAxis[0].categories, xArr[1])]);
+						/*chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);*/
+					}
+				}
+				/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+					if(!_.isNil(v.isNew)){
+						var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+						
+					}
+				});*/
+			}
+		}
+	});
 }
 
 /*before load*/
@@ -473,13 +723,12 @@ $(function(){
 		RF_SP2State.stateObj.splineSelectedArr = [];
 	}else{
 		RF_SP2State.stateObj.key_y = RF_SP2State.stateObj.comfirm_key == "y" ? true : false;
-		var str2 = '';
 		var iArra = [];
 		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 			if(_.isNil(v.x)) v.x = NaN;
 		});
 		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-			str2+='<tr data-iflag="'+(v.name+v.x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+v.markerName+'">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';
+			/*str2+='<tr data-iflag="'+(v.name+v.x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+v.markerName+'">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';*/
 			iArra.push({
 				label: v.markerName+".X: "+v.x,
 				value: v.markerName+".X"
@@ -489,7 +738,7 @@ $(function(){
 				value: v.markerName+".Y"
 			});
 		});
-		$(".buildMarker_body>.container-fluid tbody").empty().append(str2);
+		/*$(".buildMarker_body>.container-fluid tbody").empty().append(str2);*/
 		RF_SP2State.search_markerObj.list = _.cloneDeep(iArra);
 	}
 
@@ -577,6 +826,8 @@ $(window).on("resize", function(){
 /*S2P分页左侧切换*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).toggleClass("selected");
+	/*全选联动*/
+	$(".g_bodyin_bodyin_bottom_l_inbottom>input").prop("checked", $(".g_bodyin_bodyin_bottom_l_itemin_subin").length === $(".g_bodyin_bodyin_bottom_l_itemin_subin.selected").length);
 	var item = $(this).parent().data("parentfile") +" "+$(this).text();
 	$(this).hasClass("selected") ? RF_SP2State.waferSelected.push(item) : _.pull(RF_SP2State.waferSelected, item);
 	if(RF_SP2State.stateObj.S2PCanRenderChart){
@@ -615,18 +866,6 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					events: {
 						mouseOver: function(){
 							/*console.log(this); // series对象*/
-							/*var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
-								return this.name == v.name;
-							}).bind(this));
-							_.forEach(curSeriesArr.seriesName, function(v, i){
-								var aa = _.find(series, function(vv, ii){
-									return vv.name == v;
-								});
-								aa.update({
-									lineWidth: 4,
-								});
-								aa.select(true);
-							});*/
 						},
 					},
 					point: {
@@ -664,8 +903,8 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					}
 				});
 				if(RF_SP2State.waferSelected.length > 3){
-					var oldHeight = $("#picture_box2").innerHeight();
-					var oldWidth = $("#picture_box2").innerWidth();
+					var oldHeight = ~~$("#picture_box2").innerHeight();
+					var oldWidth = ~~$("#picture_box2").innerWidth();
 					var radios = 2;
 					if(RF_SP2State.waferSelected.length > 8){
 						radios = 3;
@@ -679,19 +918,16 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 				var smithS11Data = [];
 				var smithS22Data = [];
 
-				RF_SP2State.stateObj.S2PSmallChartSmithData.S11.push({
-					name: item,
-					data: _.cloneDeep(ioldData.curveinfos[2].smithAndCurve.S11),
-					color: _.find($("#picture2top").highcharts().series, function(o){
+				/*保存数据*/
+				var addColor = _.find($("#picture2top").highcharts().series, function(o){
 						return o.name == item;
-					}).color
-				});
-				RF_SP2State.stateObj.S2PSmallChartSmithData.S22.push({
-					name: item,
-					data: _.cloneDeep(ioldData.curveinfos[2].smithAndCurve.S22),
-					color: _.find($("#picture2top").highcharts().series, function(o){
-						return o.name == item;
-					}).color
+					}).color;
+				_.forOwn(RF_SP2State.stateObj.S2PSmallChartSmithData, function(v, k, objj){
+					objj[k].push({
+						name: item,
+						data: _.cloneDeep(ioldData.curveinfos[2].smithAndCurve[k]),
+						color: addColor
+					});
 				});
 
 				_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
@@ -710,16 +946,11 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					classify: 'S11',
 					msgDOM: document.getElementById("picture1bottom"),
 					lineColorArray: lineColorArray,
-					msgFun: function(messag){
-						$("#picture1bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
-					},
+					msgInitFun: _.bind(msgInitFun, this, _, 'S11', "1", item),
+					msgFun: _.bind(imsgFun, this, _, _, 'S11', "1"),
 					callback: function(smith1){
 						if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
 						RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
-						buildS11ANDS22Bottom('S11', $("#picture1bottom .picturebottom_in_m_in ul"), function(){
-							$("#picture1bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture1bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture1bottom .picturebottom_in_m").innerWidth());
-							$("#picture1bottom .picturebottom_in_m_in ul>li[data-iparamter='"+item+"']").addClass("active");
-						});
 					}
 				});
 				getDataBuildS11S22({
@@ -730,18 +961,32 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					classify: 'S22',
 					msgDOM: document.getElementById("picture4bottom"),
 					lineColorArray: lineColorArray,
-					msgFun: function(messag){
-						$("#picture4bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
-					},
+					msgInitFun: _.bind(msgInitFun, this, _, 'S22', "4", item),
+					msgFun: _.bind(imsgFun, this, _, _, 'S22', "4"),
 					callback: function(smith1){
 						if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
 						RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
-						buildS11ANDS22Bottom('S22', $("#picture4bottom .picturebottom_in_m_in ul"), function(){
-							$("#picture4bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture4bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture4bottom .picturebottom_in_m").innerWidth());
-							$("#picture4bottom .picturebottom_in_m_in ul>li[data-iparamter='"+item+"']").addClass("active");
-						});
 					}
 				});
+				/*如果显示大图*/
+				if(RF_SP2State.stateObj.dblclickFlag){
+					var dblid = $("[id$=_chart_S]:visible").attr("id");
+					var dblclassify = dblid.replace("_chart_S", "");
+					if(_.indexOf(["S11", "S22"], dblclassify) > -1){
+						getDataBuildBigS11S22({
+							iclassify: dblclassify,
+							itargetchart: dblid
+						});
+					}else{
+						getDataBuildBigS12S21({
+							iclassify: dblclassify,
+							itargetchart: dblid
+						});
+						setTimeout(function(){
+							$(".indicatrix_footin>.btn-success").trigger("click");
+						}, 50);
+					}
+				}
 			}else{
 				var iiThat = $(this);
 				RF_SP2SwalMixin({
@@ -766,71 +1011,80 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					return o.name == item;
 				}).remove();
 				if(RF_SP2State.waferSelected.length < 4){
-					var oldHeight = $("#picture_box2").innerHeight();
-					var oldWidth = $("#picture_box2").innerWidth();
-					$("#picture2top, #picture3top").innerHeight(oldHeight).innerWidth(oldWidth);
-					$("#picture2top").highcharts().setSize(oldWidth, oldHeight);
-					$("#picture3top").highcharts().setSize(oldWidth, oldHeight);
+					var oldHeight1 = ~~$("#picture_box2").innerHeight();
+					var oldWidth1 = ~~$("#picture_box2").innerWidth();
+					$("#picture2top, #picture3top").innerHeight(oldHeight1).innerWidth(oldWidth1);
+					$("#picture2top").highcharts().setSize(oldWidth1, oldHeight1);
+					$("#picture3top").highcharts().setSize(oldWidth1, oldHeight1);
 				}
 			}
 			// 史密斯图
 			var lineColorArray2 = [];
-			_.pullAt(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, _.findIndex(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
-				return v.name == item;
-			}));
-			_.pullAt(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, _.findIndex(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
-				return v.name == item;
-			}));
-			var smithS11Data = [];
+			/*删除数据*/
+			_.forOwn(RF_SP2State.stateObj.S2PSmallChartSmithData, function(v, k, objj){
+				_.pullAt(RF_SP2State.stateObj.S2PSmallChartSmithData[k], _.findIndex(RF_SP2State.stateObj.S2PSmallChartSmithData[k], function(vv){
+					return vv.name == item;
+				}));
+			});
+			var smithS11Data1 = [];
 			_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
-				smithS11Data.push(_.cloneDeep(v.data));
+				smithS11Data1.push(_.cloneDeep(v.data));
 				lineColorArray2.push(v.color);
 			});
-			var smithS22Data = [];
+			var smithS22Data1 = [];
 			_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
-				smithS22Data.push(_.cloneDeep(v.data));
+				smithS22Data1.push(_.cloneDeep(v.data));
 			});
 
 			getDataBuildS11S22({
 				wrapDOM: document.getElementById("picture1top"),
 				title: [''],
 				legendName: ['S11'],
-				data: smithS11Data,
+				data: smithS11Data1,
 				classify: 'S11',
 				msgDOM: document.getElementById("picture1bottom"),
 				lineColorArray: lineColorArray2,
-				msgFun: function(messag){
-					$("#picture1bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
-				},
+				msgInitFun: _.bind(msgInitFun, this, _, 'S11', "1", false),
+				msgFun: _.bind(imsgFun, this, _, _, 'S11', "1"),
 				callback: function(smith1){
 					if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
 					RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
-					buildS11ANDS22Bottom('S11', $("#picture1bottom .picturebottom_in_m_in ul"), function(){
-						$("#picture1bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture1bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture1bottom .picturebottom_in_m").innerWidth());
-						$("#picture1bottom .picturebottom_in_m_in ul>li:first").addClass("active");
-					});
 				}
 			});
 			getDataBuildS11S22({
 				wrapDOM: document.getElementById("picture4top"),
 				title: [''],
 				legendName: ['S22'],
-				data: smithS22Data,
+				data: smithS22Data1,
 				classify: 'S22',
 				msgDOM: document.getElementById("picture4bottom"),
 				lineColorArray: lineColorArray2,
-				msgFun: function(messag){
-					$("#picture4bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
-				},
+				msgInitFun: _.bind(msgInitFun, this, _, 'S22', "4", false),
+				msgFun: _.bind(imsgFun, this, _, _, 'S22', "4"),
 				callback: function(smith1){
 					if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
 					RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
-					buildS11ANDS22Bottom('S22', $("#picture4bottom .picturebottom_in_m_in ul"), function(){
-						$("#picture4bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture4bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture4bottom .picturebottom_in_m").innerWidth());
-						$("#picture4bottom .picturebottom_in_m_in ul>li:first").addClass("active");
-					});
 				}
 			});
+			/*如果显示大图*/
+			if(RF_SP2State.stateObj.dblclickFlag){
+				var dblid1 = $("[id$=_chart_S]:visible").attr("id");
+				var dblclassify1 = dblid1.replace("_chart_S", "");
+				if(_.indexOf(["S11", "S22"], dblclassify1) > -1){
+					getDataBuildBigS11S22({
+						iclassify: dblclassify1,
+						itargetchart: dblid1
+					});
+				}else{
+					getDataBuildBigS12S21({
+						iclassify: dblclassify1,
+						itargetchart: dblid1
+					});
+					setTimeout(function(){
+						$(".indicatrix_footin>.btn-success").trigger("click");
+					}, 50);
+				}
+			}
 		}
 	}
 }).on("click", ".g_bodyin_bodyin_bottom_l_itemin_main", function(){
@@ -953,6 +1207,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 			});
 			/*导航栏结束*/
 			if(target == "g_bodyin_bodyin_bottom_2"){
+				/*TCF分页*/
 				$(".g_info .glyphicon-question-sign").hide();
 				/*判断重新渲染按钮*/
 				if(RF_SP2State.waferTCFSelected.length == 2){
@@ -972,51 +1227,8 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 					eleResize2();
 					$(".g_bodyin_bodyin_bottom_lsub_item:first .g_bodyin_bodyin_bottom_lsub_itemin_main").trigger("click");
 					$(".g_bodyin_bodyin_bottom_lsub_item:first .g_bodyin_bodyin_bottom_lsub_itemin_sub>.g_bodyin_bodyin_bottom_lsub_itemin_subin:first").trigger("click").next().trigger("click");
-
-					var idata = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve.S21;
-					var idata1 = RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21;
-					var ixData = [];
-					ixData[0] = [];
-					ixData[1] = [];
-					var iyData = [];
-					iyData[0] = [];
-					iyData[1] = [];
-					_.forEach(idata, function(v, i){
-						ixData[0].push(v[0]/1000000);
-						iyData[0].push(v[2]);
-					});
-					_.forEach(idata1, function(v, i){
-						ixData[1].push(v[0]/1000000);
-						iyData[1].push(v[2]);
-					});
-					/*构造新数据*/
-					_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
-						if(v.isNew){
-							ixData[0].splice(v.newIndex, 0, v.x);
-							iyData[_.indexOf(RF_SP2State.waferTCFSelected, v.name)].splice(v.newIndex, 0, v.y);
-							iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))].splice(v.newIndex, 0, iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))][v.newIndex - 1]);
-						}
-					});
-					renderSpline({
-						container: "markerChart",
-						title: "marker图",
-						data: {
-							xData: ixData,
-							yData: iyData
-						},
-						name: RF_SP2State.waferTCFSelected,
-						callback: function(chart){
-							/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-								var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-								chart.series[ii].data[_.indexOf(iyData[ii], v.y)].select(true, true);
-							});*/
-							_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-								if(!_.isNil(v.isNew)){
-									var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-									chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
-								}
-							});
-						}
+					getTCFDataANDDrawChart({
+						isComfirmKey: false
 					});
 					RF_SP2State.stateObj.renderSelectCsvSub = true;
 				}
@@ -1029,18 +1241,26 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 	}
 });
 
-/*分析模型左侧*/
+/*TCF分析模型左侧*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_subin", function(e){
 	var item = $(this).parent().data("parentfile") +" "+$(this).text();
 	if($(this).hasClass("selected")){
 		$(this).removeClass("selected");
 		_.pull(RF_SP2State.waferTCFSelected, item);
 	}else{
-		if($(".g_bodyin_bodyin_bottom_lsub_itemin_subin.selected").length > 1){
-			var select0 = $(".g_bodyin_bodyin_bottom_lsub_itemin_subin.selected").eq(0);
+		/*首先删除其他CSV文件的选中item*/
+		var $others = $(this).parent().parent().parent().siblings();
+		$others.each(function(){
+			$(this).find(".g_bodyin_bodyin_bottom_lsub_itemin_subin.selected").each(function(){
+				_.pull(RF_SP2State.waferTCFSelected, $(this).parent().data("parentfile") +" "+$(this).text());
+				$(this).removeClass("selected");
+			});
+		});
+		if($(this).siblings(".selected").length > 1){
+			var select0 = $(this).siblings(".selected").eq(0);
 			var item1 = select0.parent().data("parentfile") +" "+select0.text();
-			$(".g_bodyin_bodyin_bottom_lsub_itemin_subin.selected").eq(0).removeClass("selected");
 			_.pull(RF_SP2State.waferTCFSelected, item1);
+			select0.removeClass("selected");
 		}
 		$(this).addClass("selected");
 		RF_SP2State.waferTCFSelected.push(item);
@@ -1063,6 +1283,14 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_subin", function(e)
 		$(this).next().slideDown(1000);
 	}
 	$(this).toggleClass("active");
+});
+
+/*重新绘制事件*/
+$(".reRenderBtnDiv").click(function(){
+	if(RF_SP2State.waferTCFSelected.length != 2) return false;
+	getTCFDataANDDrawChart({
+		isComfirmKey: false
+	});
 });
 
 /*数据统计*/
@@ -1225,30 +1453,8 @@ $("#comfirm_key").click(function(){
 	}).then(function(re){
 		if(re.dismiss == "timer"){
 			RF_SP2State.stateObj.key_y = false;
-			var idata = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve.S21;
-			var idata1 = RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21;
-			var ixData = [];
-			ixData[0] = [];
-			ixData[1] = [];
-			var iyData = [];
-			iyData[0] = [];
-			iyData[1] = [];
-			_.forEach(idata, function(v, i){
-				ixData[0].push(v[0]/1000000);
-				iyData[0].push(v[2]);
-			});
-			_.forEach(idata1, function(v, i){
-				ixData[1].push(v[0]/1000000);
-				iyData[1].push(v[2]);
-			});
-			renderSpline({
-				container: "markerChart",
-				title: "marker图",
-				data: {
-					xData: ixData,
-					yData: iyData
-				},
-				name: RF_SP2State.waferTCFSelected,
+			getTCFDataANDDrawChart({
+				isComfirmKey: true
 			});
 			RF_SP2State.stateObj.renderSelectCsvSub = true;
 		}
@@ -1333,31 +1539,29 @@ $(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
 
 /*双击4图表*/
 $(document).on("dblclick", ".chartWarp", function(){
+	RF_SP2State.stateObj.dblclickFlag = true;
 	var itargetchart = $(this).data("itargetchart");
 	$(".fourChart_div").fadeOut(200, function(){
 		$(".signalChart_div").fadeIn(200);
-		$("#"+itargetchart).siblings().fadeOut(100, function(){
-			$("#"+itargetchart).fadeIn(100, function(){
-				var iclassify = itargetchart.replace("_chart_S", "");
-				if(iclassify == "S12" || iclassify == "S21"){
-					drawSmithS12S21({
-						iclassify: iclassify,
-						itargetchart: itargetchart
-					});
-					$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
-				}else{
-					/*史密斯图*/
-					var smithDataArr = [];
-					_.times(3, function(ii){
-						smithDataArr.push(RF_SP2State.mock.RF_SP2[ii].curveinfos[2].smithAndCurve[iclassify]);
-					});
-					var smith1 = smithChart($("#"+itargetchart)[0], [''], [iclassify], smithDataArr, iclassify, null);
-					window.onresize = function () {
-						smith1.onresize();
-					};
-					$(".signalChart_div_tit>button:not(.backover)").prop("disabled", true);
-				}
-			});
+		$("#"+itargetchart).siblings().fadeOut(100);
+		$("#"+itargetchart).delay(100).fadeIn(150, function(){
+			var iclassify = itargetchart.replace("_chart_S", "");
+			if(iclassify == "S12" || iclassify == "S21"){
+				$("#signalChart_div_foot").fadeOut(10);
+				getDataBuildBigS12S21({
+					iclassify: iclassify,
+					itargetchart: itargetchart
+				});
+				$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
+			}else{
+				/*史密斯图*/
+				$("#signalChart_div_foot").fadeIn(10);
+				getDataBuildBigS11S22({
+					iclassify: iclassify,
+					itargetchart: itargetchart
+				});
+				$(".signalChart_div_tit>button:not(.backover)").prop("disabled", true);
+			}
 		});
 	});
 });
@@ -1365,7 +1569,15 @@ $(document).on("dblclick", ".chartWarp", function(){
 /*后退*/
 $(".signalChart_div_tit>button.backover").click(function(){
 	$(".signalChart_div").fadeOut(200, function(){
-		$(".fourChart_div").fadeIn(200);
+		$(".fourChart_div").fadeTo(1, 0).fadeIn(100, function(){
+			var iDOM = $(".g_bodyin_bodyin_bottom_l_itemin_subin.selected:first");
+			iDOM.trigger("click");
+			setTimeout(function(){
+				iDOM.trigger("click");
+				$(".fourChart_div").fadeTo(50, 1);
+			}, 50);
+		});
+		RF_SP2State.stateObj.dblclickFlag = false;
 	});
 });
 
@@ -1399,8 +1611,13 @@ $(".signalChart_div_tit>.open_del_indicatrix").click(function(){
 	});
 	RF_SP2State.stateObj[iclassify].indicatrix_up.length = 0;
 	RF_SP2State.stateObj[iclassify].indicatrix_low.length = 0;
-	$(".indicatrix_body #upflag_table tbody").empty().append(strup).find(".glyphicon-ok").trigger("click");
-	$(".indicatrix_body #lowflag_table tbody").empty().append(strlow).find(".glyphicon-ok").trigger("click");
+	$(".indicatrix_body #upflag_table tbody").empty().append(strup);
+	$(".indicatrix_body #lowflag_table tbody").empty().append(strlow);
+	$(".indicatrix_body #upflag_table tbody").find(".glyphicon-ok").trigger("click");
+	$(".indicatrix_body #lowflag_table tbody").find(".glyphicon-ok").trigger("click");
+	if(_.isEmpty(_.concat(RF_SP2State.stateObj[iclassify].indicatrix_low, RF_SP2State.stateObj[iclassify].indicatrix_up))){
+		$(".indicatrix_footin>.btn-success").prop("disabled", true);
+	}
 	$(".indicatrix_body tbody").find("input[type='text']").each(function(i, el){
 		new Awesomplete(el, {
 			list: RF_SP2State.stateObj.smithSXCategories,
@@ -1465,7 +1682,7 @@ $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>t
 	var upTr = $("#upflag_table tbody tr").length;
 	var lowTr = $("#lowflag_table tbody tr").length;
 	if(uphasOk === 0 && lowhasOk === 0){
-		drawSmithS12S21({
+		getDataBuildBigS12S21({
 			iclassify: iclassify,
 			itargetchart: id
 		});
@@ -1494,6 +1711,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 	var id = $("[id$='_chart_S']:visible").attr("id");
 	if(_.isNil(id)) return false;
 	var iclassify = id.replace("_chart_S", "");
+	if(_.isEmpty(_.concat(RF_SP2State.stateObj[iclassify].indicatrix_low, RF_SP2State.stateObj[iclassify].indicatrix_up))) return false;
 	if(!_.isNil(id)){
 		RF_SP2State.stateObj.indicatrix_state_arr = [];
 		var curChartObj = _.find(Highcharts.charts, function(v) {
@@ -1807,7 +2025,7 @@ $(".indicatrix_footin>.btn-danger").click(function(){
 	RF_SP2State.stateObj[iclassify].indicatrix_low.length = 0;
 	$(".indicatrix_footin>.btn-success").prop("disabled", true);
 	$(".indicatrix_body legend>span").fadeIn(100);
-	drawSmithS12S21({
+	getDataBuildBigS12S21({
 		iclassify: iclassify,
 		itargetchart: id
 	});

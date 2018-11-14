@@ -278,12 +278,29 @@ div#in ul {
   left: 8px;
 }
 
+/* 高斯分布期望 */
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot div.row>div {
+	padding-left: 2px;
+	padding-right: 2px;
+	overflow-x: auto;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot div.row>div table {
+	margin-bottom: 2px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot>div.container-fluid {
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
 div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot th, div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
 	text-align: center;
-	max-width: 100px;
+	max-width: 95px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	font-size: 14px;
 }
 
 div[data-dbcurveandsmith] div.picturetop {
@@ -294,9 +311,12 @@ div[data-dbcurveandsmith] div.picturetop {
     .vectorMap_in {
     	grid-template-columns: 350px 1fr;
     }
+    div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot th, div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
+    	max-width: 120px;
+    }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
     .staff_authority {
         left: 0px;
     }

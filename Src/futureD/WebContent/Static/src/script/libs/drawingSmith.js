@@ -1,6 +1,6 @@
 
 // smith图
-function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, msgFun) {
+function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, msgFun, msgInitFun) {
 
     // 公式是(x-x0)^2 + (y-y0)^2 = r^2
     dom.innerHTML = '';
@@ -364,10 +364,14 @@ function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, m
                                 horizonLine.style.marginLeft = -marginLeft + 'px';
                                 verticalLine.style.marginTop = -marginTop + 'px';
                                 //加载点信息
-                                if(msgdom){
-                                    var title1 = msgdom.getElementsByClassName("Smith_Msg2")[0];
-                                    var data1 = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(_data[t][m][0]/10E6).toFixed(2)+"GHz";
-                                    title1.innerText = data1 ;
+                                if(msgdom && allData.length){
+                                    var messag = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(_data[t][m][0]/10E6).toFixed(2)+"GHz";
+                                    if(msgFun){
+                                        var initMess = "("+_data[t][0][1].toFixed(2)+","+_data[t][0][2].toFixed(2)+"),"+(_data[t][0][0]/10E6).toFixed(2)+"GHz";
+                                        msgFun(messag, t, initMess);
+                                    }else{
+                                        msgdom.getElementsByClassName("Smith_Msg2")[0].innerText = messag;
+                                    }
                                 }
                             }
                         }
@@ -378,8 +382,8 @@ function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, m
     };
     if(msgdom && allData.length){
         var messag = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(_data[0][0][0]/10E6).toFixed(2)+"GHz";
-        if(msgFun){
-            msgFun(messag);
+        if(msgInitFun){
+            msgInitFun(messag);
         }else{
             msgdom.getElementsByClassName("Smith_Msg2")[0].innerText = messag;
         }
@@ -411,7 +415,7 @@ function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, m
    //显示坐标点类型
     var valueType = 'cross';
     // 顺序依次为圆的颜色，坐标颜色，数据线颜色，数据值字体颜色，数据点颜色，数据框背景颜色,图例字体颜色
-    var lineColorArray = lineColorArray || ['#1baee1', 'red'];
+    lineColorArray = lineColorArray || ['#1baee1', 'red'];
     var color = ['grey', 'black', lineColorArray, 'white', ['#1baee1', 'red'], 'rgba(128, 128, 128, 0.75)', 'grey','#028BCD'];
     var smith = new SmithPlotObj(Type, false, valueType, false, color);
    // smith.plot();

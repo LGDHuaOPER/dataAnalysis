@@ -477,7 +477,7 @@ body {
 
 .g_bodyin_bodyin_bottom_r .chartWarp {
 	position: relative;
-	margin-left: 20px;
+	margin-left: 10px;
 	height: 100%;
 	-webkit-box-shadow: 0 0 3px 2px #e3e3e3;
 	-moz-box-shadow: 0 0 3px 2px #e3e3e3;
@@ -530,7 +530,7 @@ body {
 	display: inline-block;
 }
 
-div.pictureline {
+.picturebottom div.pictureline {
 	display: inline-block;
 	padding-top: 17px;
     height: 40px;
@@ -539,7 +539,7 @@ div.pictureline {
 	vertical-align: top;
 }
 
-div.smithdata {
+.picturebottom div.smithdata {
 	display: inline-block;
 	height: 40px;
 }
@@ -550,7 +550,7 @@ div.smithdata {
 	display: inline-block;
 }
 
-.pictureline>p {
+.picturebottom .pictureline>p {
 	height: 5px;
 	/* background-color: #028BCD; */
 }
@@ -853,7 +853,7 @@ div.awesomplete {
 
 .signalChart_div {
 	display: grid;
-	grid-template-rows: 40px 1fr 35px;
+	grid-template-rows: 40px 1fr 40px;
 	grid-template-areas: "signalChart_div_tit"
 						"signalChart_div_body"
 						"signalChart_div_foot";
@@ -883,6 +883,88 @@ div.awesomplete {
 	padding-left: 10px;
 	padding-right: 10px;
 }
+
+/* 大图史密斯信息内容 */
+.signalChart_div_foot_in {
+	display: grid;
+	grid-template-columns: 25px 1fr 25px;
+	grid-template-areas: "signalChart_div_foot_in_l signalChart_div_foot_in_m signalChart_div_foot_in_r";
+	height: 40px;
+}
+
+.signalChart_div_foot_in_l {
+	grid-area: signalChart_div_foot_in_l;
+}
+
+.signalChart_div_foot_in_m {
+	grid-area: signalChart_div_foot_in_m;
+    overflow: hidden;
+}
+
+.signalChart_div_foot_in_m ul {
+	margin-bottom: 1px;
+	padding-left: 0px;
+	display: inline-block;
+    white-space: nowrap;
+}
+
+.signalChart_div_foot_in_m ul>li {
+	display: none;
+}
+
+.signalChart_div_foot_in_m ul>li.active {
+	display: inline-block;
+}
+
+.signalChart_div_foot div.pictureline {
+	margin-right: 5px;
+	display: inline-block;
+	padding-top: 17px;
+    height: 40px;
+	width: 50px;
+	cursor: pointer;
+	vertical-align: top;
+}
+
+.signalChart_div_foot div.smithdata {
+	display: inline-block;
+	height: 40px;
+}
+
+.signalChart_div_foot_in_m_in {
+	position: relative;
+	height: 100%;
+	display: inline-block;
+}
+
+.signalChart_div_foot .pictureline>p {
+	height: 5px;
+	/* background-color: #028BCD; */
+}
+
+.signalChart_div_foot_in_r {
+	grid-area: signalChart_div_foot_in_r;
+}
+
+.signalChart_div_foot_in_l, .signalChart_div_foot_in_r {
+	text-align: center;
+}
+
+.signalChart_div_foot_in_l>span, .signalChart_div_foot_in_r>span {
+	top: 10px;
+	font-size: 20px;
+	display: none;
+}
+
+.signalChart_div_foot p {
+	margin-bottom: 1px;
+	font-size: 14px;
+}
+
+.signalChart_div_foot p>span {
+	font-size: 14px;
+}
+/* 大图史密斯信息内容 end*/
 
 div[id$='_chart_S'] {
 	height: 100%;

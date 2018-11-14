@@ -33,7 +33,7 @@ function getDataBuildS12S21(obj){
 }
 
 function getDataBuildS11S22(obj) {
-	var smith1 = smithChart(obj.wrapDOM, obj.title, obj.legendName, obj.data, obj.classify, obj.msgDOM, obj.lineColorArray, obj.msgFun);
+	var smith1 = smithChart(obj.wrapDOM, obj.title, obj.legendName, obj.data, obj.classify, obj.msgDOM, obj.lineColorArray, obj.msgFun, obj.msgInitFun);
 	_.isFunction(obj.callback) && obj.callback(smith1);
 }
 
@@ -49,7 +49,6 @@ function drawRealS12S21(obj){
 	var container = obj.container;
 	var xCategories = obj.xCategories;
 	var series = obj.series;
-	var msgDom = obj.msgDom;
 	var legend_enabled = obj.legend_enabled || true;
 	var zoomType = obj.zoomType || "None";
 	var resetZoomButton = obj.resetZoomButton;
@@ -505,6 +504,7 @@ function renderSpline(option){
 										}
 									}else if(iindex == lastYIndex1 && iindex != firstYIndex1){
 										/*找到了*/
+										console.log("iindex == lastYIndex1 && iindex != firstYIndex1");
 										RF_SP2SwalMixin({
 											title: "Marker打点提示",
 											text: "以y为Key时，当前曲线两点都存在",
@@ -517,6 +517,7 @@ function renderSpline(option){
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[firstYIndex1], y, false, firstYIndex1);
 									}else if(iindex != lastYIndex1 && iindex == firstYIndex1){
 										/*找到了*/
+										console.log("iindex != lastYIndex1 && iindex == firstYIndex1");
 										RF_SP2SwalMixin({
 											title: "Marker打点提示",
 											text: "以y为Key时，当前曲线两点都存在",
@@ -529,6 +530,10 @@ function renderSpline(option){
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[lastYIndex1], y, false, lastYIndex1);
 									}else if(iindex != lastYIndex1 && iindex != firstYIndex1){
 										/*找到了*/
+										console.log("iindex != lastYIndex1 && iindex != firstYIndex1");
+										console.log(iindex)
+										console.log(firstYIndex1)
+										console.log(lastYIndex1)
 										RF_SP2SwalMixin({
 											title: "Marker打点提示",
 											text: "以y为Key时，当前曲线两点都存在",
