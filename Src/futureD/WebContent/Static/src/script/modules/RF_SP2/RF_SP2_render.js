@@ -326,6 +326,7 @@ function renderSpline(option){
 						mouseOver: function (ev) {
 							/*console.log(chart.getSelectedPoints());*/
 							var ii = this.colorIndex;
+							console.log(option.name)
 							if(ii == 0){
 								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(this.series.name+" "+this.category+"Mhz, "+this.y+"dB");
 								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(option.name[1]+" "+this.category+"Mhz, "+option.data.yData[1][this.x]+"dB");

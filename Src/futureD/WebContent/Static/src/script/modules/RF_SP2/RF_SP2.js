@@ -512,7 +512,7 @@ function getTCFDataANDDrawChart(obj) {
 			xData: ixData,
 			yData: iyData
 		},
-		name: RF_SP2State.waferTCFSelected,
+		name: _.cloneDeep(RF_SP2State.waferTCFSelected),
 		callback: function(chart){
 			/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 				var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
@@ -558,11 +558,11 @@ function getTCFDataANDDrawChart(obj) {
 							copyy2 = _.cloneDeep(series1_y);
 							copyx.splice(inde1, 0, newPoint1.x);
 							copyy1.splice(inde1, 0, newPoint1.y);
-							copyy2.splice(inde1, 0, series1_y[inde1-1]);
+							copyy2.splice(inde1, 0, copyy2[inde1-1]);
 							chart.xAxis[0].setCategories(copyx);
 							chart.series[0].setData(copyy1);
-							chart.series[1].setData(copyy1);
-							chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(series0_y, yArr[0])]);
+							chart.series[1].setData(copyy2);
+							chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(copyy1, yArr[0])]);
 						}else{
 							/*第一条曲线未找到点*/
 							_.forEach(series1_y, function(v, i, arr){
@@ -582,10 +582,16 @@ function getTCFDataANDDrawChart(obj) {
 									baseVal: yArr[0],
 								});
 								console.log(newPoint2)
-								chart.xAxis[0].categories.splice(inde2, 0, newPoint2.x);
-								series1_y.splice(inde2, 0, newPoint2.y);
-								series0_y.splice(inde2, 0, series0_y[inde2-1]);
-								chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(series1_y, yArr[0])]);
+								copyx = _.cloneDeep(chart.xAxis[0].categories);
+								copyy1 = _.cloneDeep(series0_y);
+								copyy2 = _.cloneDeep(series1_y);
+								copyx.splice(inde2, 0, newPoint2.x);
+								copyy2.splice(inde2, 0, newPoint2.y);
+								copyy1.splice(inde2, 0, copyy1[inde2-1]);
+								chart.xAxis[0].setCategories(copyx);
+								chart.series[0].setData(copyy1);
+								chart.series[1].setData(copyy2);
+								chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(copyy2, yArr[0])]);
 							}else{
 								RF_SP2SwalMixin({
 									title: "Marker打点提示",
@@ -1547,7 +1553,7 @@ $(document).on("dblclick", ".chartWarp", function(){
 		$("#"+itargetchart).delay(100).fadeIn(150, function(){
 			var iclassify = itargetchart.replace("_chart_S", "");
 			if(iclassify == "S12" || iclassify == "S21"){
-				$("#signalChart_div_foot").fadeOut(10);
+				$(".signalChart_div_foot").fadeOut(10);
 				getDataBuildBigS12S21({
 					iclassify: iclassify,
 					itargetchart: itargetchart
@@ -1555,7 +1561,7 @@ $(document).on("dblclick", ".chartWarp", function(){
 				$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
 			}else{
 				/*史密斯图*/
-				$("#signalChart_div_foot").fadeIn(10);
+				$(".signalChart_div_foot").fadeIn(10);
 				getDataBuildBigS11S22({
 					iclassify: iclassify,
 					itargetchart: itargetchart
