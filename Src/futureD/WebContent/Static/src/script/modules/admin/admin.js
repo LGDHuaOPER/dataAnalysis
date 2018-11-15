@@ -1211,3 +1211,35 @@ $(".staff_authority_r_foot .btn-primary").click(function(){
 	}
 });
 
+/*var a = [{
+	alphabetic_coordinate: "0:0",
+	bin: "1",
+	die_number: 1,
+	value: 0.00023
+}, {
+	alphabetic_coordinate: "1:0",
+	bin: "255",
+	die_number: 2,
+	value: 0.00023
+}, {
+	alphabetic_coordinate: "2:0",
+	bin: "1",
+	die_number: 3,
+	value: 0.00023
+}, {
+	alphabetic_coordinate: "0:1",
+	bin: "-1",
+	die_number: 4,
+	value: 0.00023
+}, {
+	alphabetic_coordinate: "0:2",
+	bin: "1",
+	die_number: 5,
+	value: 0.00023
+}];
+_.reduce(a, function(result, va, i){
+	var item = {};
+	item[va.alphabetic_coordinate] = va.value;
+	result.push(item);
+	return result;
+}, []);*/
