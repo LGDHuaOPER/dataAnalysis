@@ -23,7 +23,7 @@ public interface GaussianService {
 	 * @param equal
 	 * @return
 	 */
-	Map<String,Object> getGaussian(int waferId,String param,double left,double right,int equal);
+	Map<String,Object> getGaussian(Map<String,Object> map);
 	
 	/**
 	 * 参数范围

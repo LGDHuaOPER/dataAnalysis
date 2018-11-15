@@ -309,7 +309,7 @@ public class ParameterDao {
 	 */
 	public List<String> getParameterNoCustom(Connection conn,int waferId){
 		String sql = "select parameter_name from dm_wafer_parameter where wafer_id=? and parameter_name not in (select custom_parameter parameter_name from dm_marker_calculation where wafer_id=?) ";
-		return db.queryList(conn,sql, new Object[]{waferId});
+		return db.queryList(conn,sql, new Object[]{waferId,waferId});
 	}
 	
 	public List<Map<String,Object>> getMapInfo(Connection conn,String waferNO){

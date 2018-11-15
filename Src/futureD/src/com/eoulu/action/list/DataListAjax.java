@@ -36,8 +36,8 @@ public class DataListAjax extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=utf-8");
 		
-		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword");
-		String Parameter = request.getParameter("Parameter")==null?"":request.getParameter("Parameter");
+		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword"),
+				Parameter = request.getParameter("Parameter")==null?"":request.getParameter("Parameter");
 		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
 		
 		WaferService service = new WaferServiceImpl();
@@ -60,6 +60,24 @@ public class DataListAjax extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
+	}
+	
+	public static void main(String[] args) {
+		String keyword = "",
+				Parameter = "";
+		int currentPage = 1;
+		
+		WaferService service = new WaferServiceImpl();
+		PageDTO page = new PageDTO();
+		page.setRow(10);
+		page.setPageCount(service.countWafer(keyword,Parameter,0));
+		page.setCurrentPage(currentPage<page.getTotalPage()?currentPage:1);
+
+		Map<String,Object> result = new HashMap<>();
+		result.put("waferInfo", service.listWafer(page, keyword,Parameter,0));
+		result.put("currentPage", currentPage);
+		result.put("totalPage", page.getTotalPage());
+		System.out.println(new Gson().toJson(result));
 	}
 
 }

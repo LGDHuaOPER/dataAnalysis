@@ -61,8 +61,8 @@ public class CPKServlet extends HttpServlet {
 			paramList = histogram.getWaferParameter(waferIdStr);
 		}
 		
-		for (String param : paramList) {
-			result.put(param, service.getCPK(waferIdStr, param));
+		for (int i=0,size=paramList.size();i<size;i++) {
+			result.put(paramList.get(i), service.getCPK(waferIdStr, paramList.get(i)));
 		}
 		response.getWriter().write(new Gson().toJson(result));
 	
@@ -73,6 +73,33 @@ public class CPKServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
+	}
+	
+	public static void main(String[] args) {
+		CPKService service = new CPKServiceImpl();
+		String waferIdStr = "161",
+				parameter = "";
+		Map<String, Object> result = new HashMap<>();
+		if (!"".equals(parameter)) {
+			result.put(parameter, service.getCPK(waferIdStr, parameter));
+			return;
+		}
+		List<String> paramList = null;
+		String[] paramAtt = null;
+		if(paramAtt!=null){
+			paramList = new ArrayList<>();
+			for(int i=0,length=paramAtt.length;i<length;i++){
+				paramList.add(paramAtt[i]);
+			}
+		}else{
+			HistogramService histogram = new HistogramServiceImpl();
+			paramList = histogram.getWaferParameter(waferIdStr);
+		}
+		
+		for (int i=0,size=paramList.size();i<1;i++) {
+			result.put(paramList.get(i), service.getCPK(waferIdStr, paramList.get(i)));
+		}
+		System.out.println( new Gson().toJson(result));
 	}
 
 }

@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +162,7 @@ public class CurveDao {
 	 */
 	public boolean getAnalysisClassify(int waferId){
 		String sql = "select distinct wafer_id from dm_curve_type where wafer_id=? and curve_file_type=1";
-		List<Map<String,Object>> ls = db.queryToList(sql, new Object[]{});
+		List<Map<String,Object>> ls = db.queryToList(sql, new Object[]{waferId});
 		return ls.size()>0? true:false;
 	}
 	
@@ -245,6 +246,7 @@ public class CurveDao {
 			param = new Object[]{coordinateId,subdieName};
 		}
 		if (!"".equals(subdieName) && !"".equals(deviceGroup)){
+			sql += " and device_group=?  and  subdie_id in (select subdie_id from dm_wafer_subdie where subdie_name=?) ";
 			param = new Object[]{coordinateId,deviceGroup,subdieName};
 		}
 		return db.queryToList(conn,sql, param);
@@ -277,7 +279,7 @@ public class CurveDao {
 		return map;
 	}
 	
-	public List<List<Double>> getCurveData(Connection conn,int curveTypeId,String column){
+	public List<Object[]> getCurveData(Connection conn,int curveTypeId,String column){
 		
 		String[] att = column.split(",");
 		int count = att.length;
@@ -286,7 +288,7 @@ public class CurveDao {
 		}
 		String sql = "select "+column+" from dm_curve_data where curve_type_id=?";
 		PreparedStatement ps;
-		List<List<Double>> result = new ArrayList<>();
+		List<Object[]> result = new ArrayList<>();
 		try {
 			ps = conn.prepareStatement(sql);
 			ps.setInt(1, curveTypeId);
@@ -303,12 +305,12 @@ public class CurveDao {
 					ls3.add(rs.getDouble(3));
 				}
 			}
-			result.add(ls);
+			result.add(ls.toArray());
 			if(ls2.size()>0){
-				result.add(ls2);
+				result.add(ls2.toArray());
 			}
 			if(ls3.size()>0){
-				result.add(ls3);
+				result.add(ls3.toArray());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

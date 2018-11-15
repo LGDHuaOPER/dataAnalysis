@@ -14,7 +14,7 @@ import com.eoulu.transfer.PageDTO;
 /**
  * Servlet implementation class DataAnalysis
  */
-@WebServlet(description = "数据分析", urlPatterns = { "/ProjectAnalysis" })
+@WebServlet(description = "工程分析", urlPatterns = { "/ProjectAnalysis" })
 public class ProjectAnalysis extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -30,21 +30,21 @@ public class ProjectAnalysis extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword");
-		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
-		String Parameter = request.getParameter("Parameter")==null?"":request.getParameter("Parameter");
-		WaferService service = new WaferServiceImpl();
-		PageDTO page = new PageDTO();
-		page.setCurrentPage(currentPage);
-		page.setRow(10);
-		page.setPageCount(service.countWafer(keyword,Parameter,0));
-		request.setAttribute("waferList", service.listWafer(page, keyword,Parameter,0));
-		if(!"".equals(keyword)){
-			request.setAttribute("keyword", keyword);
-		}
-		
-		request.setAttribute("currentPage", currentPage);
-		request.setAttribute("totalPage", page.getPageCount());
+//		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword");
+//		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
+//		String Parameter = request.getParameter("Parameter")==null?"":request.getParameter("Parameter");
+//		WaferService service = new WaferServiceImpl();
+//		PageDTO page = new PageDTO();
+//		page.setCurrentPage(currentPage);
+//		page.setRow(10);
+//		page.setPageCount(service.countWafer(keyword,Parameter,0));
+//		request.setAttribute("waferList", service.listWafer(page, keyword,Parameter,0));
+//		if(!"".equals(keyword)){
+//			request.setAttribute("keyword", keyword);
+//		}
+//		
+//		request.setAttribute("currentPage", currentPage);
+//		request.setAttribute("totalPage", page.getPageCount());
 		request.getRequestDispatcher("./Analysis/Analysis.jsp").forward(request, response);
 	
 	}

@@ -14,9 +14,15 @@ import java.util.Map;
 public class WaferMapDTO {
 	
 	private String parameter;
-	private int qualifynumber;//合格数
-	private int unqulifynumber;//不合格数
-	private double qualifiedRate;
+	private int qualify;//合格数
+	private int unqulify;//不合格数
+	private String yield;
+	public String getYield() {
+		return yield;
+	}
+	public void setYield(String yield) {
+		this.yield = yield;
+	}
 	private Map<String,Object> otherDieList;
 	private Map<String,Object> currentDieList;
 	public String getParameter() {
@@ -24,24 +30,6 @@ public class WaferMapDTO {
 	}
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
-	}
-	public int getQualifynumber() {
-		return qualifynumber;
-	}
-	public void setQualifynumber(int qualifynumber) {
-		this.qualifynumber = qualifynumber;
-	}
-	public int getUnqulifynumber() {
-		return unqulifynumber;
-	}
-	public void setUnqulifynumber(int unqulifynumber) {
-		this.unqulifynumber = unqulifynumber;
-	}
-	public double getQualifiedRate() {
-		return qualifiedRate;
-	}
-	public void setQualifiedRate(double qualifiedRate) {
-		this.qualifiedRate = qualifiedRate;
 	}
 	public Map<String, Object> getCurrentDieList() {
 		return currentDieList;
@@ -54,6 +42,18 @@ public class WaferMapDTO {
 	}
 	public void setOtherDieList(Map<String, Object> otherDieList) {
 		this.otherDieList = otherDieList;
+	}
+	public int getQualify() {
+		return qualify;
+	}
+	public void setQualify(int qualify) {
+		this.qualify = qualify;
+	}
+	public int getUnqulify() {
+		return unqulify;
+	}
+	public void setUnqulify(int unqulify) {
+		this.unqulify = unqulify;
 	}
 	
 	

@@ -59,8 +59,8 @@ public class Boxplot extends HttpServlet {
 		}
 		BoxPlotService boxService = new BoxPlotServiceImpl();
 		Map<String,Object> result = new Hashtable<>();
-		for(String param:paramList){
-			result.put(param,boxService.getBoxPlot(param, waferIdStr));
+		for(int i=0,size=paramList.size();i<size;i++){
+			result.put(paramList.get(i),boxService.getBoxPlot(paramList.get(i), waferIdStr));
 		}
 		response.getWriter().write(new Gson().toJson(result));
 	
@@ -73,4 +73,32 @@ public class Boxplot extends HttpServlet {
 		doGet(request, response);
 	}
 
+	public static void main(String[] args) {
+		String waferIdStr = "161", parameter = "";
+		HistogramService service = new HistogramServiceImpl();
+		List<String> paramList =  null;
+		if("".equals(parameter)){
+			String[] paramAtt = null;
+			if(paramAtt!=null){
+				paramList = new ArrayList<>();
+				for(int i=0,length=paramAtt.length;i<length;i++){
+					paramList.add(paramAtt[i]);
+				}
+			}else{
+				paramList = service.getWaferParameter(waferIdStr);
+			}
+		
+		}else{
+			paramList = new ArrayList<>();
+			paramList.add(parameter);
+		}
+		BoxPlotService boxService = new BoxPlotServiceImpl();
+		Map<String,Object> result = new Hashtable<>();
+		for(int i=0,size=paramList.size();i<size;i++){
+			result.put(paramList.get(i),boxService.getBoxPlot(paramList.get(i), waferIdStr));
+		}
+		System.out.println(new Gson().toJson(result));
+		
+	}
+	
 }

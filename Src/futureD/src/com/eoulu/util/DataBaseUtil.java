@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import com.eoulu.dao.WaferDao;
 import com.mysql.jdbc.Driver;
 import com.mysql.jdbc.Statement;
 
@@ -25,7 +27,8 @@ import com.mysql.jdbc.Statement;
  *
  * 
  */
-public class DataBaseUtil {
+public class DataBaseUtil{
+	
 	
 	private Connection conn = null;
 	private static Properties prop = new Properties();
@@ -50,6 +53,14 @@ public class DataBaseUtil {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	private static class DataBaseSingle{
+		private static DataBaseUtil db = new DataBaseUtil();
+	}
+	
+	public static DataBaseUtil getInstance(){
+		return DataBaseSingle.db;
 	}
 	
 	public Connection getConnection(){

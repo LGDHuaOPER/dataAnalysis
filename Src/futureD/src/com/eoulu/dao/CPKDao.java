@@ -21,25 +21,21 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class CPKDao {
 
-	private DataBaseUtil db = new DataBaseUtil();
 	
 	public List<Map<String,Object>> getLimit(Connection conn,String paramName,int waferId){
 		String sql="select upper_limit,lower_limit from dm_wafer_parameter where wafer_id=? and parameter_name=?";
-		return db.queryToList(conn, sql, new Object[]{waferId,paramName});
+		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId,paramName});
 	}
 	
-	public int getCount(Connection conn,String column,int waferId){
-		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=? and "+column+" is not null and "+column+" < 9E30 and bin <>-1";
-		Object result = db.queryResult(conn,sql, new Object[]{waferId});
-		return result==null?0:Integer.parseInt(result.toString());
-	}
 	
-	public List<Map<String, List<Double>>> getData(Connection conn, String column, int waferId) {
-		int count = getCount(conn, column, waferId);
-		int length = length(count);
-		List<Map<String,List<Double>>> list = new ArrayList<Map<String,List<Double>>>();
+	public List<Map<String, Object>> getData(Connection conn, String column, int waferId,int count) {
+		int length = length(count),size= length==1?1:20;
+		System.out.println("length:"+length);
+		List<Double> datas = null;
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		try {
-			for (int i = 0; i < length; i++) {
+			for (int i = 0; i < size; i++) {
+				Map<String, Object> map = new HashMap<String,Object>();
 				String sql1 = "select avg(" + column + ") from dm_wafer_coordinate_data where wafer_id=? and " + column
 						+ " is not null and " + column + " < 9E30 and bin <>-1 limit ?,?";
 				PreparedStatement ps1;
@@ -48,23 +44,21 @@ public class CPKDao {
 				ps1.setInt(2, length<2?0:i*length);
 				ps1.setInt(3, length<2?1:count/20);
 				ResultSet rs1 = ps1.executeQuery();
-				List<Double> avg = new ArrayList<Double>();
 				while (rs1.next()) {
-					avg.add(rs1.getDouble(1));
+					map.put("avg", rs1.getDouble(1));
 				}
-				String sql2 = "select avg(" + column + ") from dm_wafer_coordinate_data where wafer_id=? and " + column
+				String sql2 = "select " + column + " from dm_wafer_coordinate_data where wafer_id=? and " + column
 						+ " is not null and " + column + " < 9E30 and bin <>-1 limit ?,?";
 				PreparedStatement ps2 = conn.prepareStatement(sql2);
 				ps2.setInt(1, waferId);
 				ps2.setInt(2, length<2?0:i*length);
 				ps2.setInt(3, length<2?1:count/20);
 				ResultSet rs2 = ps2.executeQuery();
-				List<Double> datas = new ArrayList<Double>();
+				 datas = new ArrayList<Double>();
 				while (rs2.next()) {
 					datas.add(rs2.getDouble(1));
 				}
-				Map<String, List<Double>> map = new HashMap<String, List<Double>>();
-				map.put("avg", avg);
+				
 				map.put("datas", datas);
 				list.add(map);
 			}
@@ -85,7 +79,7 @@ public class CPKDao {
 	
 	public List<String> getParameter(int waferId){
 		String sql = "select parameter_name from dm_wafer_parameter where wafer_id=? ";
-		return db.queryList(sql, new Object[]{waferId});
+		return DataBaseUtil.getInstance().queryList(sql, new Object[]{waferId});
 	}
 	
 }

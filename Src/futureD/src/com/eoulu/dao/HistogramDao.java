@@ -63,15 +63,15 @@ public class HistogramDao {
 	*/
 	public String getColumn(Connection conn,int waferId,String paramName){
 		String sql = "select parameter_column from dm_wafer_parameter where wafer_id=? and parameter_name=?";
-		Object result = db.queryList(conn, sql, new Object[]{waferId,paramName});
+		Object result = db.queryResult(conn, sql, new Object[]{waferId,paramName});
 		return result==null?"":result.toString();
 	}
 	
 	
 	public int getQuantity(Connection conn,int waferId,String condition){
-		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=?" + condition;
-		Object result = db.queryList(conn, sql, new Object[]{waferId});
-		return result==null?0:Integer.parseInt(result.toString());
+		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=?  " + condition;
+		Object result = db.queryResult(conn, sql, new Object[]{waferId});
+		return result == null?0:Integer.parseInt(result.toString());
 	}
 
 }

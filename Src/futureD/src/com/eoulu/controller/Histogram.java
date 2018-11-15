@@ -14,8 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.service.GaussianService;
 import com.eoulu.service.HistogramService;
+import com.eoulu.service.YieldService;
 import com.eoulu.service.impl.GaussianServiceImpl;
 import com.eoulu.service.impl.HistogramServiceImpl;
+import com.eoulu.service.impl.YieldServiceImpl;
+import com.eoulu.transfer.FunctionUtil;
 import com.google.gson.Gson;
 
 /**
@@ -61,12 +64,15 @@ public class Histogram extends HttpServlet {
 			paramList = new ArrayList<>();
 			paramList.add(request.getParameter("parameter"));
 		}
+		
 		Map<String,Object> result = new LinkedHashMap<>();
+		List<String> sectionX = FunctionUtil.getRangeOrderAsc(left, right, equal);
+		result.put("sectionX", sectionX);
 		Map<String,Object> percentList = null;
 		for(int i=0,size=paramList.size();i<size;i++){
 			left = rangList==null?left:rangList.get(paramList.get(i)).get(1);
 			right = rangList==null?right: rangList.get(paramList.get(i)).get(0);
-			percentList = service.getPercent(paramList.get(i), waferIdStr, left, right, equal);
+			percentList = service.getPercent(paramList.get(i), waferIdStr, sectionX);
 			result.put(paramList.get(i), percentList);
 		}
 		response.getWriter().write(new Gson().toJson(result));
@@ -79,4 +85,41 @@ public class Histogram extends HttpServlet {
 		doGet(request, response);
 	}
 
+	public static void main(String[] args) {
+		String waferIdStr = "161";
+		double left = 5500.2,right=6500;
+		int equal = 8;
+		HistogramService service = new HistogramServiceImpl();
+		YieldService yieldService = new YieldServiceImpl();
+		
+		List<String> paramList = null;
+		Map<String,List<Double>> rangeList = null;
+//		if(request.getParameter("parameter")==null){
+			String[] paramAtt = null;
+			if(paramAtt!=null){
+				paramList = new ArrayList<>();
+				for(int i=0,length=paramAtt.length;i<length;i++){
+					paramList.add(paramAtt[i]);
+				}
+			}else{
+				paramList =  service.getWaferParameter(waferIdStr);	
+			}
+			rangeList = yieldService.getRangeList(waferIdStr, paramList);
+//		}else{
+//			paramList = new ArrayList<>();
+//			paramList.add(request.getParameter("parameter"));
+//		}
+		Map<String,Object> result = new LinkedHashMap<>();
+		List<String> sectionX = FunctionUtil.getRangeOrderAsc(left, right, equal);
+		result.put("sectionX", sectionX);
+		Map<String,Object> percentList = null;
+		for(int i=0,size=paramList.size();i<size;i++){
+			left = rangeList==null?left:rangeList.get(paramList.get(i)).get(1);
+			right = rangeList==null?right: rangeList.get(paramList.get(i)).get(0);
+			percentList = service.getPercent(paramList.get(i), waferIdStr,sectionX);
+			result.put(paramList.get(i), percentList);
+		}
+		System.out.println(new Gson().toJson(result));
+	}
+	
 }

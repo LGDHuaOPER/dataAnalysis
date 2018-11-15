@@ -91,23 +91,23 @@ public class AnalysisServiceImpl implements AnalysisService{
 	@Override
 	public Map<String,Object> getSmithData( String[] curveTypeId,String[] legend,String graphStyle,String sParameter) {
 		Map<String,Object> result = new LinkedHashMap<>();
-		Map<String, List<Double[]>> map = null;
+		Map<String, List<Object[]>> map = null;
 		int id = 0;
 		for(int i=0,length=curveTypeId.length;i<length;i++){
 			id = Integer.parseInt(curveTypeId[i]);
 			if("S11".equals(sParameter)){
-				map = smithDao.getSmithDataOfS11(id,graphStyle);
+				map.put(id+"", smithDao.getSmithDataOfS11(id,graphStyle));
 			}
 			if("S12".equals(sParameter)){
-				map = smithDao.getSmithDataOfS12(id,graphStyle);
+				map.put(id+"", smithDao.getSmithDataOfS12(id,graphStyle));
 			}
 			if("S21".equals(sParameter)){
-				map = smithDao.getSmithDataOfS21(id,graphStyle);
+				map.put(id+"", smithDao.getSmithDataOfS21(id,graphStyle));
 			}
 			if("S22".equals(sParameter)){
-				map = smithDao.getSmithDataOfS22(id,graphStyle);
+				map.put(id+"", smithDao.getSmithDataOfS22(id,graphStyle));
 			}
-			result.put(legend[i], map);
+			result.put(legend==null?"Smith":legend[i], map);
 		}
 		return result;
 	}

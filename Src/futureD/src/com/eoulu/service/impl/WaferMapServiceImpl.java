@@ -29,13 +29,13 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class WaferMapServiceImpl implements WaferMapService {
 
-	private static WaferDao dao = new WaferDao();
-	private static ParameterDao parameterDao = new ParameterDao();
-	private CoordinateDao coordinate = new CoordinateDao();
 
 	@Override
 	public Map<String, Object> getMapInfo( String[] waferAtt, List<String> paramList,
 			Map<String,List<Double>> rangeList) {
+		 WaferDao dao = new WaferDao();
+		 ParameterDao parameterDao = new ParameterDao();
+		 CoordinateDao coordinate = new CoordinateDao();
 		Map<String, Object> result = new LinkedHashMap<>(), map = null;
 		int waferId = 0;
 		double upper=0,lower=0;
@@ -71,6 +71,9 @@ public class WaferMapServiceImpl implements WaferMapService {
 	@Override
 	public Map<String, Object> getColorMap(String[] waferAtt, List<String> paramList,
 			Map<String, List<Double>> rangeList) {
+		 WaferDao dao = new WaferDao();
+		 ParameterDao parameterDao = new ParameterDao();
+		 CoordinateDao coordinate = new CoordinateDao();
 		Map<String, Object> result = new LinkedHashMap<>(), map = null;
 		int waferId = 0;
 		double upper=0,lower=0;
@@ -86,8 +89,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 			
 			for (String param : paramList) {
 				List<Double> ls = rangeList.get(param);
-				upper = ls.get(0);
-				lower = ls.get(1);
+				upper = ls.get(1);
+				lower = ls.get(0);
 				column = parameterDao.getColumnByName(conn, param, waferId);
 				waferList.add(coordinate.getColorMap(conn, waferId, column, param, upper, lower));
 			}
@@ -111,6 +114,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 	 */
 	public Map<String, Object> getMapParameter(Connection conn, String waferNO) {
 		Map<String, Object> result = new HashMap<>();
+		ParameterDao parameterDao = new ParameterDao();
+		CoordinateDao coordinate = new CoordinateDao();
 		List<Map<String, Object>> map = parameterDao.getMapInfo(conn, waferNO);
 		if (map.size() > 0) {
 			result.put("directionX", map.get(0).get("directionX").toString());
@@ -132,6 +137,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 
 
 	public Map<String, Object> getVectorMap(int waferId){
+		 WaferDao dao = new WaferDao();
+		 CoordinateDao coordinate = new CoordinateDao();
 		Map<String, Object> map = new HashMap<>();
 		String waferNO = dao.getWaferNO(waferId);
 		Connection conn = new DataBaseUtil().getConnection();
@@ -149,7 +156,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 
 	@Override
 	public WaferMapDTO getVectorMap(int waferId, String subdieName, String deviceGroup) {
-		Connection conn = new DataBaseUtil().getConnection();
+		Connection conn = DataBaseUtil.getInstance().getConnection();
+		CoordinateDao coordinate = new CoordinateDao();
 		WaferMapDTO wafer = coordinate.getVectorMap(conn, waferId, subdieName, deviceGroup);
 		try {
 			conn.close();
@@ -161,6 +169,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 	
 	@Override
 	public List<String> getSubdie(int waferId) {
+		CoordinateDao coordinate = new CoordinateDao();
 		return coordinate.getSubdie(waferId);
 	}
 
@@ -171,7 +180,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 	
 	public Map<String, Object> getVectorCurve(int coordinateId, String subdieName, String deviceGroup) {
 		CurveDao curveDao = new CurveDao();
-		Connection conn = new DataBaseUtil().getConnection();
+		Connection conn = DataBaseUtil.getInstance().getConnection();
 		List<Map<String, Object>> typeList = curveDao.getCurveType(conn, coordinateId, subdieName, deviceGroup);
 		Map<String, Object> temp = null, paramMap = null, curveMap = new HashMap<>(), result = new HashMap<>();
 		int curveTypeId = 0, fileType = 0;
@@ -184,17 +193,17 @@ public class WaferMapServiceImpl implements WaferMapService {
 			curveType = temp.get("curve_type").toString();
 			if (fileType == 0) {
 				paramMap = curveDao.getCurveColumn(conn, curveTypeId);
-				column = paramMap.get("column").toString();
+				column = paramMap.get("column").toString().substring(1);
 				curveMap.put("paramList", paramMap.get("paramList"));
 				curveMap.put("curve", curveDao.getCurveData(conn, curveTypeId, column));
 				result.put(curveType, curveMap);
 				continue;
 			}
 			if (fileType == 1) {
-				curveMap.put("S11", smithDao.getSmithDataOfS11(curveTypeId, "Smith"));
-				curveMap.put("S12", smithDao.getSmithDataOfS12(curveTypeId, "XYdBOfMagnitude"));
-				curveMap.put("S21", smithDao.getSmithDataOfS21(curveTypeId, "XYdBOfMagnitude"));
-				curveMap.put("S22", smithDao.getSmithDataOfS21(curveTypeId, "Smith"));
+				curveMap.put("S11-"+curveTypeId, smithDao.getSmithDataOfS11(curveTypeId, "Smith"));
+				curveMap.put("S12-"+curveTypeId, smithDao.getSmithDataOfS12(curveTypeId, "XYdBOfMagnitude"));
+				curveMap.put("S21-"+curveTypeId, smithDao.getSmithDataOfS21(curveTypeId, "XYdBOfMagnitude"));
+				curveMap.put("S22-"+curveTypeId, smithDao.getSmithDataOfS22(curveTypeId, "Smith"));
 				result.put(curveType, curveMap);
 			}
 		}

@@ -44,25 +44,35 @@ public class GaussianDistribution extends HttpServlet {
 				right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
 		int equal = request.getParameter("equal")==null?8:Integer.parseInt(request.getParameter("equal")),
 				waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
-		Map<String,Object> result = new HashMap<>();
+		Map<String,Object> result = new HashMap<>(),map = null;
 		List<String> paramList = null;
-		if(!"".equals(parameter)){
-			paramList = new ArrayList<>();
-			paramList.add(parameter);
-		}else{
-			HistogramService histogram = new HistogramServiceImpl();
-			paramList =  histogram.getWaferParameter(waferId+"");	
-		}
 		GaussianService service = new GaussianServiceImpl();
+		if(!"".equals(parameter)){
+			map = new HashMap<>();
+			map.put("waferId", waferId);
+			map.put("left", left);
+			map.put("right", right);
+			map.put("equal", equal);
+			map.put("param", parameter);
+			result.put(parameter, service.getGaussian(map));
+			response.getWriter().write(new Gson().toJson(result));
+			return;
+		}
+		HistogramService histogram = new HistogramServiceImpl();
+		paramList =  histogram.getWaferParameter(waferId+"");	
 		Map<String, List<Double>> rangeList = service.getRangList(paramList, waferId+"");
 		List<Double> ls = null;
 		for (int j=0,size=paramList.size();j<size;j++) {
 			ls = rangeList.get(paramList.get(j));
 			left = "".equals(parameter)?ls.get(0):left;
 			right = "".equals(parameter)?ls.get(1):right;
-			result.put(paramList.get(j), service.getGaussian(waferId, paramList.get(j), left, right, equal));
+			map = new HashMap<>();
+			map.put("waferId", waferId);
+			map.put("left", left);
+			map.put("right", right);
+			map.put("param", paramList.get(j));
+			result.put(paramList.get(j), service.getGaussian(map));
 		}
-	
 		response.getWriter().write(new Gson().toJson(result));
 	
 	}
@@ -74,4 +84,41 @@ public class GaussianDistribution extends HttpServlet {
 		doGet(request, response);
 	}
 
+	public static void main(String[] args) {
+		String parameter = "";
+		double left = 5500.2,
+				right= 6500;
+		int equal = 8,
+				waferId = 170;
+		Map<String,Object> result = new HashMap<>(),map = null;
+		List<String> paramList = null;
+		GaussianService service = new GaussianServiceImpl();
+		if(!"".equals(parameter)){
+			map = new HashMap<>();
+			map.put("waferId", waferId);
+			map.put("left", left);
+			map.put("right", right);
+			map.put("equal", equal);
+			map.put("param", parameter);
+			result.put(parameter, service.getGaussian(map));
+			return;
+		}
+		HistogramService histogram = new HistogramServiceImpl();
+		paramList =  histogram.getWaferParameter(waferId+"");	
+		Map<String, List<Double>> rangeList = service.getRangList(paramList, waferId+"");
+		List<Double> ls = null;
+		for (int j=0,size=paramList.size();j<1;j++) {
+			ls = rangeList.get(paramList.get(j));
+			left = "".equals(parameter)?ls.get(0):left;
+			right = "".equals(parameter)?ls.get(1):right;
+			map = new HashMap<>();
+			map.put("waferId", waferId);
+			map.put("left", left);
+			map.put("right", right);
+			map.put("param", paramList.get(j));
+			result.put(paramList.get(j), service.getGaussian(map));
+		}
+	System.out.println(new Gson().toJson(result));
+	}
+	
 }

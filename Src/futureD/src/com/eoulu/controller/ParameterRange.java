@@ -13,8 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.service.GaussianService;
 import com.eoulu.service.HistogramService;
+import com.eoulu.service.YieldService;
 import com.eoulu.service.impl.GaussianServiceImpl;
 import com.eoulu.service.impl.HistogramServiceImpl;
+import com.eoulu.service.impl.YieldServiceImpl;
 import com.google.gson.Gson;
 
 /**
@@ -38,8 +40,9 @@ public class ParameterRange extends HttpServlet {
 		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr").trim();
 		HistogramService histogram = new HistogramServiceImpl();
 		List<String> paramList  = histogram.getWaferParameter(waferIdStr);
-		GaussianService gaussian = new GaussianServiceImpl();
-		Map<String,List<Double>> rangeList = gaussian.getRangList(paramList, waferIdStr);
+		YieldService yieldService = new YieldServiceImpl();
+		
+		Map<String,List<Double>> rangeList = yieldService.getRangeList(waferIdStr, paramList);
 		Map<String,Object> result = new HashMap<>();
 		result.put("paramList", paramList);
 		result.put("rangeList", rangeList);

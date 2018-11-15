@@ -47,5 +47,19 @@ public class VectorMap extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
+	
+	public static void main(String[] args) {
+		Map<String,Object> map  = new HashMap<>();
+		WaferMapService service = new WaferMapServiceImpl();
+		int waferId = 183;
+//		map.put("deviceGroup",service.getDeviceGroup(waferId));
+//		map.put("subdie",service.getSubdie(waferId));
+//		map.put("mapInfo",service.getVectorMap(waferId));
+//		System.out.println(new Gson().toJson(map));
+//		System.out.println(new Gson().toJson(service.getVectorMap(waferId, "", "75C")));
+//		System.out.println(service.getVectorCurve(104278, "", "Sweep Voltage"));
+//		System.out.println(new Gson().toJson(service.getVectorCurve(104278, "", "Sweep Voltage")));
+		
+	}
 
 }

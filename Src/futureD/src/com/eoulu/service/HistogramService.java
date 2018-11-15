@@ -26,7 +26,7 @@ public interface HistogramService {
 	 * @param waferIdStr 晶圆主键拼接的字符串
 	 * @return
 	 */
-	Map<String,Object> getPercent(String paramName, String waferIdStr, double left, double right, int equal);
+	Map<String,Object> getPercent(String paramName, String waferIdStr, List<String> section);
 	/**
 	 *参数以及范围
 	 * @param paramList
@@ -34,5 +34,6 @@ public interface HistogramService {
 	 * @return
 	 */
 //	Map<String,List<Double>> getHistogramRange(List<String> paramList,String waferIdStr);
+	
 
 }

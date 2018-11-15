@@ -65,5 +65,30 @@ public class Yield extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
+	
+	public static void main(String[] args) {
+		String waferIdStr = "162",
+				parameter = "";
+		List<String> paramList  = null;
+		if(!"".equals(parameter)){
+			paramList = new ArrayList<>();
+			paramList.add(parameter);
+		}
+		String[] paramAtt = null;
+		if(paramAtt!=null){
+			paramList = new ArrayList<>();
+			for(int i=0,length=paramAtt.length;i<length;i++){
+				
+				paramList.add(paramAtt[i]);
+			}
+		}else{
+			HistogramService histogram = new HistogramServiceImpl();
+			paramList  = histogram.getWaferParameter(waferIdStr);
+		}
+	
+		YieldService yield =  new YieldServiceImpl();
+		Map<String,Object> result = yield.getYield(waferIdStr, paramList);
+		System.out.println(new Gson().toJson(result));
+	}
 
 }

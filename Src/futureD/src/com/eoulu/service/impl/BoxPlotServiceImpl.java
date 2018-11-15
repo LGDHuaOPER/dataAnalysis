@@ -14,6 +14,7 @@ import java.util.Map;
 import com.eoulu.dao.BoxPlotDao;
 import com.eoulu.service.BoxPlotService;
 import com.eoulu.util.DataBaseUtil;
+import com.google.gson.Gson;
 
 
 /**
@@ -36,7 +37,8 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 	private BoxPlotDao dao = new BoxPlotDao();
 	@Override
 	public Map<String, Object> getBoxPlot(String param, String waferIdStr) {
-		Map<String, Object> resultMap =new HashMap<String,Object>();
+		Map<String, Object> resultMap =new HashMap<String,Object>(),boxData = null,boxMap=null,outliers = null;
+		List<Double> boxlist = null,softOutliersList = null,extremeOutliersList = null;
 		String att[] = waferIdStr.split(",");
 		Map<String,Object> map = dao.getBoxPlot( param, att);
 		if(map.size()<1){
@@ -45,31 +47,33 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 			double number=0;
 			List<Double> ls = null;
 			for(int i=0,length=att.length;i<length;i++){
-				Map<String,Object> boxMap = new HashMap<>();
+				boxMap = new HashMap<>();
 				ls = (List<Double>) map.get(att[i]);
-				Map<String,Object> boxData = getBoxData(ls, att[i]);
-				List<Double> boxlist=new ArrayList<Double>();
+				boxData = getBoxData(ls, att[i]);
+				boxlist = new ArrayList<Double>();
 				boxlist.add(Double.parseDouble(boxData.get("min").toString()));//取最小值
 	  			boxlist.add(Double.parseDouble(boxData.get("firstQuartile").toString()));//取第一四分位数
 	  			boxlist.add(Double.parseDouble(boxData.get("median").toString()));//中位数
 	  			boxlist.add(Double.parseDouble(boxData.get("thirdQuartile").toString()));//第三四分位数
 	  			boxlist.add(Double.parseDouble(boxData.get("max").toString()));//最大值
 	  			boxMap.put("eigenValue", boxlist);
-	  			List<Double> SoftOutliersList= (List<Double>) boxData.get("soft");
-	  			List<Double>[] soft = new ArrayList[SoftOutliersList.size()];
-				for(int s=0;s<SoftOutliersList.size();s++){
+	  			outliers = (Map<String, Object>) boxData.get("outliers");
+	  			softOutliersList= (List<Double>) outliers.get("soft");
+	  			int len = softOutliersList==null?0:softOutliersList.size();
+	  			List<Double>[] soft = new ArrayList[len];
+				for(int s=0;s<softOutliersList.size();s++){
 					List<Double> temp=new ArrayList<Double>();
 	  				temp.add(number);
-	  				temp.add(SoftOutliersList.get(s));
+	  				temp.add(softOutliersList.get(s));
 	  				soft[s] = temp;
 				}
 				boxMap.put("soft", soft);
-				List<Double> ExtremeOutliersList= (List<Double>) boxData.get("extreme");
-	  			List<Double>[] extreme = new ArrayList[ExtremeOutliersList.size()];
-	  			for(int s=0;s<ExtremeOutliersList.size();s++){
+				extremeOutliersList= (List<Double>) outliers.get("extreme");
+	  			List<Double>[] extreme = new ArrayList[extremeOutliersList.size()];
+	  			for(int s=0;s<extremeOutliersList.size();s++){
 					List<Double> temp=new ArrayList<Double>();
 	  				temp.add(number);
-	  				temp.add(ExtremeOutliersList.get(s));
+	  				temp.add(extremeOutliersList.get(s));
 	  				extreme[s] = temp;
 				}
 	  			boxMap.put("extreme", extreme);
@@ -83,25 +87,16 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 
 	
 	public Map<String, Object> getBoxData(List<Double> ls, String waferId) {
-		int j = 1;
+		List<Double> output = new ArrayList<>();
 		Map<String,Object> map = new HashMap<>();
 		if (ls != null) {
-			int length1 = ls.size();
-			for (int i = 0; i < ls.size(); i++) {
-				if (ls.get(i).doubleValue() == 0 || ls.get(i).doubleValue() >= 9 * Math.pow(10, 30)) {// >=9E30
-					System.out.println(ls.get(i).doubleValue());
-					j++;
-				}
-			}
-			double Nums[] = new double[length1 - j + 1];// 放的是晶圆的一个输出参数数据(不为0，且小于9E30)
-			int index = 0;
-			for (int i = 0; i < ls.size(); i++) {
-				if (!(ls.get(i).doubleValue() == 0 || ls.get(i).doubleValue() >= 9 * Math.pow(10, 30))) {
-					Nums[index] = ls.get(i);
-					index = index + 1;
-				}
-			}
 
+			for (int i = 0,size=ls.size(); i < size; i++) {
+				if (!(ls.get(i).doubleValue() == 0 || ls.get(i).doubleValue() >= 9 * Math.pow(10, 30))) {
+					output.add(ls.get(i));
+				}
+			}
+			Double Nums[] = output.toArray(new Double[]{});
 			int length = Nums.length;
 			if (Nums.length <= 5) {
 				map.put("min", 0);
@@ -122,30 +117,22 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 			max = Nums[length - 1];
 			int num = length / 4;
 			if (length % 2 == 0) {
-				median = (double) (Nums[length / 2 - 1] + Nums[length / 2]) / 2;
+				median =  (Nums[length / 2 - 1] + Nums[length / 2]) / 2;
 				BigDecimal bd = new BigDecimal(median);
-				bd = bd.setScale(3, BigDecimal.ROUND_HALF_UP);
-				median = bd.doubleValue();
+				median = bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 			} else {
 				median = Nums[(length + 1) / 2 - 1];
 			}
 			if (length % 4 == 0) {// 是整数，Q1=1+n/4的位置与n/4位置的平均值
-				firstQuartile = (double) (Nums[num - 1] + Nums[num]) / 2;
+				firstQuartile = (Nums[num - 1] + Nums[num]) / 2;
 				BigDecimal bd = new BigDecimal(firstQuartile);
-				bd = bd.setScale(3, BigDecimal.ROUND_HALF_UP);
-				firstQuartile = bd.doubleValue();
-				thirdQuartile = (double) (Nums[3 * num - 1] + Nums[3 * num]) / 2;
+				firstQuartile = bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+				thirdQuartile =  (Nums[3 * num - 1] + Nums[3 * num]) / 2;
 				BigDecimal bd2 = new BigDecimal(thirdQuartile);
-				bd2 = bd2.setScale(3, BigDecimal.ROUND_HALF_UP);
-				thirdQuartile = bd2.doubleValue();
-				System.out.println("奇数：：" + firstQuartile);
-				System.out.println("奇数：：" + thirdQuartile);
+				thirdQuartile = bd2.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 			} else {// 不是整数，Q1=1+n/4的位置的数据
 				firstQuartile = Nums[num];
 				thirdQuartile = Nums[length * 3 / 4];
-				System.out.println(num + "偶数：：" + firstQuartile);
-				System.out.println("偶数：：" + median);
-				System.out.println(length * 3 / 4 + "偶数：：" + thirdQuartile);
 			}
 			IQR = thirdQuartile - firstQuartile;
 			innerIQRmax = thirdQuartile + 1.5 * IQR;
@@ -180,7 +167,7 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 		}
 	}
 	
-	public Map<String, List<Double>> getOutliers(double Nums[]){
+	public Map<String, List<Double>> getOutliers(Double Nums[]){
 		Map<String, List<Double>> resultmap=new HashMap<String, List<Double>>();
 		List<Double> SoftOutliers =new ArrayList<Double>();
 		List<Double> ExtremeOutliers =new ArrayList<Double>();
@@ -203,4 +190,6 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 		}
 		return resultmap;
 	}
+	
+	
 }

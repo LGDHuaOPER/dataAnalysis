@@ -212,7 +212,6 @@ function getEventPosition(ev) {
 
 /*绘制曲线图*/
 function renderSpline(option){
-	var anotherAddCategories = 0;
 	var chart = Highcharts.chart(option.container, {
 		chart: {
 			type: 'spline',
@@ -326,7 +325,6 @@ function renderSpline(option){
 						mouseOver: function (ev) {
 							/*console.log(chart.getSelectedPoints());*/
 							var ii = this.colorIndex;
-							console.log(option.name)
 							if(ii == 0){
 								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(this.series.name+" "+this.category+"Mhz, "+this.y+"dB");
 								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(option.name[1]+" "+this.category+"Mhz, "+option.data.yData[1][this.x]+"dB");
@@ -465,12 +463,7 @@ function renderSpline(option){
 											saveMarkerANDaddTr(name, x, y, false, iindex);
 											saveMarkerANDaddTr(name, NaN, y, null, -1);
 										}else if(isIntersect && !isIntersect2){
-											RF_SP2SwalMixin({
-												title: "Marker打点提示",
-												text: "以y为Key时，当前曲线另一点存在但是还未找到，位置大于当前点",
-												type: "info",
-												timer: 2000
-											});
+											console.warn("第一步，自己曲线找", "以y为Key时，当前曲线另一点存在但是还未找到，位置大于当前点");
 											// 找一对一对的
 											renderPointToChart({
 												iindex: iindex,
@@ -483,12 +476,7 @@ function renderSpline(option){
 												flag: "last",
 											});
 										}else if(!isIntersect && isIntersect2){
-											RF_SP2SwalMixin({
-												title: "Marker打点提示",
-												text: "以y为Key时，当前曲线另一点存在但是还未找到，位置小于当前点",
-												type: "info",
-												timer: 2000
-											});
+											console.warn("第一步，自己曲线找", "以y为Key时，当前曲线另一点存在但是还未找到，位置小于当前点");
 											// 找一对一对的
 											renderPointToChart({
 												iindex: reverseyData1FromIndex,
@@ -501,47 +489,50 @@ function renderSpline(option){
 												flag: "first"
 											});
 										}else if(isIntersect && isIntersect2){
-											console.log("存在两极")
+											console.warn("第一步，自己曲线找", "以y为Key时，当前曲线存在两极");
+											var theOneCombinatorial = findPointCombinatorial({
+												fromIndex: 0,
+												Arr: yData1,
+												baseVal: y,
+												flag: "last"
+											});
+											var theOneNewPointArr = [];
+											var theOneXData = chart.xAxis[0].categories;
+											_.forEach([_.head(theOneCombinatorial), _.last(theOneCombinatorial)], function(qv, wi){
+												var xx1 = theOneXData[qv.index];
+												var xx2 = theOneXData[qv.index + 1];
+												var yy1 = qv.arr[0];
+												var yy2 = qv.arr[1];
+												theOneNewPointArr.push(getPointXY({
+													one: [xx1, yy1],
+													two: [xx2, yy2],
+													baseVal: y,
+													index: qv.index
+												}));
+											});
+											var theOneNewxyData = buildNewxyData({
+												pointArr: theOneNewPointArr,
+												xData: _.cloneDeep(theOneXData),
+												yData: _.cloneDeep(yData1),
+												yData2: _.cloneDeep(chart.series[Number(ii)].yData),
+											});
+											chart.xAxis[0].setCategories(theOneNewxyData.xData);
+											chart.series[Number(!ii)].setData(theOneNewxyData.yData);
+											chart.series[Number(ii)].setData(theOneNewxyData.yData2);
+											saveMarkerANDaddTr(name, theOneNewPointArr[0].x, y, true, theOneNewPointArr[0].index+1);
+											saveMarkerANDaddTr(name, theOneNewPointArr[1].x, y, true, theOneNewPointArr[1].index+2);
 										}
 									}else if(iindex == lastYIndex1 && iindex != firstYIndex1){
-										/*找到了*/
-										console.log("iindex == lastYIndex1 && iindex != firstYIndex1");
-										RF_SP2SwalMixin({
-											title: "Marker打点提示",
-											text: "以y为Key时，当前曲线两点都存在",
-											type: "info",
-											timer: 2000
-										});
-										// this.select(true,true);
+										console.warn("第一步，自己曲线找", "当前曲线两点都存在，另一点位置在"+firstYIndex1);
 										saveMarkerANDaddTr(name, x, y, false, iindex);
-										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[firstYIndex1], y, false, firstYIndex1);
 									}else if(iindex != lastYIndex1 && iindex == firstYIndex1){
-										/*找到了*/
-										console.log("iindex != lastYIndex1 && iindex == firstYIndex1");
-										RF_SP2SwalMixin({
-											title: "Marker打点提示",
-											text: "以y为Key时，当前曲线两点都存在",
-											type: "info",
-											timer: 2000
-										});
-										// this.select(true,true);
+										console.warn("第一步，自己曲线找", "当前曲线两点都存在，另一点位置在"+lastYIndex1);
 										saveMarkerANDaddTr(name, x, y, false, iindex);
 										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[lastYIndex1], y, false, lastYIndex1);
 									}else if(iindex != lastYIndex1 && iindex != firstYIndex1){
-										/*找到了*/
-										console.log("iindex != lastYIndex1 && iindex != firstYIndex1");
-										console.log(iindex)
-										console.log(firstYIndex1)
-										console.log(lastYIndex1)
-										RF_SP2SwalMixin({
-											title: "Marker打点提示",
-											text: "以y为Key时，当前曲线两点都存在",
-											type: "info",
-											timer: 2000
-										});
-										// this.select(true,true);
+										console.warn("第一步，自己曲线找", "当前曲线两点都存在，两点位置在"+firstYIndex1+","+lastYIndex1);
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[firstYIndex1], y, false, firstYIndex1);
 										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[lastYIndex1], y, false, lastYIndex1);
@@ -549,13 +540,13 @@ function renderSpline(option){
 									/*第二步，另一条曲线找*/
 									var anotherXData = chart.xAxis[0].categories;
 									var anotherYData = chart.series[Number(ii)].yData;
-									var hasYDataArr = [];
+									var hasYDataIndexArr = [];
 									_.forEach(anotherYData, function(cv, ci){
 										if(cv == y){
-											hasYDataArr.push(cv);
+											hasYDataIndexArr.push(ci);
 										}
 									});
-									if(hasYDataArr.length == 0){
+									if(hasYDataIndexArr.length == 0){
 										/*没有相同的*/
 										var anotherjudge = judgeIntersect(anotherYData, 0, 0, y);
 										if(anotherjudge){
@@ -580,7 +571,6 @@ function renderSpline(option){
 														index: qv.index
 													}));
 												});
-												anotherAddCategories = 1;
 												anotherNewxyData = buildNewxyData({
 													pointArr: anotherNewPointArr,
 													xData: _.cloneDeep(anotherXData),
@@ -605,7 +595,6 @@ function renderSpline(option){
 														index: qv.index
 													}));
 												});
-												anotherAddCategories = 2;
 												anotherNewxyData = buildNewxyData({
 													pointArr: anotherNewPointArr,
 													xData: _.cloneDeep(anotherXData),
@@ -630,18 +619,97 @@ function renderSpline(option){
 											saveMarkerANDaddTr(name2, NaN, y, null, -1);
 											saveMarkerANDaddTr(name2, NaN, y, null, -1);
 										}
-										_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
-											if(!_.isNil(v.isNew)){
-												var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
-												chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
-											}
-										});
-										/*第二步，另一条曲线找end*/
-										RF_SP2State.stateObj.key_y = true;
+									}else if(hasYDataIndexArr.length == 1){
+										/*有相同的*/
+										console.warn("第二步，另一条曲线找", "另一条曲线有相同的y，有一个");								
+										var reverseanotherYData = _.reverse(_.cloneDeep(anotherYData));
+										var reverseanotherYDataFromIndex = reverseanotherYData.length-_.head(hasYDataIndexArr)-1;
+										var anotherjudge1 = judgeIntersect(anotherYData, _.head(hasYDataIndexArr), 1, y);
+										var anotherjudge2 = judgeIntersect(reverseanotherYData, reverseanotherYDataFromIndex, 1, y);
+										if(!anotherjudge1 && !anotherjudge2){
+											RF_SP2SwalMixin({
+												title: "Marker打点提示",
+												text: "以y为Key时，另一条曲线只存在一个点",
+												type: "info",
+												timer: 2000
+											});
+											/*先保存一个点*/
+											saveMarkerANDaddTr(name2, anotherXData[_.head(hasYDataIndexArr)], y, false, _.head(hasYDataIndexArr));
+											saveMarkerANDaddTr(name2, NaN, y, null, -1);
+										}else if(anotherjudge1 && !anotherjudge2){
+											/*向后找有，向前找没*/
+											console.warn("第二步，另一条曲线找", "向后找有，向前找没");	
+											renderPointToChart({
+												iindex: _.head(hasYDataIndexArr),
+												yData1: anotherYData,
+												y: y,
+												chart: chart,
+												ii: !ii,
+												name: name2,
+												x: anotherXData[_.head(hasYDataIndexArr)],
+												flag: "last",
+											});
+										}else if(!anotherjudge1 && anotherjudge2){
+											/*向前找有，向后找没*/
+											console.warn("第二步，另一条曲线找", "向前找有，向后找没");
+											renderPointToChart({
+												iindex: reverseanotherYDataFromIndex,
+												yData1: reverseanotherYData,
+												y: y,
+												chart: chart,
+												ii: !ii,
+												name: name2,
+												x: anotherXData[_.head(hasYDataIndexArr)],
+												flag: "first",
+											});
+										}else if(anotherjudge1 && anotherjudge2){
+											console.warn("第二步，另一条曲线找", "另一条曲存在两极点");
+											var anotherCombinatorial12 = findPointCombinatorial({
+												fromIndex: 0,
+												Arr: anotherYData,
+												baseVal: y,
+												flag: "last"
+											});
+											var anotherNewPointArr12 = [];
+											var anotherNewxyData12;
+											_.forEach([_.head(anotherCombinatorial12), _.last(anotherCombinatorial12)], function(qv, wi){
+												var xx1 = anotherXData[qv.index];
+												var xx2 = anotherXData[qv.index + 1];
+												var yy1 = qv.arr[0];
+												var yy2 = qv.arr[1];
+												anotherNewPointArr12.push(getPointXY({
+													one: [xx1, yy1],
+													two: [xx2, yy2],
+													baseVal: y,
+													index: qv.index
+												}));
+											});
+											anotherNewxyData12 = buildNewxyData({
+												pointArr: anotherNewPointArr12,
+												xData: _.cloneDeep(anotherXData),
+												yData: _.cloneDeep(anotherYData),
+												yData2: _.cloneDeep(chart.series[Number(!ii)].yData),
+											});
+											chart.xAxis[0].setCategories(anotherNewxyData12.xData);
+											chart.series[Number(ii)].setData(anotherNewxyData12.yData);
+											chart.series[Number(!ii)].setData(anotherNewxyData12.yData2);
+											saveMarkerANDaddTr(name2, anotherNewPointArr12[0].x, y, true, anotherNewPointArr12[0].index+1);
+											saveMarkerANDaddTr(name2, anotherNewPointArr12[1].x, y, true, anotherNewPointArr12[1].index+2);
+										}
 									}else{
 										/*有相同的*/
-										console.warn("另一条曲线有相同的y");
+										console.warn("第二步，另一条曲线找", "另一条曲线有相同的y，大于一个");
+										saveMarkerANDaddTr(name2, anotherXData[_.head(hasYDataIndexArr)], y, false, _.head(hasYDataIndexArr));
+										saveMarkerANDaddTr(name2, anotherXData[_.last(hasYDataIndexArr)], y, false, _.last(hasYDataIndexArr));
 									}
+									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+										if(!_.isNil(v.isNew)){
+											var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+										}
+									});
+									/*第二步，另一条曲线找end*/
+									RF_SP2State.stateObj.key_y = true;
 									/*判断另一条曲线是否有相同的y结束*/
 								}
 							}
@@ -804,7 +872,6 @@ function renderPointToChart(obj){
 			index: qv.index
 		}));
 	});
-	RF_SP2State.stateObj.curLineInsertIndex = analyzeCombinatorial[0].index;
 	var NewxyData = buildNewxyData({
 		pointArr: newPointArr,
 		xData: _.cloneDeep(xData1),

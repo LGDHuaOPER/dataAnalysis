@@ -24,11 +24,4 @@ public class ProgressSingleton {
 		return table.remove(key);
 	}
 
-	
-	public static void main(String[] args) {
-		Hashtable<Object, Object> table = new Hashtable<>();
-		table.put("1", "werw");
-		table.put("1", "345");
-		System.out.println(table);
-	}
 }

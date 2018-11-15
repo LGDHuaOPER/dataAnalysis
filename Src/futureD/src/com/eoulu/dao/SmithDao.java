@@ -81,9 +81,8 @@ public class SmithDao {
 	 * @param graphStyle
 	 * @return
 	 */
-	public Map<String,List<Double[]>> getSmithDataOfS11(int curveTypeId,String graphStyle){
-		Map<String,List<Double[]>> map = new HashMap<>();
-		List<Double[]> list = new ArrayList<>();
+	public List<Object[]> getSmithDataOfS11(int curveTypeId,String graphStyle){
+		List<Object[]> list = new ArrayList<>();
 		Double[] data = null;
 		Connection conn = null;
 		try {
@@ -137,8 +136,7 @@ public class SmithDao {
 				e.printStackTrace();
 			}
 		}
-		map.put(curveTypeId+"", list);
-		return map;
+		return list;
 	}
 	
 	public static void main(String[] args) {
@@ -150,9 +148,8 @@ public class SmithDao {
 	 * @param graphStyle
 	 * @return
 	 */
-	public Map<String,List<Double[]>> getSmithDataOfS12(int curveTypeId,String graphStyle){
-		Map<String,List<Double[]>> map = new HashMap<>();
-		List<Double[]> list = new ArrayList<>();
+	public List<Object[]> getSmithDataOfS12(int curveTypeId,String graphStyle){
+		List<Object[]> list = new ArrayList<>();
 		Double[] data = null;
 		Connection conn = null;
 		try {
@@ -206,8 +203,7 @@ public class SmithDao {
 				e.printStackTrace();
 			}
 		}
-		map.put(curveTypeId+"", list);
-		return map;
+		return list;
 	}
 	/**
 	 * 参数S21
@@ -215,9 +211,8 @@ public class SmithDao {
 	 * @param graphStyle
 	 * @return
 	 */
-	public Map<String,List<Double[]>> getSmithDataOfS21(int curveTypeId,String graphStyle){
-		Map<String,List<Double[]>> map = new HashMap<>();
-		List<Double[]> list = new ArrayList<>();
+	public List<Object[]> getSmithDataOfS21(int curveTypeId,String graphStyle){
+		List<Object[]> list = new ArrayList<>();
 		Double[] data = null;
 		Connection conn = null;
 		try {
@@ -271,8 +266,7 @@ public class SmithDao {
 				e.printStackTrace();
 			}
 		}
-		map.put(curveTypeId+"", list);
-		return map;
+		return list;
 	}
 	
 	/**
@@ -281,9 +275,8 @@ public class SmithDao {
 	 * @param graphStyle
 	 * @return
 	 */
-	public Map<String,List<Double[]>> getSmithDataOfS22(int curveTypeId,String graphStyle){
-		Map<String,List<Double[]>> map = new HashMap<>();
-		List<Double[]> list = new ArrayList<>();
+	public List<Object[]> getSmithDataOfS22(int curveTypeId,String graphStyle){
+		List<Object[]> list = new ArrayList<>();
 		Double[] data = null;
 		Connection conn = null;
 		try {
@@ -337,8 +330,7 @@ public class SmithDao {
 				e.printStackTrace();
 			}
 		}
-		map.put(curveTypeId+"", list);
-		return map;
+		return list;
 	}
 	
 	

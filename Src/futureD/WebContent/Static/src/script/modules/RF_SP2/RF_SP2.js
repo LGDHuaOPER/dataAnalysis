@@ -58,7 +58,6 @@ RF_SP2State.stateObj = {
 	splineSelectedCopyArr: [],
 	comfirm_key: store.get("futureD__RF_SP2__comfirm_key"),
 	key_y: false,
-	curLineInsertIndex: null,
 	/*awesomeX坐标备选*/
 	smithSXCategories: [],
 	/*保存指标线区间*/
@@ -458,8 +457,8 @@ function imsgFun(messag, tt, type, classify){
 /*TCF获取数据并绘制图形*/
 function getTCFDataANDDrawChart(obj) {
 	var isComfirmKey = obj.isComfirmKey;
-	var oldData1 = _.cloneDeep(RF_SP2State.mock.RF_SP2[_.random(0, 1, false)].curveinfos[2].smithAndCurve.S21);
-	var oldData2 = _.cloneDeep(RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21);
+	var oldData1 = _.cloneDeep(RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21);
+	var oldData2 = _.cloneDeep(RF_SP2State.mock.RF_SP2[_.random(0, 1, false)].curveinfos[2].smithAndCurve.S21);
 	_.forEach(oldData1, function(v, i){
 		v[2] = v[2] - _.round(_.random(0.0004, 0.0009, true), 5);
 	});
@@ -552,7 +551,7 @@ function getTCFDataANDDrawChart(obj) {
 								two: [x22, y22],
 								baseVal: yArr[0],
 							});
-							console.log(newPoint1)
+							// console.log(newPoint1)
 							copyx = _.cloneDeep(chart.xAxis[0].categories);
 							copyy1 = _.cloneDeep(series0_y);
 							copyy2 = _.cloneDeep(series1_y);
@@ -561,6 +560,9 @@ function getTCFDataANDDrawChart(obj) {
 							copyy2.splice(inde1, 0, copyy2[inde1-1]);
 							chart.xAxis[0].setCategories(copyx);
 							chart.series[0].setData(copyy1);
+							//
+							// copyy2 = _.cloneDeep(copyy1);
+							//
 							chart.series[1].setData(copyy2);
 							chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(copyy1, yArr[0])]);
 						}else{

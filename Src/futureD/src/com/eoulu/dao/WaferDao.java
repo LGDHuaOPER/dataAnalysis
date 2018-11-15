@@ -9,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +22,8 @@ import com.eoulu.util.DataBaseUtil;
  *
  * 
  */
-public class WaferDao {
+public class WaferDao{
 
-	private static DataBaseUtil db = new DataBaseUtil();
-	private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	/**
 	 * 数据列表分页,模糊查询
 	 * @param page
@@ -43,7 +40,7 @@ public class WaferDao {
 		}
 		sql += "  order by gmt_modified desc limit ?,? ";
 		
-		return db.queryToList(sql, param);
+		return DataBaseUtil.getInstance().queryToList(sql, param);
 	}
 	/**
 	 * 数据总数，模糊查询
@@ -61,26 +58,26 @@ public class WaferDao {
 				param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%"};
 			}
 		}
-		Object result = db.queryResult(sql, param);
+		Object result = DataBaseUtil.getInstance().queryResult(sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
 	public boolean getWafer(String fileName,String editTime){
 		String sql = "select wafer_number from dm_wafer where wafer_file_name=? and gmt_create=?";
-		return db.queryResult(sql, new Object[]{fileName,editTime})==null?false:true;
+		return DataBaseUtil.getInstance().queryResult(sql, new Object[]{fileName,editTime})==null?false:true;
 	}
 	
 	public int getWaferID(Connection conn,String waferNumber,String dieType){
 		String sql = "select wafer_id from dm_wafer where wafer_number=? and die_type=? and delete_status=0";
 		Object[] param = new Object[]{waferNumber,dieType};		
-		Object result = db.queryResult(conn,sql, param);
+		Object result = DataBaseUtil.getInstance().queryResult(conn,sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
 	public int getMaxWaferID(Connection conn,String waferNumber){
 		String sql = "select max(wafer_id) wafer_id from dm_wafer where wafer_number=? and delete_status=0";
 		Object[] param = new Object[]{waferNumber};		
-		Object result = db.queryResult(conn,sql, param);
+		Object result = DataBaseUtil.getInstance().queryResult(conn,sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
@@ -95,32 +92,24 @@ public class WaferDao {
 		String sql = "insert into dm_wafer (wafer_number,die_type,device_number,lot_number,product_category,wafer_file_name,qualified_rate,"
 				+ "test_start_date,test_end_date,test_operator,archive_user,description,total_test_quantity,data_format,gmt_create,gmt_modified,delete_status) "
 				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)";
-		PreparedStatement ps = null;
-		String flag = "";
-		try {
-			ps = conn.prepareStatement(sql);
-			ps.setObject(1, wafer.getWaferNumber());
-			ps.setObject(2, wafer.getDieType());
-			ps.setObject(3, wafer.getDeviceNumber());
-			ps.setObject(4, wafer.getLotNumber());
-			ps.setObject(5, wafer.getProductCategory());
-			ps.setObject(6, wafer.getFileName());
-			ps.setObject(7, wafer.getQualifiedRate());
-			ps.setObject(8, wafer.getTestStartDate());
-			ps.setObject(9, wafer.getTestEndDate());
-			ps.setObject(10, wafer.getTestOperator());
-			ps.setObject(11, wafer.getArchiveUser());
-			ps.setObject(12, wafer.getDescription());
-			ps.setObject(13, wafer.getTotalTestQuantity());
-			ps.setObject(14, wafer.getDataFormat());
-			ps.setObject(15, wafer.getGmtCreate());
-			ps.setObject(16, wafer.getGmtModified());
-			int row = ps.executeUpdate();
-			flag = row>0?"success":"晶圆添加失败！";
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
+		Object[] param = new Object[16];
+		param[0] = wafer.getWaferNumber();
+		param[1] = wafer.getDieType();
+		param[2] = wafer.getDeviceNumber();
+		param[3] = wafer.getLotNumber();
+		param[4] = wafer.getProductCategory();
+		param[5] = wafer.getFileName();
+		param[6] = wafer.getQualifiedRate();
+		param[7] = wafer.getTestStartDate();
+		param[8] = wafer.getTestEndDate();
+		param[9] = wafer.getTestOperator();
+		param[10] = wafer.getArchiveUser();
+		param[11] = wafer.getDescription();
+		param[12] = wafer.getTotalTestQuantity();
+		param[13] = wafer.getDataFormat();
+		param[14] = wafer.getGmtCreate();
+		param[15] = wafer.getGmtModified();
+		String flag = DataBaseUtil.getInstance().operate(conn, sql, param)?"success":"晶圆添加失败！";
 		return flag;
 	}
 	
@@ -133,7 +122,7 @@ public class WaferDao {
 	 */
 	public boolean updateYield(Connection conn,double yield,int waferId){
 		String sql = "update dm_wafer set qualified_rate=? where wafer_id=?";
-		return db.operate(conn, sql, new Object[]{yield,waferId});
+		return DataBaseUtil.getInstance().operate(conn, sql, new Object[]{yield,waferId});
 	}
 	
 	/**
@@ -142,9 +131,10 @@ public class WaferDao {
 	 * @return
 	 */
 	public boolean update(WaferDO wafer){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String sql = "update dm_wafer set product_category=?,test_operator=?,test_end_date=?,description=?,gmt_modified=? where wafer_id=?";
 		Object[] param = new Object[]{wafer.getProductCategory(),wafer.getTestOperator(),wafer.getTestEndDate(),wafer.getDescription(),df.format(new Date()),wafer.getWaferId()};
-		return db.operate(sql, param);
+		return DataBaseUtil.getInstance().operate(sql, param);
 	}
 	/**
 	 * 更改删除状态
@@ -156,17 +146,17 @@ public class WaferDao {
 			return false;
 		}
 		String sql = "update dm_wafer set delete_status="+deleteStatus+" where wafer_id in ("+waferId+") ";
-		return db.operate(sql, null);
+		return DataBaseUtil.getInstance().operate(sql, null);
 	}
 	
 	public boolean remove(Connection conn,int waferId,int deleteStatus){
 		String sql = "update dm_wafer set delete_status="+deleteStatus+" where wafer_id in ("+waferId+") ";
-		return db.operate(conn,sql, null);
+		return DataBaseUtil.getInstance().operate(conn,sql, null);
 	}
 	
 	public boolean delete(Connection conn,int waferId){
 		String sql = "delete from dm_wafer where wafer_id=?";
-		return db.operate(conn, sql, new Object[]{waferId});
+		return DataBaseUtil.getInstance().operate(conn, sql, new Object[]{waferId});
 	}
 	/**
 	 * 删除垃圾数据
@@ -175,21 +165,12 @@ public class WaferDao {
 	 */
 	public boolean delete(Connection conn){
 		String sql = "delete from dm_wafer where delete_status=2";
-		return db.operate(conn, sql, null);
+		return DataBaseUtil.getInstance().operate(conn, sql, null);
 	}
 	
 	public List<String> getJunkWaferId(Connection conn){
-		List<String> ls = new ArrayList<>();
 		String sql = "select wafer_id from dm_wafer where delete_status=2";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery();
-			while(rs.next()){
-				ls.add(rs.getString(1));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		List<String> ls = DataBaseUtil.getInstance().queryList(conn, sql, null);
 		return ls;
 	}
 	
@@ -199,18 +180,18 @@ public class WaferDao {
 	 */
 	public List<Map<String,Object>> getProductCategory(){
 		String sql = "select DISTINCT product_category from dm_wafer";
-		return db.queryToList(sql, null);
+		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	
 	public String getWaferNO(int waferId){
 		String sql = "select wafer_number from dm_wafer where wafer_id=?";
-		Object result = db.queryResult(sql, new Object[]{waferId});
+		Object result = DataBaseUtil.getInstance().queryResult(sql, new Object[]{waferId});
 		return result==null?"":result.toString();
 		
 	}
 	public List<Map<String,Object>> getSecondaryInfo(Connection conn,String waferNO){
 		String sql = "select computer_name,tester,total_test_time from dm_wafer_secondary_info where wafer_number=?";
-		return db.queryToList(conn, sql, new Object[]{waferNO});
+		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferNO});
 	}
 	public String insertSecondaryInfo(Connection conn,Object[] param){
 		String sql = "insert into dm_wafer_secondary_info (wafer_number,computer_name,tester,total_test_time) value (?,?,?,?)";
@@ -252,7 +233,7 @@ public class WaferDao {
 	
 	public boolean  getSecondaryExsit(Connection conn,String waferNO){
 		String sql = "select wafer_number from dm_wafer_secondary_info where wafer_number=?";
-		Object result = db.queryResult(conn, sql, new Object[]{waferNO});
+		Object result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferNO});
 		return result==null?false:true;
 	}
 
@@ -286,41 +267,41 @@ public class WaferDao {
 	 */
 	public  int queryWaferinfo(String waferNO,String lot,String device,String dieType){
 		String sql="select wafer_id from dm_wafer where wafer_number=? and lot_number=? and device_number=? and die_type=?";
-		Object result = db.queryResult(sql, new Object[]{waferNO,lot,device,dieType});
+		Object result = DataBaseUtil.getInstance().queryResult(sql, new Object[]{waferNO,lot,device,dieType});
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	public  int queryWaferinfo(Connection conn,String waferNO,String lot,String device,String dieType){
 		String sql="select wafer_id from dm_wafer where wafer_number=? and lot_number=? and device_number=? and die_type=? and delete_status<>2";
-		Object result = db.queryResult(conn,sql, new Object[]{waferNO,lot,device,dieType});
+		Object result = DataBaseUtil.getInstance().queryResult(conn,sql, new Object[]{waferNO,lot,device,dieType});
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
 	
 	public  boolean queryWaferinfo(String waferNO){
 		String sql="select wafer_number from dm_wafer where wafer_number=?";
-		return db.queryResult(sql, new Object[]{waferNO})==null?false:true;
+		return DataBaseUtil.getInstance().queryResult(sql, new Object[]{waferNO})==null?false:true;
 	}
 	
 	
 	public Map<String,Object> getFile(Connection conn,int waferId){
 		String sql =" select wafer_file_name,wafer_number from dm_wafer where wafer_id=?";
-		List<Map<String,Object>> result = db.queryToList(conn,sql, new Object[]{waferId});
+		List<Map<String,Object>> result = DataBaseUtil.getInstance().queryToList(conn,sql, new Object[]{waferId});
 		return result.size()>0?result.get(0):null;
 	}
 	
 	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType){
 		String sql = "select "+("".equals(dieType)?"":"concat('"+dieType+"','') die_type,")+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number+0";
-		return db.queryToList(conn, sql, new Object[]{waferId});
+		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	
 	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column){
 		String sql = "select alphabetic_coordinate location"+column+",bin from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number";
-		return db.queryToList(conn, sql, new Object[]{waferId});
+		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	
 	public String getDieType(Connection conn,int waferId){
 		String sql = "select die_type from dm_wafer where wafer_id=?";
-		Object result = db.queryResult(conn, sql, new Object[]{waferId});
+		Object result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferId});
 		return result==null?"":result.toString();
 		
 	}
@@ -344,12 +325,12 @@ public class WaferDao {
 			int count = 0,qualified = 0;
 			while(rs.next()){
 				count++;
-				if("".equals(upper) || rs.getDouble(1)<=Double.parseDouble(upper) || "".equals(lower) || rs.getDouble(1)>=Double.parseDouble(lower)){
+				if("".equals(upper) || "".equals(lower) || (rs.getDouble(1)<=Double.parseDouble(upper) && rs.getDouble(1)>=Double.parseDouble(lower))){
 					qualified++;
 				}
 				
 			}
-			yield = new BigDecimal((double)qualified/count).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+			yield = new BigDecimal((double)qualified/count).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -363,14 +344,14 @@ public class WaferDao {
 				+ "ifnull(device_number,'')device_number,ifnull(lot_number,'')lot_number,"
 				+ "dm_wafer.wafer_number,die_type from dm_wafer left join dm_wafer_secondary_info on dm_wafer.wafer_number=dm_wafer_secondary_info.wafer_number"
 				+ " where wafer_id=?";
-		return db.queryToList(conn,sql, new Object[]{waferId});
+		return DataBaseUtil.getInstance().queryToList(conn,sql, new Object[]{waferId});
 		
 	}
 	
 	
 	public List<Map<String,Object>> getYieldById(Connection conn,int waferId) {
 		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield,count(*) quantity from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
-		return db.queryToList(conn,sql, new Object[]{waferId,waferId});
+		return DataBaseUtil.getInstance().queryToList(conn,sql, new Object[]{waferId,waferId});
 
 	}
 	

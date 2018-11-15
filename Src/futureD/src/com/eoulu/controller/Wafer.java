@@ -16,9 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.eoulu.service.GaussianService;
 import com.eoulu.service.HistogramService;
 import com.eoulu.service.WaferMapService;
+import com.eoulu.service.WaferService;
+import com.eoulu.service.YieldService;
 import com.eoulu.service.impl.GaussianServiceImpl;
 import com.eoulu.service.impl.HistogramServiceImpl;
 import com.eoulu.service.impl.WaferMapServiceImpl;
+import com.eoulu.service.impl.WaferServiceImpl;
+import com.eoulu.service.impl.YieldServiceImpl;
 import com.google.gson.Gson;
 
 /**
@@ -74,8 +78,8 @@ public class Wafer extends HttpServlet {
 			paramList  = histogram.getWaferParameter(waferIdStr);
 		}
 		
-		GaussianService gaussian = new GaussianServiceImpl();
-		rangeList = gaussian.getRangList(paramList, waferIdStr);
+		YieldService yieldService = new YieldServiceImpl();
+		rangeList = yieldService.getRangeList(waferIdStr, paramList);
 		result = service.getMapInfo( waferAtt, paramList, rangeList);
 		response.getWriter().write(new Gson().toJson(result));
 		
@@ -87,5 +91,5 @@ public class Wafer extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
-
+	
 }

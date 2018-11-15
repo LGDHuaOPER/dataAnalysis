@@ -32,16 +32,18 @@ public class ProjectVerification extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=utf-8");
 		String classify = request.getParameter("classify")==null?"":request.getParameter("classify").trim();
-		String[] waferId = request.getParameterValues("waferId");
-		String[] waferNO = request.getParameterValues("waferNO");
+		String[] waferId = request.getParameterValues("waferId[]");
+		String[] waferNO = request.getParameterValues("waferNO[]");
 		String status = "";
 		if("".equals(classify)){
 			classify = "non";
 			status = "请选择分析类别！";
+			response.getWriter().write(new Gson().toJson(status));
 		}
 		if(waferId.length == 0){
 			classify = "non";
 			status = "请选择晶圆数据！";
+			response.getWriter().write(new Gson().toJson(status));
 		}
 		AnalysisService service = new AnalysisServiceImpl();
 		switch (classify) {
@@ -67,6 +69,36 @@ public class ProjectVerification extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
+	}
+	
+	public static void main(String[] args) {
+		String classify = "SP2";
+		String[] waferId = new String[]{"179"};
+		String[] waferNO = new String[]{"20180814#08"};
+		String status = "";
+		if("".equals(classify)){
+			classify = "non";
+			status = "请选择分析类别！";
+		}
+		if(waferId.length == 0){
+			classify = "non";
+			status = "请选择晶圆数据！";
+		}
+		AnalysisService service = new AnalysisServiceImpl();
+		switch (classify) {
+		case "ID-VD":
+			status = service.getVerificationDC(waferId, waferNO, 3);
+			break;
+
+		case "ID-VG":
+			status = service.getVerificationDC(waferId, waferNO, 2);
+			
+			break;
+		case "SP2":
+			status = service.getVerificationS2P(waferId, waferNO);
+			break;
+		}
+		System.out.println(new Gson().toJson(status));
 	}
 
 }

@@ -16,6 +16,7 @@ import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.GaussianDao;
 import com.eoulu.dao.HistogramDao;
 import com.eoulu.service.GaussianService;
+import com.eoulu.service.HistogramService;
 import com.eoulu.transfer.FunctionUtil;
 import com.eoulu.util.DataBaseUtil;
 
@@ -26,27 +27,47 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class GaussianServiceImpl implements GaussianService{
 
-	private GaussianDao dao = new GaussianDao();
 	@Override
-	public Map<String, Object> getGaussian(int waferId, String param, double left, double right, int equal) {
-		Connection conn = new DataBaseUtil().getConnection();
+	public Map<String, Object> getGaussian(Map<String,Object> map) {
+		int waferId = map.get("waferId")==null?0:Integer.parseInt(map.get("waferId").toString());
+		String param = map.get("param")==null?"":map.get("param").toString();
+		if(waferId==0 || "".equals(param)){
+			return null;
+		}
 		CoordinateDao coordinate = new CoordinateDao();
-		double median = coordinate.getMedian(conn, waferId, left, right);
+		GaussianDao dao = new GaussianDao();
+		Connection conn = new DataBaseUtil().getConnection();
 		String column = dao.getParameterColumn(conn, waferId, param);
-		Map<String,List<Double>> histogramMap = getHistogram(conn, waferId, column, left, right, equal);
+		
 		List<Map<String,Object>> functionList = dao.getFunctionData(conn, waferId, column);
+		List<Double> groups = new ArrayList<>(),density = new ArrayList<>();
+		List<Integer> frequencyList = new ArrayList<>();
+		System.out.println(functionList);
+		int total = Integer.parseInt(functionList.get(0).get("total").toString()),frequency=0,length=0;
 		double standard = Double.parseDouble(functionList.get(0).get("standard").toString()),
-				variance = new BigDecimal(Math.pow(standard, 2)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(),
+				variance = new BigDecimal(Math.pow(standard, 2)).doubleValue(),
 				average = Double.parseDouble(functionList.get(0).get("average").toString()),
-				max =  Double.parseDouble(functionList.get(0).get("max").toString()),
-				min =  Double.parseDouble(functionList.get(0).get("min").toString()),
-				x=0,y=0;
-		List<String> dataList = dao.getParamData(conn, waferId, column),rangeList = getRangeOrderAsc(left, right, equal);
-		List<Double> gaussianList = new ArrayList<>();
-		for(int i=0,size=dataList.size();i<size;i++){
-			x = Double.parseDouble(dataList.get(i));
+				max =  Double.parseDouble(map.get("right").toString()),
+				min =  Double.parseDouble(map.get("left").toString()),
+				section = max-min,
+				columnCount = map.get("equal")==null?Math.sqrt(total)+1:Double.parseDouble(map.get("equal").toString()),
+						interval = section/(columnCount-1),expectation=0,x=0,rate=0,y=0,
+								median = coordinate.getMedian(conn, waferId, min, max);
+		length = (int) Math.floor(columnCount);
+		for(int i=0 ;i < length; i ++){
+			if(i==0){
+				x = min+interval/2;
+				frequency =  dao.getCount(conn, waferId, " and "+column+"<="+x);
+			}else{
+				frequency =  dao.getCount(conn, waferId, " and "+x+"<"+column+" and "+column+"<="+(x+interval));
+				x = x + interval;
+			}
+			rate = frequency/total;
+			expectation += frequency*rate;
 			y = FunctionUtil.getNormality(x, standard, average);
-			gaussianList.add(y);
+			groups.add(x);
+			frequencyList.add(frequency);
+			density.add(y);
 		}
 		try {
 			conn.close();
@@ -54,29 +75,34 @@ public class GaussianServiceImpl implements GaussianService{
 			e.printStackTrace();
 		}
 		Map<String,Object> result = new HashMap<>();
+		
+		result.put("median", median);
 		result.put("average", average);
-		result.put("mean", average);
-		result.put("standard", standard);
-		result.put("variance", variance);
 		result.put("max", max);
 		result.put("min", min);
-		result.put("median", median);
-		result.put("gaussianList", gaussianList);
-		result.put("histogramMap", histogramMap);
-		result.put("rangeX", rangeList);
+		result.put("expectation", expectation);
+		result.put("standard", standard);
+		result.put("variance", variance);
+		
+		result.put("columnCount", columnCount);
+		result.put("columnInterval", interval);
+		result.put("frequency", frequencyList);
+		result.put("groupX", groups);
+		result.put("density", density);
 		return result;
 	}
 
 	@Override
 	public Map<String, List<Double>> getRangList(List<String> paramList, String waferIdStr) {
 		Map<String, List<Double>> result = new HashMap<>();
+		GaussianDao dao = new GaussianDao();
 		String column = "";
 		int waferId = 0;
 		String[] waferAtt = waferIdStr.split(",");
 		List<Double> list = null,ls = null;
-		Connection conn = new DataBaseUtil().getConnection();
+		Connection conn = DataBaseUtil.getInstance().getConnection();
 		for (int j=0,size=paramList.size();j<size;j++) {
-			double right=0,left=0;
+			double right=0,left=10000000;
 			for (int i = 0, length = waferAtt.length; i < length; i++) {
 				waferId = Integer.parseInt(waferAtt[i]);
 				column = dao.getParameterColumn(conn, waferId, paramList.get(j));
@@ -99,75 +125,46 @@ public class GaussianServiceImpl implements GaussianService{
 		return result;
 	}
 
-	public Map<String,List<Double>> getHistogram(Connection conn, int waferId,String column,double left, double right, int equal){
-		HistogramDao hitogram = new HistogramDao();
-		Map<String,List<Double>> map = new LinkedHashMap<>();
-		double first = 0, last = 0, percent = 0;
-		List<Double> ls = new ArrayList<>();
-		int total = hitogram.getQuantity(conn,waferId, " and bin<>-1");
-		int upper = hitogram.getQuantity(conn,waferId, " and bin<>-1 and " + column + "<" + right);
-		int lower = hitogram.getQuantity(conn,waferId, " and bin<>-1 and " + column + ">" + left);
-		if (lower != 0) {
-			first = FunctionUtil.div(lower, total, 8);
-			first = Double.parseDouble(String.format("%1.4g", first));
-		}
-		ls.add(first);
-		for (int j = 1; j < equal + 1; j++) {
-			if (equal == 0) {
-				System.out.println("划分等分n为0");
-			} else {
-				double S1 = left + FunctionUtil.div(right - left, equal, 10) * (j - 1);
-				double S2 = left + FunctionUtil.div(right - left, equal, 10) * (j);
-				// S1,S2范围划分为 n分，，每一份的左右小范围
-				// 看（C1 C2 C3 C4）参数值是否在（S1，S2）的范围
-				String condition = " and bin!=-1 and " + column + ">=" + S1 + " And " + column + "<" + S2;
-				if (j == equal) {
-					condition = " And Bin!=-1 And " + column + ">=" + S1 + " And " + column + "<=" + S2;
+	public Map<String,Object> getPercent(String paramName, String waferIdStr, List<String> section) {
+		HistogramDao dao = new HistogramDao();
+		List<String> ls = null;
+		Map<String,Object> result = new HashMap<>();
+		Map<String,List<String>> map = new LinkedHashMap<>();
+		double  percent = 0,total=0,count=0;
+		int waferId = 0;
+		String[] att = waferIdStr.split(","),limit = null;
+		String column = "";
+		Connection conn = new DataBaseUtil().getConnection();
+		for (int i = 0, length = att.length; i < length; i++) {
+			ls = new ArrayList<>();
+			waferId = Integer.parseInt(att[i]);
+			column = dao.getColumn(conn,waferId, paramName);
+			total = dao.getQuantity(conn,waferId, " and bin<>-1");
+			for(int j=0,size=section.size();j<size;j++){
+				limit = section.get(j).split("~");
+				if("-∞".equals(limit[0])){
+					count = dao.getQuantity(conn,waferId, " and bin<>-1 and " + column + "<" + limit[1]);
+				}else
+				if("+∞".equals(limit[1])){
+					count = dao.getQuantity(conn,waferId, " and bin<>-1 and " + column + ">=" + limit[0]);
+				}else{
+					count = dao.getQuantity(conn,waferId, " and bin<>-1 and " +limit[0]+"<="+ column +" and "+ column + "<" + limit[1]);
 				}
-				int count = hitogram.getQuantity(conn,waferId, condition);
-				if (count == 0) {
-					percent = 0;
-				} else {
-					percent = FunctionUtil.div(count, total, 8);
-					percent = Double.parseDouble(String.format("%1.4g", percent));
-				}
-				ls.add(percent);
+				percent = FunctionUtil.multiple(count/total, 100, 2);
+				ls.add(percent+"%");
+				
 			}
+			map.put("percent", ls);
+			result.put(att[i], map);
 		}
-		if (last != 0) {
-			last = FunctionUtil.div(upper, total, 8);
-			last = Double.parseDouble(String.format("%1.4g", last));
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		ls.add(last);
-		map.put(waferId+"", ls);
-		
-		return map;
+		return result;
 	}
 	
-	/**
-	 * 等分范围处理
-	 * @param A 最小值
-	 * @param B 最大值
-	 * @param n 等分
-	 * @return
-	 */
-	public List<String> getRangeOrderAsc(double A,double B,int n){
- 		List<String> getrangelist=new ArrayList<String>();
- 		String smallthanlimit="-∞,"+A;
- 		String bigthanlimit=B+",+∞";
- 		getrangelist.add(smallthanlimit);
- 		double S1,S2;
- 		String str=null;
- 		for(int s=1;s<n+1;s++)
- 		{     
-			S1=A+(B-A)*(s-1)/n;
-			S2=A+(B-A)*(s)/n;
-			str=String.format("%1.4g",S1)+"~"+String.format("%1.4g",S2);
-			getrangelist.add(str);
- 		}
- 		getrangelist.add(bigthanlimit);
- 		return getrangelist;
- 	}
-	
+
 	
 }
