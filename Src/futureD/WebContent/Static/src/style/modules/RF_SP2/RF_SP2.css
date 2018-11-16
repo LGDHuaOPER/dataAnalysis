@@ -992,6 +992,11 @@ div.popover .row:last-child>div {
 	position: relative;
 }
 
+div.swal2-content div.container-fluid>.row>div {
+	text-align: left;
+    text-indent: 20px;
+}
+
 @media screen and (max-width: 1366px) {
 	.g_bodyin_bodyin_bottom_1, .g_bodyin_bodyin_bottom_2 {
 		grid-template-columns: 300px 1fr;

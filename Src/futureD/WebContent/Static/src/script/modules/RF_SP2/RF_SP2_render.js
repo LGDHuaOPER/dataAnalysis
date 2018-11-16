@@ -37,13 +37,6 @@ function getDataBuildS11S22(obj) {
 	_.isFunction(obj.callback) && obj.callback(smith1);
 }
 
-function initSmithAll(obj){
-	
-	/*//默认加载曲线信息
-	$("#picture2bottom .Smith_Msg2").text(parseFloat(DbCurveData1[0][1])+" dB,"+(DbCurveData1[0][0]/1000000000).toFixed(2)+"GHz");
-	$("#picture3bottom .Smith_Msg2").text(parseFloat(DbCurveData2[0][1])+" dB,"+(DbCurveData2[0][0]/1000000000).toFixed(2)+"GHz");*/
-}
-
 /*实际绘制S12 S21*/
 function drawRealS12S21(obj){
 	var container = obj.container;
@@ -120,11 +113,11 @@ function drawRealS12S21(obj){
 }
 
 // 阻止浏览器默认右键点击事件
-$(document).on("contextmenu", "#picture_box2, #picture_box3, div.swal2-container", function(e){
+$(document).on("contextmenu", "#S12_chart_S, #S21_chart_S, div.swal2-container", function(e){
 	// e.preventDefault();
     return false;
 });
-$("#picture_box2, #picture_box3").mousedown(function(e) {
+$("#S12_chart_S, #S21_chart_S").mousedown(function(e) {
 	if (3 == e.which) {
 		// e.preventDefault();
 		$(this).data("iflag", RF_SP2State.contextObj.flagArr[Number($(this).data("iflag") == "initial")]);
@@ -133,53 +126,97 @@ $("#picture_box2, #picture_box3").mousedown(function(e) {
 		RF_SP2State.contextObj.flag = $(this).data("iflag");
 		var iThat = $(this);
 		RF_SP2SwalMixin({
-		  title: '确定切换数据格式吗？',
-		  text: "切换数据格式，绘制在图表上！",
-		  type: 'question',
-		  showCancelButton: true,
-		  confirmButtonText: '确定，切换！',
-		  cancelButtonText: '不，取消！',
-		  reverseButtons: false
+		  	title: '选择切换的数据格式',
+		  	html: '<div class="container-fluid">'+
+					'<div class="row">'+
+						'<div class="col-sm-12 col-md-12 col-lg-12">'+
+							'<label><input type="radio" name="swal_radio_RFSP2" data-iiradio="Smith">Smith</label>'+
+						'</div>'+
+					'</div>'+
+					'<div class="row">'+
+						'<div class="col-sm-12 col-md-12 col-lg-12">'+
+							'<label><input type="radio" name="swal_radio_RFSP2" data-iiradio="Polar">Polar</label>'+
+						'</div>'+
+					'</div>'+
+					'<div class="row">'+
+						'<div class="col-sm-12 col-md-12 col-lg-12">'+
+							'<label><input type="radio" name="swal_radio_RFSP2" data-iiradio="XY of Phase">XY of Phase</label>'+
+						'</div>'+
+					'</div>'+
+					'<div class="row">'+
+						'<div class="col-sm-12 col-md-12 col-lg-12">'+
+							'<label><input type="radio" name="swal_radio_RFSP2" data-iiradio="XY of Phase(unwrapped)">XY of Phase(unwrapped)</label>'+
+						'</div>'+
+					'</div>'+
+					'<div class="row">'+
+						'<div class="col-sm-12 col-md-12 col-lg-12">'+
+							'<label><input type="radio" name="swal_radio_RFSP2" data-iiradio="XY of Magnitude">XY of Magnitude</label>'+
+						'</div>'+
+					'</div>'+
+					'<div class="row">'+
+						'<div class="col-sm-12 col-md-12 col-lg-12">'+
+							'<label><input type="radio" name="swal_radio_RFSP2" data-iiradio="XY db Magnitude">XY db Magnitude</label>'+
+						'</div>'+
+					'</div>'+
+				'</div>',
+		  	onBeforeOpen: function(){
+
+		  	},
+		  	onOpen: function(){
+		  		$(document).on("change", "input[name='swal_radio_RFSP2']", function(){
+		  			var iiradio = $("input[name='swal_radio_RFSP2']:checked").data("iiradio");
+		  			/*重新绘图*/
+	  			  	// iThat.empty();
+  					//曲线
+  					var originData = RF_SP2State.mock.RF_SP2_MagnitudeDB[0];
+  					if(RF_SP2State.contextObj.flag == "initial"){
+  						originData = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve;
+  					}
+  					var iiData = originData[RF_SP2State.contextObj.classify];
+  					var objec = {};
+  					objec.xCategories = [];
+  					_.forEach(iiData, function(v, i){
+  						objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+  					});
+  					objec.series = [];
+  					objec.series[0] = {};
+  					objec.series[0].data = [];
+  					_.forEach(iiData, function(v, i){
+  						objec.series[0].data.push(parseFloat(v[1]));
+  					});
+  					objec.container = iThat.attr("id");
+  					objec.msgDom = iThat.children(".picturebottom");
+  					objec.resetZoomButton = {
+  						position: {
+  							align: 'left', // by default
+  							// verticalAlign: 'top', // by default
+  							x: 0,
+  							y: 0
+  						},
+  						relativeTo: 'chart'
+  					};
+  					drawRealS12S21(objec);
+  					console.log(objec);
+	  			    RF_SP2SwalMixin({
+	  			    	title: '切换成功！',
+	  			    	text: "新数据已被绘制到图表",
+	  			    	type: 'success',
+	  			    	showConfirmButton: false,
+	  			    	timer: 1000,
+	  			    });
+		  			/*重新绘图end*/
+		  			// swal.clickCancel();
+		  		});
+		  	},
+		  	showCancelButton: false,
+		  	showConfirmButton: false,
+		  	confirmButtonText: '确定，切换！',
+		  	cancelButtonText: '不，取消！',
+		  	reverseButtons: false
 		}).then(function(result) {
-		  if (result.value) {
+		  /*if (result.value) {
 		  	// {value: true}
-		  	iThat.children(".picturetop").empty();
-				//曲线
-				var originData = RF_SP2State.mock.RF_SP2_MagnitudeDB[0];
-				if(RF_SP2State.contextObj.flag == "initial"){
-					originData = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve;
-				}
-				var iiData = originData[RF_SP2State.contextObj.classify];
-				var objec = {};
-				objec.xCategories = [];
-				_.forEach(iiData, function(v, i){
-					objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
-				});
-				objec.series = [];
-				objec.series[0] = {};
-				objec.series[0].data = [];
-				_.forEach(iiData, function(v, i){
-					objec.series[0].data.push(parseFloat(v[1]));
-				});
-				objec.container = iThat.children(".picturetop").attr("id");
-				objec.msgDom = iThat.children(".picturebottom");
-				objec.resetZoomButton = {
-					position: {
-						align: 'left', // by default
-						// verticalAlign: 'top', // by default
-						x: 0,
-						y: 0
-					},
-					relativeTo: 'chart'
-				};
-				drawRealS12S21(objec);
-		    RF_SP2SwalMixin({
-		    	title: '切换成功！',
-		    	text: "新数据已被绘制到图表",
-		    	type: 'success',
-		    	showConfirmButton: false,
-		    	timer: 1000,
-		    });
+		  	
 		  } else if (
 		    // Read more about handling dismissals
 		    // {dismiss: "overlay"}
@@ -192,7 +229,7 @@ $("#picture_box2, #picture_box3").mousedown(function(e) {
 		    	showConfirmButton: false,
 		    	timer: 1000,
 		    });
-		  }
+		  }*/
 		});		
     }
 });
