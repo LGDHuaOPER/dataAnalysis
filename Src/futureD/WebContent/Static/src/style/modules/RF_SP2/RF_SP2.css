@@ -997,6 +997,10 @@ div.swal2-content div.container-fluid>.row>div {
     text-indent: 20px;
 }
 
+div.swal2-container {
+	z-index: 999999 !important;
+}
+
 @media screen and (max-width: 1366px) {
 	.g_bodyin_bodyin_bottom_1, .g_bodyin_bodyin_bottom_2 {
 		grid-template-columns: 300px 1fr;

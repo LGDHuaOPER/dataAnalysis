@@ -120,10 +120,6 @@ $(document).on("contextmenu", "#S12_chart_S, #S21_chart_S, div.swal2-container",
 $("#S12_chart_S, #S21_chart_S").mousedown(function(e) {
 	if (3 == e.which) {
 		// e.preventDefault();
-		$(this).data("iflag", RF_SP2State.contextObj.flagArr[Number($(this).data("iflag") == "initial")]);
-
-		RF_SP2State.contextObj.classify = $(this).data("iclassify");
-		RF_SP2State.contextObj.flag = $(this).data("iflag");
 		var iThat = $(this);
 		RF_SP2SwalMixin({
 		  	title: '选择切换的数据格式',
@@ -165,44 +161,24 @@ $("#S12_chart_S, #S21_chart_S").mousedown(function(e) {
 		  	onOpen: function(){
 		  		$(document).on("change", "input[name='swal_radio_RFSP2']", function(){
 		  			var iiradio = $("input[name='swal_radio_RFSP2']:checked").data("iiradio");
+  					iThat.data("iflag", iiradio);
+					RF_SP2State.contextObj.classify = iThat.data("iclassify");
+					RF_SP2State.contextObj.flag = iThat.data("iflag");
 		  			/*重新绘图*/
-	  			  	// iThat.empty();
-  					//曲线
-  					var originData = RF_SP2State.mock.RF_SP2_MagnitudeDB[0];
-  					if(RF_SP2State.contextObj.flag == "initial"){
-  						originData = RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve;
-  					}
-  					var iiData = originData[RF_SP2State.contextObj.classify];
-  					var objec = {};
-  					objec.xCategories = [];
-  					_.forEach(iiData, function(v, i){
-  						objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
-  					});
-  					objec.series = [];
-  					objec.series[0] = {};
-  					objec.series[0].data = [];
-  					_.forEach(iiData, function(v, i){
-  						objec.series[0].data.push(parseFloat(v[1]));
-  					});
-  					objec.container = iThat.attr("id");
-  					objec.msgDom = iThat.children(".picturebottom");
-  					objec.resetZoomButton = {
-  						position: {
-  							align: 'left', // by default
-  							// verticalAlign: 'top', // by default
-  							x: 0,
-  							y: 0
-  						},
-  						relativeTo: 'chart'
-  					};
-  					drawRealS12S21(objec);
-  					console.log(objec);
-	  			    RF_SP2SwalMixin({
-	  			    	title: '切换成功！',
-	  			    	text: "新数据已被绘制到图表",
-	  			    	type: 'success',
-	  			    	showConfirmButton: false,
-	  			    	timer: 1000,
+	  			    getDataBuildBigS12S21({
+	  			    	iclassify: RF_SP2State.contextObj.classify,
+	  			    	itargetchart: iThat.attr("id"),
+	  			    	contextFlag: true,
+	  			    	iflag: RF_SP2State.contextObj.flag,
+	  			    	callback: function(){
+	  			    		RF_SP2SwalMixin({
+	  			    			title: '切换成功！',
+	  			    			text: "新数据已被绘制到图表",
+	  			    			type: 'success',
+	  			    			showConfirmButton: false,
+	  			    			timer: 1000,
+	  			    		});
+	  			    	}
 	  			    });
 		  			/*重新绘图end*/
 		  			// swal.clickCancel();

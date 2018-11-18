@@ -48,8 +48,7 @@ RF_SP2State.waferSelected = [];
 RF_SP2State.waferTCFSelected = [];
 RF_SP2State.contextObj = {
 	classify: null,
-	flag: null,
-	flagArr: ["initial", "change"]
+	flag: null
 };
 RF_SP2State.stateObj = {
 	renderSelectCsvSub: false,
@@ -331,43 +330,95 @@ function judgeLineSegmentIntersect(x1, x2, indicatrix){
 function getDataBuildBigS12S21(obj){
 	var iclassify = obj.iclassify;
 	var itargetchart = obj.itargetchart;
-	var objec = {};
-	objec.xCategories = [];
-	_.forEach(RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
-		objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
-	});
-	/*真实数据*/
-	objec.series = [];
-	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify], function(v, i){
-		var item = {};
-		item.name = v.name;
-		item.data = [];
-		_.forEach(v.data, function(vv, ii){
-			item.data.push(parseFloat(vv[1]));
+	var contextFlag = obj.contextFlag;
+	if(contextFlag === true){
+		// 如果是右键绘制
+		var iflag = obj.iflag;
+		switch (iflag) {
+			case "Smith": 
+				getDataBuildBigS12S21({
+					iclassify: iclassify,
+					itargetchart: itargetchart,
+					callback: obj.callback
+				});
+			break;
+			default: 
+				var obje = {};
+				obje.xCategories = [];
+				_.forEach(RF_SP2State.mock.RF_SP2_MagnitudeDB[0][iclassify], function(v, i){
+					obje.xCategories.push(Math.floor(v[0] / 10000000)/100);
+				});
+				
+				/*真实数据*/
+				obje.series = [];
+				_.forEach(RF_SP2State.waferSelected, function(v, i){
+					var copyData = _.cloneDeep(RF_SP2State.mock.RF_SP2_MagnitudeDB[i%3][iclassify]);
+					var item = {};
+					item.name = v;
+					item.data = [];
+					_.forEach(copyData, function(vv, ii){
+						item.data.push(parseFloat(vv[1]));
+					});
+					obje.series.push(item);
+				});
+				obje.container = itargetchart;
+				obje.legend_enabled = true;
+				obje.zoomType = 'x';
+				obje.resetZoomButton = {
+					position: {
+						align: 'left', // by default
+						// verticalAlign: 'top', // by default
+						x: 90,
+						y: 10
+					},
+					relativeTo: 'chart'
+				};
+				obje.text = iclassify;
+				obje.showCheckbox = true;
+				obje.callback = obj.callback;
+				drawRealS12S21(obje);
+		}
+	}else{
+		// 如果不是右键绘制
+		var objec = {};
+		objec.xCategories = [];
+		_.forEach(RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
+			objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
 		});
-		item.color = v.color;
-		objec.series.push(item);
-	});
-	_.times(objec.series.length, function(ii){
-		RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
-		RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
-	});
-	objec.container = itargetchart;
-	objec.legend_enabled = true;
-	objec.zoomType = 'x';
-	objec.resetZoomButton = {
-		position: {
-			align: 'left', // by default
-			// verticalAlign: 'top', // by default
-			x: 90,
-			y: 10
-		},
-		relativeTo: 'chart'
-	};
-	objec.text = iclassify;
-	objec.showCheckbox = true;
-	RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
-	drawRealS12S21(objec);
+		/*真实数据*/
+		objec.series = [];
+		_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify], function(v, i){
+			var item = {};
+			item.name = v.name;
+			item.data = [];
+			_.forEach(v.data, function(vv, ii){
+				item.data.push(parseFloat(vv[1]));
+			});
+			item.color = v.color;
+			objec.series.push(item);
+		});
+		_.times(objec.series.length, function(ii){
+			RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
+			RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
+		});
+		objec.container = itargetchart;
+		objec.legend_enabled = true;
+		objec.zoomType = 'x';
+		objec.resetZoomButton = {
+			position: {
+				align: 'left', // by default
+				// verticalAlign: 'top', // by default
+				x: 90,
+				y: 10
+			},
+			relativeTo: 'chart'
+		};
+		objec.text = iclassify;
+		objec.showCheckbox = true;
+		objec.callback = obj.callback;
+		RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
+		drawRealS12S21(objec);
+	}
 }
 
 /*史密斯S11 S22大图获取数据绘制图形*/
