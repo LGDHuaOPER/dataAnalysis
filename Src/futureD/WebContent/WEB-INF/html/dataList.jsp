@@ -10,7 +10,7 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">]
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
 	<link rel="shortcut icon" href="./eoulu.ico"/>
 	<link rel="bookmark" href="./eoulu.ico"/>
 	<title>futureD数据列表</title>

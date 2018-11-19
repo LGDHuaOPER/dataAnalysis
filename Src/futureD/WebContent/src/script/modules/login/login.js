@@ -75,7 +75,6 @@ $(".button_div>button").click(function(){
 				text: "登录成功！正在跳转",
 				type: "success",
 				callback: function(){
-					eouluGlobal.C_btnAbled(iThat, true, "登录");
 				  	try{
 				  		if($(".save_login_div>input").is(":checked")){
 				  			window.sessionStorage.setItem("futureDT2__login_"+userName+"_safe", "safe");
@@ -89,6 +88,7 @@ $(".button_div>button").click(function(){
 				  			type: "info"
 				  		});
 				  	}
+				  	eouluGlobal.C_btnAbled(iThat, true, "登录");
 					window.location.assign("HomeInterface");
 				}
 			});

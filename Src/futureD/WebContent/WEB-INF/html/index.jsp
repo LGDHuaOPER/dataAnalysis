@@ -69,7 +69,7 @@
 								</div>
 								<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 bootstro" data-bootstro-title="系统主页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>页面入口</h4><p>这里是数据对比页面的入口</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4">
 									<div class="section_in">
-										<div class="thumbnail" data-ipage="dataCompare">
+										<div class="thumbnail" data-ipage="DataCompare">
 									      	<img src="assets/img/modules/index/dataStatistics.png" alt="数据对比" width="183">
 									      	<div class="caption">
 									        	<h3>数据对比</h3>
