@@ -14,6 +14,7 @@ import java.util.Map;
 
 import com.eoulu.action.calculate.ExpressionFormatException;
 import com.eoulu.action.calculate.NumericalCalculator;
+import com.eoulu.dao.BoxPlotDao;
 import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.CurveDao;
 import com.eoulu.dao.ParameterDao;
@@ -29,11 +30,9 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class AnalysisServiceImpl implements AnalysisService{
 
-	private CurveDao curveDao = new CurveDao();
-	private SmithDao smithDao = new SmithDao();
-	private WaferDao dao = new WaferDao();
 	@Override
 	public String getVerificationDC(String[] waferId,String[] waferNO,int count) {
+		CurveDao curveDao = new CurveDao();
 		int id = 0;
 		String status = "success";
 		for(int i=0,length=waferId.length;i<length;i++){
@@ -48,6 +47,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 
 	@Override
 	public String getVerificationS2P(String[] waferId,String[] waferNO) {
+		CurveDao curveDao = new CurveDao();
 		int id = 0;
 		String status = "success";
 		for(int i=0,length=waferId.length;i<length;i++){
@@ -62,21 +62,22 @@ public class AnalysisServiceImpl implements AnalysisService{
 
 	@Override
 	public Map<String, Object> getCurveFile(String[] waferId) {
+		CurveDao curveDao = new CurveDao();
+		WaferDao dao = new WaferDao();
 		Map<String, Object> map = new LinkedHashMap<>();
 		List<String[]> list = null;
 		int id = 0;
 		String waferFile = "",waferNO="";
-		DataBaseUtil db = new DataBaseUtil();
-		Connection conn = db.getConnection();
+		Connection conn = DataBaseUtil.getInstance().getConnection();
 		Map<String,Object> wafer = null;
 		try {
 			for(int i=0,length=waferId.length;i<length;i++){
 				id = Integer.parseInt(waferId[i]);
 				list = curveDao.getCurvFile(conn,id);
 				wafer = dao.getFile(conn,id);
-				waferFile = wafer.get("wafer_file_name").toString();
-				waferNO = wafer.get("wafer_number").toString();
-				map.put(waferFile+","+waferNO, list);
+//				waferFile = wafer.get("wafer_file_name").toString();
+				waferNO = wafer.get("wafer_number").toString()+".CSV";
+				map.put(waferNO, list);
 			}
 		}finally {
 			try {
@@ -89,61 +90,63 @@ public class AnalysisServiceImpl implements AnalysisService{
 	}
 
 	@Override
-	public Map<String,Object> getSmithData( String[] curveTypeId,String[] legend,String graphStyle,String sParameter) {
-		Map<String,Object> result = new LinkedHashMap<>();
+	public Map<String, Object> getSmithData(String[] curveTypeId, String[] legend, String graphStyle,
+			String sParameter) {
+		SmithDao smithDao = new SmithDao();
+		Map<String, Object> result = new LinkedHashMap<>();
 		Map<String, List<Object[]>> map = null;
 		int id = 0;
-		for(int i=0,length=curveTypeId.length;i<length;i++){
-			id = Integer.parseInt(curveTypeId[i]);
-			if("S11".equals(sParameter)){
-				map.put(id+"", smithDao.getSmithDataOfS11(id,graphStyle));
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		if ("".equals(sParameter)) {
+			for (int i = 0, length = curveTypeId.length; i < length; i++) {
+				id = Integer.parseInt(curveTypeId[i]);
+				map = new HashMap<>();
+				map.put("S11", smithDao.getGraphStyleData(conn, id, "Smith", "S11",db));
+				map.put("S12", smithDao.getGraphStyleData(conn, id, "XYdBOfMagnitude", "S12",db));
+				map.put("S21", smithDao.getGraphStyleData(conn, id, "XYdBOfMagnitude", "S21",db));
+				map.put("S22", smithDao.getGraphStyleData(conn, id, "Smith", "S22",db));
+				result.put(legend == null ? "Smith" : legend[i], map);
 			}
-			if("S12".equals(sParameter)){
-				map.put(id+"", smithDao.getSmithDataOfS12(id,graphStyle));
+		} else {
+			for (int i = 0, length = curveTypeId.length; i < length; i++) {
+				id = Integer.parseInt(curveTypeId[i]);
+				map = new HashMap<>();
+				map.put(sParameter, smithDao.getGraphStyleData(conn, id, graphStyle, sParameter,db));
+				result.put(legend == null ? "Smith" : legend[i], map);
 			}
-			if("S21".equals(sParameter)){
-				map.put(id+"", smithDao.getSmithDataOfS21(id,graphStyle));
-			}
-			if("S22".equals(sParameter)){
-				map.put(id+"", smithDao.getSmithDataOfS22(id,graphStyle));
-			}
-			result.put(legend==null?"Smith":legend[i], map);
 		}
+
+		db.close(conn);
 		return result;
 	}
 
 	@Override
 	public Map<String, Object> getMarkerCurve(String[] curveTypeId, String sParameter,int waferId,String module) {
-		
+		SmithDao smithDao = new SmithDao();
 		Map<String,Object> curve = new HashMap<>();
 		Map<String,Object> curveValue = new LinkedHashMap<>();
-		Map<String,Object> markerValue = new LinkedHashMap<>();
-		Connection conn = new DataBaseUtil().getConnection();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		try {
 			conn.setAutoCommit(false);
 			List<Map<String,Object>> list = null;
 			List<Double[]> ls = null;
 			int id = 0;
-			for(String str:curveTypeId){
-				id = Integer.parseInt(str);
-				ls = smithDao.getSmithData(conn,id, sParameter);
-				curveValue.put(str, ls);
+			for(int i=0,length=curveTypeId.length;i<length;i++){
+				id = Integer.parseInt(curveTypeId[i]);
+				ls = smithDao.getSmithData(conn,id, sParameter,db);
+				curveValue.put("curveData", ls);
 				//曲线上的marker点
-				list = smithDao.getMarkerByTypeId(conn, id);
-				markerValue.put(str, list);
+				list = smithDao.getMarkerByTypeId(conn, id,db);
+				curveValue.put("markerData", list);
+				curve.put(curveTypeId[i], curveValue);
 			}
-			curve.put("curveData", curveValue);
-			curve.put("markerData", markerValue);
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
+			db.close(conn);
 		}
 		
 		return curve;
@@ -161,12 +164,14 @@ public class AnalysisServiceImpl implements AnalysisService{
 	public boolean saveCalculation(int waferId, int coordinateId, String parameter, String calculationFormula,String userFormula,
 			double result,String module) {
 		ParameterDao paramDao = new ParameterDao();
-		Connection conn = new DataBaseUtil().getConnection();
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		boolean flag = false;
 		try {
 			conn.setAutoCommit(false);
 			Object[] param = new Object[]{waferId,module,parameter,userFormula,calculationFormula,result};
-			 flag = smithDao.insertMarkerCalculation(conn,param);
+			 flag = smithDao.insertMarkerCalculation(conn,param,db);
 			if(!flag){
 				conn.rollback();
 				return flag;
@@ -190,11 +195,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			db.close(conn);
 		}
 		return flag;
 	}
@@ -202,16 +203,17 @@ public class AnalysisServiceImpl implements AnalysisService{
 	@Override
 	public boolean modifyCalculation(String oldParam, String customParam, String formula,String userformula, String result,
 			int calculationId,int coordinateId,int waferId) {
-		
+		SmithDao smithDao = new SmithDao();
 		ParameterDao paramDao = new ParameterDao();
-		Connection conn = new DataBaseUtil().getConnection();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		boolean flag = false;
 		try {
 			conn.setAutoCommit(false);
 			Object[] param = null;
 			if(!oldParam.equals(customParam)){
 				param = new Object[]{customParam,userformula,formula,result,calculationId};
-				 flag = smithDao.updateCalculation(conn, param);
+				 flag = smithDao.updateCalculation(conn, param,db);
 				if(!flag){
 					conn.rollback();
 					return flag;
@@ -236,11 +238,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			db.close(conn);
 		}
 		
 		
@@ -249,12 +247,15 @@ public class AnalysisServiceImpl implements AnalysisService{
 	
 	@Override
 	public boolean updateCalculation(int waferId, int coordinateId) {
+		CurveDao curveDao = new CurveDao();
+		SmithDao smithDao = new SmithDao();
 		boolean flag = false;
 		int dieId=0;
 		String typeIdStr = "",parameter="",formula="",result = "",pointX="",pointY="",column="";
 		Map<String,List<String>> map = null;
-		Connection conn = new DataBaseUtil().getConnection();
-		List<Map<String,Object>> calList = smithDao.getCalculation(conn, waferId, "TCF");
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		List<Map<String,Object>> calList = smithDao.getCalculation(conn, waferId, "TCF",db);
 		List<Integer> ls = curveDao.getCoordinateId(conn, waferId);
 		Object[] param = null;
 		try {
@@ -264,8 +265,8 @@ public class AnalysisServiceImpl implements AnalysisService{
 			if (dieId == coordinateId) {
 				continue;
 			}
-			typeIdStr = smithDao.getTypeIdStr(conn, dieId);
-			map = smithDao.getAllMarker(conn, typeIdStr);
+			typeIdStr = smithDao.getTypeIdStr(conn, dieId,db);
+			map = smithDao.getAllMarker(conn, typeIdStr,db);
 			for(int j=0,size2=calList.size();j<size2;j++){
 				parameter = calList.get(j).get("custom_parameter").toString();
 			 column =new ParameterDao().getColumnByName(conn, parameter, waferId);
@@ -296,25 +297,27 @@ public class AnalysisServiceImpl implements AnalysisService{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			db.close(conn);
 		}
 		return false;
 	}
 	
 	@Override
 	public boolean getMarkerExsit(int waferId, String markerName, String module, String sParameter) {
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		SmithDao smithDao = new SmithDao();
 		Object[] param = new Object[]{waferId,module,sParameter,markerName};
-		return smithDao.getMarkerId(param)>0?true:false;
+		return smithDao.getMarkerId(param,db)>0?true:false;
 	}
 
 	@Override
 	public boolean saveMarkerByX(int waferId, String module, int coordinateId, String[] att, String sParameter) {
+		
 		boolean flag = false,exsitFlag = false;
-		Connection conn = new DataBaseUtil().getConnection();
+		CurveDao curveDao = new CurveDao();
+		
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		int curveTypeId = 0, num = 0, dieId = 0, curveTypeId2 = 0;
 		List<Map<String, Object>> list = null,smithList = null;
 		Map<String, Object> map = null;
@@ -325,6 +328,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			conn.setAutoCommit(false);
 		
 		List<Integer> ls = curveDao.getCoordinateId(conn, waferId);
+		SmithDao smithDao = new SmithDao();
 		for (int i = 0, size = ls.size(); i < size; i++) {
 			dieId = ls.get(i);
 			if (dieId == coordinateId) {
@@ -332,14 +336,14 @@ public class AnalysisServiceImpl implements AnalysisService{
 			}
 			for (String id : att) {
 				curveTypeId = Integer.parseInt(id);
-				list = smithDao.getMarkerByTypeId(conn,  curveTypeId);
-				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId);
-				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num);
-				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2);
+				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,db);
+				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
+				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
+				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,db);
 				if(exsitFlag){
-					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2);
+					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,db);
 				}
-				smithList = smithDao.getMarkerSmithData(conn, curveTypeId2, sParameter);
+				smithList = smithDao.getMarkerSmithData(conn, curveTypeId2, sParameter,db);
 				if(list.size()>0){
 					map = list.get(0);
 					markerName = map.get("marker_name").toString();
@@ -360,7 +364,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					String[] markerAtt = (String[]) map.get(markerName);
 					param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0],
 							markerAtt[1], "X" };
-					flag = smithDao.insertMarker(conn, param);
+					flag = smithDao.insertMarker(conn, param,db);
 					if (!flag) {
 						conn.rollback();
 						return flag;
@@ -373,11 +377,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}finally{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			db.close(conn);
 		}
 		
 		return flag;
@@ -386,7 +386,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 	@Override
 	public boolean saveMarkerByY(int waferId, String module, int coordinateId, String[] att, String sParameter) {
 		boolean flag = false, minFlag = false, maxFlag = false,exsitFlag=false;
-		Connection conn = new DataBaseUtil().getConnection();
+		CurveDao curveDao = new CurveDao();
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		int curveTypeId = 0, num = 0, dieId = 0, curveTypeId2 = 0;
 		List<Map<String, Object>> list = null, smithList = null;
 		Map<String, Object> map = null;
@@ -404,17 +407,17 @@ public class AnalysisServiceImpl implements AnalysisService{
 			}
 			for (String id : att) {
 				curveTypeId = Integer.parseInt(id);
-				list = smithDao.getMarkerByTypeId(conn,  curveTypeId);
-				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId);
-				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num);
-				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2);
+				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,db);
+				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
+				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
+				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,db);
 				if(exsitFlag){
-					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2);
+					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,db);
 				}
-				limit = smithDao.getMaxAndMin(conn, curveTypeId2, sParameter);
+				limit = smithDao.getMaxAndMin(conn, curveTypeId2, sParameter,db);
 				max = Double.parseDouble(limit.get(0));
 				min = Double.parseDouble(limit.get(1));
-				smithList = smithDao.getMarkerSmithData(conn, curveTypeId2, sParameter);
+				smithList = smithDao.getMarkerSmithData(conn, curveTypeId2, sParameter,db);
 				markerName2 = "";
 				
 				if (list.size() > 1) {
@@ -430,8 +433,8 @@ public class AnalysisServiceImpl implements AnalysisService{
 							continue;
 						}
 					}
-					maxFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, max + ">=");
-					minFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, min + "<=");
+					maxFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, max + ">=",db);
+					minFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, min + "<=",db);
 					if (maxFlag || minFlag) {
 						List<Double[]> markerList = getMarker(smithList, pointY);
 						if (markerList.size() < 1) {
@@ -455,7 +458,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					}
 					String[] markerAtt = (String[]) map.get(markerName);
 					param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0], markerAtt[1], "Y" };
-					flag = smithDao.insertMarker(conn, param);
+					flag = smithDao.insertMarker(conn, param,db);
 					if (!flag) {
 						conn.rollback();
 						return flag;
@@ -463,7 +466,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					String[] markerAtt2 = (String[]) map.get(markerName2);
 					param = new Object[] { waferId, curveTypeId2, module, markerName2, markerAtt2[0], markerAtt2[1],
 							"Y" };
-					flag = smithDao.insertMarker(conn, param);
+					flag = smithDao.insertMarker(conn, param,db);
 					if (!flag) {
 						conn.rollback();
 						return flag;
@@ -476,11 +479,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}finally{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			db.close(conn);
 		}
 		return flag;
 	}
@@ -563,19 +562,21 @@ public class AnalysisServiceImpl implements AnalysisService{
 	@Override
 	public boolean operateMarker(Object[] param, String classify
 			) {
+		SmithDao smithDao = new SmithDao();
 		boolean flag = false;
-		Connection conn = new DataBaseUtil().getConnection();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		try {
 			conn.setAutoCommit(false);
 			if ("add".equals(classify)) {
-				flag = smithDao.insertMarker(conn, param);
+				flag = smithDao.insertMarker(conn, param,db);
 				if(!flag){
 					conn.rollback();
 					return flag;
 				}
 			}
 			if ("modify".equals(classify)) {
-				flag = smithDao.updateMarker(conn,param);
+				flag = smithDao.updateMarker(conn,param,db);
 				if(!flag){
 					conn.rollback();
 					return flag;
@@ -585,11 +586,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			db.close(conn);
 		}
 
 		return flag;
@@ -597,38 +594,47 @@ public class AnalysisServiceImpl implements AnalysisService{
 
 	@Override
 	public int getMarkerId(Object[] param) {
-		return smithDao.getMarkerId(param);
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		SmithDao smithDao = new SmithDao();
+		return smithDao.getMarkerId(param,db);
 	}
 
 	@Override
 	public List<Map<String, Object>> getCalculation(int waferId, String module) {
-		return smithDao.getCalculation(waferId, module);
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		return smithDao.getCalculation(waferId, module,db);
 	}
 	
 	@Override
 	public int getCalculationId(int waferId, String parameter, String module) {
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
 		Object[] param = new Object[]{waferId,module,parameter};
-		return smithDao.getCalculationId(param);
+		return smithDao.getCalculationId(param,db);
 	}
 
 	
 
 	@Override
 	public boolean deleteMarker(Object[] param) {
-		return smithDao.deleteMarker(param);
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		return smithDao.deleteMarker(param,db);
 	}
 
 	@Override
 	public boolean deleteMarkerById(String[] curveTypeId) {
-
+		SmithDao smithDao = new SmithDao();
 		int id = 0;
 		boolean flag = false;
-		Connection conn = new DataBaseUtil().getConnection();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		try {
 			conn.setAutoCommit(false);
 		for(String str:curveTypeId){
 			id = Integer.parseInt(str);
-			flag = smithDao.deleteMarkerById(conn, id);
+			flag = smithDao.deleteMarkerById(conn, id,db);
 			if(!flag){
 				conn.rollback();
 				return flag;
@@ -646,7 +652,6 @@ public class AnalysisServiceImpl implements AnalysisService{
 		}
 		return flag;
 	}
-
 
 	
 	

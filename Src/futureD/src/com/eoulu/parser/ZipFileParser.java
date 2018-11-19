@@ -100,17 +100,18 @@ public class ZipFileParser {
 			return resultMap;
 		}
 		logWafer = "";
-		Connection conn = new DataBaseUtil().getConnection();
+		DataBaseUtil db = new DataBaseUtil();
+		Connection conn = db.getConnection();
 		try {
 			conn.setAutoCommit(false);
 			// 导入map
-			getFiles(conn,file1.getAbsolutePath(),  filternum,map);
+			getFiles(conn,file1.getAbsolutePath(),  filternum,map,db);
 			// 导入excel文件
 			filternum = 2;
-			getFiles(conn,file1.getAbsolutePath(), filternum,map);
+			getFiles(conn,file1.getAbsolutePath(), filternum,map,db);
 			// 导入CSV文件
 			filternum = 3;
-			getFiles(conn,file1.getAbsolutePath(),  filternum,map);
+			getFiles(conn,file1.getAbsolutePath(),  filternum,map,db);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally{
@@ -169,15 +170,15 @@ public class ZipFileParser {
 	
 	
 	static void getFiles(Connection conn,String filePath,
-			 int filternum,Map<String,Object> map) {
+			 int filternum,Map<String,Object> map,DataBaseUtil db) {
 		File root = new File(filePath);
 		File[] files = root.listFiles();// 获取当前目录下的所有文件与文件夹
 		boolean flagDirectory = isExist(files);
-		CSV(conn,filePath,   filternum, map);
+		CSV(conn,filePath,   filternum, map,db);
 		for (File file : files) {
 			if (file.isDirectory()) {
 				if (!flagDirectory) {// 没有曲线数据时，才进入向下一级文件夹目录；当前路径下若有文件夹且包含.csv与.map文件，则在读取.csv文件后取读取曲线数据
-					getFiles(conn,file.getAbsolutePath(), filternum, map);
+					getFiles(conn,file.getAbsolutePath(), filternum, map,db);
 				}
 			} else {
 				if (filternum == 1 && !flagDirectory) {
@@ -214,7 +215,7 @@ public class ZipFileParser {
 		return temp1 && temp2;
 	}
 
-	public static void CSV(Connection conn,String path,int filternum, Map<String,Object> map) {
+	public static void CSV(Connection conn,String path,int filternum, Map<String,Object> map,DataBaseUtil db) {
 		WaferDao fileDao = new WaferDao();
 		ParameterDao parameterDao = new ParameterDao();
 		File file1 = new File(path);
@@ -244,7 +245,7 @@ public class ZipFileParser {
 					long timeCSV = System.currentTimeMillis();
 					WaferService service = new WaferServiceImpl();
 					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
-							description, files1[i].getAbsolutePath());
+							description, files1[i].getAbsolutePath(),db);
 					// 未找到对应的map文件
 					long timeCSV2 = System.currentTimeMillis();
 					System.out.println("how long:" + (timeCSV2 - timeCSV));

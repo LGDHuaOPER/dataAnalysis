@@ -40,20 +40,7 @@ public class AnalysisCurve extends HttpServlet {
 		String[] legend = request.getParameterValues("legend[]");
 		String graphStyle = request.getParameter("graphStyle")==null?"":request.getParameter("graphStyle"),
 				sParameter = request.getParameter("sParameter")==null?"":request.getParameter("sParameter");
-		Map<String,Object> result = new HashMap<>();
-		if("".equals(graphStyle) && "".equals(sParameter)){
-			Map<String,Object> map = service.getSmithData(curveTypeId,legend,"Smith","S11");
-			result.put("S11", map);
-			map = service.getSmithData(curveTypeId,legend,"XYdBOfMagnitude","S12");
-			result.put("S12", map);
-			map = service.getSmithData(curveTypeId,legend,"XYdBOfMagnitude","S21");
-			result.put("S21", map);
-			map = service.getSmithData(curveTypeId,legend,"Smith","S22");
-			result.put("S22", map);
-			response.getWriter().write(new Gson().toJson(result));
-			return;
-		}
-		result.put(sParameter, service.getSmithData(curveTypeId,legend,graphStyle,sParameter));
+		Map<String,Object> result = service.getSmithData(curveTypeId,legend,graphStyle,sParameter);
 		
 		response.getWriter().write(new Gson().toJson(result));
 		
@@ -66,4 +53,34 @@ public class AnalysisCurve extends HttpServlet {
 		doGet(request, response);
 	}
 
+	public static void main(String[] args) {
+	
+		AnalysisService service = new AnalysisServiceImpl();
+		
+		String[] curveTypeId = new String[]{"2129"};
+		String[] legend = new String[]{"5-0-75C.S2P"};
+		String graphStyle = "",
+				sParameter = "";
+		Map<String,Object> result = new HashMap<>();
+//		if("".equals(graphStyle) && "".equals(sParameter)){
+//			Map<String,Object> map = service.getSmithData(curveTypeId,legend,"Smith","S11");
+//			
+//			result.put("S11", map);
+//			
+//			map = service.getSmithData(curveTypeId,legend,"XYdBOfMagnitude","S12");
+//			result.put("S12", map);
+//			System.out.println(new Gson().toJson(result));
+//			map = service.getSmithData(curveTypeId,legend,"XYdBOfMagnitude","S21");
+//			result.put("S21", map);
+//			map = service.getSmithData(curveTypeId,legend,"Smith","S22");
+//			result.put("S22", map);
+////			System.out.println(new Gson().toJson(result));
+//			return;
+//		}
+		long time0 = System.currentTimeMillis();
+		result = service.getSmithData(curveTypeId,legend,graphStyle,sParameter);
+		System.out.println(new Gson().toJson(result));
+		System.out.println(System.currentTimeMillis()-time0);
+	}
+	
 }

@@ -140,8 +140,8 @@ public class UploadStorage extends HttpServlet {
 	
 	
 	public static void main(String[] args) {
-		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\wafer51.xlsx";
-		String fileName = "wafer51.xlsx";
+		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\20180709-futureD.zip";
+		String fileName = "20180709-futureD.zip";
 		String temp = "E:/test";
 		File file = new File(temp);
 		if(!file.exists()){
@@ -164,12 +164,12 @@ public class UploadStorage extends HttpServlet {
 		map.put("interval", 0);
 		long time = System.currentTimeMillis();
 		ZipFileParser util = new ZipFileParser();
-		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat);
-//	   result = util.Zip(map);
+//		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat);
+	   result = util.Zip(map);
 	   new FileDelete().deleteDirectory(temp);
 		System.out.println(System.currentTimeMillis()-time);
-//		System.out.println(result);
-		System.out.println(status);
+		System.out.println(result);
+//		System.out.println(status);
 		
 		
 	}

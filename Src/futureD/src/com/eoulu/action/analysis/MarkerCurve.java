@@ -46,4 +46,14 @@ public class MarkerCurve extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	}
 
+	public static void main(String[] args) {
+		AnalysisService service = new AnalysisServiceImpl();
+		String[] curveTypeId = new String[]{"2129","2128"};
+		String sParameter = "S11",
+				module = "TCF";
+		int waferId = 188;
+		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,waferId,module);
+		System.out.println(new Gson().toJson(map));
+	}
+	
 }

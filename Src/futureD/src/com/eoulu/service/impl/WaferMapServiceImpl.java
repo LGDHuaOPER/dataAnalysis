@@ -173,6 +173,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 		return coordinate.getSubdie(waferId);
 	}
 
+	
 	@Override
 	public List<String> getDeviceGroup(int waferId) {
 		return new CurveDao().getDeviceGroup(waferId);
@@ -180,7 +181,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 	
 	public Map<String, Object> getVectorCurve(int coordinateId, String subdieName, String deviceGroup) {
 		CurveDao curveDao = new CurveDao();
-		Connection conn = DataBaseUtil.getInstance().getConnection();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
 		List<Map<String, Object>> typeList = curveDao.getCurveType(conn, coordinateId, subdieName, deviceGroup);
 		Map<String, Object> temp = null, paramMap = null, curveMap = new HashMap<>(), result = new HashMap<>();
 		int curveTypeId = 0, fileType = 0;
@@ -200,10 +202,10 @@ public class WaferMapServiceImpl implements WaferMapService {
 				continue;
 			}
 			if (fileType == 1) {
-				curveMap.put("S11-"+curveTypeId, smithDao.getSmithDataOfS11(curveTypeId, "Smith"));
-				curveMap.put("S12-"+curveTypeId, smithDao.getSmithDataOfS12(curveTypeId, "XYdBOfMagnitude"));
-				curveMap.put("S21-"+curveTypeId, smithDao.getSmithDataOfS21(curveTypeId, "XYdBOfMagnitude"));
-				curveMap.put("S22-"+curveTypeId, smithDao.getSmithDataOfS22(curveTypeId, "Smith"));
+				curveMap.put("S11-"+curveTypeId,smithDao.getGraphStyleData(conn, curveTypeId, "Smith", "S11",db));
+				curveMap.put("S12-"+curveTypeId, smithDao.getGraphStyleData(conn, curveTypeId, "XYdBOfMagnitude", "S12",db));
+				curveMap.put("S21-"+curveTypeId, smithDao.getGraphStyleData(conn, curveTypeId, "XYdBOfMagnitude", "S21",db));
+				curveMap.put("S22-"+curveTypeId, smithDao.getGraphStyleData(conn, curveTypeId, "Smith", "S22",db));
 				result.put(curveType, curveMap);
 			}
 		}

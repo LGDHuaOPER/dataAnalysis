@@ -651,7 +651,7 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							xAxis = {
 								title: {
 									enabled: true,
-									text: '身高 (cm)'
+									text: '数据一'
 								},
 								startOnTick: true,
 								endOnTick: true,
@@ -659,7 +659,7 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 							};
 							yAxis = {
 								title: {
-									text: '体重 (kg)'
+									text: '数据二'
 								}
 							};
 						}else if(type == 'gaussiandistribution'){

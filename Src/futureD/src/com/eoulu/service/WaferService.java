@@ -10,6 +10,7 @@ import java.util.Map;
 import com.eoulu.entity.MapParameterDO;
 import com.eoulu.entity.WaferDO;
 import com.eoulu.transfer.PageDTO;
+import com.eoulu.util.DataBaseUtil;
 
 /**
  * @author mengdi
@@ -88,7 +89,7 @@ public interface WaferService {
 	 * @param invalidationList 无效die，来自map文件
 	 * @return
 	 */
-	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel);
+	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel,DataBaseUtil db);
 	 
 	 /**
 	  * EOULU标准Excel

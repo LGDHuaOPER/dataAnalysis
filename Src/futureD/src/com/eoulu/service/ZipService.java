@@ -21,6 +21,7 @@ import com.eoulu.entity.MapParameterDO;
 import com.eoulu.entity.WaferDO;
 import com.eoulu.parser.ZipFileParser;
 import com.eoulu.transfer.IndexChange;
+import com.eoulu.util.DataBaseUtil;
 
 /**
  * @author mengdi
@@ -266,7 +267,7 @@ public class ZipService {
 	 * @return
 	 */
 
-	public String insertCurve(Connection conn, String file) {
+	public String insertCurve(Connection conn, String file,DataBaseUtil db) {
 		System.out.println("读到了么：" + file);
 		long time0 = System.currentTimeMillis();
 		// 曲线文件夹名字与CSV文件名字相同
@@ -321,7 +322,7 @@ public class ZipService {
 						if (!"success".equals(status)) {
 							break;
 						}
-						status = saveSmith(conn, waferId, subdieId, name, list);
+						status = saveSmith(conn, waferId, subdieId, name, list,db);
 						if (!"success".equals(status)) {
 							break;
 						}
@@ -427,7 +428,7 @@ public class ZipService {
 	 * @param list
 	 * @return
 	 */
-	public String saveSmith(Connection conn, int waferId, int subdieId, String name, List<String> list) {
+	public String saveSmith(Connection conn, int waferId, int subdieId, String name, List<String> list,DataBaseUtil db) {
 		int curveTypeId = curveDao.getCurveTypeId(conn, subdieId, name);
 		int index = 0;
 		List<Object[]> smithList = new ArrayList<>();
@@ -450,7 +451,7 @@ public class ZipService {
 				smithList.add(tempObj);
 			}
 		}
-		return new SmithDao().insertSmithData(conn, smithList);
+		return new SmithDao().insertSmithData(conn, smithList,db);
 	}
 
 	

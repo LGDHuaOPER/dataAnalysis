@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +23,14 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class SmithDao {
 
-	private DataBaseUtil db = new DataBaseUtil();
 	/**
 	 * 添加Smith数据
 	 * @param conn
 	 * @param list
 	 * @return
 	 */
-	public String insertSmithData(Connection conn,List<Object[]> list){
-		String sql = "insert into dm_smith_data (curve_type_id,wafer_id,frequency,real_part_s11,imaginary_part_s11,real_part_s12,imaginary_part_s12,real_part_s21,imaginary_part_s21,real_part_s22,imaginary_part_s22) values (?,?,?,?,?,?,?,?,?,?,?)";
+	public String insertSmithData(Connection conn,List<Object[]> list,DataBaseUtil db){
+		String sql = "insert into dm_smith_data (curve_type_id,wafer_id,frequency,real_part_s11,imaginary_part_s11,real_part_s21,imaginary_part_s21,real_part_s12,imaginary_part_s12,real_part_s22,imaginary_part_s22) values (?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps;
 		String flag = "success";
 		try {
@@ -59,277 +59,94 @@ public class SmithDao {
 		return flag;
 	}
 	
-	public boolean deleteSmithData(Connection conn,int waferId){
+	public boolean deleteSmithData(Connection conn,int waferId,DataBaseUtil db){
 		String sql = "delete from dm_smith_data where wafer_id=?";
 		return db.operate(conn, sql, new Object[]{waferId});
 	}
 	
-	public boolean deleteMarker(Connection conn,int waferId){
+	public boolean deleteMarker(Connection conn,int waferId,DataBaseUtil db){
 		String sql = "delete from dm_marker_data where wafer_id=?";
 		return db.operate(conn, sql, new Object[]{waferId});
 	}
 	
 	
-	public boolean deleteMarkerCalculation(Connection conn,int waferId){
+	public boolean deleteMarkerCalculation(Connection conn,int waferId,DataBaseUtil db){
 		String sql = "delete from dm_marker_calculation where wafer_id=?";
 		return db.operate(conn, sql, new Object[]{waferId});
 	}
 	
-	/**
-	 * 参数S11
-	 * @param curveTypeId
-	 * @param graphStyle
-	 * @return
-	 */
-	public List<Object[]> getSmithDataOfS11(int curveTypeId,String graphStyle){
-		List<Object[]> list = new ArrayList<>();
-		Double[] data = null;
-		Connection conn = null;
-		try {
-			conn = db.getConnection();
-			String sql = "select frequency,real_part_s11,imaginary_part_s11 from dm_smith_data where curve_type_id=?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, curveTypeId);
-			ResultSet rs = ps.executeQuery();
-			switch (graphStyle) {
-			case "Smith":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-					list.add(data);
-				}
-				break;
-
-			case "Polar":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-					list.add(data);
-				}
-				
-				break;
-			case "XYOfPhase":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.toDegrees(Math.atan(rs.getDouble(3)/rs.getDouble(2)))};
-					list.add(data);
-				}
-				break;
-				
-			case "XYOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.sqrt(Math.pow(rs.getDouble(2), 2)+Math.pow(rs.getDouble(3), 2))};
-					list.add(data);
-				}
-				break;
-			case "XYdBOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),-20*Math.log10(rs.getDouble(2))};
-					list.add(data);
-				}	
-				break;
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return list;
-	}
 	
-	public static void main(String[] args) {
-		System.out.println();
-	}
-	/**
-	 * 参数S12
-	 * @param curveTypeId
-	 * @param graphStyle
-	 * @return
-	 */
-	public List<Object[]> getSmithDataOfS12(int curveTypeId,String graphStyle){
+	public List<Object[]> getGraphStyleData(Connection conn,int curveTypeId,String graphStyle,String sParameter,DataBaseUtil db){
 		List<Object[]> list = new ArrayList<>();
-		Double[] data = null;
-		Connection conn = null;
+		long time0 = System.currentTimeMillis();
+		Object[] data = null;
+		String real = "",imaginary = "",condition = "";
+		int length = 2;
+		if("".equals(sParameter) || "".equals(graphStyle)){
+			return null;
+		}
+		switch (sParameter) {
+		case "S11":
+			real = "real_part_s11";
+			imaginary = "imaginary_part_s11";
+			break;
+
+		case "S12":
+			real = "real_part_s12";
+			imaginary = "imaginary_part_s12";
+			break;
+		case "S21":
+			real = "real_part_s21";
+			imaginary = "imaginary_part_s21";
+			break;
+		case "S22":
+			real = "real_part_s22";
+			imaginary = "imaginary_part_s22";
+			break;
+		}
+		
+		
+		switch (graphStyle) {
+		case "XYOfPhase":
+			condition = ",round(degrees(atan("+imaginary+"/"+real+")),2) degreen ";
+			break;
+			
+		case "XYOfMagnitude":
+			condition = ",round(sqrt("+real+"*"+real+"+"+imaginary+"*"+imaginary+"),2) dbs ";
+			break;
+			
+		case "XYdBOfMagnitude":
+			condition = ",round((20*log10(sqrt("+real+"*"+real+"+"+imaginary+"*"+imaginary+"))),2) dbs ";
+			break;
+		default:
+			length = 3;
+			condition = ",round("+real+",2)"+real+",round("+imaginary+",2)"+imaginary+" ";
+			break;
+		}
+		
+		
 		try {
-			conn = db.getConnection();
-			String sql = "select frequency,real_part_s12,imaginary_part_s12 from dm_smith_data where curve_type_id=?";
+			String sql = "select round(frequency/1000000000,2) frequency "+condition+" from dm_smith_data where curve_type_id=?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, curveTypeId);
 			ResultSet rs = ps.executeQuery();
-			switch (graphStyle) {
-			case "Smith":
+			if(length>2){
 				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
+					data = new Object[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
 					list.add(data);
 				}
-				break;
-
-			case "Polar":
+			}else{
 				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
+					data = new Object[]{rs.getDouble(1),rs.getDouble(2)};
 					list.add(data);
 				}
-				
-				break;
-			case "XYOfPhase":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.toDegrees(Math.atan(rs.getDouble(3)/rs.getDouble(2)))};
-					list.add(data);
-				}
-				break;
-				
-			case "XYOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.sqrt(Math.pow(rs.getDouble(2), 2)+Math.pow(rs.getDouble(3), 2))};
-					list.add(data);
-				}
-				break;
-			case "XYdBOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),-20*Math.log10(rs.getDouble(2))};
-					list.add(data);
-				}	
-				break;
 			}
-			
+		long time3 =	System.currentTimeMillis();
+		System.out.println("select:"+(time3-time0));
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
-		return list;
-	}
-	/**
-	 * 参数S21
-	 * @param curveTypeId
-	 * @param graphStyle
-	 * @return
-	 */
-	public List<Object[]> getSmithDataOfS21(int curveTypeId,String graphStyle){
-		List<Object[]> list = new ArrayList<>();
-		Double[] data = null;
-		Connection conn = null;
-		try {
-			conn = db.getConnection();
-			String sql = "select frequency,real_part_s21,imaginary_part_s21 from dm_smith_data where curve_type_id=?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, curveTypeId);
-			ResultSet rs = ps.executeQuery();
-			switch (graphStyle) {
-			case "Smith":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-					list.add(data);
-				}
-				break;
 
-			case "Polar":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-					list.add(data);
-				}
-				
-				break;
-			case "XYOfPhase":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.toDegrees(Math.atan(rs.getDouble(3)/rs.getDouble(2)))};
-					list.add(data);
-				}
-				break;
-				
-			case "XYOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.sqrt(Math.pow(rs.getDouble(2), 2)+Math.pow(rs.getDouble(3), 2))};
-					list.add(data);
-				}
-				break;
-			case "XYdBOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),-20*Math.log10(rs.getDouble(2))};
-					list.add(data);
-				}	
-				break;
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return list;
-	}
-	
-	/**
-	 * 参数S22
-	 * @param curveTypeId
-	 * @param graphStyle
-	 * @return
-	 */
-	public List<Object[]> getSmithDataOfS22(int curveTypeId,String graphStyle){
-		List<Object[]> list = new ArrayList<>();
-		Double[] data = null;
-		Connection conn = null;
-		try {
-			conn = db.getConnection();
-			String sql = "select frequency,real_part_s22,imaginary_part_s22 from dm_smith_data where curve_type_id=?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, curveTypeId);
-			ResultSet rs = ps.executeQuery();
-			switch (graphStyle) {
-			case "Smith":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-					list.add(data);
-				}
-				break;
-
-			case "Polar":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
-					list.add(data);
-				}
-				
-				break;
-			case "XYOfPhase":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.toDegrees(Math.atan(rs.getDouble(3)/rs.getDouble(2)))};
-					list.add(data);
-				}
-				break;
-				
-			case "XYOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),Math.sqrt(Math.pow(rs.getDouble(2), 2)+Math.pow(rs.getDouble(3), 2))};
-					list.add(data);
-				}
-				break;
-			case "XYdBOfMagnitude":
-				while(rs.next()){
-					data = new Double[]{rs.getDouble(1),-20*Math.log10(rs.getDouble(2))};
-					list.add(data);
-				}	
-				break;
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
 		return list;
 	}
 	
@@ -341,7 +158,7 @@ public class SmithDao {
 	 * @param parameter
 	 * @return
 	 */
-	public List<Double[]> getSmithData(Connection conn,int curveTypeId, String parameter) {
+	public List<Double[]> getSmithData(Connection conn,int curveTypeId, String parameter,DataBaseUtil db) {
 		String condition = "";
 		switch (parameter) {
 		case "S11":
@@ -358,7 +175,7 @@ public class SmithDao {
 			condition = ",real_part_s22,imaginary_part_s22 ";
 			break;
 		}
-		String sql = "select frequency "+condition+" from curve_smith_data where curve_parameter_id=?";
+		String sql = "select frequency "+condition+" from dm_smith_data where curve_type_id=?";
 		List<Double[]> list = new ArrayList<>();
 		Double[] att = null;
 		double x=0,y = 0,z=0;
@@ -368,24 +185,18 @@ public class SmithDao {
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				x = new BigDecimal(rs.getDouble(1)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-				y = Math.log10(rs.getDouble(2))*(-20);
+				y = Math.log10(rs.getDouble(2))*(20);
 				y = new BigDecimal(y).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 				att = new Double[]{x,y};
 				list.add(att);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 		return list;
 	}
 	
-	public List<Map<String,Object>> getMarkerSmithData(Connection conn,int curveTypeId, String parameter){
+	public List<Map<String,Object>> getMarkerSmithData(Connection conn,int curveTypeId, String parameter,DataBaseUtil db){
 		String condition = "";
 		switch (parameter) {
 		case "S11":
@@ -406,7 +217,7 @@ public class SmithDao {
 		return db.queryToList(conn, sql, new Object[]{curveTypeId});
 	}
 	
-	public boolean insertMarkerData(List<Object[]> ls){
+	public boolean insertMarkerData(List<Object[]> ls,DataBaseUtil db){
 		String sql = "insert into dm_marker_data (wafer_id,module,marker_name,point_x,point_y) values (?,?,?,?,?)";
 		return db.insertBatch(sql, ls);
 	}
@@ -415,45 +226,45 @@ public class SmithDao {
 	 * @param param
 	 * @return
 	 */
-	public boolean insertMarker(Connection conn,Object[] param){
+	public boolean insertMarker(Connection conn,Object[] param,DataBaseUtil db){
 		String sql = "insert into dm_marker_data (wafer_id,curve_type_id,module,marker_name,point_x,point_y,location_key) value (?,?,?,?,?,?,?)";
 		return db.operate(conn,sql, param);
 	}
 	
-	public int getMarkerId(Object[] param){
+	public int getMarkerId(Object[] param,DataBaseUtil db){
 		String sql  = "select marker_id calculationId from dm_marker_data where wafer_id=? and curve_type_id=? and module=?  and marker_name=?";
 		Object result = db.queryResult(sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
-	public boolean updateMarker(Connection conn,Object[] param){
+	public boolean updateMarker(Connection conn,Object[] param,DataBaseUtil db){
 		String sql = "update dm_marker_data set marker_name=?,location_key=? where marker_name=? and  wafer_id=?";
 		return db.operate(conn,sql, param);
 	}
 	
 	
-	public boolean deleteMarker(Object[] param){
+	public boolean deleteMarker(Object[] param,DataBaseUtil db){
 		String sql = "delete from dm_marker_data where marker_name=? and  wafer_id=?";
 		return db.operate(sql, param);
 	}
 	
-	public boolean deleteMarkerById(Connection conn,int curveTypeId){
+	public boolean deleteMarkerById(Connection conn,int curveTypeId,DataBaseUtil db){
 		String sql = "delete from dm_marker_data where curve_type_id=?";
 		return db.operate(sql, new Object[]{curveTypeId});
 	}
 	
-	public List<Map<String,Object>> getMarkerByTypeId(Connection conn,int curveTypeId){
+	public List<Map<String,Object>> getMarkerByTypeId(Connection conn,int curveTypeId,DataBaseUtil db){
 		String sql = "select marker_name,point_x,point_y,location_key,marker_id  from dm_marker_data where  curve_type_id=?";
 		return db.queryToList(conn,sql, new Object[]{curveTypeId});
 	}
 	
-	public boolean getMarkerExsit(Connection conn,int curveTypeId){
+	public boolean getMarkerExsit(Connection conn,int curveTypeId,DataBaseUtil db){
 		String sql = "select marker_name  from dm_marker_data where  curve_type_id=?";
 		List<String> ls = db.queryList(conn, sql, new Object[]{curveTypeId});
 		return ls.size()>0?true:false;
 	}
 	
-	public String getTypeIdStr(Connection conn,int coordinateId){
+	public String getTypeIdStr(Connection conn,int coordinateId,DataBaseUtil db){
 		String sql = "select curve_type_id from dm_curve_type where coordinate_id=?";
 		List<String> ls = db.queryList(conn, sql, new Object[]{coordinateId});
 		String result = "";
@@ -464,7 +275,7 @@ public class SmithDao {
 		return result;
 	}
 	
-	public Map<String,List<String>> getAllMarker(Connection conn,String typeIdStr){
+	public Map<String,List<String>> getAllMarker(Connection conn,String typeIdStr,DataBaseUtil db){
 		String sql = "select marker_name,point_x,point_y from dm_marker_data where  curve_type_id in ("+typeIdStr+")";
 		Map<String,List<String>> result = new HashMap<>();
 		List<String> ls = null;
@@ -491,7 +302,7 @@ public class SmithDao {
 	 * @param sParameter
 	 * @return
 	 */
-	public List<String> getMaxAndMin(Connection conn,int curveTypeId,String sParameter){
+	public List<String> getMaxAndMin(Connection conn,int curveTypeId,String sParameter,DataBaseUtil db){
 		String condition = "";
 		switch (sParameter) {
 		case "S11":
@@ -521,7 +332,7 @@ public class SmithDao {
 	 * @param str  判断条件 大于等于最大值或小于等于最小值
 	 * @return
 	 */
-	public boolean  getIntersection(Connection conn,double markerY,int curveTypeId,String sParameter,String str){
+	public boolean  getIntersection(Connection conn,double markerY,int curveTypeId,String sParameter,String str,DataBaseUtil db){
 		
 		String sql = "select frequency from dm_smith_data where curve_type_id=? and "+str+"?";
 		List<Map<String,Object>> ls = db.queryToList(conn, sql, new Object[]{curveTypeId,markerY});
@@ -584,7 +395,7 @@ public class SmithDao {
 	}
 	
 	
-	public boolean insertMarkerCalculation(List<Object[]> ls){
+	public boolean insertMarkerCalculation(List<Object[]> ls,DataBaseUtil db){
 		String sql = "insert into dm_marker_data (wafer_id,module,custom_parameter,calculate_formula,calculation_result) values (?,?,?,?,?)";
 		return db.insertBatch(sql, ls);
 	}
@@ -593,28 +404,28 @@ public class SmithDao {
 	 * @param param
 	 * @return
 	 */
-	public boolean insertMarkerCalculation(Connection conn,Object[] param){
+	public boolean insertMarkerCalculation(Connection conn,Object[] param,DataBaseUtil db){
 		String sql = "insert into dm_marker_data (wafer_id,module,custom_parameter,user_formula,calculate_formula,calculation_result) value (?,?,?,?,?,?)";
 		return db.operate(conn,sql, param);
 	}
 	
-	public int getCalculationId(Object[] param){
+	public int getCalculationId(Object[] param,DataBaseUtil db){
 		String sql  = "select marker_id calculationId from dm_marker_calculation where wafer_id=? and module=? and custom_parameter=?";
 		Object result = db.queryResult(sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
-	public boolean updateCalculation(Connection conn,Object[] param ){
+	public boolean updateCalculation(Connection conn,Object[] param ,DataBaseUtil db){
 		String sql = "update dm_marker_calculation set custom_parameter=?,user_formula=?,calculate_formula=?,calculation_result=? where marker_id=?";
 		return db.operate(conn, sql,param);
 	}
 	
-	public List<Map<String,Object>> getCalculation(int waferId,String module){
+	public List<Map<String,Object>> getCalculation(int waferId,String module,DataBaseUtil db){
 		String sql = "select custom_parameter,calculation_result,calculate_formula,user_formula from dm_marker_calculation where wafer_id=? and module=?";
 		return db.queryToList(sql, new Object[]{waferId});
 	}
 	
-	public List<Map<String,Object>> getCalculation(Connection conn,int waferId,String module){
+	public List<Map<String,Object>> getCalculation(Connection conn,int waferId,String module,DataBaseUtil db){
 		String sql = "select custom_parameter,calculate_formula from dm_marker_calculation where wafer_id=? and module=?";
 		return db.queryToList(conn,sql, new Object[]{waferId});
 	}
@@ -626,7 +437,7 @@ public class SmithDao {
 	 * @param curveTypeId
 	 * @return
 	 */
-	public int getRowNumber(Connection conn,int coordinateId,int curveTypeId){
+	public int getRowNumber(Connection conn,int coordinateId,int curveTypeId,DataBaseUtil db){
 		String sql = "select c.rowno from "
 				+ "(select dm_curve_type.curve_type_id ,(@rowno:=@rowno+1) as rowno from dm_curve_type,(select (@rowno:=0)) b "
 				+ "where coordinate_id=? and curve_file_type=1 order  by curve_type_id)c where c.curve_type_id=?";
@@ -643,7 +454,7 @@ public class SmithDao {
 	 * @param rowNO
 	 * @return
 	 */
-	public int getCurveTypeId(Connection conn,int coordinateId,int rowNO){
+	public int getCurveTypeId(Connection conn,int coordinateId,int rowNO,DataBaseUtil db){
 		String sql = "select c.curve_type_id from "
 				+ "(select dm_curve_type.curve_type_id ,(@rowno:=@rowno+1) as rowno from dm_curve_type,(select (@rowno:=0)) b "
 				+ "where coordinate_id=? and curve_file_type=1 order  by curve_type_id)c where c.rowno=?";
@@ -653,16 +464,15 @@ public class SmithDao {
 		
 	}
 	
-	public List<Map<String,Object>> getMarker(Connection conn,int coordinateId){
+	public List<Map<String,Object>> getMarker(Connection conn,int coordinateId,DataBaseUtil db){
 	String sql = "select marker_name,point_x,point_y from dm_marker_data where curve_type_id in (select curve_type_id from dm_curve_type where coordinate_id=?)";
 		return db.queryToList(conn, sql, new Object[]{coordinateId});
 	}
 	
-	public String getFormula(Connection conn,int calculationId){
+	public String getFormula(Connection conn,int calculationId,DataBaseUtil db){
 		String sql = " select  calculate_formula from dm_marker_calculation where marker_id=? ";
 		Object result = db.queryResult(conn, sql,new Object[]{calculationId});
 		return result==null?"":result.toString();
 	}
-	
 	
 }

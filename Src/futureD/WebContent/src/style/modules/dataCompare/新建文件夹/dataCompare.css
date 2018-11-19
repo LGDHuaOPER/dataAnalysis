@@ -1,0 +1,177 @@
+body {
+	display: grid;
+	grid-template-rows: 40px 1fr;
+	grid-template-columns: 40px 1fr;
+	grid-template-areas: "g_logo  g_info"
+						"g_menu  g_body";
+	min-height: 100vh;
+	min-width: 900px;
+}
+
+.g_logo {
+	grid-area: g_logo;
+	height: 40px;
+	line-height: 40px;
+	background-color: #3d89f9;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.g_info {
+	grid-area: g_info;
+	height: 40px;
+	line-height: 40px;
+}
+
+.g_menu {
+	grid-area: g_menu;
+	background-color: rgb(25, 28, 43);
+}
+
+.g_body {
+	grid-area: g_body;
+	padding: 10px;
+	background-color: rgb(245, 245, 245);
+}
+
+.g_info_l {
+	position: absolute;
+	padding-left: 10px;
+    letter-spacing: 2px;
+    width: 215px;
+    color: rgb(53, 140, 245);
+    font-weight: 600;
+}
+
+.g_info_r {
+	padding-left: 215px;
+	text-align: right;
+}
+
+.g_info_r .glyphicon {
+	margin-right: 20px;
+	font-size: 22px;
+	vertical-align: middle;
+}
+
+.g_bodyin {
+	height: 100%;
+}
+
+.g_bodyin_tit {
+    margin-bottom: 10px;
+	height: 35px;
+	line-height: 35px;
+}
+
+.g_bodyin_tit_l {
+	position: absolute;
+	width: 30px;
+	border-right: 2px solid #000;
+}
+
+.g_bodyin_tit_r {
+	position: relative;
+	padding-left: 30px;
+}
+
+.g_bodyin_tit_r .breadcrumb {
+	margin-bottom: 10px;
+	padding: 0px 15px;
+}
+
+.g_bodyin_tit_r>span {
+	position: absolute;
+	font-size: 20px;
+	right: 15px;
+	top: 7px;
+	transform: rotateY(180deg);
+	-webkit-transform: rotateY(180deg);	/* Safari 和 Chrome */
+	-moz-transform: rotateY(180deg);	/* Firefox */
+	display: none;
+}
+
+.g_bodyin_body {
+	padding: 10px;
+	height: calc(100% - 45px);
+	background-color: #fff;
+}
+
+.g_bodyin_bodyin {
+	height: 100%;
+	display: grid;
+	grid-template-rows: 50px 1fr;
+	grid-template-areas: "g_bodyin_bodyin_top"
+						"g_bodyin_bodyin_bottom";
+}
+
+.g_bodyin_bodyin_top {
+	grid-area: g_bodyin_bodyin_top;
+}
+
+.g_bodyin_bodyin_bottom {
+	grid-area: g_bodyin_bodyin_bottom;
+}
+
+/* 工具栏开始 */
+.g_bodyin_bodyin_top_wrap {
+	height: 100%;
+    line-height: 50px;
+}
+
+.g_bodyin_bodyin_top_wrap li[role='presentation']>a {
+	font-size: 15px;
+}
+/* 工具栏结束 */
+
+/* 主页面 */
+.home_dataCompare_wrap {
+	display: grid;
+	grid-template-rows: 1fr 1fr;
+	grid-template-areas: "home_dataCompare_top"
+						"home_dataCompare_bottom";
+	height: 100%;
+}
+/* 主页面end */
+
+span.glyphicon, .thumbnail {
+	cursor: pointer;
+}
+
+.g_bodyin_bodyin_bottom_r .thumbnail {
+	position: relative;
+	padding-bottom: 50px;
+	min-height: 190px;
+	height: 190px;
+}
+
+.g_bodyin_bodyin_bottom_r .thumbnail h3 {
+	text-align: center;
+	white-space: nowrap;
+	font-size: 20px;
+}
+
+.g_bodyin_bodyin_bottom_r .thumbnail .caption {
+	position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.g_bodyin_bodyin_bottom_r .thumbnail.cannotclick {
+	transition: filter 1.2s;
+	filter: brightness(0.6) contrast(110%);
+	cursor: not-allowed;
+}
+
+@media screen and (max-width: 1023px) {
+	.g_bodyin_bodyin_bottom {
+		grid-template-columns: 300px 1fr;
+	}
+}
+
+@media screen and (max-height: 500px) {
+    body {
+        min-height: 499px;
+    }
+}

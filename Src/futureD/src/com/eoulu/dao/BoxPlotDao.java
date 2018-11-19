@@ -20,7 +20,6 @@ import com.eoulu.util.DataBaseUtil;
  * 
  */
 public class BoxPlotDao {
-	private DataBaseUtil db = new DataBaseUtil();
 	
 	public  Map<String, Object> getBoxPlot(String param,String[] waferIdStr){
 		String sql = "select parameter_column from dm_wafer_parameter where wafer_id=? and parameter_name=?",sql2 = "";
@@ -31,7 +30,7 @@ public class BoxPlotDao {
 		Map<String, Object> map = new HashMap<>();
 		Connection conn = null;
 		try {
-			conn = db.getConnection();
+			conn = new DataBaseUtil().getConnection();
 			for(int i=0,length=waferIdStr.length;i<length;i++){
 				column = "";
 				ps = conn.prepareStatement(sql);

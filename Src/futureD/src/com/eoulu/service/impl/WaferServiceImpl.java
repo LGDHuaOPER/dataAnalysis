@@ -83,7 +83,7 @@ public class WaferServiceImpl implements WaferService {
 	
 	@Override
 	public synchronized String saveZipData(Connection conn,Map<String,Object> mapFileList,String file, String productCategory, String archiveUser,
-			String description, String csvExcel) {
+			String description, String csvExcel,DataBaseUtil db) {
 		WaferDao dao = new WaferDao();
 		ParameterDao parameterDao = new ParameterDao();
 		ZipFileParser util = new ZipFileParser();
@@ -204,7 +204,7 @@ public class WaferServiceImpl implements WaferService {
 				return status;
 			}
 			System.out.println("subdie:"+status);
-			status = zipUtil.insertCurve(conn, file);
+			status = zipUtil.insertCurve(conn, file,db);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
@@ -618,10 +618,11 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public  void deleteJunkData() {
+		DataBaseUtil db = new DataBaseUtil();
 		WaferDao dao = new WaferDao();
 		ParameterDao parameterDao = new ParameterDao();
 		CoordinateDao coordinate = new CoordinateDao();
-		Connection conn = new DataBaseUtil().getConnection();
+		Connection conn = db.getConnection();
 		CurveDao curveDao = new CurveDao();
 		SmithDao smithDao = new SmithDao();
 		List<String> ls = dao.getJunkWaferId(conn);
@@ -634,9 +635,9 @@ public class WaferServiceImpl implements WaferService {
 			curveDao.deleteCurveData(conn, waferId);
 			curveDao.deleteCurveParameter(conn, waferId);
 			curveDao.deleteCurveType(conn, waferId);
-			smithDao.deleteSmithData(conn, waferId);
-			smithDao.deleteMarker(conn, waferId);
-			smithDao.deleteMarkerCalculation(conn, waferId);
+			smithDao.deleteSmithData(conn, waferId,db);
+			smithDao.deleteMarker(conn, waferId,db);
+			smithDao.deleteMarkerCalculation(conn, waferId,db);
 			
 		}
 		dao.delete(conn);

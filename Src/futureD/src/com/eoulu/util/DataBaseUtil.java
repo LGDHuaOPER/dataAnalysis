@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.eoulu.dao.WaferDao;
 import com.mysql.jdbc.Driver;
 import com.mysql.jdbc.Statement;
 
@@ -32,18 +31,14 @@ public class DataBaseUtil{
 	
 	private Connection conn = null;
 	private static Properties prop = new Properties();
-	private static String driver = null;
-	private static String url = null;;
-	private static String user = null;
-	private static String password = null;
+	private static String driver = null, url = null;
 	static {
 		try {
 			prop.load(DataBaseUtil.class.getResourceAsStream("DB.properties"));
 			String cKey = "1234567890123456";
 			driver = prop.getProperty("driver");
 			url = prop.getProperty("url");
-			user = prop.getProperty("user");
-			password = prop.getProperty("password");
+			String user = prop.getProperty("user"),password = prop.getProperty("password");
 			url = BaseEncrypt.Decrypt(url, cKey);
 			prop.put("user", BaseEncrypt.Decrypt(user, cKey));
 			prop.put("password", BaseEncrypt.Decrypt(password, cKey));

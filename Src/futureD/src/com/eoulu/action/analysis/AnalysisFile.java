@@ -48,4 +48,11 @@ public class AnalysisFile extends HttpServlet {
 		doGet(request, response);
 	}
 
+	public static void main(String[] args) {
+		AnalysisService service = new AnalysisServiceImpl();
+		String[] wafer = new String[]{"188"};
+		Map<String, Object> map = service.getCurveFile(wafer);
+		System.out.println(new Gson().toJson(map));
+	}
+	
 }
