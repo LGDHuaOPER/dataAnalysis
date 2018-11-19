@@ -1,0 +1,47 @@
+.futureDT2_table {
+    width: 100%;
+    box-sizing: border-box;
+    border-collapse: collapse;
+    /*如果定义两个 length 参数，那么第一个设置水平间距，而第二个设置垂直间距。*/
+    border-spacing: 0;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: -3px 3px 10px 2px rgba(195,206,220,0.7), 3px 3px 10px 2px rgba(195,206,220,0.7);
+}
+
+/*超出隐藏*/
+.futureDT2_table .td_overflow_hide {
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.futureDT2_table td, .futureDT2_table th {
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 1px 1px;
+    height: 40px;
+}
+
+.futureDT2_table th {
+	text-align: center;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+/* .futureDT2_table td:not(:first-child) {
+	border-left: 1px solid #999;
+} */
+
+.futureDT2_table tbody tr:nth-child(odd) {
+	background: #fff;
+}
+
+.futureDT2_table tbody tr:nth-child(even) {
+	background: #ececec;
+}
+
+.futureDT2_table thead tr {
+	background: #3d89f9;
+}

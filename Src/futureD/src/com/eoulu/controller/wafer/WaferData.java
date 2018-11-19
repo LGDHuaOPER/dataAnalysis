@@ -57,7 +57,7 @@ public class WaferData extends HttpServlet {
 		}
 		
 		request.setAttribute("result", new Gson().toJson(result));
-		request.getRequestDispatcher("").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/html/dataListDetail.jsp").forward(request, response);
 
 	}
 

@@ -131,11 +131,12 @@ public class AnalysisServiceImpl implements AnalysisService{
 		try {
 			conn.setAutoCommit(false);
 			List<Map<String,Object>> list = null;
-			List<Double[]> ls = null;
+			List<Object[]> ls = null;
 			int id = 0;
 			for(int i=0,length=curveTypeId.length;i<length;i++){
 				id = Integer.parseInt(curveTypeId[i]);
-				ls = smithDao.getSmithData(conn,id, sParameter,db);
+				ls = smithDao.getGraphStyleData(conn, id, "XYdBOfMagnitude", sParameter, db);
+//				ls = smithDao.getSmithData(conn,id, sParameter,db);
 				curveValue.put("curveData", ls);
 				//曲线上的marker点
 				list = smithDao.getMarkerByTypeId(conn, id,db);

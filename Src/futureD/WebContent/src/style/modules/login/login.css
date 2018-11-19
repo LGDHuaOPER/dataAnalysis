@@ -9,7 +9,7 @@ html, body {
 	background-repeat: no-repeat;
 	background-origin: border-box;
 	background-attachment: fixed;
-	background-image: url("../../../img/modules/login/login_bg.png");
+	background-image: url("../../../../assets/img/modules/login/login_bg.png");
 }
 
 /* 登录框 */

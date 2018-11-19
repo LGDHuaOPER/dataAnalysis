@@ -45,7 +45,7 @@ public class ProjectAnalysis extends HttpServlet {
 //		
 //		request.setAttribute("currentPage", currentPage);
 //		request.setAttribute("totalPage", page.getPageCount());
-		request.getRequestDispatcher("./Analysis/Analysis.jsp").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/html/projectAnalysis.jsp").forward(request, response);
 	
 	}
 

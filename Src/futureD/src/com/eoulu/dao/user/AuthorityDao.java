@@ -3,6 +3,12 @@
  */
 package com.eoulu.dao.user;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +21,6 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class AuthorityDao {
 
-	private static DataBaseUtil db = new DataBaseUtil();
 	
 	/**
 	 * 获取页面的权限值
@@ -23,7 +28,7 @@ public class AuthorityDao {
 	 */
 	public List<Map<String,Object>> listAuthority(String page){
 		String sql = "select authority_id from dm_authority where page=?";
-		return db.queryToList(sql, new Object[]{page});
+		return DataBaseUtil.getInstance().queryToList(sql, new Object[]{page});
 	}
 	
 	/**
@@ -32,7 +37,7 @@ public class AuthorityDao {
 	 */
 	public List<Map<String,Object>> getAuthorityPage(){
 		String sql = "select distinct page from dm_authority ";
-		return db.queryToList(sql, null);
+		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	/**
 	 * 当前用户的权限
@@ -44,8 +49,7 @@ public class AuthorityDao {
 			return null;
 		}
 		String sql = "select authority_name,authority_id from dm_authority where authority_id in ("+userAuthority+")";
-		System.out.println(sql);
-		return db.queryToList(sql, null);
+		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	
 	/**
@@ -54,7 +58,14 @@ public class AuthorityDao {
 	 */
 	public List<Map<String,Object>> listAuthority(){
 		String sql = "select authority_name,authority_url from dm_authority";
-		return db.queryToList(sql, null);
+		return DataBaseUtil.getInstance().queryToList(sql, null);
+	}
+	
+	public List<String> getAuthorityUrl(){
+		
+		String sql = "select authority_url from dm_authority";
+		return   DataBaseUtil.getInstance().queryList(sql, null);
+		
 	}
 	
 }

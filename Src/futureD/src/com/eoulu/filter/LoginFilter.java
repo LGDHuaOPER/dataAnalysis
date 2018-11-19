@@ -37,7 +37,7 @@ public class LoginFilter implements Filter{
 		String currentURL = request.getRequestURI();
 		// 截取到当前文件名用于比较
 		String targetURL = currentURL.substring(currentURL.indexOf("/", 1), currentURL.length());
-		System.out.println(targetURL);
+		System.out.println("targetURL:"+targetURL);
 		// 如果session不为空就返回该session，如果为空就返回null
 		HttpSession session = request.getSession(false);
 		if ("/Login/login.jsp".equals(targetURL)) {// 判断请求是否有权限

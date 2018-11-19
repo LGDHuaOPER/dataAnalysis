@@ -85,8 +85,8 @@ public class UserServiceImpl implements UserService{
 			reqName += ","+authorityPerPage.get(j).get("authority_name").toString();
 			reqUrl += ","+authorityPerPage.get(j).get("authority_id").toString();
 		}
-		ls.add(reqName.substring(1));
-		ls.add(reqUrl.substring(1));
+		ls.add(reqName.length()>2?reqName.substring(1):"");
+		ls.add(reqUrl.length()>2?reqUrl.substring(1):"");
 		return ls;
 	}
 	

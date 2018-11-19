@@ -151,51 +151,6 @@ public class SmithDao {
 	}
 	
 	
-	/**
-	 * 获取marker的Smith曲线数据
-	 * 纵轴为-20lg实部
-	 * @param curveTypeId 
-	 * @param parameter
-	 * @return
-	 */
-	public List<Double[]> getSmithData(Connection conn,int curveTypeId, String parameter,DataBaseUtil db) {
-		String condition = "";
-		switch (parameter) {
-		case "S11":
-			condition = ",real_part_s11,imaginary_part_s11 ";
-			break;
-
-		case "S12":
-			condition = ",real_part_s12,imaginary_part_s12 ";
-			break;
-		case "S21":
-			condition = ",real_part_s21,imaginary_part_s21 ";
-			break;
-		case "S22":
-			condition = ",real_part_s22,imaginary_part_s22 ";
-			break;
-		}
-		String sql = "select frequency "+condition+" from dm_smith_data where curve_type_id=?";
-		List<Double[]> list = new ArrayList<>();
-		Double[] att = null;
-		double x=0,y = 0,z=0;
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setInt(1, curveTypeId);
-			ResultSet rs = ps.executeQuery();
-			while(rs.next()){
-				x = new BigDecimal(rs.getDouble(1)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-				y = Math.log10(rs.getDouble(2))*(20);
-				y = new BigDecimal(y).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-				att = new Double[]{x,y};
-				list.add(att);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-	
 	public List<Map<String,Object>> getMarkerSmithData(Connection conn,int curveTypeId, String parameter,DataBaseUtil db){
 		String condition = "";
 		switch (parameter) {

@@ -47,8 +47,9 @@ public class Login extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=utf-8");
-		String userName = request.getParameter("userName")==null?"":request.getParameter("userName");
-		String password = request.getParameter("password")==null?"":request.getParameter("password");
+		String userName = request.getParameter("userName")==null?"":request.getParameter("userName"),
+				password = request.getParameter("password")==null?"":request.getParameter("password"),
+						loginStatus = request.getParameter("loginStatus")==null?"":request.getParameter("loginStatus");
 		password = Md5Util.md5(password);
 		UserService service = new UserServiceImpl();
 		String compare = "";
@@ -61,11 +62,12 @@ public class Login extends HttpServlet {
 			result = "success";
 			HttpSession session = request.getSession();
 			session.setAttribute("userName", userName);
+			session.setAttribute("loginStatus", loginStatus);
 			List<String> userAuthority =  service.getAuthority(userName);
 			session.setAttribute("userAuthority", userAuthority);
 			new iPLocation().getIPAndCity(request);
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			service.updateLoginDate(userName, df.format(new Date()));
+//			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//			service.updateLoginDate(userName, df.format(new Date()));
 		}else{
 			result = "fail";
 		}

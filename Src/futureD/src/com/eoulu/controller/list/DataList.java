@@ -48,7 +48,7 @@ public class DataList extends HttpServlet {
 		request.setAttribute("totalPage", page.getTotalPage());
 		request.setAttribute("userList", service.getAllUser());
 		request.setAttribute("categoryList", service.getProductCategory());
-		request.getRequestDispatcher("./index/index.jsp").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/html/dataList.jsp").forward(request, response);
 	}
 
 	/**

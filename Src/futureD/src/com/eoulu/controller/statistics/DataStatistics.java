@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class DataStatistics
  */
-@WebServlet(description = "数据统计", urlPatterns = { "/DataStatistics" })
+@WebServlet(description = "数据统计", urlPatterns = { "/DataCompare" })
 public class DataStatistics extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -26,7 +26,7 @@ public class DataStatistics extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		request.getRequestDispatcher("./DataAtatistics.jsp").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/html/dataCompare.jsp").forward(request, response);
 	
 	}
 
