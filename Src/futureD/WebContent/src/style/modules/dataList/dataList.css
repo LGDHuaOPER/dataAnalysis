@@ -271,6 +271,16 @@ span.glyphicon {
 	height: auto;
 }
 
+.row_extra3>div:nth-child(2) {
+	position: relative;
+}
+
+.row_extra3>div:nth-child(2)>span.glyphicon-remove {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
 .upload_l_tit {
 	max-height: 30px;
 	max-width: 100%;

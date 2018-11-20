@@ -58,39 +58,6 @@ dataListState.product_categoryArr = store.get("futureDT2__dataList__product_cate
 dataListState.cache = {
 	futureDT2_update_td_description: null
 };
-dataListState.Bar = null;
-dataListState.BarOption = {
-	color: '#32c462',
-	// This has to be the same size as the maximum width to
-	// prevent clipping
-	strokeWidth: 4,
-	// Default: '#eee'
-    trailColor: '#ddd',
-	trailWidth: 5,
-	easing: 'easeInOut',
-	/*duration: 10000,*/
-	/*fill: 'rgba(0, 255, 0, 0.5)',*/
-	text: {
-	    autoStyleContainer: false
-	},
-	from: { color: '#aaa', width: 3 },
-	to: { color: '#333', width: 5 },
-	// Set default step function for all animate calls
-	step: function(state, circle) {
-	  	/*state:
-	  	{offset: 3.9034286598630388, width: 3.961177297132, color: "rgb(52,52,52)"}*/
-	    circle.path.setAttribute('stroke', '#32c462');
-	    circle.path.setAttribute('stroke-width', state.width);
-
-	    var value = Math.round(circle.value() * 100);
-	    if (value === 0) {
-	      circle.setText('');
-	    } else {
-	      circle.setText(value+"%");
-	    }
-	}
-};
-dataListState.hasBuildBar = false;
 
 function additionUpdateIsSubmit(classify){
 	if($(".futureDT2_"+classify).find("span.glyphicon-info-sign").length){
@@ -209,17 +176,6 @@ function renderData(currentPage, classify, funObj, signalDelete){
 	}
 }
 
-function searchMark(isearch){
-	if(isearch != ""){
-		$(".g_bodyin_bodyin_body tbody td:not(.not_search)").each(function(){
-			var iText = $(this).text();
-			var ireplace = "<b style='color:red'>"+isearch+"</b>";
-			var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
-			$(this).empty().html(iHtml);
-		});
-	}
-}
-
 function searchRenderData(currentPage, isearch){
 	renderData(currentPage, "search", {
 		searchFun: function(){
@@ -270,44 +226,7 @@ function searchRenderData(currentPage, isearch){
 $(function(){
 	renderData(1, "onload", {});
 
-	// 分页元素ID（必填）
-	dataListState.pageObj.selector = '#pagelist';
-	// 分页配置
-	dataListState.pageObj.pageOption = {
-	  // 每页显示数据条数（必填）
-	  limit: 10,
-	  // 数据总数（一般通过后端获取，必填）
-	  count: dataListState.pageObj.itemLength,
-	  // 当前页码（选填，默认为1）
-	  curr: 1,
-	  // 是否显示省略号（选填，默认显示）
-	  ellipsis: true,
-	  // 当前页前后两边可显示的页码个数（选填，默认为2）
-	  pageShow: 2,
-	  // 开启location.hash，并自定义hash值 （默认关闭）
-	  // 如果开启，在触发分页时，会自动对url追加：#!hash值={curr} 利用这个，可以在页面载入时就定位到指定页
-	  hash: false,
-	  // 页面加载后默认执行一次，然后当分页被切换时再次触发
-	  callback: function(obj) {
-	    // obj.curr：获取当前页码
-	    // obj.limit：获取每页显示数据条数
-	    // obj.isFirst：是否首次加载页面，一般用于初始加载的判断
-	    dataListState.pageObj.currentPage = obj.curr;
-	    // 首次不执行
-	    if (!obj.isFirst) {
-	      // do something
-	      	renderData(obj.curr, "onload", {});
-	      	dataListState.hasSearch && searchMark($("#search_input").val().trim());
-	      	$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-	      		if(_.indexOf(dataListState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-	      			$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-	      		}
-	      	});
-	    }
-	  }
-	};
-	// 初始化分页器
-	new Pagination(dataListState.pageObj.selector, dataListState.pageObj.pageOption);
+	
 
 });
 
@@ -316,85 +235,11 @@ $(".g_bodyin_bodyin_tit_r .form-control-feedback").click(function(){
 	$(this).prev().children("input").val("");
 });
 
-$("#search_input").on("input propertychange change", function(){
-	if($(this).val().trim() != ""){
-		$(this).parent().parent().next().removeClass("btn-default").addClass("btn-primary").prop("disabled", false);
-	}else{
-		$(this).val("");
-		$(this).parent().parent().next().removeClass("btn-primary").addClass("btn-default").prop("disabled", true);
-	}
-}).on("keyup", function(e){
-	var i = e.keyCode || e.which || e.charCode;
-	if(i == 13 && $(this).val().trim() != ""){
-		$(this).parent().parent().next().trigger("click");
-	}
-});
-
-$(document).on("mouseover", ".g_bodyin_bodyin_body td", function(){
-	$(this).addClass("warning");
-	$(this).parent().addClass("info");
-});
-
-$(document).on("mouseout", ".g_bodyin_bodyin_body td", function(){
-	$(this).removeClass("warning");
-	$(this).parent().removeClass("info");
-});
-
-$(document).on("click", ".g_bodyin_bodyin_body td", function(){
-	$(this).parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !$(this).parent().find("[type='checkbox']").prop("checked")).change();
-});
 
 
-$(document).on("click", ".g_bodyin_bodyin_body tbody [type='checkbox']", function(e){
-	e.stopPropagation();
-	$(this).parent().parent().toggleClass("warning info");
-});
 
-$(document).on("change", ".g_bodyin_bodyin_body tbody [type='checkbox']", function(){
-	var ID = $(this).data("ivalue").toString();
-	$(this).prop("checked") ? dataListState.sellectObj.selectItem.push(ID) : _.pull(dataListState.sellectObj.selectItem, ID);
-	dataListState.sellectObj.selectItem = _.uniq(dataListState.sellectObj.selectItem);
-	$("#checkAll").prop("checked", dataListState.pageObj.itemLength == dataListState.sellectObj.selectItem.length);
-	dataListState.sellectObj.selectAll = $("#checkAll").prop("checked");
-});
 
-$("#checkAll").on({
-	click: function(){
-		var that = $(this);
-		$(".g_bodyin_bodyin_body tbody [type='checkbox']").each(function(){
-			$(this).prop("checked", that.prop("checked"));
-			that.prop("checked") ? ($(this).parent().parent().removeClass("info").addClass("warning")) : ($(this).parent().parent().removeClass("warning info"));
-		});
-		dataListState.sellectObj.selectAll = that.prop("checked");
-		if(that.prop("checked")){
-			dataListState.sellectObj.selectItem = [];
-			JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data.map(function(v, i, arr){
-				if(v.delete_status.value == "0"){
-					dataListState.sellectObj.selectItem.push(v.wafer_id.value);
-				}
-			});
-		}else{
-			dataListState.sellectObj.selectItem = [];
-		}
-	}
-});
 
-/*搜索*/
-$("#search_button").on("click", function(){
-	/*e.preventDefault();
-	e.stopPropagation();*/
-	var isearch = $("#search_input").val().trim();
-	dataListState.searchPageObj.searchVal = isearch;
-	dataListState.hasSearch = isearch == "" ? false : true;
-	searchRenderData(1, isearch);
-	new Pagination(dataListState.searchPageObj.selector, dataListState.searchPageObj.pageOption);
-	dataListState.sellectObj = {
-		selectAll: false,
-		selectItem: []
-	};
-	$("#checkAll").prop("checked", false);
-	return false;
-});
 
 $(".g_info_r>.glyphicon-user").click(function(){
 	window.location.assign("admin.html");
@@ -466,71 +311,9 @@ $("#futureDT2_update_td_description").on("input propertychange change", function
 	}
 });
 
-/*添加上传*/
-$(".row_extra3 .well .glyphicon-plus-sign").click(function(){
-	$("#add_file_Upload").val("");
-	$(this).next().trigger("click");
-});
 
-$("#add_file_Upload").on("change", function(){
-	/*console.log($(this));
-	console.log($(this)[0]);
-	console.log($(this)[0].files);
-	console.log($(this)[0].files[0]);*/
-	if(dataListState.hasBuildBar){
-		dataListState.Bar.destroy();
-	}
-	var size = $(this)[0].files[0].size;
-	var name = $(this)[0].files[0].name;
-	$(".upload_l_tit").text($(this)[0].files[0].name);
-	$(".upload_l_body").text("大小："+eouluGlobal.S_getFileSize(size));
-	dataListState.Bar = new ProgressBar.Circle("#upload_container", dataListState.BarOption);
-	dataListState.Bar.text.style.fontFamily = '"microsoft yahei", "Arial", sans-serif';
-	dataListState.Bar.text.style.fontSize = '2rem';
-	// Number from 0.0 to 1.0
-	dataListState.Bar.animate(1.0, {
-		duration: 10000
-	}, function(){
-		dataListSwalMixin({
-			title: '上传成功！',
-			text: name+" 已经上传至服务器",
-			type: 'success',
-			showConfirmButton: false,
-			timer: 2500,
-		});
-	});
-	/*dataListState.Bar.animate(0.4, {
-	    duration: 800
-	}, function() {
-	    console.log('Animation has finished');
-	});*/
-	/*set(progress)*/
-	dataListState.hasBuildBar = true;
-});
 
-$("#jumpText").on("input propertychange", function(){
-	$(this).val($(this).val().replace(/[^\d]/g,''));
-});
 
-$("#jumpPage").on("click", function(){
-	var iText = Number($("#jumpText").val());
-	var currentPage = Number(dataListState.pageObj.currentPage);
-	var pageCounts = Number(dataListState.pageObj.pageCount);
-	if(currentPage == iText || iText <= 0 || iText>pageCounts){
-	    $("#jumpText").val('');
-	    return;
-	}else{
-		if(dataListState.hasSearch){
-			dataListState.searchPageObj.pageOption.curr = iText;
-			searchRenderData(iText, dataListState.searchPageObj.searchVal);
-			new Pagination(dataListState.searchPageObj.selector, dataListState.searchPageObj.pageOption);
-		}else{
-			dataListState.pageObj.pageOption.curr = iText;
-			renderData(iText, "onload", {});
-			new Pagination(dataListState.pageObj.selector, dataListState.pageObj.pageOption);
-		}
-	}
-});
 
 /*重置*/
 $(".g_bodyin_bodyin_tit_l .glyphicon-refresh").click(function(){

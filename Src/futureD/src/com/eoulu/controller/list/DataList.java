@@ -36,9 +36,10 @@ public class DataList extends HttpServlet {
 		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
 		
 		WaferService service = new WaferServiceImpl();
+		int totalCount = service.countWafer(keyword,Parameter,0);
 		PageDTO page = new PageDTO();
 		page.setRow(10);
-		page.setPageCount(service.countWafer(keyword,Parameter,0));
+		page.setPageCount(totalCount);
 		page.setCurrentPage(currentPage<=page.getTotalPage()?currentPage:1);
 		request.setAttribute("waferList", service.listWafer(page, keyword,Parameter,0));
 		if(!"".equals(keyword)){
@@ -46,6 +47,7 @@ public class DataList extends HttpServlet {
 		}
 		request.setAttribute("currentPage", currentPage);
 		request.setAttribute("totalPage", page.getTotalPage());
+		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("userList", service.getAllUser());
 		request.setAttribute("categoryList", service.getProductCategory());
 		request.getRequestDispatcher("/WEB-INF/html/dataList.jsp").forward(request, response);

@@ -14,7 +14,7 @@ function login_prompt(obj){
 	 	/*html: '',*/
 	 	type: type,
 	 	showConfirmButton: false,
-		timer: 1600,
+		timer: 1000,
 	}).then(function(result){
 		if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 			_.isFunction(obj.callback) && obj.callback();

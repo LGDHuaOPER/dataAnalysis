@@ -25,7 +25,7 @@
 	<!-- 变 -->
 	<link rel="stylesheet" href="src/style/modules/dataList/dataList.css" type="text/css">
 </head>
-<body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}">
+<body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -59,11 +59,11 @@
 								  	<div class="form-group has-feedback">
 								  	  	<div class="input-group">
 								  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
-								  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找">
+								  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找" value="${keyword}">
 								  	  	</div>
 								  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
 								  	</div>
-								  	<button class="btn btn-default" disabled="disabled" id="search_button">搜索</button>
+								  	<button class="btn btn-primary" id="search_button">搜索</button>
 								</form>
 							</div>
 						</div>
@@ -88,7 +88,7 @@
 								<!-- 主页面数据 -->
 								<c:forEach var="waferListItem" items="${waferList}" varStatus="status">
 									<tr>
-										<td><input type="checkbox" data-iid="${waferListItem['wafer_id']}"></td>
+										<td class="not_search"><input type="checkbox" data-iid="${waferListItem['wafer_id']}"></td>
 										<td class="device_number_td" data-ivalue="${waferListItem['device_number']}" title="${waferListItem['device_number']}">${waferListItem['device_number']}</td>
 										<!-- 批次编号 -->
 										<td class="lot_number_td" data-ivalue="${waferListItem['lot_number']}" title="${waferListItem['lot_number']}">${waferListItem['lot_number']}</td>
@@ -169,6 +169,7 @@
 											</div>
 										</div>
 										<div class="col-sm-12 col-md-6 col-lg-6">
+											<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 											<div class="alert alert-info" role="alert">
 											  	<div class="container-fluid">
 											  		<div class="row">
@@ -209,10 +210,7 @@
 						<div class="row">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6">
-						  		<select id="futureDT2_update_productCategory" class="form-control isRequired" title="产品类别">
-						  			<option value="请选择产品类别" disabled selected>请选择产品类别</option>
-						  			
-						  		</select>
+						  		<input type="text" id="futureDT2_update_productCategory" class="form-control isRequired" title="产品类别" placeholder="请填写或选择产品类别">
 						  	</div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5 info_div"></div>
 						</div>
@@ -245,7 +243,7 @@
 				</div>
 			</div><!-- futureDT2_update_r_body end -->
 			<div class="futureDT2_update_r_foot">
-				<input type="button" value="提交" class="btn btn-primary" disabled>
+				<input type="button" value="提交" class="btn btn-primary">
 				<input type="button" value="关闭" class="btn btn-warning">
 			</div>
 		</div>

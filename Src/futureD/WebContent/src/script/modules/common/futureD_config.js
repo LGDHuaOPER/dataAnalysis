@@ -119,6 +119,22 @@
                     "white-space": "nowrap"
                 });
             });
+            return this;
+        },
+        /*服务器繁忙提示*/
+        C_server500Message: function(obj){
+            this.S_getSwalMixin()({
+                title: "操作提示",
+                text: "服务器繁忙",
+                /*html: '',*/
+                type: "warning",
+                showConfirmButton: false,
+                timer: 1600,
+            }).then(function(result){
+                if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+                    _.isFunction(obj.callback) && obj.callback();
+                }
+            });
         },
 
     /* 这里定义不可以链式调用的，以S_开头 */
@@ -487,6 +503,25 @@
                 returnArr[1] = "0";
             }
             return returnArr;
+        },
+        //获取url参数
+        //getUrlPrmt('segmentfault.com/write?draftId=122000011938')
+        //result：Object{draftId: "122000011938"}
+        S_getUrlPrmt: function (url) {
+            url = url ? url : window.location.href;
+            var _pa = url.substring(url.indexOf('?') + 1),
+                _arrS = _pa.split('&'),
+                _rs = {};
+            for (var i = 0, _len = _arrS.length; i < _len; i++) {
+                var pos = _arrS[i].indexOf('=');
+                if (pos == -1) {
+                    continue;
+                }
+                var name = _arrS[i].substring(0, pos),
+                    value = window.decodeURIComponent(_arrS[i].substring(pos + 1));
+                _rs[name] = value;
+            }
+            return _rs;
         },
 
         // @操作系统
