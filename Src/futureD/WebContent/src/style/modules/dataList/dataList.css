@@ -275,10 +275,22 @@ span.glyphicon {
 	position: relative;
 }
 
-.row_extra3>div:nth-child(2)>span.glyphicon-remove {
+.row_extra3>div:nth-child(2)>span.glyphicon-open {
 	position: absolute;
 	top: 5px;
 	left: 5px;
+}
+
+.row_extra3>div:nth-child(2)>span.glyphicon-ok {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
+.row_extra3>div:nth-child(2)>span.glyphicon-remove {
+	position: absolute;
+	top: 5px;
+	right: 15px;
 }
 
 .upload_l_tit {

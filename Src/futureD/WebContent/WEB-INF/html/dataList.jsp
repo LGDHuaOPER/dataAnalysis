@@ -33,8 +33,8 @@
 	</div>
 	<div class="g_menu">
 		<div class="data_c_c" style="display: none;">
-			<c:forEach var="categoryListItem" items="${categoryList}" varStatus="status">
-				<span value="${categoryListItem[product_category]}" class="category_span" style="display: none;"></option>
+			<c:forEach var="categoryListIte" items="${categoryList}" varStatus="status">
+				<span value="${categoryListIte['product_category']}" class="category_span" style="display: none;"></span>
 			</c:forEach>
 		</div>
 	</div>
@@ -169,6 +169,8 @@
 											</div>
 										</div>
 										<div class="col-sm-12 col-md-6 col-lg-6">
+											<span class="glyphicon glyphicon-open" aria-hidden="true"></span>
+											<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 											<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 											<div class="alert alert-info" role="alert">
 											  	<div class="container-fluid">

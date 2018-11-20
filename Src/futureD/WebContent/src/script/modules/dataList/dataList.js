@@ -53,6 +53,7 @@ dataListStore.state.bar = {
 };
 /*添加修改*/
 dataListStore.addition = Object.create(null);
+dataListStore.addition.file = null;
 
 dataListStore.update = Object.create(null);
 dataListStore.update.productCategory = {
@@ -230,6 +231,7 @@ $(window).on("resize", function(){
 $(".g_bodyin_bodyin_tit_l>.glyphicon-remove-circle").click(function(){
 	$(".futureDT2_bg_cover, .futureDT2_addition").slideDown(200);
 	$(".futureDT2_addition_l, .futureDT2_addition_r").height($(".futureDT2_addition").height());
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-ok, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
 });
 $(".futureDT2_addition_r_foot .btn-warning, .futureDT2_update_r_foot .btn-warning").click(function(){
 	var $iparent = $(this).parents("[data-iparent]");
@@ -324,87 +326,122 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 	e.stopPropagation();
 	var iThat = $(this);
   	eouluGlobal.S_getSwalMixin()({
-	 	title: "删除提示",
-	 	text: "正在删除",
+	 	title: "确定删除吗？",
+	 	text: "删除后将放入回收站",
 	 	/*html: '',*/
-	 	type: "info",
-	 	showConfirmButton: false,
-	});
-	$.ajax({
-		type: "GET",
-		url: "DataListRemove",
-		data: {
-			waferId: iThat.data("iid")
-		},
-		dataType: "json"
-	}).then(function(data){
-		if(data == true){
-			dataListSwalMixin({
-				title: "删除提示",
-				text: "删除成功",
-				type: "success",
-				timer: 1500,
-				callback: function(){
-					window.location.reload();
+	 	type: "warning",
+	 	showCancelButton: true,
+	  	confirmButtonText: '确定，删除！',
+	  	cancelButtonText: '不，取消！',
+	  	reverseButtons: false
+	}).then(function(result){
+		if (result.value) {
+			// {value: true}
+			$.ajax({
+				type: "GET",
+				url: "DataListRemove",
+				data: {
+					waferId: iThat.data("iid")
+				},
+				dataType: "json"
+			}).then(function(data){
+				if(data == true){
+					dataListSwalMixin({
+						title: "删除提示",
+						text: "删除成功",
+						type: "success",
+						timer: 1500,
+						callback: function(){
+							window.location.reload();
+						}
+					});
+				}else if(data == false){
+					dataListSwalMixin({
+						title: "删除提示",
+						text: "删除失败",
+						timer: 1500,
+						callback: null
+					});
+				}else{
+					dataListSwalMixin({
+						title: "删除提示",
+						text: data,
+						timer: 1600,
+						callback: null
+					});
 				}
+			}, function(){
+				eouluGlobal.C_server500Message();
 			});
-		}else if(data == false){
-			dataListSwalMixin({
-				title: "删除提示",
-				text: "删除失败",
-				timer: 1500,
-				callback: null
-			});
-		}else{
-			dataListSwalMixin({
-				title: "删除提示",
-				text: data,
-				timer: 1600,
-				callback: null
-			});
+		} else if (result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.cancel) {
+		  	dataListSwalMixin({
+		  		title: "删除提示",
+		  		text: "取消了，不作处理",
+		  		timer: 1500,
+		  		callback: null
+		  	});
 		}
-	}, function(){
-		eouluGlobal.C_server500Message();
 	});
 }).on("click", ".g_bodyin_bodyin_tit_l>.glyphicon-remove", function(){
 	var selectedItem = store.get("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem");
 	if(_.isNil(selectedItem) || _.isEmpty(selectedItem)) return false;
-	$.ajax({
-		type: "GET",
-		url: "DataListRemove",
-		data: {
-			waferId: _.join(selectedItem, ",")
-		},
-		dataType: "json"
-	}).then(function(data){
-		if(data == true){
-			dataListSwalMixin({
-				title: "删除提示",
-				text: "删除成功",
-				type: "success",
-				timer: 1500,
-				callback: function(){
-					store.set("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem", []);
-					window.location.reload();
+  	eouluGlobal.S_getSwalMixin()({
+	 	title: "确定删除吗？",
+	 	text: "删除后将放入回收站",
+	 	/*html: '',*/
+	 	type: "warning",
+	 	showCancelButton: true,
+	  	confirmButtonText: '确定，删除！',
+	  	cancelButtonText: '不，取消！',
+	  	reverseButtons: false
+	}).then(function(result){
+		if (result.value) {
+			// {value: true}
+			$.ajax({
+				type: "GET",
+				url: "DataListRemove",
+				data: {
+					waferId: _.join(selectedItem, ",")
+				},
+				dataType: "json"
+			}).then(function(data){
+				if(data == true){
+					dataListSwalMixin({
+						title: "删除提示",
+						text: "删除成功",
+						type: "success",
+						timer: 1500,
+						callback: function(){
+							store.set("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem", []);
+							window.location.reload();
+						}
+					});
+				}else if(data == false){
+					dataListSwalMixin({
+						title: "删除提示",
+						text: "删除失败",
+						timer: 1500,
+						callback: null
+					});
+				}else{
+					dataListSwalMixin({
+						title: "删除提示",
+						text: data,
+						timer: 1600,
+						callback: null
+					});
 				}
+			}, function(){
+				eouluGlobal.C_server500Message();
 			});
-		}else if(data == false){
-			dataListSwalMixin({
-				title: "删除提示",
-				text: "删除失败",
-				timer: 1500,
-				callback: null
-			});
-		}else{
-			dataListSwalMixin({
-				title: "删除提示",
-				text: data,
-				timer: 1600,
-				callback: null
-			});
+		} else if (result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.cancel) {
+		  	dataListSwalMixin({
+		  		title: "删除提示",
+		  		text: "取消了，不作处理",
+		  		timer: 1300,
+		  		callback: null
+		  	});
 		}
-	}, function(){
-		eouluGlobal.C_server500Message();
 	});
 });
 
@@ -529,19 +566,31 @@ $("#add_file_Upload").on("change", function(){
 		});
 		return false;
 	}
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").show();
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").hide();
 	// dataListStore.state.bar.flag option Bar
 	var size = $(this)[0].files[0].size;
 	var name = $(this)[0].files[0].name;
 	$(".upload_l_tit").text($(this)[0].files[0].name);
 	$(".upload_l_body").text("大小："+eouluGlobal.S_getFileSize(size));
-	dataListState.Bar = new ProgressBar.Circle("#upload_container", dataListState.BarOption);
-	dataListState.Bar.text.style.fontFamily = '"microsoft yahei", "Arial", sans-serif';
-	dataListState.Bar.text.style.fontSize = '2rem';
-	
+	dataListStore.state.bar.Bar = new ProgressBar.Circle("#upload_container", dataListStore.state.bar.option);
+	dataListStore.state.bar.Bar.text.style.fontFamily = '"microsoft yahei", "Arial", sans-serif';
+	dataListStore.state.bar.Bar.text.style.fontSize = '2rem';
+	dataListStore.addition.file = $(this)[0].files[0];
+	/*dataListState.Bar.animate(0.4, {
+	    duration: 800
+	}, function() {
+	    console.log('Animation has finished');
+	});*/
+	/*set(progress)*/
+});
+/*上传文件*/
+$(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
+	if(_.isNil(dataListStore.addition.file)) return false;
     var formData = new FormData();
     formData.enctype="multipart/form-data";
     // formData.append("ID",ID);
-    formData.append("file", $(this)[0].files[0]);
+    formData.append("file", dataListStore.addition.file);
     //formData.append("file",$("#serFinRepUpload")[0].files[0]);//append()里面的第一个参数file对应permission/upload里面的参数file         
     // formData.append("Operate","upload");
     $.ajax({
@@ -562,14 +611,32 @@ $("#add_file_Upload").on("change", function(){
                 myXhr.upload.addEventListener('progress',function(e){                           
                     var loaded = e.loaded;                  //已经上传大小情况 
                     var total = e.total;                      //附件总大小 
+                    var floatPer = Math.floor(100*loaded/total)/100;
                     var percent = (Math.floor(1000*loaded/total)/10)+"%";     //已经上传的百分比  
                     console.log("已经上传了："+percent);
+                    // Number from 0.0 to 1.0
+                    dataListStore.state.bar.Bar.animate(floatPer, {
+                    	duration: 1
+                    }, function(){
+                    	if(floatPer == 1 || floatPer == 1.0){
+                    		dataListSwalMixin({
+                    			title: "上传成功！",
+                    			text: name+" 已经上传至服务器，请记得提交",
+                    			type: "success",
+                    			timer: 2000,
+                    			callback: null
+                    		});
+                    	}
+                    });
                 }, false); // for handling the progress of the upload
             }
             return myXhr;
         },                    
         success: function(data){
-        	
+        	if(!_.isNil(data) && !_.isEmpty(data)){
+        		$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").show();
+        		$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
+        	}
         },
         error: function(){
         	
@@ -580,31 +647,15 @@ $("#add_file_Upload").on("change", function(){
 		    if(textStatus=="success"){
 		    }
 		}
-    });  
-
-	// Number from 0.0 to 1.0
-	/*dataListState.Bar.animate(1.0, {
-		duration: 10000
-	}, function(){
-		dataListSwalMixin({
-			title: '上传成功！',
-			text: name+" 已经上传至服务器",
-			type: 'success',
-			showConfirmButton: false,
-			timer: 2500,
-		});
-	});*/
-	/*dataListState.Bar.animate(0.4, {
-	    duration: 800
-	}, function() {
-	    console.log('Animation has finished');
-	});*/
-	/*set(progress)*/
+    }); 
 });
 /*删除选中*/
 $(".row_extra3>div:nth-child(2)>span.glyphicon-remove").click(function(){
 	dataListStore.state.bar.Bar.destroy();
 	$(".upload_l_tit").text("");
 	$(".upload_l_body").text("");
+	$(this).hide();
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-ok, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
 	dataListStore.state.bar.flag = false;
+	dataListStore.addition.file = null;
 });
