@@ -77,16 +77,18 @@ public class UserServiceImpl implements UserService{
 	public List<String> getAuthority(String userName) {
 		List<String> ls = new ArrayList<>();
 		String reqName = "";
-		String reqUrl = "";
+		String reqUrl = "",reqId="";
 		reqUrl = dao.getUserAuthority(userName);
 		List<Map<String,Object>> authorityPerPage = authorityDao.getAuthority(reqUrl);
 		reqUrl = "";
 		for(int j=0,size2=authorityPerPage.size();j<size2;j++){
 			reqName += ","+authorityPerPage.get(j).get("authority_name").toString();
-			reqUrl += ","+authorityPerPage.get(j).get("authority_id").toString();
+			reqId += ","+authorityPerPage.get(j).get("authority_id").toString();
+			reqUrl += ","+authorityPerPage.get(j).get("authority_url").toString();
 		}
-		ls.add(reqName.length()>2?reqName.substring(1):"");
-		ls.add(reqUrl.length()>2?reqUrl.substring(1):"");
+		ls.add(reqName.length()>1?reqName.substring(1):"");
+		ls.add(reqUrl.length()>1?reqUrl.substring(1):"");
+		ls.add(reqId.length()>1?reqId.substring(1):"");
 		return ls;
 	}
 	

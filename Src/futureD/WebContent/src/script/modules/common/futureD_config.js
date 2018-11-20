@@ -106,6 +106,20 @@
             }
             return this;
         },
+        /*表格自适应出现省略号*/
+        C_tableEllipsis: function(obj){
+            obj.container.find("tbody td").each(function(){
+                var inde = $(this).index();
+                $(this).css({
+                    "max-width": obj.widthArr[inde],
+                    "min-width": obj.widthArr[inde],
+                    "width": obj.widthArr[inde],
+                    "overflow": "hidden",
+                    "text-overflow": "ellipsis",
+                    "white-space": "nowrap"
+                });
+            });
+        },
 
     /* 这里定义不可以链式调用的，以S_开头 */
         // 同步或异步动态加载脚本

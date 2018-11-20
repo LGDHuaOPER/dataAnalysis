@@ -88,7 +88,7 @@ $(".button_div>button").click(function(){
 				  			type: "info"
 				  		});
 				  	}
-				  	eouluGlobal.C_btnAbled(iThat, true, "登录");
+				  	eouluGlobal.C_btnDisabled(iThat, true, "正在跳转...");
 					window.location.assign("HomeInterface");
 				}
 			});
@@ -121,4 +121,9 @@ $(".button_div>button").click(function(){
   			}
   		});
 	});
+});
+
+history.pushState(null, null, document.URL);
+window.addEventListener('popstate', function () {
+    history.pushState(null, null, document.URL);
 });

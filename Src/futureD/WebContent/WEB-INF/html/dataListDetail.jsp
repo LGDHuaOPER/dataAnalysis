@@ -1,3 +1,9 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"	pageEncoding="utf-8"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="java.util.*"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,16 +11,19 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="assets/img/common/futureDT2.ico"/>
+	<link rel="bookmark" href="assets/img/common/futureDT2.ico"/>
 	<title>futureD数据列表-详细信息</title>
-	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/modules/dataListDetail/dataListDetail.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstro.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
+	<!-- 变 -->
+	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
 </head>
 <body data-curpage="dataListDetail">
-	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
+	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
 		<div class="g_info_r bootstro" data-bootstro-title="详细信息引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
@@ -285,26 +294,25 @@
 			</div>
 		</div>
 	</div>
-	<script src="../script/libs/jquery-3.3.1.min.js"></script>
-	<script src="../script/libs/bootstrap.min.js"></script>
-	<script src="../script/libs/lodash.min.js"></script>
-	<script src="../script/libs/store.legacy.min.js"></script>
-	<script src="../script/libs/moment-with-locales.min.js"></script>
-	<script src="../script/libs/sweetalert2.min.js"></script>
-	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="../script/common/futureDT2session.js"></script>
-	<!-- <script src="../script/libs/progressbar.min.js"></script> -->
-	<script src="../script/libs/newhighcharts.js"></script>	
-	<script src="../script/libs/highcharts-axis-arrow.js"></script>
-	<script src="../script/libs/highcharts-more.js"></script>
-	<script src="../script/libs/histogram-bellcurve.js"></script>
-	<script src="../script/libs/bootstro.js"></script>
-	<script src="../script/common/futureD_bootstro.js"></script>
-	<script src="../script/common/futureD_config.js"></script>
-	<script src="../script/common/mock.js"></script>
-	<script src="../script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<script src="../script/libs/drawingSmith.js"></script>
-	<script src="../script/libs/drawWaferMap.js"></script>
-	<script src="../script/modules/dataListDetail/dataListDetail.js"></script>
+	<script src="assets/script/libs/jquery-3.3.1.min.js"></script>
+	<script src="assets/script/libs/bootstrap.min.js"></script>
+	<script src="assets/script/libs/lodash.min.js"></script>
+	<script src="assets/script/libs/store.legacy.min.js"></script>
+	<script src="assets/script/libs/moment-with-locales.min.js"></script>
+	<script src="assets/script/libs/sweetalert2.min.js"></script>
+	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<!-- <script src="assets/script/libs/progressbar.min.js"></script> -->
+	<script src="assets/script/libs/newhighcharts.js"></script>	
+	<script src="assets/script/libs/highcharts-axis-arrow.js"></script>
+	<script src="assets/script/libs/highcharts-more.js"></script>
+	<script src="assets/script/libs/histogram-bellcurve.js"></script>
+	<script src="assets/script/libs/bootstro.js"></script>
+	<script src="assets/script/common/futureD_bootstro.js"></script>
+	<script src="assets/script/libs/drawingSmith.js"></script>
+	<script src="assets/script/libs/drawWaferMap.js"></script>
+	<!-- 变 -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
+	<script src="src/script/modules/dataListDetail/dataListDetail.js"></script>
 </body>
 </html>

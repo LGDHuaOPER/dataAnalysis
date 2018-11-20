@@ -5,7 +5,7 @@ body {
 	grid-template-areas: "g_logo  g_info"
 						"g_menu  g_body";
 	min-height: 100vh;
-	min-width: 900px;
+	min-width: 1000px;
 }
 
 .g_logo {
@@ -172,14 +172,16 @@ span.glyphicon {
 	cursor: pointer;
 }
 
-.g_bodyin_bodyin_body tbody td.not_search .glyphicon {
+/* 操作栏单元格 */
+.g_bodyin_bodyin_body tbody td.operate_othertd .glyphicon {
 	font-size: 20px;
 }
 
-.g_bodyin_bodyin_body tbody td.not_search .glyphicon+.glyphicon {
+.g_bodyin_bodyin_body tbody td.operate_othertd .glyphicon+.glyphicon {
 	margin-left: 8px;
 }
 
+/* 分页 */
 .futureDT2_page_wrapper {
 	text-align: center;
 }

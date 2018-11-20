@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+
 /**
  * @author mengdi
  *
@@ -42,6 +44,9 @@ public class LoginFilter implements Filter{
 		HttpSession session = request.getSession(false);
 		if ("/Login/login.jsp".equals(targetURL)) {// 判断请求是否有权限
 			System.out.println(111);
+			if(session != null){
+				session.removeAttribute("userName");
+			}
 			chain.doFilter(request, response);
 
 		} else {
@@ -55,8 +60,19 @@ public class LoginFilter implements Filter{
 				response.sendRedirect(request.getContextPath() + "/Login/login.jsp");
 				return;
 			} else {
+				String[] result = currentURL.split("/");
+				String authority = result[result.length-1];
+				if(FilterResource.isController(authority)){
+					if(FilterResource.isAuthority(authority, request)){
+						chain.doFilter(request, response);
+					}else{
+						response.getWriter().write(new Gson().toJson("{message:没有对应权限}"));
+					}
+				}else{
+					chain.doFilter(request, response);
+				}
 				System.out.println(333);
-				chain.doFilter(request, response);
+//				chain.doFilter(request, response);
 			}
 		}
 

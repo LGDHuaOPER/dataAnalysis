@@ -22,7 +22,7 @@ public class FilterResource {
 	
 	
 	private final static String[] resource={
-			"/css/","/js/","/image/",".css",".js","/assets/","/dist/","/src/","/font-awesome-4.5.0/" ,"/Login","/Static","html","DataList","WaferData","IndexInterface"
+			"/css/","/js/","/image/",".css",".js","/assets/","/dist/","/src/","/font-awesome-4.5.0/" ,"/Login","/Static","html","DataList","WaferData","IndexInterface","Logon"
 		};
 		
 		public static boolean isExist(HttpServletRequest request){
@@ -44,12 +44,13 @@ public class FilterResource {
 		}
 		
 		public static boolean isController(String authority){
-			  
+			  System.out.println("list:"+list);
 			return list.contains(authority);
 		}
 		
 		public static boolean isAuthority(String authority,HttpServletRequest req){
 			List<String> ls = (List<String>) req.getSession().getAttribute("userAuthority");
+			System.out.println(ls);
 			String[] att = ls.get(1).split(",");
 			boolean flag = false;
 			for(int i=0,length=att.length;i<length;i++){

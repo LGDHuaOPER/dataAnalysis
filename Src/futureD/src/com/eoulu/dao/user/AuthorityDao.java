@@ -48,7 +48,7 @@ public class AuthorityDao {
 		if("".equals(userAuthority)){
 			return null;
 		}
-		String sql = "select authority_name,authority_id from dm_authority where authority_id in ("+userAuthority+")";
+		String sql = "select authority_name,authority_id,authority_url from dm_authority where authority_id in ("+userAuthority+")";
 		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	
