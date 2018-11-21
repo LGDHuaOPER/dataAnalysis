@@ -202,13 +202,12 @@ function getProgress(value){
 			dataType: "text",
 			success: function(res){
 				var resp = res.match(/\d+/);
-				console.log(res)
-				console.log(resp)
+				console.log(res);
 				if(_.isNil(resp)) getProgress(0);
-				value = resp[0];
-				dataListStore.state.additionProgress+= _.random(0, 99-dataListStore.state.additionProgress, true);
-				dataListStore.state.additionProgress = _.floor(dataListStore.state.additionProgress*10)/10;
-				$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", dataListStore.state.additionProgress).css("width", dataListStore.state.additionProgress+"%").text(dataListStore.state.additionProgress+"%");
+				value = _.floor(resp[0], 1);
+				/*dataListStore.state.additionProgress+= _.random(0, 99-dataListStore.state.additionProgress, true);
+				dataListStore.state.additionProgress = _.floor(dataListStore.state.additionProgress*10)/10;*/
+				$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", value).css("width", value+"%").text(value+"%");
 				if(dataListStore.state.additionFinishFlag){
 					/*setTimeout(function(){
 						eouluGlobal.S_getSwalMixin()({
@@ -231,7 +230,7 @@ function getProgress(value){
 				console.log(errorThrown)
 			}
 		});
-	}, 10);
+	}, 20);
 }
 
 function barDestroy(){
@@ -358,7 +357,7 @@ $(".futureDT2_addition_r_foot .btn-warning, .futureDT2_update_r_foot .btn-warnin
 		obj: dataListStore[classify],
 		isNull: true
 	});
-	$("div.futureDT2_addition_r_progress").slideUp(50);
+	$("div.futureDT2_addition_r_progress").slideUp(30);
 });
 $(document).on("click", ".operate_othertd>.glyphicon-edit", function(e){
 	e.stopPropagation();
@@ -397,17 +396,15 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 		});
 		eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交中...");
 		/*显示进度条*/
-		$("div.futureDT2_addition_r_progress").slideDown(50);
+		$("div.futureDT2_addition_r_progress").slideDown(30);
+		$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", 0).css("width", "0%").text("0%");
 		getProgress(0);
-		$.ajax({
+		/*$.ajax({
 			type: "POST",
 			url: "UploadStorage",
 			data: ajaxData1,
 			dataType: "json"
 		}).then(function(data){
-			/*setInterval(function(){
-				
-			}, 20);*/
 			dataListStore.state.additionFinishFlag = true;
 			dataListSwalMixin({
 				title: "添加提示",
@@ -416,18 +413,58 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 				callback: null
 			});
 			eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
-			if(data.indexOf("有误") > -1){
+			if(data.indexOf("有误") > -1 || data.indexOf("未接收") > -1){
 				barDestroy();
 			}else if(data.indexOf("成功") > -1){
 				$(".futureDT2_addition_r_foot .btn-warning").trigger("click");
-				/*eouluGlobal.S_settingURLParam({
+				eouluGlobal.S_settingURLParam({
 					currentPage: 1
-				}, false, false, false);*/
+				}, false, false, false);
 			}
 		}, function(){
 			eouluGlobal.C_server500Message();
 			eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
+		});*/
+
+		/*新方法*/
+		eouluGlobal.S_XHR({
+			status200: function(data){
+				console.log(data);
+				dataListStore.state.additionFinishFlag = true;
+				dataListSwalMixin({
+					title: "添加提示",
+					text: data,
+					timer: 1500,
+					callback: null
+				});
+				eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
+				if(data.indexOf("有误") > -1 || data.indexOf("未接收") > -1){
+					barDestroy();
+				}else if(data.indexOf("成功") > -1){
+					$(".futureDT2_addition_r_foot .btn-warning").trigger("click");
+					/*eouluGlobal.S_settingURLParam({
+						currentPage: 1
+					}, false, false, false);*/
+				}
+			},
+			statusError: function(xhr, statusText){
+				console.log(statusText);
+				console.log(xhr);
+				eouluGlobal.C_server500Message({
+					callback: null
+				});
+				eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
+			},
+			type: "POST",
+			postObject: {
+				url: "UploadStorage",
+				data: ajaxData1,
+				classify: "form",
+				responseType: "text"
+			}
 		});
+		/*新方法end*/
+
 	}else if(_.isEqual(iparent, "update")){
 		injectStoreValue({
 			obj: dataListStore.update,
@@ -478,7 +515,9 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 			console.log(jqXHR)
 			console.log(textStatus)
 			console.log(errorThrown)
-			eouluGlobal.C_server500Message();
+			eouluGlobal.C_server500Message({
+				callback: null
+			});
 		});
 	}
 });
@@ -533,7 +572,9 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 					});
 				}
 			}, function(){
-				eouluGlobal.C_server500Message();
+				eouluGlobal.C_server500Message({
+					callback: null
+				});
 			});
 		} else if (result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.cancel) {
 		  	dataListSwalMixin({
@@ -594,7 +635,9 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 					});
 				}
 			}, function(){
-				eouluGlobal.C_server500Message();
+				eouluGlobal.C_server500Message({
+					callback: null
+				});
 			});
 		} else if (result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.cancel) {
 		  	dataListSwalMixin({
@@ -796,7 +839,30 @@ $(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
                 }, false); // for handling the progress of the upload
             }
             return myXhr;
-        },                    
+        },
+		/*xhr: function() {
+			var xhr = new window.XMLHttpRequest();
+			//Upload progress, request sending to server
+			xhr.upload.addEventListener("progress", function(evt) {
+				console.log("in Upload progress");
+				console.log("Upload Done");
+			}, false);
+			//Download progress, waiting for response from server
+			xhr.addEventListener("progress", function(e) {
+				console.log("in Download progress");
+				if (e.lengthComputable) {
+					//percentComplete = (e.loaded / e.total) * 100;
+					percentComplete = parseInt((e.loaded / e.total * 100), 10);
+					console.log(percentComplete);
+					$('#bulk-action-progbar').data("aria-valuenow", percentComplete);
+					$('#bulk-action-progbar').css("width", percentComplete + '%');
+
+				} else {
+					console.log("Length not computable.");
+				}
+			}, false);
+			return xhr;
+		},*/
         success: function(data){
         	if(!_.isNil(data) && !_.isEmpty(data)){
         		_.forOwn(data, function(v, k){
@@ -808,7 +874,9 @@ $(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
         	}
         },
         error: function(){
-        	eouluGlobal.C_server500Message();
+        	eouluGlobal.C_server500Message({
+        		callback: null
+        	});
         },
 		beforeSend: function(XMLHttpRequest){
 			eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "正在上传...");
@@ -845,7 +913,8 @@ $(".isRequired").on("input propertychange change", function(){
 });
 
 /*跳转详细数据页面*/
-$(document).on("click", ".operate_othertd .glyphicon-eye-open", function(){
+$(document).on("click", ".operate_othertd .glyphicon-eye-open", function(e){
+	e.stopPropagation();
 	var waferId = $(this).data("iid");
 	var dataFormat = $(this).parent().siblings(".data_format_td").data("ivalue");
 	var webParam = $(this).parent().siblings(".product_category_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".lot_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".wafer_number_td").data("ivalue");

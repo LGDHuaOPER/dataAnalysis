@@ -365,13 +365,13 @@
         },
         // 格式化post 传递的数据
         S_postDataFormat: function(obj){
-            if (typeof obj != "object") {
-                alert("输入的参数必须是对象");
+            if (typeof obj.data != "object") {
+                console.log("S_postDataFormat输入的参数obj.data必须是对象");
                 return;
             }
 
             // 支持有FormData的浏览器（Firefox 4+ , Safari 5+, Chrome和Android 3+版的Webkit）
-            if (typeof FormData == "function") {
+            /*if (typeof FormData == "function") {
                 var data = new FormData();
                 for (var attr in obj) {
                     data.append(attr, obj[attr]);
@@ -386,8 +386,50 @@
                     i++;
                 }
                 return arr.join("&");
+            }*/
+            if (obj.classify == "file") {
+                var data = new FormData();
+                data.enctype="multipart/form-data";
+                for (var attr in obj) {
+                    data.append(attr, obj[attr]);
+                }
+                return data;
+            } else if(obj.classify == "form") {
+                return $.param(obj.data);
+            }else if(obj.classify == "json"){
+                return JSON.stringify(obj.data);
+            }else{
+                // XML
             }
         },
+        /*
+        * @param obj 对象
+        * {
+        *     readyState0 [function]
+        *     readyState1 [function]
+        *     readyState2 [function]
+        *     readyState3 [function]
+        *     status200 [function]
+        *     statusError [function]
+        *     type [string]
+        *     getObject [object]  {
+        *         url [string]
+        *         isObject [boolean]
+        *         data [object]
+        *         responseType [string]
+        *                url [string]
+        *                name [string]
+        *                value [string]
+        *                responseType [string]
+        *     }
+        *     postObject [object]  {
+        *         url [string]
+        *         data [object]
+        *         classify [string]
+        *         responseType [string]
+        *     }
+        * }
+         */
         S_XHR: function(obj){
             var xhr = this.S_createXHR();
             // 定义xhr对象的请求响应事件
@@ -425,21 +467,36 @@
             var iurl;
             // get请求
             if(obj.type.toLocaleUpperCase() == "GET"){
-                iurl = that.S_urlBuildParam();
+                iurl = that.S_urlBuildParam(obj.getObject);
                 xhr.open("get", iurl, true);
+                xhr.responseType = obj.getObject.responseType || "text";
                 xhr.send(null);
             }else if(obj.type.toLocaleUpperCase() == "POST"){
                 // post请求
-                var data = {
-                    name: "ccb",
-                    pass: "123"
-                };
-                xhr.open("post", "example.php", true);
-                // 不支持FormData的浏览器的处理 
+                xhr.open("post", obj.postObject.url, true);
+                xhr.responseType = obj.postObject.responseType || "text";
+                /*// 不支持FormData的浏览器的处理 
                 if (typeof FormData == "undefined") {
                     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                }*/
+                switch (obj.postObject.classify){
+                    case "form":
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    break;
+                    case "file":
+                    xhr.setRequestHeader("Content-Type", "multipart/form-data");
+                    break;
+                    case "json":
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    break;
+                    case "XML":
+                    xhr.setRequestHeader("Content-Type", "text/xml");
+                    break;
                 }
-                xhr.send(postDataFormat(data));
+                xhr.send(that.S_postDataFormat({
+                    classify: obj.postObject.classify,
+                    data: obj.postObject.data
+                }));
             }
         },
         // @http处理类@ 结束
