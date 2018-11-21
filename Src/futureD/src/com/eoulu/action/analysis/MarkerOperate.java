@@ -1,6 +1,7 @@
 package com.eoulu.action.analysis;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,55 +40,37 @@ public class MarkerOperate extends HttpServlet {
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
-		String classify = request.getParameter("classify")==null?"": request.getParameter("classify").trim(),
-			   waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId").trim(),
-				curveTypeId = request.getParameter("curveTypeId")==null?"":request.getParameter("curveTypeId").trim(),
-				oldMarkerName = request.getParameter("oldMarkerName")==null?"":request.getParameter("oldMarkerName").trim(),
-				markerName = request.getParameter("markerName")==null?"":request.getParameter("markerName").trim(),
-				xPoint = request.getParameter("xPoint")==null?"":request.getParameter("xPoint").trim(),
-				yPoint = request.getParameter("yPoint")==null?"":request.getParameter("yPoint").trim(),
-						markerKey = request.getParameter("markerKey")==null?"":request.getParameter("markerKey").trim();
+		Map<String, String[]> paramMap = request.getParameterMap();
+		String classify = request.getParameter("classify") == null ? "" : request.getParameter("classify").trim(),
+						curveTypeId = request.getParameter("curveTypeId") == null ? "":request.getParameter("curveTypeId");
+		int waferId = request.getParameter("waferId") == null ? 0 : Integer.parseInt(request.getParameter("waferId"));
+
 		AnalysisService service = new AnalysisServiceImpl();
-		Object[] param = null;
 		boolean flag = false;
-		Map<String,String> map = new HashMap<>();
 		switch (classify) {
 		case "add":
-			param = new Object[]{Integer.parseInt(waferId),Integer.parseInt(curveTypeId),"TCF",markerName,xPoint,yPoint,markerKey};
-			flag = service.operateMarker(param, classify);
-			if(flag){
-				param = new Object[]{Integer.parseInt(waferId),Integer.parseInt(curveTypeId),"TCF",markerName};
-				int markerId = service.getMarkerId(param);
-				map.put("markerId", markerId+"");
-				map.put("markerName", markerName);
-				map.put("xPoint", xPoint);
-				map.put("yPoint", yPoint);
-				map.put("markerKey", markerKey);
-			}
-			map.put("flag", flag+"");
-			response.getWriter().write(new Gson().toJson(map));
+			flag = service.insertMarker(paramMap, waferId,"TCF");
+			response.getWriter().write(new Gson().toJson(flag));
 			break;
 
 		case "modify":
-			param = new Object[]{markerName,markerKey,oldMarkerName,Integer.parseInt(waferId)};
-			flag = service.operateMarker(param, classify);
+			flag = service.updateMarker(paramMap, waferId,"TCF");
 			response.getWriter().write(new Gson().toJson(flag));
 			break;
-			
+
 		case "remove":
-			param = new Object[]{markerName,Integer.parseInt(waferId)};
-			flag = service.deleteMarker(param);
+			flag = service.deleteMarker(curveTypeId);
 			response.getWriter().write(new Gson().toJson(flag));
 			break;
 		}
-		
+
 	}
-	
-	
 
 }

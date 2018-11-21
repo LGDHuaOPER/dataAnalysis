@@ -35,6 +35,7 @@ import com.eoulu.entity.WaferDO;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.eoulu.transfer.AlpToNumber;
+import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.DataBaseUtil;
 
 
@@ -122,7 +123,7 @@ public class ExcelParser {
 	}
 
 	public static String getExcelData(Connection conn,String filepath, String productCategory, String details,
-			String currentUser, String dataFormat) {
+			String currentUser, String dataFormat,String sessionId,int interval) {
 		boolean limit = false;
 		boolean databool = false;
 		int datanum = 1;
@@ -141,7 +142,7 @@ public class ExcelParser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	
+		ProgressSingleton.put(sessionId, interval+=5);
 		int paramNum = 0;
 		// 变量定义
 		String Tester = "", TestStarTime = "",TestStopTime = "",WaferID = "",LotID = "",DeviceID = "",FileName = "",ComputerName = "", TotalTestTime = "";
@@ -186,6 +187,7 @@ public class ExcelParser {
 				minY = minY<y?minY:y;
 			}
 		}
+		ProgressSingleton.put(sessionId, interval+=5);
 		Map<String,Integer> dieLimit = new HashMap<>();
 		dieLimit.put("maxX", maxX);
 		dieLimit.put("minX", minX);
@@ -441,6 +443,7 @@ public class ExcelParser {
 				}
 			}
 		}
+		ProgressSingleton.put(sessionId, interval+=15);
 		FileName = new File(filepath).getName();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		WaferDO wafer = new WaferDO();
@@ -472,11 +475,14 @@ public class ExcelParser {
 		map.put("condition", condition.substring(0, condition.lastIndexOf(",")));
 		map.put("sizeX",sizeX);
 		map.put("sizeY", sizeY);
+		map.put("sessionId", sessionId);
+		map.put("interval", interval);
 		System.out.println("读完了么");
 //		for(String key:dieMap.keySet()){
 //			System.out.println(Arrays.toString(dieMap.get(key).get(0)));
 //		}
 //		
+		
 		WaferService service = new WaferServiceImpl();
 		if(conn==null){
 			conn = new DataBaseUtil().getConnection();
@@ -495,7 +501,7 @@ public class ExcelParser {
 		}else{
 			status = service.saveExcelData(conn,map, wafer, coordinateFlag);
 		}
-
+		ProgressSingleton.put(sessionId, 99);
 		return status;
 	}
 	

@@ -59,13 +59,7 @@ dataListState.cache = {
 	futureDT2_update_td_description: null
 };
 
-function additionUpdateIsSubmit(classify){
-	if($(".futureDT2_"+classify).find("span.glyphicon-info-sign").length){
-		$(".futureDT2_"+classify+"_r_foot>.btn-primary").prop("disabled", true);
-	}else{
-		$(".futureDT2_"+classify+"_r_foot>.btn-primary").prop("disabled", false);
-	}
-}
+
 
 function getDataListPageData(immediately, funObj){
 	store.remove("futuredDatalist");
@@ -286,23 +280,7 @@ $(".g_bodyin_bodyin_tit_l>.glyphicon-trash").click(function(){
 	});
 });
 
-/*验证*/
-$(".isRequired").on("input propertychange change", function(){
-	var iVal = $(this).val();
-	var str;
-	var classify = $(this).parents("[data-iparent]").data("iparent");
-	if(_.isNil(iVal)){
-		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
-	}else{
-		if(iVal.trim() == ""){
-			str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
-		}else{
-			str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
-		}
-	}
-	$(this).parents("div.row").find("div.info_div").empty().append(str);
-	additionUpdateIsSubmit(classify);
-});
+
 
 $("#futureDT2_update_td_description").on("input propertychange change", function(){
 	var iVal = $(this).val();

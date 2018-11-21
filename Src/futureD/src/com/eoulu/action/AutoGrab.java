@@ -93,7 +93,7 @@ public class AutoGrab extends HttpServlet {
 			String dataFormat = result.get("dataFormat").toString();
 			logWafer = result.get("waferNO").toString();
 			if ("0".equals(dataFormat)) {
-				status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat);
+				status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,"",0);
 			}
 			
 			if ("2".equals(dataFormat)) {

@@ -36,7 +36,7 @@ public class Calculator extends HttpServlet {
 
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
-		String figureFormula = request.getParameter("figureFormula"),userformula = request.getParameter("userformula"),calculationFormula = request.getParameter("calculationFormula");
+		String calculation = request.getParameter("formula")==null?"":request.getParameter("formula").trim(),userformula = request.getParameter("userformula")==null?"":request.getParameter("userformula").trim();
 		String oldParam = request.getParameter("oldParameter")==null?"":request.getParameter("oldParameter").trim(),
 				customParam = request.getParameter("customParameter")==null?"":request.getParameter("customParameter").trim(),
 				coordinateId = request.getParameter("coordinateId")==null?"":request.getParameter("coordinateId").trim(),
@@ -48,7 +48,7 @@ public class Calculator extends HttpServlet {
 		String result = "",status = "";
 		Map<String,String> map = null;
 		try {
-			map = NumericalCalculator.cal(figureFormula);
+			map = NumericalCalculator.cal(calculation);
 			result = map.get("result").toString();
 			status = map.get("status").toString();
 		} catch (ExpressionFormatException e) {
@@ -57,8 +57,8 @@ public class Calculator extends HttpServlet {
 		}
 		if("".equals(status) && !"".equals(result)){
 			AnalysisService service = new AnalysisServiceImpl();
-			if("0".equals(calculationId)){
-				boolean flag = service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId), customParam, calculationFormula, userformula,Double.parseDouble(result), "TCF");
+			if("".equals(calculationId)){
+				boolean flag = service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId), customParam, calculation, userformula,Double.parseDouble(result), "TCF");
 				if(flag){
 					int id = service.getCalculationId(Integer.parseInt(waferId), customParam, "TCF");
 					map.put("calculationId", id+"");
@@ -66,7 +66,7 @@ public class Calculator extends HttpServlet {
 					map.put("customParameter", customParam);
 				}
 			}else{
-				boolean flag = service.modifyCalculation(oldParam, customParam, calculationFormula,userformula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId), Integer.parseInt(waferId));
+				boolean flag = service.modifyCalculation(oldParam, customParam, calculation,userformula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId), Integer.parseInt(waferId));
 				map.put("calculationId", calculationId);
 				map.put("formula", userformula);
 				map.put("customParameter", customParam);

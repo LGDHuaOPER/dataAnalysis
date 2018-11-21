@@ -32,7 +32,7 @@ public class Analysis extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		String[] wafer = request.getParameterValues("wafer[]");
 		request.setAttribute("wafer", wafer);
-		request.getRequestDispatcher("").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/html/RF_SP2.jsp").forward(request, response);
 	}
 
 	/**

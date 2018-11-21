@@ -263,7 +263,7 @@ public class ParameterDao {
 	 * @return
 	 */
 	public String getMaxColumn(Connection conn,Object[] param){
-		String sql = "select max(parameter_column) from dm_wafer_parameter where wafer_id=?";
+		String sql = "select parameter_column from dm_wafer_parameter where wafer_id=? order by substring(parameter_column,2)+0 desc limit 0,1";
 		Object result = db.queryResult(conn,sql, param);
 		return result==null?"":result.toString();
 	}
@@ -288,7 +288,8 @@ public class ParameterDao {
 	public boolean updateParamName(Connection conn,String oldParam,int waferId,String customParam){
 		String sql = "update dm_wafer_parameter set parameter_name=?  where wafer_id=? and parameter_name=? ";
 		Object[] param = new Object[]{customParam,waferId,oldParam};
-		return db.operate(sql, param);
+		System.out.println(Arrays.toString(param));
+		return db.operate(conn,sql, param);
 	}
 	/**
 	 * 取晶圆参数

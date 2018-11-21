@@ -33,6 +33,7 @@ import com.eoulu.service.ExcelService;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.ZipService;
 import com.eoulu.transfer.PageDTO;
+import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.DataBaseUtil;
 import com.eoulu.util.Md5Util;
 
@@ -244,7 +245,9 @@ public class WaferServiceImpl implements WaferService {
 				computerName = map.get("computerName") == null ? "" : map.get("computerName").toString(),
 				totalTestTime = map.get("totalTestTime") == null ? "" : map.get("totalTestTime").toString(),
 				columnStr = map.get("columnStr") == null ? "" : map.get("columnStr").toString(),
-				condtion = map.get("condition") == null ? "" : map.get("condition").toString();
+				condtion = map.get("condition") == null ? "" : map.get("condition").toString(),
+						sessionId = map.get("sessionId")==null?"":map.get("sessionId").toString();
+		int interval = Integer.parseInt(map.get("interval").toString());
 		double sizeX = Double.parseDouble(map.get("sizeX")==null?"0":map.get("sizeX").toString()),sizeY = Double.parseDouble(map.get("sizeY")==null?"0":map.get("sizeY").toString());
 		List<List<String>> paramList = (List<List<String>>) map.get("paramList");
 		Map<String, List<String>> limitMap = (Map<String, List<String>>) map.get("limitMap");
@@ -273,12 +276,14 @@ public class WaferServiceImpl implements WaferService {
 			}
 			wafer.setArchiveUser(Integer.parseInt(currentUser));
 			wafer.setTestOperator(Integer.parseInt(operator));
+			ProgressSingleton.put(sessionId, interval+=10);
 			// 晶圆，参数
 			status = excelUtil.saveWaferParameter(conn, paramList, limitMap, wafer);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
 			}
+			ProgressSingleton.put(sessionId, interval+=10);
 			// 次要信息
 			boolean exsit = dao.getSecondaryExsit(conn, wafer.getWaferNumber());
 			Object[] param = new Object[] { wafer.getWaferNumber(), computerName, tester, totalTestTime };
@@ -292,6 +297,7 @@ public class WaferServiceImpl implements WaferService {
 				conn.rollback();
 				return status;
 			}
+			ProgressSingleton.put(sessionId, interval+=5);
 			long time4 = System.currentTimeMillis();
 			status = excelUtil.saveCoordinate(conn, limitMap, dataMap, wafer.getWaferNumber(), coordinateFlag,
 					columnStr, condtion);
@@ -299,7 +305,7 @@ public class WaferServiceImpl implements WaferService {
 				conn.rollback();
 				return status;
 			}
-			
+			ProgressSingleton.put(sessionId, interval+=18);
 			long time5 = System.currentTimeMillis();
 			System.out.println("update yield:" + (time5 - time4));
 			status = excelUtil.updateYield(conn, limitMap, wafer.getWaferNumber());
@@ -307,13 +313,14 @@ public class WaferServiceImpl implements WaferService {
 				conn.rollback();
 				return status;
 			}
-
+			ProgressSingleton.put(sessionId, interval+=2);
 			exsit = parameterDao.getMapParameter(conn, wafer.getWaferNumber());
 			status = excelUtil.saveMap(conn, wafer.getWaferNumber(), exsit,sizeX,sizeY);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
 			}
+			ProgressSingleton.put(sessionId, interval+=15);
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -82,6 +82,7 @@
 									<th>描述</th>
 									<th>操作</th>
 									<th class="hide">产品类别</th>
+									<th class="hide">数据格式</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -99,6 +100,7 @@
 										<td class="description_td" data-ivalue="${waferListItem['description']}" title="${waferListItem['description']}">${waferListItem['description']}</td>
 										<td class="not_search operate_othertd"><span class="glyphicon glyphicon-edit" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span><span class="glyphicon glyphicon-eye-open" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span></td>
 										<td class="not_search product_category_td hide" data-ivalue="${waferListItem['product_category']}"></td>
+										<td class="not_search data_format_td hide" data-ivalue="${waferListItem['data_format']}"></td>
 									</tr>
 								</c:forEach>
 							</tbody>
@@ -119,15 +121,28 @@
 			<div class="futureDT2_addition_menu">
 				<div class="futureDT2_addition_menu_in">上传文件</div>
 			</div>
-		</div><div class="futureDT2_addition_r">
-			<div class="futureDT2_addition_r_tit">详细信息</div>
+		</div>
+		<div class="futureDT2_addition_r">
+			<div class="futureDT2_addition_r_tit">
+				<div class="futureDT2_addition_r_tit_l">详细信息</div>
+				<div class="futureDT2_addition_r_tit_r">
+					<div class="futureDT2_addition_r_progress">
+						<div class="container-fluid">
+							<div class="progress">
+							  	<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 2%; min-width: 2%;">
+							  	</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div><!-- futureDT2_addition_r_tit end -->
 			<div class="futureDT2_addition_r_body">
 				<div class="futureDT2_addition_r_bodyin">
 					<div class="container-fluid">
 						<div class="row">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6">
-						  		<select id="futureDT2_addition_data_format" class="form-control isRequired" title="数据格式">
+						  		<select id="futureDT2_addition_dataFormat" class="form-control isRequired" title="数据格式">
 						  			<option value="请选择数据格式" disabled selected>请选择数据格式</option>
 						  			<%-- <c:forEach var="categoryListItem" items="${categoryList}" varStatus="status">
 						  				<option value="categoryListItem[product_category]" class="category_option"></option>
@@ -147,12 +162,12 @@
 						</div> -->
 						<div class="row">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="text" id="futureDT2_addition_product_category" class="form-control isRequired" placeholder="请输入或选择产品名称"></div>
+						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="text" id="futureDT2_addition_productCategory" class="form-control isRequired" placeholder="请输入或选择产品类别"></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5 info_div"></div>
 						</div>
 						<div class="row row_extra2">
 						  	<div class="col-sm-1 col-md-1 col-lg-1"></div>
-						  	<div class="col-sm-10 col-md-10 col-lg-10"><textarea id="futureDT2_addition_td_description" rows="2" class="form-control" maxlength="100" placeholder="最多输入100个字符" title="描述"></textarea></div>
+						  	<div class="col-sm-10 col-md-10 col-lg-10"><textarea id="futureDT2_addition_description" rows="2" class="form-control" maxlength="100" placeholder="最多输入100个字符" title="描述"></textarea></div>
 						</div>
 					</div><!-- container-fluid end -->
 					<div class="container-fluid">
@@ -245,7 +260,7 @@
 				</div>
 			</div><!-- futureDT2_update_r_body end -->
 			<div class="futureDT2_update_r_foot">
-				<input type="button" value="提交" class="btn btn-primary">
+				<input type="button" value="提交" class="btn btn-primary" disabled>
 				<input type="button" value="关闭" class="btn btn-warning">
 			</div>
 		</div>

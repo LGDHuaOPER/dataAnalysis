@@ -280,10 +280,18 @@
         S_getCurPageHref: function(){
             var leaveHref = window.location.href.split(_DefaultParam.projectName+"/")[1];
             var curHref;
-            if(leaveHref.indexOf("?")>-1){
-                curHref = leaveHref.split("?")[0];
-            }else{
+            var problemIndex = leaveHref.indexOf("?");
+            var poundIndex = leaveHref.indexOf("#");
+            if(problemIndex == -1 && poundIndex == -1){
                 curHref = leaveHref;
+            }else if(problemIndex == -1 && poundIndex != -1){
+                curHref = leaveHref.split("#")[0];
+            }else if(problemIndex != -1 && poundIndex == -1){
+                curHref = leaveHref.split("?")[0];
+            }else if(problemIndex > poundIndex){
+                curHref = leaveHref.split("#")[0];
+            }else if(problemIndex < poundIndex){
+                curHref = leaveHref.split("?")[0];
             }
             return curHref;
         },
@@ -318,18 +326,138 @@
             return size+unitArr[index];
         },
         
+        // @http处理类@
+        S_createXHR: function(){
+            // IE7+,Firefox, Opera, Chrome ,Safari
+            if (typeof XMLHttpRequest != "undefined") {
+                return new XMLHttpRequest();
+            }
+            // IE6-
+            else if (typeof ActiveXObject != "undefined") {
+                if (typeof arguments.callee.activeXString != "string") {
+                    var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0", "MSXMLHttp"],
+                        i, len;
+                    for (i = 0, len = versions.length; i < len; i++) {
+                        try {
+                            new ActiveXObject(versions[i]);
+                            arguments.callee.activeXString = versions[i];
+                            break;
+                        } catch (ex) {
+                            alert("请升级浏览器版本");
+                        }
+                    }
+                }
+                return arguments.callee.activeXString;
+            } else {
+                throw new Error("XHR对象不可用");
+            }
+        },
+        // get请求添加查询参数
+        S_urlBuildParam: function(obj){
+            var iurl = obj.url;
+            iurl += (iurl.indexOf('?') == -1) ? '?' : '&';
+            if(obj.isObject === true){
+                iurl+=$.param(obj.data);
+            }else{
+                if(obj.name !== null && obj.name !== undefined) iurl += encodeURIComponent(obj.name) + "=" + encodeURIComponent(obj.value);
+            }
+            return iurl;
+        },
+        // 格式化post 传递的数据
+        S_postDataFormat: function(obj){
+            if (typeof obj != "object") {
+                alert("输入的参数必须是对象");
+                return;
+            }
+
+            // 支持有FormData的浏览器（Firefox 4+ , Safari 5+, Chrome和Android 3+版的Webkit）
+            if (typeof FormData == "function") {
+                var data = new FormData();
+                for (var attr in obj) {
+                    data.append(attr, obj[attr]);
+                }
+                return data;
+            } else {
+                // 不支持FormData的浏览器的处理 
+                var arr = new Array();
+                var i = 0;
+                for (var attr in obj) {
+                    arr[i] = encodeURIComponent(attr) + "=" + encodeURIComponent(obj[attr]);
+                    i++;
+                }
+                return arr.join("&");
+            }
+        },
+        S_XHR: function(obj){
+            var xhr = this.S_createXHR();
+            // 定义xhr对象的请求响应事件
+            var that = this;
+            xhr.onreadystatechange = function() {
+                switch (xhr.readyState) {
+                    case 0:
+                        //alert("请求未初始化");
+                        that.S_isFunction(obj.readyState0) && obj.readyState0(xhr.readyState, xhr);
+                        break;
+                    case 1:
+                        //alert("请求启动，尚未发送");
+                        that.S_isFunction(obj.readyState1) && obj.readyState1(xhr.readyState, xhr);
+                        break;
+                    case 2:
+                        //alert("请求发送，尚未得到响应");
+                        that.S_isFunction(obj.readyState2) && obj.readyState2(xhr.readyState, xhr);
+                        break;
+                    case 3:
+                        //alert("请求开始响应，收到部分数据");
+                        that.S_isFunction(obj.readyState3) && obj.readyState3(xhr.readyState, xhr);
+                        break;
+                    case 4:
+                        // alert("请求响应完成得到全部数据");
+                        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+                            var data = xhr.responseText;
+                            that.S_isFunction(obj.status200) && obj.status200(data, xhr.status, xhr);
+                        } else {
+                            // alert("Request was unsuccessful : " + xhr.status + " " + xhr.statusText);
+                            that.S_isFunction(obj.statusError) && obj.statusError(xhr, xhr.statusText, xhr.status);
+                        }
+                        break;
+                }
+            };
+            var iurl;
+            // get请求
+            if(obj.type.toLocaleUpperCase() == "GET"){
+                iurl = that.S_urlBuildParam();
+                xhr.open("get", iurl, true);
+                xhr.send(null);
+            }else if(obj.type.toLocaleUpperCase() == "POST"){
+                // post请求
+                var data = {
+                    name: "ccb",
+                    pass: "123"
+                };
+                xhr.open("post", "example.php", true);
+                // 不支持FormData的浏览器的处理 
+                if (typeof FormData == "undefined") {
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                }
+                xhr.send(postDataFormat(data));
+            }
+        },
+        // @http处理类@ 结束
+
         // @URL处理类@
         // 设置URL，并跳转，@param isRead 是否只读，true为不跳转，只返回新url，false为跳转并返回新url
         // @param _blank，true为新页面，false为原页面；
         // @param ireplace，true为替换前一个历史记录，后退无效，false为不替换，可以后退
-        S_settingURLParam: function(paramObj, isRead, _blank, ireplace){
+        // @param NewUrl  新的URL
+        S_settingURLParam: function(paramObj, isRead, _blank, ireplace, NewUrl){
             if(this.S_isObject(paramObj)){
                 if(jQuery.isEmptyObject(paramObj)){
                     console.warn("C_setURLParam参数paramObj为空对象");
                     return false;
                 }
                 var paramStr = $.param(paramObj);
-                var preHref = this.S_getBaseUrl()+"/"+this.S_getCurPageHref()+"?";
+                var iURL = NewUrl || this.S_getCurPageHref();
+                var preHref = this.S_getBaseUrl()+"/"+iURL+"?";
                 var setHref = preHref+paramStr;
                 if(!isRead){
                     if(_blank){

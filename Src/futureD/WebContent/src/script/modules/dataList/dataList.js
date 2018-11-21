@@ -6,6 +6,8 @@
 var dataListStore = Object.create(null);
 dataListStore.state = Object.create(null);
 dataListStore.state.userName = null;
+dataListStore.state.additionProgress = 0;
+dataListStore.state.additionFinishFlag = false;
 dataListStore.state.pageObj = {
 	pageOption: null,
 	currentPage: null,
@@ -14,7 +16,7 @@ dataListStore.state.pageObj = {
 	searchVal: ""
 };
 dataListStore.state.productCategory = [];
-dataListStore.state.device_numberArr = _.isNil(store.get("futureDT2__dataList__device_numberArr")) ? [] : store.get("futureDT2__dataList__device_numberArr");
+/*dataListStore.state.device_numberArr = _.isNil(store.get("futureDT2Online__dataList__device_numberArr")) ? [] : store.get("futureDT2Online__dataList__device_numberArr");*/
 /*进度条*/
 dataListStore.state.bar = {
 	flag: false,
@@ -53,7 +55,40 @@ dataListStore.state.bar = {
 };
 /*添加修改*/
 dataListStore.addition = Object.create(null);
-dataListStore.addition.file = null;
+dataListStore.addition.file = {
+	value: null,
+	isRequired: false,
+	reg: null
+};
+dataListStore.addition.productCategory = {
+	value: null,
+	isRequired: true,
+	message: "产品类别必填！",
+	reg: null
+};
+dataListStore.addition.dataFormat = {
+	value: null,
+	isRequired: true,
+	message: "数据格式必选！",
+	reg: null
+};
+dataListStore.addition.description = {
+	value: null,
+	isRequired: false,
+	reg: null
+};
+dataListStore.addition.fileName = {
+	value: null,
+	isRequired: true,
+	message: "文件必需！请检查或先上传",
+	reg: null
+};
+dataListStore.addition.filePath = {
+	value: null,
+	isRequired: true,
+	message: "文件上传异常！请重试",
+	reg: null
+};
 
 dataListStore.update = Object.create(null);
 dataListStore.update.productCategory = {
@@ -91,9 +126,15 @@ function tableEllipsis(){
 }
 
 function injectStoreValue(obj){
-	_.forOwn(obj.obj, function(v, k){
-		if(_.indexOf(obj.exclude, _.toString(k)) == -1) obj.obj[k].value = _.trim($("#"+obj.prefix+k).val());
-	});
+	if(obj.isNull === true){
+		_.forOwn(obj.obj, function(v, k){
+			obj.obj[k].value = null;
+		});
+	}else{
+		_.forOwn(obj.obj, function(v, k){
+			if(_.indexOf(obj.exclude, _.toString(k)) == -1) obj.obj[k].value = _.trim($("#"+obj.prefix+k).val());
+		});
+	}
 }
 
 function validationStoreValue(obj){
@@ -137,6 +178,70 @@ function searchValShowRed(){
 		var iHtml = iText.replace(new RegExp(dataListStore.state.pageObj.searchVal, 'g'), ireplace);
 		$(this).empty().html(iHtml);
 	});
+}
+
+function additionUpdateIsSubmit(classify){
+	if($(".futureDT2_"+classify).find("span.glyphicon-info-sign").length){
+		$(".futureDT2_"+classify+"_r_foot>.btn-primary").prop("disabled", true);
+	}else{
+		$(".futureDT2_"+classify+"_r_foot>.btn-primary").prop("disabled", false);
+	}
+}
+
+/*实时获取进度*/
+function getProgress(value){
+	value = value || 0;
+	setTimeout(function(){
+		$.ajax({
+			type: "GET",
+			url: "LoadProgress",
+			// async: false,
+			data: {
+				fileName: dataListStore.addition.fileName.value
+			},
+			dataType: "text",
+			success: function(res){
+				var resp = res.match(/\d+/);
+				console.log(res)
+				console.log(resp)
+				if(_.isNil(resp)) getProgress(0);
+				value = resp[0];
+				dataListStore.state.additionProgress+= _.random(0, 99-dataListStore.state.additionProgress, true);
+				dataListStore.state.additionProgress = _.floor(dataListStore.state.additionProgress*10)/10;
+				$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", dataListStore.state.additionProgress).css("width", dataListStore.state.additionProgress+"%").text(dataListStore.state.additionProgress+"%");
+				if(dataListStore.state.additionFinishFlag){
+					/*setTimeout(function(){
+						eouluGlobal.S_getSwalMixin()({
+							showConfirmButton: false,
+							title: "提交进度",
+							text: "处理完成",
+							timer: 1500,
+							type: "success"
+						});
+					}, 1000);*/
+					$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", 100).css("width", "100%").text("100%");
+					dataListStore.state.additionFinishFlag = false;
+				}else{
+					getProgress(value);
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				console.log(jqXHR)
+				console.log(textStatus)
+				console.log(errorThrown)
+			}
+		});
+	}, 10);
+}
+
+function barDestroy(){
+	if(dataListStore.state.bar.flag){
+		dataListStore.state.bar.Bar.destroy();
+		dataListStore.state.bar.flag = false;
+	}
+	$(".upload_l_tit").text("");
+	$(".upload_l_body").text("");
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-ok, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
 }
 
 /*page preload*/
@@ -208,35 +313,52 @@ $(function(){
 		$(".g_bodyin_bodyin_body tbody input[type='checkbox'][data-iid='"+_.toNumber(v)+"']").prop("checked", true).parent().parent().addClass("warning");
 	});
 	$("#checkAll").prop("checked", $(".g_bodyin_bodyin_body tbody input[type='checkbox']").length == $(".g_bodyin_bodyin_body tbody input[type='checkbox']:checked").length);
-});
-
-/*event handler*/
-$(window).on("resize", function(){
-	tableEllipsis();
 
 	/*缓存产品名称*/
-	$(".device_number_td").each(function(){
+	/*$(".device_number_td").each(function(){
 		dataListStore.state.device_numberArr.push($(this).data("ivalue").toString());
 	});
 	dataListStore.state.device_numberArr = _.uniq(dataListStore.state.device_numberArr);
+	store.set("futureDT2Online__dataList__device_numberArr", _.cloneDeep(dataListStore.state.device_numberArr));*/
 
 	/*缓存产品类别*/
 	$(".data_c_c .category_span").each(function(){
 		dataListStore.state.productCategory.push($(this).attr("value"));
 	});
 	dataListStore.state.productCategory = _.uniq(dataListStore.state.productCategory);
+	$("#futureDT2_addition_productCategory, #futureDT2_update_productCategory").each(function(i, el){
+		new Awesomplete(el, {
+			list: _.cloneDeep(dataListStore.state.productCategory),
+			minChars: 1,
+			maxItems: 13,
+			autoFirst: true
+		});
+	});
+});
+
+/*event handler*/
+$(window).on("resize", function(){
+	tableEllipsis();
 });
 
 /*添加修改打开关闭*/
 $(".g_bodyin_bodyin_tit_l>.glyphicon-remove-circle").click(function(){
 	$(".futureDT2_bg_cover, .futureDT2_addition").slideDown(200);
 	$(".futureDT2_addition_l, .futureDT2_addition_r").height($(".futureDT2_addition").height());
-	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-ok, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
+	barDestroy();
+	/*回显验证*/
+	$("div.futureDT2_addition_r_bodyin .isRequired").trigger("change");
 });
 $(".futureDT2_addition_r_foot .btn-warning, .futureDT2_update_r_foot .btn-warning").click(function(){
 	var $iparent = $(this).parents("[data-iparent]");
 	$(".futureDT2_bg_cover").slideUp(200);
 	$iparent.slideUp(200);
+	var classify = $iparent.data("iparent");
+	injectStoreValue({
+		obj: dataListStore[classify],
+		isNull: true
+	});
+	$("div.futureDT2_addition_r_progress").slideUp(50);
 });
 $(document).on("click", ".operate_othertd>.glyphicon-edit", function(e){
 	e.stopPropagation();
@@ -251,21 +373,61 @@ $(document).on("click", ".operate_othertd>.glyphicon-edit", function(e){
 	$("#futureDT2_update_productCategory").val(productCategory);
 	$("#futureDT2_update_testEndDate").val(testEndDate);
 	$("#futureDT2_update_description").val(description);
-	$("#futureDT2_update_productCategory").each(function(i, el){
-		new Awesomplete(el, {
-			list: _.cloneDeep(dataListStore.state.productCategory),
-			minChars: 1,
-			maxItems: 13,
-			autoFirst: true
-		});
-	});
+	/*回显验证*/
+	$("div.futureDT2_update_r_bodyin .isRequired").trigger("change");
 });
 
 /*添加修改提交*/
 $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primary").click(function(){
 	var iparent = $(this).parents("[data-iparent]").data("iparent");
 	if(_.isEqual(iparent, "addition")){
-
+		injectStoreValue({
+			obj: dataListStore.addition,
+			exclude: ["file", "fileName", "filePath"],
+			prefix: "futureDT2_addition_"
+		});
+		var flag1 = validationStoreValue({
+			obj: dataListStore.addition,
+			title: "添加提示"
+		});
+		if(!flag1) return false;
+		var ajaxData1 = {};
+		_.forOwn(dataListStore.addition, function(v, k){
+			if(k != "file") ajaxData1[k] = v.value;
+		});
+		eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交中...");
+		/*显示进度条*/
+		$("div.futureDT2_addition_r_progress").slideDown(50);
+		getProgress(0);
+		$.ajax({
+			type: "POST",
+			url: "UploadStorage",
+			data: ajaxData1,
+			dataType: "json"
+		}).then(function(data){
+			/*setInterval(function(){
+				
+			}, 20);*/
+			dataListStore.state.additionFinishFlag = true;
+			dataListSwalMixin({
+				title: "添加提示",
+				text: data,
+				timer: 1500,
+				callback: null
+			});
+			eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
+			if(data.indexOf("有误") > -1){
+				barDestroy();
+			}else if(data.indexOf("成功") > -1){
+				$(".futureDT2_addition_r_foot .btn-warning").trigger("click");
+				/*eouluGlobal.S_settingURLParam({
+					currentPage: 1
+				}, false, false, false);*/
+			}
+		}, function(){
+			eouluGlobal.C_server500Message();
+			eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
+		});
 	}else if(_.isEqual(iparent, "update")){
 		injectStoreValue({
 			obj: dataListStore.update,
@@ -466,7 +628,6 @@ $(document).on("mouseover", ".g_bodyin_bodyin_body td", function(){
 	store.set("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem", selectedItem);
 	$("#checkAll").prop("checked", $(".g_bodyin_bodyin_body tbody input[type='checkbox']").length == $(".g_bodyin_bodyin_body tbody input[type='checkbox']:checked").length);
 });
-
 $("#checkAll").on({
 	click: function(){
 		var that = $(this);
@@ -568,15 +729,19 @@ $("#add_file_Upload").on("change", function(){
 	}
 	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").show();
 	$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").hide();
-	// dataListStore.state.bar.flag option Bar
 	var size = $(this)[0].files[0].size;
 	var name = $(this)[0].files[0].name;
 	$(".upload_l_tit").text($(this)[0].files[0].name);
 	$(".upload_l_body").text("大小："+eouluGlobal.S_getFileSize(size));
-	dataListStore.state.bar.Bar = new ProgressBar.Circle("#upload_container", dataListStore.state.bar.option);
+	if(!dataListStore.state.bar.flag){
+		dataListStore.state.bar.Bar = new ProgressBar.Circle("#upload_container", dataListStore.state.bar.option);
+		dataListStore.state.bar.flag = true;
+	}
 	dataListStore.state.bar.Bar.text.style.fontFamily = '"microsoft yahei", "Arial", sans-serif';
 	dataListStore.state.bar.Bar.text.style.fontSize = '2rem';
-	dataListStore.addition.file = $(this)[0].files[0];
+	dataListStore.addition.file.value = $(this)[0].files[0];
+	dataListStore.addition.fileName.value = null;
+	dataListStore.addition.filePath.value = null;
 	/*dataListState.Bar.animate(0.4, {
 	    duration: 800
 	}, function() {
@@ -586,11 +751,11 @@ $("#add_file_Upload").on("change", function(){
 });
 /*上传文件*/
 $(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
-	if(_.isNil(dataListStore.addition.file)) return false;
+	if(_.isNil(dataListStore.addition.file.value)) return false;
     var formData = new FormData();
     formData.enctype="multipart/form-data";
     // formData.append("ID",ID);
-    formData.append("file", dataListStore.addition.file);
+    formData.append("file", dataListStore.addition.file.value);
     //formData.append("file",$("#serFinRepUpload")[0].files[0]);//append()里面的第一个参数file对应permission/upload里面的参数file         
     // formData.append("Operate","upload");
     $.ajax({
@@ -613,7 +778,7 @@ $(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
                     var total = e.total;                      //附件总大小 
                     var floatPer = Math.floor(100*loaded/total)/100;
                     var percent = (Math.floor(1000*loaded/total)/10)+"%";     //已经上传的百分比  
-                    console.log("已经上传了："+percent);
+                    // console.log("已经上传了："+percent);
                     // Number from 0.0 to 1.0
                     dataListStore.state.bar.Bar.animate(floatPer, {
                     	duration: 1
@@ -634,28 +799,59 @@ $(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
         },                    
         success: function(data){
         	if(!_.isNil(data) && !_.isEmpty(data)){
+        		_.forOwn(data, function(v, k){
+        			dataListStore.addition.fileName.value = k;
+        			dataListStore.addition.filePath.value = v;
+        		});
         		$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").show();
         		$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
         	}
         },
         error: function(){
-        	
+        	eouluGlobal.C_server500Message();
         },
 		beforeSend: function(XMLHttpRequest){
+			eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "正在上传...");
         },
 		complete: function(XMLHttpRequest, textStatus){
 		    if(textStatus=="success"){
 		    }
+		    eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
 		}
     }); 
 });
 /*删除选中*/
 $(".row_extra3>div:nth-child(2)>span.glyphicon-remove").click(function(){
-	dataListStore.state.bar.Bar.destroy();
-	$(".upload_l_tit").text("");
-	$(".upload_l_body").text("");
-	$(this).hide();
-	$(".row_extra3>div:nth-child(2)>span.glyphicon-ok, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
-	dataListStore.state.bar.flag = false;
-	dataListStore.addition.file = null;
+	barDestroy();
+	dataListStore.addition.file.value = null;
+});
+
+/*验证*/
+$(".isRequired").on("input propertychange change", function(){
+	var iVal = $(this).val();
+	var str;
+	var classify = $(this).parents("[data-iparent]").data("iparent");
+	if(_.isNil(iVal)){
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+	}else{
+		if(iVal.trim() == ""){
+			str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+		}else{
+			str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+		}
+	}
+	$(this).parents("div.row").find("div.info_div").empty().append(str);
+	additionUpdateIsSubmit(classify);
+});
+
+/*跳转详细数据页面*/
+$(document).on("click", ".operate_othertd .glyphicon-eye-open", function(){
+	var waferId = $(this).data("iid");
+	var dataFormat = $(this).parent().siblings(".data_format_td").data("ivalue");
+	var webParam = $(this).parent().siblings(".product_category_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".lot_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".wafer_number_td").data("ivalue");
+	eouluGlobal.S_settingURLParam({
+		waferId: waferId,
+		dataFormat: dataFormat,
+		webParam: webParam
+	}, false, false, false, "WaferData");
 });

@@ -171,7 +171,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		boolean flag = false;
 		try {
 			conn.setAutoCommit(false);
-			Object[] param = new Object[]{waferId,module,parameter,userFormula,calculationFormula,result};
+			Object[] param = new Object[]{waferId,module,userFormula,parameter,calculationFormula,result};
 			 flag = smithDao.insertMarkerCalculation(conn,param,db);
 			if(!flag){
 				conn.rollback();
@@ -179,6 +179,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			}
 			param = new Object[]{waferId};
 			String column = paramDao.getMaxColumn(conn,param);
+			System.out.println("column:"+column);
 			column = "C"+(Integer.parseInt(column.substring(1))+1);
 			param = new Object[]{waferId,parameter,column};
 			flag = paramDao.insertCustomParameter(conn,param);
@@ -192,7 +193,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 				conn.rollback();
 				return flag;
 			}
-			
+			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
@@ -220,6 +221,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					return flag;
 				}
 			}
+			System.out.println(flag);
 			param = new Object[]{waferId};
 			String column = paramDao.getColumnByName(conn, oldParam, waferId);
 			if(!oldParam.equals(customParam)){
@@ -229,13 +231,15 @@ public class AnalysisServiceImpl implements AnalysisService{
 					return flag;
 				}
 			}
+			System.out.println(flag);
 			param = new Object[]{Double.parseDouble(result),coordinateId};
 			flag = new CoordinateDao().updateDieParamByMarker(conn,param, column);
 			if(!flag){
 				conn.rollback();
 				return flag;
 			}
-
+			System.out.println(flag);
+			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
@@ -561,28 +565,25 @@ public class AnalysisServiceImpl implements AnalysisService{
 		return result;
 	}
 	@Override
-	public boolean operateMarker(Object[] param, String classify
-			) {
+	public boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module){
 		SmithDao smithDao = new SmithDao();
 		boolean flag = false;
 		DataBaseUtil db = DataBaseUtil.getInstance();
 		Connection conn = db.getConnection();
 		try {
 			conn.setAutoCommit(false);
-			if ("add".equals(classify)) {
+			String[] value = null;
+			Object[] param=null;
+			for(String key:paramMap.keySet()){
+				value = paramMap.get(key);
+				param = new Object[]{waferId,Integer.parseInt(value[0]),module,value[1],value[2],value[3],value[4]};
 				flag = smithDao.insertMarker(conn, param,db);
 				if(!flag){
 					conn.rollback();
 					return flag;
 				}
 			}
-			if ("modify".equals(classify)) {
-				flag = smithDao.updateMarker(conn,param,db);
-				if(!flag){
-					conn.rollback();
-					return flag;
-				}
-			}
+				
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -593,12 +594,42 @@ public class AnalysisServiceImpl implements AnalysisService{
 		return flag;
 	}
 
-	@Override
-	public int getMarkerId(Object[] param) {
-		DataBaseUtil db = DataBaseUtil.getInstance();
+	public boolean updateMarker(Map<String,String[]> paramMap,int waferId,String module){
 		SmithDao smithDao = new SmithDao();
-		return smithDao.getMarkerId(param,db);
+		boolean flag = false;
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		try {
+			conn.setAutoCommit(false);
+			String[] value = null;
+			Object[] param=null;
+			for(String key:paramMap.keySet()){
+				value = paramMap.get(key);
+				param = new Object[]{value[1],Integer.parseInt(value[0])};
+				flag = smithDao.updateMarker(conn,param,db);
+				if(!flag){
+					conn.rollback();
+					return flag;
+				}
+			}
+				
+			conn.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			db.close(conn);
+		}
+
+		return flag;
 	}
+	
+	@Override
+	public List<Object[]> getMarker(String curveTypeId) {
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		return smithDao.getMarker(curveTypeId, db);
+	}
+	
 
 	@Override
 	public List<Map<String, Object>> getCalculation(int waferId, String module) {
@@ -618,41 +649,14 @@ public class AnalysisServiceImpl implements AnalysisService{
 	
 
 	@Override
-	public boolean deleteMarker(Object[] param) {
+	public boolean deleteMarker(String curveTypeId) {
 		SmithDao smithDao = new SmithDao();
 		DataBaseUtil db = DataBaseUtil.getInstance();
-		return smithDao.deleteMarker(param,db);
+		return smithDao.deleteMarker(curveTypeId,db);
 	}
 
-	@Override
-	public boolean deleteMarkerById(String[] curveTypeId) {
-		SmithDao smithDao = new SmithDao();
-		int id = 0;
-		boolean flag = false;
-		DataBaseUtil db = DataBaseUtil.getInstance();
-		Connection conn = db.getConnection();
-		try {
-			conn.setAutoCommit(false);
-		for(String str:curveTypeId){
-			id = Integer.parseInt(str);
-			flag = smithDao.deleteMarkerById(conn, id,db);
-			if(!flag){
-				conn.rollback();
-				return flag;
-			}
-		}
-		conn.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return flag;
-	}
+
+	
 
 	
 	

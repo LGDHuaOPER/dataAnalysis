@@ -31,14 +31,16 @@ public class UploadProgess extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		String id = request.getSession().getId();
 		String fileName = request.getParameter("fileName");
-		id += id+fileName;
+		id += fileName;
+		System.out.println("id====="+id);
 		Object size = ProgressSingleton.get(id + "Size");
 		size = size == null ? 100 : size;
 		Object progress = ProgressSingleton.get(id + "Progress");
 		progress = progress == null ? 0 : progress; 
 		long sizeNumber = Long.valueOf(String.valueOf(size)).longValue(); 
 		long progressNumber = Long.valueOf(String.valueOf(progress)).longValue(); 
-		int percent = (int) (progressNumber/sizeNumber);
+		double percent =  (double)progressNumber/sizeNumber*100;
+		System.out.println("progress:"+progress);
 		response.getWriter().write(percent+"%");
 	}
 

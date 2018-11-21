@@ -35,6 +35,7 @@ import com.eoulu.service.ReadPMSFileService;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.eoulu.transfer.FileFilterTool;
+import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.DataBaseUtil;
 import com.eoulu.util.FileUtil;
 
@@ -74,6 +75,7 @@ public class ZipFileParser {
 				 dataFormat = map.get("dataFormat")==null?"0":map.get("dataFormat").toString(), sessionId = map.get("sessionId")==null?"":map.get("sessionId").toString();
 		int interval = Integer.parseInt(map.get("interval")==null?"0":map.get("interval").toString()), filternum = 1;// 标志先导入map文件和CSV文件
 		Map<String, Object> resultMap = new HashMap<String, Object>();
+		ProgressSingleton.put(sessionId, interval+=5);
 		// 用户上传的是一个压缩包
 		// 若是一个文件夹。
 		File file1 = null;
@@ -89,6 +91,7 @@ public class ZipFileParser {
 //			
 //			return resultMap;
 //		}
+		ProgressSingleton.put(sessionId, interval+=5);
 		ReadPMSFileService pmsService = new ReadPMSFileService();
 		if(pmsService.isContains(file1.getAbsolutePath(), "pms")){
 //			status = pmsService.getPMSFiles(file1.getAbsolutePath(),  productCategory,currentUser, description, dataFormat, sessionId, interval);
@@ -102,13 +105,18 @@ public class ZipFileParser {
 		logWafer = "";
 		DataBaseUtil db = new DataBaseUtil();
 		Connection conn = db.getConnection();
+		ProgressSingleton.put(sessionId, interval+=5);
 		try {
 			conn.setAutoCommit(false);
 			// 导入map
 			getFiles(conn,file1.getAbsolutePath(),  filternum,map,db);
+			ProgressSingleton.put(sessionId, interval+=5);
+			map.put("interval",interval);
 			// 导入excel文件
 			filternum = 2;
 			getFiles(conn,file1.getAbsolutePath(), filternum,map,db);
+			ProgressSingleton.put(sessionId, interval+=5);
+			map.put("interval",interval);
 			// 导入CSV文件
 			filternum = 3;
 			getFiles(conn,file1.getAbsolutePath(),  filternum,map,db);
@@ -225,7 +233,9 @@ public class ZipFileParser {
 		 productCategory = map.get("productCategory").toString(),  
 				 description = map.get("description").toString(), 
 				 currentUser = map.get("currentUser").toString(),
-				dataFormat = map.get("dataFormat").toString();
+				dataFormat = map.get("dataFormat").toString(),
+						sessionId = map.get("sessionId").toString();
+		int interval = Integer.parseInt(map.get("interval").toString());
 		if (filternum == 1) {
 			filetool.addType(".map");
 		} else if (filternum == 2) {
@@ -246,6 +256,7 @@ public class ZipFileParser {
 					WaferService service = new WaferServiceImpl();
 					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
 							description, files1[i].getAbsolutePath(),db);
+					ProgressSingleton.put(sessionId, interval+=5);
 					// 未找到对应的map文件
 					long timeCSV2 = System.currentTimeMillis();
 					System.out.println("how long:" + (timeCSV2 - timeCSV));
@@ -296,12 +307,12 @@ public class ZipFileParser {
 								filelist.add(CSV[j]);
 							}
 							status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
-									currentUser, dataFormat);
+									currentUser, dataFormat,sessionId,interval);
 						}
 						// 未找到对应的map文件
 					} else {
 						status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
-								currentUser, dataFormat);
+								currentUser, dataFormat,sessionId,interval);
 					}
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"success".equals(failcsv)) {

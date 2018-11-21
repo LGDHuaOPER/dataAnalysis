@@ -11,13 +11,13 @@ import javax.servlet.http.HttpServletResponse;
  * Servlet implementation class DataStatistics
  */
 @WebServlet(description = "数据统计", urlPatterns = { "/DataCompare" })
-public class DataStatistics extends HttpServlet {
+public class DataCompare extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DataStatistics() {
+    public DataCompare() {
         super();
     }
 

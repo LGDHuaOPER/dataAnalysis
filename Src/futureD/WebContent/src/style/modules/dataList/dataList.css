@@ -222,12 +222,26 @@ span.glyphicon {
 }
 
 .futureDT2_addition {
-	width: 1000px;
-	left: calc(50% - 500px);
+	width: 1006px;
+	left: calc(50% - 503px);
 }
 
 .futureDT2_addition_r {
 	width: 900px;
+}
+
+.futureDT2_addition_r_tit {
+	display: grid;
+	grid-template-columns: 80px 1fr;
+	grid-template-areas: "futureDT2_addition_r_tit_l  futureDT2_addition_r_tit_r";
+}
+
+.futureDT2_addition_r_tit_l {
+	grid-area: "futureDT2_addition_r_tit_l";
+}
+
+.futureDT2_addition_r_tit_r {
+	grid-area: "futureDT2_addition_r_tit_r";
 }
 
 .row_extra {
@@ -314,6 +328,18 @@ span.glyphicon {
   	width: 80px;
   	height: 80px;
   	position: relative;
+}
+
+div.awesomplete {
+	display: block;
+}
+
+div.futureDT2_addition_r_progress {
+	display: none;
+}
+
+div.futureDT2_addition_r_progress .progress {
+	margin-top: 10px;
 }
 
 @media screen and (max-width: 1000px) {

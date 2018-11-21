@@ -18,6 +18,7 @@ import com.eoulu.parser.ZipFileParser;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
+import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.FileUtil;
 import com.google.gson.Gson;
 
@@ -67,7 +68,7 @@ public class UploadStorage extends HttpServlet {
 				fileName = request.getParameter("fileName") == null ? ""
 								: request.getParameter("fileName").trim(),
 				currentUser = request.getSession().getAttribute("userName").toString(),
-						sessionId = request.getSession().getId()+fileName,
+						sessionId = request.getSession().getId()+fileName+"Progress",
 						temp = pathMap.get("temp").toString(),
 						status = null,logWafer="";
 		description = currentUser+":"+description;
@@ -80,10 +81,11 @@ public class UploadStorage extends HttpServlet {
 		map.put("currentUser", currentUser);
 		map.put("dataFormat", dataFormat);
 		map.put("sessionId", sessionId);
-		map.put("interval", 0);
+		map.put("interval", 5);
 		WaferService service = new WaferServiceImpl();
 		ZipFileParser zipUtil = new ZipFileParser();
-		
+		System.out.println("sessionId====="+sessionId);
+		ProgressSingleton.put(sessionId, 5);
 		boolean flag = false;
 		switch (dataFormat) {
 		case "1":
@@ -124,18 +126,21 @@ public class UploadStorage extends HttpServlet {
 					status="上传失败，zip压缩文件中不包含任何一个CSV或者Excel文件！";
 				}
 			}else if(fileName.endsWith(".xlsx")){
-				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat);
+				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,sessionId,5);
 			}else{
 				status="文件格式有误！";
 			}
+			
 			break;
 		}
 		new FileDelete().deleteDirectory(temp);
 		if("success".equals(status)){
 			new LogServiceImpl().insertLog(currentUser, "数据列表", "导入了晶圆数据"+logWafer, request.getSession());
 		}
+		ProgressSingleton.put(sessionId, 100);
 		status = "success".equals(status)?"上传成功！":status;
 		response.getWriter().write(new Gson().toJson(status));
+		ProgressSingleton.remove(sessionId);
 	}
 	
 	

@@ -1,8 +1,6 @@
 package com.eoulu.action.analysis;
 
 import java.io.IOException;
-import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,16 +12,16 @@ import com.eoulu.service.impl.AnalysisServiceImpl;
 import com.google.gson.Gson;
 
 /**
- * Servlet implementation class MarkerCurve
+ * Servlet implementation class GetMarker
  */
-@WebServlet(description = "marker曲线数据", urlPatterns = { "/MarkerCurve" })
-public class MarkerCurve extends HttpServlet {
+@WebServlet(description = "获取Marker点", urlPatterns = { "/GetMarker" })
+public class GetMarker extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public MarkerCurve() {
+    public GetMarker() {
         super();
     }
 
@@ -31,20 +29,19 @@ public class MarkerCurve extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		String curveTypeId = request.getParameter("curveTypeId")==null?"":request.getParameter("curveTypeId");
 		AnalysisService service = new AnalysisServiceImpl();
-		String[] curveTypeId = request.getParameterValues("curveTypeId[]");
-		String sParameter = request.getParameter("sParameter")==null?"S11":request.getParameter("sParameter"),
-				module = "TCF";
-		int waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
-		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,waferId,module);
-		response.getWriter().write(new Gson().toJson(map));
+		response.getWriter().write(new Gson().toJson(service.getMarker(curveTypeId)));
+		
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
 	}
 
-	
 }

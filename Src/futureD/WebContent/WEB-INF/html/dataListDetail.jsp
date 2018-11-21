@@ -22,7 +22,7 @@
 	<!-- 变 -->
 	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
 </head>
-<body data-curpage="dataListDetail">
+<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -50,7 +50,7 @@
 								  	<li class="active">详细信息</li>
 								</ol>
 							</div>
-							<div class="col-sm-12 col-md-4 col-lg-4">
+							<div class="col-sm-12 col-md-4 col-lg-4 webParam">
 								晶圆信息：ProductID/LotID/WaferID
 							</div>
 						</div>

@@ -3,13 +3,11 @@
  */
 package com.eoulu.dao;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -192,15 +190,37 @@ public class SmithDao {
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
+	public List<Object[]> getMarker(String curveTypeId,DataBaseUtil db){
+		String sql  = "select curve_type_id,marker_id,marker_name,point_x,point_y,location_key from dm_marker_data where curve_type_id in ("+curveTypeId+")";
+		Connection conn = db.getConnection();
+		List<Object[]> ls = new ArrayList<>();
+		String[] att = null;
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				att = new String[]{rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6)};
+				ls.add(att);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			db.close(conn);
+		}
+		
+		return ls;
+	}
+	
 	public boolean updateMarker(Connection conn,Object[] param,DataBaseUtil db){
-		String sql = "update dm_marker_data set marker_name=?,location_key=? where marker_name=? and  wafer_id=?";
+		String sql = "update dm_marker_data set marker_name=? where marker_id=?";
 		return db.operate(conn,sql, param);
 	}
 	
 	
-	public boolean deleteMarker(Object[] param,DataBaseUtil db){
-		String sql = "delete from dm_marker_data where marker_name=? and  wafer_id=?";
-		return db.operate(sql, param);
+	public boolean deleteMarker(String curveTypeId,DataBaseUtil db){
+		String sql = "delete from dm_marker_data where curve_type_id in ("+curveTypeId+")";
+		return db.operate(sql, null);
 	}
 	
 	public boolean deleteMarkerById(Connection conn,int curveTypeId,DataBaseUtil db){
@@ -360,7 +380,7 @@ public class SmithDao {
 	 * @return
 	 */
 	public boolean insertMarkerCalculation(Connection conn,Object[] param,DataBaseUtil db){
-		String sql = "insert into dm_marker_data (wafer_id,module,custom_parameter,user_formula,calculate_formula,calculation_result) value (?,?,?,?,?,?)";
+		String sql = "insert into dm_marker_calculation (wafer_id,module,user_formula,custom_parameter,calculate_formula,calculation_result) value (?,?,?,?,?,?)";
 		return db.operate(conn,sql, param);
 	}
 	
@@ -377,7 +397,7 @@ public class SmithDao {
 	
 	public List<Map<String,Object>> getCalculation(int waferId,String module,DataBaseUtil db){
 		String sql = "select custom_parameter,calculation_result,calculate_formula,user_formula from dm_marker_calculation where wafer_id=? and module=?";
-		return db.queryToList(sql, new Object[]{waferId});
+		return db.queryToList(sql, new Object[]{waferId,module});
 	}
 	
 	public List<Map<String,Object>> getCalculation(Connection conn,int waferId,String module,DataBaseUtil db){

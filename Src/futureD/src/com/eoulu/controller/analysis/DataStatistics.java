@@ -1,4 +1,4 @@
-package com.eoulu.action.analysis;
+package com.eoulu.controller.analysis;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -7,21 +7,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.eoulu.service.AnalysisService;
-import com.eoulu.service.impl.AnalysisServiceImpl;
-import com.google.gson.Gson;
-
 /**
- * Servlet implementation class SwitchMarkerKey
+ * Servlet implementation class DataStatistics
  */
-@WebServlet("/ClearMarker")
-public class ClearMarker extends HttpServlet {
+@WebServlet(description = "数据分析", urlPatterns = { "/DataStatistics" })
+public class DataStatistics extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public ClearMarker() {
+    public DataStatistics() {
         super();
     }
 
@@ -29,14 +25,7 @@ public class ClearMarker extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		String[] curvTypeId = request.getParameterValues("curvTypeIdStr[]");
-	
-		AnalysisService service = new AnalysisServiceImpl();
-		
-		response.getWriter().write(new Gson().toJson(service.deleteMarkerById(curvTypeId)));
-		
-		
+		request.getRequestDispatcher("/WEB-INF/html/dataStatistics.jsp").forward(request, response);
 	}
 
 	/**

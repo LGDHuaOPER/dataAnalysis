@@ -124,24 +124,22 @@ public interface AnalysisService {
 	 */
 	boolean getMarkerExsit(int waferId, String markerName, String module, String sParameter);
 	/**
-	 * 添加、修改、
+	 * 添加
 	 * @param param
 	 * @param classify
 	 * @return
 	 */
-	boolean operateMarker(Object[] param,String classify);
+	boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module);
+	
+	boolean updateMarker(Map<String,String[]> paramMap,int waferId,String module);
 	/**
 	 * 删除marker
 	 * @param param
 	 * @return
 	 */
-	boolean deleteMarker(Object[] param);
-	/**
-	 * 获取marker主键
-	 * @param param
-	 * @return
-	 */
-	int getMarkerId(Object[] param);
+	boolean deleteMarker(String curveTypeId);
+	
+	List<Object[]> getMarker(String curveTypeId);
 	
 	/**
 	 * 计算区域内容
@@ -150,13 +148,6 @@ public interface AnalysisService {
 	 * @return
 	 */
 	List<Map<String,Object>> getCalculation(int waferId,String module);
-	/**
-	 * 清除曲线上的marker点
-	 * @param conn
-	 * @param curveTypeId
-	 * @return
-	 */
-	boolean deleteMarkerById(String[] curveTypeId);
 	
 	
 }

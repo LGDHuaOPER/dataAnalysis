@@ -209,21 +209,27 @@ public class NumericalCalculator {
 	            case MOD: result = firstValue.doubleValue() % secondValue.doubleValue(); break;
 	            case POW:result = Math.pow(firstValue.doubleValue(), secondValue.doubleValue()); break;
 	            case SQRT:
-	                if (firstValue.doubleValue() < 0) throw new ExpressionFormatException("SQRT公式参数小于零:" + firstValue);
-	                result = Math.sqrt(firstValue.doubleValue());
+	                if (firstValue.doubleValue() < 0 ) throw new ExpressionFormatException("SQRT公式参数小于零:" + firstValue);
+	                if(secondValue.doubleValue()<0){
+	                	 throw new ExpressionFormatException("SQRT公式 非负数的非负方根" + secondValue);
+	                }
+	                result = Math.pow(firstValue.doubleValue(), 1/secondValue.doubleValue());//Math.sqrt(firstValue.doubleValue());
 	                break;
 	            case ABS:result = Math.abs(firstValue.doubleValue()); break;
 	            case MAX: result = Math.max(firstValue.doubleValue(), secondValue.doubleValue());  break;
 	            case EXP: result = Math.exp(firstValue.doubleValue()); break;
-	            case LOG: result = Math.log(firstValue.doubleValue()); break;
+	            case LOG: result = Math.log(secondValue.doubleValue())/Math.log(firstValue.doubleValue()); break;
 	            case MIN: result = Math.min(firstValue.doubleValue(), secondValue.doubleValue()); break;
 	            case CEIL: result = Math.ceil(firstValue.doubleValue()); break;
 	            case LOGT: result = Math.log10(firstValue.doubleValue()); break;
 	            case FACTORIAL: result = factorial(firstValue.longValue()); break;
 //	            case PI:result = Math.PI;break;
-	            case SIN:result = new BigDecimal(Math.sin(firstValue.doubleValue()*Math.PI/180)).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
-	            case COS:result = new BigDecimal(Math.cos(firstValue.doubleValue()*Math.PI/180)).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
-	            case TAN:result = new BigDecimal(Math.tan(firstValue.doubleValue()*Math.PI/180)).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
+	            case SIN:result = new BigDecimal(Math.sin(firstValue.doubleValue())).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
+	            case COS:result = new BigDecimal(Math.cos(firstValue.doubleValue())).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
+	            case TAN:result = new BigDecimal(Math.tan(firstValue.doubleValue())).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
+	            case SING:result = new BigDecimal(Math.sin(firstValue.doubleValue()*Math.PI/180)).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
+	            case COSG:result = new BigDecimal(Math.cos(firstValue.doubleValue()*Math.PI/180)).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
+	            case TANG:result = new BigDecimal(Math.tan(firstValue.doubleValue()*Math.PI/180)).setScale(4, RoundingMode.HALF_UP).doubleValue();break;
 	            case LN:result = Math.log(firstValue.doubleValue());break;
 	            default:
 	                throw new ExpressionFormatException("未实现的运算符[" + op + "]");

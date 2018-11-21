@@ -44,13 +44,13 @@ public class FilterResource {
 		}
 		
 		public static boolean isController(String authority){
-			  System.out.println("list:"+list);
+			
 			return list.contains(authority);
 		}
 		
 		public static boolean isAuthority(String authority,HttpServletRequest req){
 			List<String> ls = (List<String>) req.getSession().getAttribute("userAuthority");
-			System.out.println(ls);
+			
 			String[] att = ls.get(1).split(",");
 			boolean flag = false;
 			for(int i=0,length=att.length;i<length;i++){

@@ -36,7 +36,8 @@ public class WaferData extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;utf-8");
 		int waferId = request.getParameter("waferId") == null ? 0 : Integer.parseInt(request.getParameter("waferId"));
-		String dataFormat = request.getParameter("dataFormat") == null ? "" : request.getParameter("dataFormat").trim();
+		String dataFormat = request.getParameter("dataFormat") == null ? "" : request.getParameter("dataFormat").trim(),
+				webParam = request.getParameter("webParam") == null ? "" : request.getParameter("webParam").trim();
 
 		WaferDataService service = new WaferDataServiceImpl();
 		Map<String,Object> result = null;
@@ -57,6 +58,7 @@ public class WaferData extends HttpServlet {
 		}
 		
 		request.setAttribute("result", new Gson().toJson(result));
+		request.setAttribute("webParam", webParam);
 		request.getRequestDispatcher("/WEB-INF/html/dataListDetail.jsp").forward(request, response);
 
 	}
