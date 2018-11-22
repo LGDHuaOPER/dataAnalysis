@@ -277,13 +277,23 @@ function renderVectorMapWafer(obj){
 			if(_.isNil(unQualifiedNu)) unQualifiedNu = 0;
 			$(".qualifiedInformation_div .panel-body tbody>tr:eq(2)>td:eq(1)").text(qualifiedNu);
 			$(".qualifiedInformation_div .panel-body tbody>tr:eq(3)>td:eq(1)").text(unQualifiedNu);
+			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+dataListDetailStore.state.vectorMap.currentDieCoord+"）");
+			/*Subdie Group DieType*/
+			_.forEach(_.compact(obj.subdie), function(v, i){
+				$("#SubdieSel").append('<option value="'+v+'">'+v+'</option>');
+			});
+			_.forEach(_.compact(obj.deviceGroup), function(v, i){
+				$("#GroupSel").append('<option value="'+v+'">'+v+'</option>');
+			});
 		},
 		clickCallback: function(cor){
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
+			dataListDetailStore.state.vectorMap.currentDieCoord = cor;
 			renderChartByCoord();
 		},
 		keydownCallback: function(cor){
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
+			dataListDetailStore.state.vectorMap.currentDieCoord = cor;
 			renderChartByCoord();
 		},
 		resizeCallback: function(wi, hi, mapObj){
@@ -349,7 +359,7 @@ function buildChartContainer(curveType){
 }
 
 /*矢量Map根据坐标绘制chart图表*/
-function renderChartByCoord(){
+function renderChartByCoord(ajaxData){
 	eouluGlobal.S_getSwalMixin()({
 		title: "加载提示",
 		text: "正在绘制曲线",
@@ -357,8 +367,18 @@ function renderChartByCoord(){
 		showConfirmButton: false,
 	});
 	$("div.all_charts_rows>div").fadeOut(100);
+	$.ajax({
+		type: "GET",
+		url: "VectorCurve",
+		data: ajaxData,
+		dataType: "json"
+	}).then(function(){
+		console.log(1)
+	}).always(function(){
+		swal.clickCancel();
+	});
 	/*这里是随机数*/
-	var data = dataListDetailStore.mock.vectorMap.curveTypeData[_.random(0, 4, false)];
+	/*var data = dataListDetailStore.mock.vectorMap.curveTypeData[_.random(0, 4, false)];
 	console.log(data.curveinfos);
 	_.forEach(data.curveinfos, function(v, i){
 		var ID = buildChartContainer(v.curveType);
@@ -369,7 +389,7 @@ function renderChartByCoord(){
 			container: ID,
 			callback: null
 		});
-	});
+	});*/
 }
 
 /*page preload*/
@@ -658,6 +678,9 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 			dataListDetailStore.state.vectorMap.currentDieCoord = null;
 			renderVectorMapWafer({
 				mapInfo: data.mapInfo
+			});
+			renderChartByCoord({
+				coordinateId: 205
 			});
 		}, function(){
 			eouluGlobal.C_server500Message({

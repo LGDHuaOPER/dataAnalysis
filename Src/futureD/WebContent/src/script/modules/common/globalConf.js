@@ -14,6 +14,9 @@
             console.warn("ajaxSetup, 局部事件beforeSend")
             // return false;
         },
+        success: function(){
+        	console.warn("ajaxSetup, 局部事件success")
+        },
         error: function(){
         	eouluGlobal.C_server500Message({
         		callback: null

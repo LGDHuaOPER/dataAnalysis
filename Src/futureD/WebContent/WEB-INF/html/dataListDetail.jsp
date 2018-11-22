@@ -139,15 +139,21 @@
 			    		    						    			</tr>
 			    		    						    			<tr>
 			    		    						    				<td>Subdie</td>
-			    		    						    				<td>0</td>
+			    		    						    				<td><select id="SubdieSel" class="form-control">
+			    		    						    					<option value="AllSubdie">AllSubdie</option>
+			    		    						    				</select></td>
 			    		    						    			</tr>
 			    		    						    			<tr>
 			    		    						    				<td>Group</td>
-			    		    						    				<td>Sweep</td>
+			    		    						    				<td><select id="GroupSel" class="form-control">
+			    		    						    					<option value="AllGroup">AllGroup</option>
+			    		    						    				</select></td>
 			    		    						    			</tr>
 			    		    						    			<tr>
-			    		    						    				<td>Voltage DieType</td>
-			    		    						    				<td>DefaultType</td>
+			    		    						    				<td>DieType</td>
+			    		    						    				<td><select id="DieTypeSel" class="form-control">
+			    		    						    					<option value="AllDieType">AllDieType</option>
+			    		    						    				</select></td>
 			    		    						    			</tr>
 			    		    						    		</tbody>
 			    		    						    	</table>
