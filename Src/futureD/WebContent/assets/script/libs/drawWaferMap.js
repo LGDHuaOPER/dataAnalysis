@@ -666,19 +666,19 @@ function renderWaferMapByGetData(obj){
         bgFillColor: obj.bgFillColor,
         /*canvas容器*/
         ctx: ctx,
-        r0: obj.waferData.Diameter, //真实晶圆半径
+        r0: parseFloat(obj.waferData.Diameter || obj.waferData.diameter), //真实晶圆半径
         r: (obj.width) / 2 - (obj.spacePercent.x * obj.width), //根据分辨率计算的晶圆半径   减去圆两边空白
         centerX: (obj.width) / 2,
         centerY: (obj.width) / 2 - (obj.spacePercent.x * obj.width) + (obj.spacePercent.y * obj.height),
-        dieX: obj.waferData.DieSizeX,
-        dieY: obj.waferData.DieSizeY,
-        minRow: obj.waferData.minY,
-        maxRow: obj.waferData.maxY,
-        minCol: obj.waferData.minX,
-        maxCol: obj.waferData.maxX,
+        dieX: parseFloat(obj.waferData.DieSizeX || obj.waferData.dieSizeX),
+        dieY: parseFloat(obj.waferData.DieSizeY || obj.waferData.dieSizeY),
+        minRow: parseFloat(obj.waferData.minY),
+        maxRow: parseFloat(obj.waferData.maxY),
+        minCol: parseFloat(obj.waferData.minX),
+        maxCol: parseFloat(obj.waferData.maxX),
         coordsArray: changeHash(obj.m_DieDataListNew), // 晶圆数据
-        positionFlag: (obj.waferData.DirectionX + obj.waferData.DirectionY),
-        FlatLength: obj.waferData.FlatLength,
+        positionFlag: ((obj.waferData.DirectionX || obj.waferData.directionX) + (obj.waferData.DirectionY || obj.waferData.directionY)),
+        FlatLength: parseFloat(obj.waferData.FlatLength || obj.waferData.flagLength),
         /*色阶图标志*/
         colorOrder: obj.colorOrder,
         /*过滤后的数组*/
@@ -1193,7 +1193,7 @@ function buildColorGradation(obj) {
     // console.log("colorMap.getKeys", colorMap.getKeys());
     // console.log("colorMap.getValues", colorMap.getValues());
     // console.log("currentDieCoord", obj.currentDieCoord);
-    var positionFlag = obj.waferData.DirectionX + obj.waferData.DirectionY;
+    var positionFlag = (obj.waferData.DirectionX || obj.waferData.directionX) + (obj.waferData.DirectionY || obj.waferData.directionY);
     obj.callback && obj.callback(positionFlag);
     obj.resizeCallback && obj.resizeCallback(width, height, newRenderWaferMap);
     if(obj.returnFlag){

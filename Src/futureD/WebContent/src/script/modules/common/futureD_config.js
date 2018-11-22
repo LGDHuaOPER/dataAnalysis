@@ -24,8 +24,9 @@
     var _DefaultParam = {
         // environment: "development",
         environment: "product",
-        projectName: "futureDT2",
+        projectName: "futureD",
         versionNO: "1536897675562",
+        loginHref: "IndexInterface",
         pageAllConfig: {
             "futureDT2": {
                 canUseAjax: false
@@ -135,6 +136,7 @@
                     _.isFunction(obj.callback) && obj.callback();
                 }
             });
+            return this;
         },
 
     /* 这里定义不可以链式调用的，以S_开头 */
@@ -211,10 +213,10 @@
                 async: async,
                 cache: cache,
                 dataType: "script",
-                beforeSend: function(XMLHttpRequest){
+                beforeSend: function(XMLHttpReq){
                     var options = this;   //调用本次ajax请求时传递的options参数
                     if(eouluGlobalThis.S_isFunction(beforeSend)){
-                        beforeSend(XMLHttpRequest, options);
+                        beforeSend(XMLHttpReq, options);
                     }
                 },
                 dataFilter: function(data, type){
@@ -244,17 +246,17 @@
                         success(data, textStatus, options);
                     }
                 },
-                error: function(XMLHttpRequest, textStatus, errorThrown){
+                error: function(XMLHttpReq, textStatus, errorThrown){
                     //通常情况下textStatus和errorThrown只有其中一个包含信息
                     var options = this;   //调用本次ajax请求时传递的options参数
                     if(eouluGlobalThis.S_isFunction(error)){
-                        error(XMLHttpRequest, textStatus, errorThrown, options);
+                        error(XMLHttpReq, textStatus, errorThrown, options);
                     }
                 },
-                complete: function(XMLHttpRequest, textStatus){
+                complete: function(XMLHttpReq, textStatus){
                     var options = this;   //调用本次ajax请求时传递的options参数
                     if(eouluGlobalThis.S_isFunction(complete)){
-                        complete(XMLHttpRequest, textStatus, errorThrown, options);
+                        complete(XMLHttpReq, textStatus, errorThrown, options);
                     }
                 },
                 scriptCharset: scriptCharset
@@ -270,6 +272,9 @@
         },
         S_getProjectName: function(){
             return _DefaultParam.projectName;
+        },
+        S_getLoginHref: function(){
+            return _DefaultParam.loginHref;
         },
         S_getBaseUrl: function(){
             return (window.location.href.split(_DefaultParam.projectName)[0]+_DefaultParam.projectName);
@@ -405,12 +410,14 @@
         /*
         * @param obj 对象
         * {
+        *     beforeSend [function]
         *     readyState0 [function]
         *     readyState1 [function]
         *     readyState2 [function]
         *     readyState3 [function]
         *     status200 [function]
         *     statusError [function]
+        *     readyState4 [function]
         *     type [string]
         *     getObject [object]  {
         *         url [string]
@@ -432,8 +439,9 @@
          */
         S_XHR: function(obj){
             var xhr = this.S_createXHR();
-            // 定义xhr对象的请求响应事件
+            this.S_isFunction(obj.beforeSend) && obj.beforeSend(obj, xhr);
             var that = this;
+            // 定义xhr对象的请求响应事件
             xhr.onreadystatechange = function() {
                 switch (xhr.readyState) {
                     case 0:
@@ -461,6 +469,7 @@
                             // alert("Request was unsuccessful : " + xhr.status + " " + xhr.statusText);
                             that.S_isFunction(obj.statusError) && obj.statusError(xhr, xhr.statusText, xhr.status);
                         }
+                        that.S_isFunction(obj.readyState4) && obj.readyState4(xhr.readyState, xhr, xhr.status);
                         break;
                 }
             };
@@ -479,20 +488,24 @@
                 if (typeof FormData == "undefined") {
                     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 }*/
+                var contentType;
                 switch (obj.postObject.classify){
                     case "form":
-                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    contentType = "application/x-www-form-urlencoded";
                     break;
                     case "file":
-                    xhr.setRequestHeader("Content-Type", "multipart/form-data");
+                    contentType = "multipart/form-data";
                     break;
                     case "json":
-                    xhr.setRequestHeader("Content-Type", "application/json");
+                    contentType = "application/json";
                     break;
                     case "XML":
-                    xhr.setRequestHeader("Content-Type", "text/xml");
+                    contentType = "text/xml";
                     break;
+                    default:
+                    contentType = "application/x-www-form-urlencoded";
                 }
+                xhr.setRequestHeader("Content-Type", contentType);
                 xhr.send(that.S_postDataFormat({
                     classify: obj.postObject.classify,
                     data: obj.postObject.data
@@ -508,13 +521,15 @@
         // @param NewUrl  新的URL
         S_settingURLParam: function(paramObj, isRead, _blank, ireplace, NewUrl){
             if(this.S_isObject(paramObj)){
+                var problemFlag = true;
                 if(jQuery.isEmptyObject(paramObj)){
                     console.warn("C_setURLParam参数paramObj为空对象");
-                    return false;
+                    problemFlag = false;
                 }
                 var paramStr = $.param(paramObj);
                 var iURL = NewUrl || this.S_getCurPageHref();
-                var preHref = this.S_getBaseUrl()+"/"+iURL+"?";
+                var preHref = this.S_getBaseUrl()+"/"+iURL;
+                if(problemFlag) preHref+="?";
                 var setHref = preHref+paramStr;
                 if(!isRead){
                     if(_blank){
@@ -532,6 +547,26 @@
                 console.warn("S_settingURLParam参数paramObj不是一个对象");
             }
         },
+        //获取url参数
+        //getUrlPrmt('segmentfault.com/write?draftId=122000011938')
+        //result：Object{draftId: "122000011938"}
+        S_getUrlPrmt: function (url) {
+            url = url ? url : window.location.href;
+            var _pa = url.substring(url.indexOf('?') + 1),
+                _arrS = _pa.split('&'),
+                _rs = {};
+            for (var i = 0, _len = _arrS.length; i < _len; i++) {
+                var pos = _arrS[i].indexOf('=');
+                if (pos == -1) {
+                    continue;
+                }
+                var name = _arrS[i].substring(0, pos),
+                    value = window.decodeURIComponent(_arrS[i].substring(pos + 1));
+                _rs[name] = value;
+            }
+            return _rs;
+        },
+        
         S_getLastStr: function(str, num){
             if(this.S_isString(str)){
                 num = num || 1;
@@ -688,25 +723,6 @@
                 returnArr[1] = "0";
             }
             return returnArr;
-        },
-        //获取url参数
-        //getUrlPrmt('segmentfault.com/write?draftId=122000011938')
-        //result：Object{draftId: "122000011938"}
-        S_getUrlPrmt: function (url) {
-            url = url ? url : window.location.href;
-            var _pa = url.substring(url.indexOf('?') + 1),
-                _arrS = _pa.split('&'),
-                _rs = {};
-            for (var i = 0, _len = _arrS.length; i < _len; i++) {
-                var pos = _arrS[i].indexOf('=');
-                if (pos == -1) {
-                    continue;
-                }
-                var name = _arrS[i].substring(0, pos),
-                    value = window.decodeURIComponent(_arrS[i].substring(pos + 1));
-                _rs[name] = value;
-            }
-            return _rs;
         },
 
         // @操作系统

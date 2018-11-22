@@ -28,7 +28,6 @@ public class FilterResource {
 		public static boolean isExist(HttpServletRequest request){
 			boolean flag = false;
 			String url = request.getRequestURI();
-			System.out.println("url"+url);
 			for(String rs : resource){
 				if(url.contains(rs)){
 					flag = true;

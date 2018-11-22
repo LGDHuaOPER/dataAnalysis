@@ -129,7 +129,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 		if (list.size() > 0) {
 			result.put("minX", list.get(0).get("minX").toString());
 			result.put("maxX", list.get(0).get("maxX").toString());
-			result.put("minY", list.get(0).get("minY").toString());
+			result.put("maxY", list.get(0).get("maxY").toString());
 			result.put("minY", list.get(0).get("minY").toString());
 		}
 		return result;
@@ -144,7 +144,10 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Connection conn = new DataBaseUtil().getConnection();
 		map = getMapParameter(conn, waferNO);
 		map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
+		System.out.println("other:"+coordinate.getOtherDie(conn, waferId, waferNO));
+		
 		map.put("waferList", coordinate.getVectorMap(conn, waferId, "", ""));
+		System.out.println("current:"+coordinate.getVectorMap(conn, waferId, "", ""));
 		map.put("waferNO", waferNO);
 		try {
 			conn.close();

@@ -341,7 +341,7 @@ public class CoordinateDao {
 	
 	
 	public Map<String,Object> getOtherDie(Connection conn,int waferId,String waferNO){
-		String sql = "select x_coordinate,y_coordinate from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?) and wafer_id<>?";
+		String sql = "select x_coordinate,y_coordinate from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status=0) ";
 		Map<String,Object> result = new HashMap<>();
 		PreparedStatement ps;
 		try {

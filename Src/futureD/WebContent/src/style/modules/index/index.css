@@ -114,15 +114,15 @@ span.glyphicon {
 	height: 300px;
 }
 
-.thumbnail[data-ipage="dataList"]>img {
+.thumbnail[data-ipage="DataList"]>img {
 	margin-top: 60px;
 }
 
-.thumbnail[data-ipage="projectAnalysis"]>img {
+.thumbnail[data-ipage="ProjectAnalysis"]>img {
 	margin-top: 41px;
 }
 
-.thumbnail[data-ipage="dataStatistics"]>img {
+.thumbnail[data-ipage="DataCompare"]>img {
 	margin-top: 26px;
 }
 

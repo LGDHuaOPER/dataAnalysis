@@ -56,8 +56,8 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void updateLoginDate(String userName,String currentLogin) {
 		String lastLogin = dao.getLastLogin(userName);
-		System.out.println(lastLogin+"=========");
-		if(dao.update(lastLogin, userName)){
+		System.out.println("========="+lastLogin);
+		if( "".equals(lastLogin) || dao.update(lastLogin, userName)){
 			dao.updateLoginDate(currentLogin, userName);
 		}
 		

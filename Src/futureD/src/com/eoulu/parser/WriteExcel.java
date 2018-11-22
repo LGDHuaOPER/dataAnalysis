@@ -207,7 +207,7 @@ public class WriteExcel {
 		}
 		FileOutputStream output;
 		try {
-			output = new FileOutputStream(path);
+			output = new FileOutputStream(path+secondary.get(0).get("wafer_number").toString()+".xlsx");
 			wb.write(output);
 			output.flush();
 		} catch (Exception e) {

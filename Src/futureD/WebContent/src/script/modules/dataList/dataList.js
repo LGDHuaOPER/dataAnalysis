@@ -437,14 +437,13 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 					timer: 1500,
 					callback: null
 				});
-				eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
 				if(data.indexOf("有误") > -1 || data.indexOf("未接收") > -1){
 					barDestroy();
 				}else if(data.indexOf("成功") > -1){
 					$(".futureDT2_addition_r_foot .btn-warning").trigger("click");
-					/*eouluGlobal.S_settingURLParam({
+					eouluGlobal.S_settingURLParam({
 						currentPage: 1
-					}, false, false, false);*/
+					}, false, false, false);
 				}
 			},
 			statusError: function(xhr, statusText){
@@ -453,6 +452,8 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 				eouluGlobal.C_server500Message({
 					callback: null
 				});
+			},
+			readyState4: function(readyState, xhr, status){
 				eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
 			},
 			type: "POST",

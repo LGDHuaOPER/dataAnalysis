@@ -88,7 +88,6 @@ public class AutoGrab extends HttpServlet {
 			}
 		}
 		if (fileName.endsWith(".xlsx")) {
-		
 			result= util.getDataFormat(filePath);
 			String dataFormat = result.get("dataFormat").toString();
 			logWafer = result.get("waferNO").toString();

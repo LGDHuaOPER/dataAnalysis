@@ -1,7 +1,7 @@
 var futureD_bootstro_ipage = $("body").data("curpage");
 $(function(){
 	if(_.isNil(futureD_bootstro_ipage)) return false;
-	var flag = store.get("futureD_bootstro_"+futureD_bootstro_ipage);
+	var flag = store.get("futureDOnline_bootstro_"+futureD_bootstro_ipage);
 	if(flag == "finish" || flag == "exit") return false;
 	futureD_bootstro_start();
 });
@@ -32,7 +32,7 @@ function futureD_bootstro_start() {
 			  timer: 2000
 			}).then(function(result){
 				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-					store.set("futureD_bootstro_"+futureD_bootstro_ipage, "finish");
+					store.set("futureDOnline_bootstro_"+futureD_bootstro_ipage, "finish");
 				}
 			});
 		},
@@ -49,7 +49,7 @@ function futureD_bootstro_start() {
 			  timer: 2000
 			}).then(function(result){
 				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-					store.set("futureD_bootstro_"+futureD_bootstro_ipage, "exit");
+					store.set("futureDOnline_bootstro_"+futureD_bootstro_ipage, "exit");
 				}
 			});
 		},

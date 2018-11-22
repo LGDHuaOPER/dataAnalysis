@@ -40,6 +40,7 @@ public class ExportWafer extends HttpServlet {
 		StringBuffer wholePath = request.getRequestURL();
 		String servletPath = request.getServletPath();
 		String path = request.getServletContext().getRealPath("/")+"down\\";
+		System.out.println(path);
 		path=URLDecoder.decode(path,"gbk");
 		File file = new File(path);
 		if(!file.exists() && !file.isDirectory()){
@@ -50,7 +51,7 @@ public class ExportWafer extends HttpServlet {
 			service.getExportExcel(waferId, path);
 			path = wholePath.toString().split(servletPath)[0]+"/down/"+URLEncoder.encode(waferNO,"utf-8")+".xlsx";
 		}
-		
+		System.out.println(path);
 		response.getWriter().write(path);
 		
 	}

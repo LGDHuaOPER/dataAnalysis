@@ -307,6 +307,14 @@ div[data-dbcurveandsmith] div.picturetop {
 	position: relative;
 }
 
+div.webParam {
+	text-align: right;
+}
+
+div.webParam button {
+	margin-left: 20px;
+}
+
 @media screen and (max-width: 1199px) {
     .vectorMap_in {
     	grid-template-columns: 350px 1fr;

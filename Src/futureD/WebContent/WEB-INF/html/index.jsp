@@ -93,11 +93,10 @@
 	<script src="assets/script/libs/sweetalert2.min.js"></script>
 	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 	<script src="assets/script/libs/bootstro.js"></script>
-	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<!-- 不变 -->
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<!-- 变 -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/index/index.js"></script>
 </body>
 </html>

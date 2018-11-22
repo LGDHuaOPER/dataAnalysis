@@ -31,6 +31,7 @@ public class Logon extends HttpServlet {
 		HttpSession session = request.getSession(false);
 		session.invalidate();
 		response.getWriter().write(new Gson().toJson("OK"));
+//		request.getRequestDispatcher("").forward(request, response);
 	}
 
 	/**

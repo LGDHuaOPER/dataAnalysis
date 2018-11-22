@@ -1,6 +1,8 @@
 package com.eoulu.action.list;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,15 +34,14 @@ public class UploadProgess extends HttpServlet {
 		String id = request.getSession().getId();
 		String fileName = request.getParameter("fileName");
 		id += fileName;
-		System.out.println("id====="+id);
 		Object size = ProgressSingleton.get(id + "Size");
 		size = size == null ? 100 : size;
 		Object progress = ProgressSingleton.get(id + "Progress");
 		progress = progress == null ? 0 : progress; 
 		long sizeNumber = Long.valueOf(String.valueOf(size)).longValue(); 
 		long progressNumber = Long.valueOf(String.valueOf(progress)).longValue(); 
-		double percent =  (double)progressNumber/sizeNumber*100;
-		System.out.println("progress:"+progress);
+		double percent =  new BigDecimal((double)progressNumber/sizeNumber*100).setScale(0, BigDecimal.ROUND_UP).doubleValue();
+		System.out.println("percent:"+percent);
 		response.getWriter().write(percent+"%");
 	}
 

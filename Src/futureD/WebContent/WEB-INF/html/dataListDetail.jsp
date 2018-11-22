@@ -22,7 +22,7 @@
 	<!-- 变 -->
 	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
 </head>
-<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}'>
+<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -43,15 +43,14 @@
 				<div class="g_bodyin_tit_r">
 					<div class="container-fluid">
 						<div class="row">
-							<div class="col-sm-12 col-md-8 col-lg-8">
+							<div class="col-sm-12 col-md-7 col-lg-7">
 								<ol class="breadcrumb">
-								  	<li><a href="index.html">系统主页面</a></li>
-								  	<li><a href="dataList.html">数据列表</a></li>
+								  	<li><a href="HomeInterface">系统主页面</a></li>
+								  	<li><a href="DataList">数据列表</a></li>
 								  	<li class="active">详细信息</li>
 								</ol>
 							</div>
-							<div class="col-sm-12 col-md-4 col-lg-4 webParam">
-								晶圆信息：ProductID/LotID/WaferID
+							<div class="col-sm-12 col-md-5 col-lg-5 webParam">
 							</div>
 						</div>
 					</div>
@@ -312,6 +311,7 @@
 	<script src="assets/script/libs/drawWaferMap.js"></script>
 	<!-- 变 -->
 	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
 	<script src="src/script/modules/dataListDetail/dataListDetail.js"></script>
 </body>

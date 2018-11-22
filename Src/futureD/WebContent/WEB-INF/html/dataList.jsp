@@ -44,7 +44,7 @@
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
-					  	<li><a href="index.html">系统主页面</a></li>
+					  	<li><a href="HomeInterface">系统主页面</a></li>
 					  	<li class="active">数据列表</li>
 					</ol>
 				</div>
@@ -178,9 +178,10 @@
 									<div class="row row_extra3">
 										<div class="col-sm-12 col-md-6 col-lg-6">
 											<div class="well">
-												<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><input type="file" id="add_file_Upload" accept="aplication/zip, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><br>
+												<!-- accept="application/x-zip-compressed,aplication/zip,application/octet-stream,application/x-rar-compressed" -->
+												<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><input type="file" id="add_file_Upload" accept="aplication/zip, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .zip, .rar"><br>
 												点击/拖拽文件到这里上传<br>
-												<small>支持Excel、TXT等数据格式</small>
+												<small>支持Excel、TXT、zip、rar格式</small>
 											</div>
 										</div>
 										<div class="col-sm-12 col-md-6 col-lg-6">
@@ -279,6 +280,7 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<!-- 变 -->
 	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/dataList/dataList.js"></script>
 </body>
 </html>
