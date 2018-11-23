@@ -36,8 +36,9 @@ public class DataListRemove extends HttpServlet {
 		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId");
 		boolean flag = service.remove(waferId);
 		if(flag){
-			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "数据列表", "删除晶圆"+service.getWaferNO(Integer.parseInt(waferId))+"至回收站", request.getSession());
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "数据列表", "删除晶圆"+""+"至回收站", request.getSession());
 		}
+		//service.getWaferNO(Integer.parseInt(waferId))
 		response.getWriter().write(new Gson().toJson(flag));
 	
 	}

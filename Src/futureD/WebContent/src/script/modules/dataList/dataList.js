@@ -554,6 +554,9 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 						type: "success",
 						timer: 1500,
 						callback: function(){
+							var selectedItem = store.get("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem") || [];
+							_.pull(selectedItem, iThat.data("iid").toString());
+							store.set("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem", selectedItem);
 							window.location.reload();
 						}
 					});
@@ -747,6 +750,9 @@ $("#search_button").on("click", function(){
 	}
 	eouluGlobal.S_settingURLParam(URLParam, false, false, false);
 	return false;
+});
+$(".g_bodyin_bodyin_tit_r .form-control-feedback").click(function(){
+	$(this).prev().children("input").val("");
 });
 
 /*上传文件全部*/

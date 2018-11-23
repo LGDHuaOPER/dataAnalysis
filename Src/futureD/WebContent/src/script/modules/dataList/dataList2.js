@@ -218,9 +218,7 @@ $(function(){
 });
 
 /*event handler*/
-$(".g_bodyin_bodyin_tit_r .form-control-feedback").click(function(){
-	$(this).prev().children("input").val("");
-});
+
 
 
 
