@@ -130,7 +130,7 @@
                 /*html: '',*/
                 type: "warning",
                 showConfirmButton: false,
-                timer: 1600,
+                timer: obj.timer===null ? null : 1600,
             }).then(function(result){
                 if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
                     _.isFunction(obj.callback) && obj.callback();

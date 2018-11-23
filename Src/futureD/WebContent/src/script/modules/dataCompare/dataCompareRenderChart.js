@@ -147,7 +147,7 @@ function dataCompareRenderChart(obj){
 	else if(obj.chartClassify == 'good_rate'){
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 				tooltip: {
-					headerFormat: '<b>{series.name}</b><br>',
+					headerFormat: '<b>{point.key}</b><br>',
 					pointFormat: '{point.x}, {point.y}'
 				},
 				series: obj.series

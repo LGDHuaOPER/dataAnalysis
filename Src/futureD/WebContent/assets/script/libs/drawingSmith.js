@@ -1,6 +1,16 @@
 
 // smith图
-function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, msgFun, msgInitFun) {
+function smithChart(obj) {
+	var dom = obj.dom;
+	var title = obj.titleOneArr;
+	var legendName = obj.legendNameOneArr;
+	var allData = obj.allDataArr;
+	var Type = obj.Type;
+	var msgdom = obj.msgdom;
+	var lineColorArray = obj.lineColorArray;
+	var msgFun = obj.msgFun;
+	var msgInitFun = obj.msgInitFun;
+	var GHzFlag = obj.GHzFlag;
 
     // 公式是(x-x0)^2 + (y-y0)^2 = r^2
     dom.innerHTML = '';
@@ -365,12 +375,16 @@ function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, m
                                 verticalLine.style.marginTop = -marginTop + 'px';
                                 //加载点信息
                                 if(msgdom && allData.length){
-                                    var messag = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(_data[t][m][0]/10E6).toFixed(2)+"GHz";
+                                	var GHzData = _data[t][m][0]/10E6;
+                                	if(GHzFlag === true) GHzData = _data[t][m][0];
+                                    var messages = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(GHzData).toFixed(2)+"GHz";
                                     if(msgFun){
-                                        var initMess = "("+_data[t][0][1].toFixed(2)+","+_data[t][0][2].toFixed(2)+"),"+(_data[t][0][0]/10E6).toFixed(2)+"GHz";
-                                        msgFun(messag, t, initMess);
+                                    	var initGHzData = _data[t][0][0]/10E6;
+                                    	if(GHzFlag === true) initGHzData = _data[t][0][0];
+                                        var initMess = "("+_data[t][0][1].toFixed(2)+","+_data[t][0][2].toFixed(2)+"),"+(initGHzData).toFixed(2)+"GHz";
+                                        msgFun(messages, t, initMess);
                                     }else{
-                                        msgdom.getElementsByClassName("Smith_Msg2")[0].innerText = messag;
+                                        msgdom.getElementsByClassName("Smith_Msg2")[0].innerText = messages;
                                     }
                                 }
                             }
@@ -381,7 +395,9 @@ function smithChart(dom,title,legendName, allData,Type,msgdom, lineColorArray, m
         }
     };
     if(msgdom && allData.length){
-        var messag = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(_data[0][0][0]/10E6).toFixed(2)+"GHz";
+    	var GHzDat = _data[0][0][0]/10E6;
+    	if(GHzFlag === true) GHzDat = _data[0][0][0];
+        var messag = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(GHzDat).toFixed(2)+"GHz";
         if(msgInitFun){
             msgInitFun(messag);
         }else{

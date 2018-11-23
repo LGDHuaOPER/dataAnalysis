@@ -1,11 +1,5 @@
 /*variable defined*/
-var dataListDetailSwalMixin = swal.mixin({
-  	confirmButtonClass: 'btn btn-success',
-  	cancelButtonClass: 'btn btn-danger',
-  	buttonsStyling: true,
-	animation: false,
-	customClass: 'animated zoomIn'
-});
+
 
 var dataListDetailStore = Object.create(null);
 dataListDetailStore.mock = {
@@ -474,23 +468,7 @@ $(function(){
 		var iicontrols = $(el).data("iallstatistics");
 		var str = '<div class="container-fluid">';
 		if(["good_rate", "CPK"].indexOf(iicontrols) > -1){
-				str+='<div class="row">';
-					str+='<div class="col-sm-12 col-md-6 col-lg-6">';
-					str+='<div class="panel panel-info">'+
-						  	'<div class="panel-heading">'+
-						    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+dataListDetailStore.mock.parameterMap.parameter.join("&")+
-						  	'</div>'+
-						  	'<div class="panel-body">'+
-						    	'<div class="container-fluid">'+
-						    		'<div class="chart_title"></div>'+
-						    		'<div class="chart_body"><div id="'+(iicontrols+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+dataListDetailStore.mock.parameterMap.parameter.join("&")+'"></div></div>'+
-						    		'<div class="chart_foot"></div>'+
-						    	'</div>'+
-						  	'</div>'+
-						'</div>';
-					str+='</div>';
-				str+='</div>';
-				dataListDetailStore.state.parameterMap.curChartContainerNum++;
+				
 		}else{
 			var inStr = '';
 			if(_.indexOf(["gaussiandistribution"], iicontrols) > -1){
@@ -570,11 +548,7 @@ $(function(){
 
 /*event handler*/
 
-$(window).on("resize", _.debounce(function(){
-	_.forEach(dataListDetailStore.state.vectorMap.smithObjArr, function(v, i, arr){
-		arr[i].onresize();
-	});
-}, 200));
+
 
 
 
