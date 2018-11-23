@@ -182,6 +182,7 @@ public class FileUtil {
 						// 获取表单文件，写入项目文件夹中
 						fileName = item.getName().substring(item.getName().lastIndexOf(File.separator) + 1,
 								item.getName().length());
+						System.out.println(fileName);
 						InputStream inputStream = item.getInputStream();
 						OutputStream outputStream = new FileOutputStream(tempPath + fileName);
 						while ((i = inputStream.read(data)) != -1) {
@@ -204,6 +205,7 @@ public class FileUtil {
 		map.put("currentUser", currentUser);
 		map.put("description", description);
 		map.put("editTime", editTime);
+		System.out.println("currentUser:"+map);
 		return map;
 	}
 	
@@ -329,7 +331,7 @@ public class FileUtil {
 	
 	
 	
-	public Map<String,Object> getDataFormat(String filepath)
+	public static Map<String,Object> getDataFormat(String filepath)
 	{
 		Map<String,Object> map = new HashMap<>();
 		String waferID="",dataFormat = "",fileName="";
@@ -343,24 +345,27 @@ public class FileUtil {
 				for (int rowIndex = 0; rowIndex <= sheet.getLastRowNum()-2; rowIndex++)
 				{
 					XSSFRow row = sheet.getRow(rowIndex);
+					if(row == null || row.getCell(0) == null){
+						continue;
+					}
 					if(rowIndex == 0 && "编号".equals(row.getCell(0).toString())){
 						dataFormat = "2";
 						fileName  = new File(filepath).getName();
 						waferID = fileName.substring(0, fileName.lastIndexOf("."));
 						break;
 					}
-					if( "Device".equals(row.getCell(0).toString()) && "site".equals(row.getCell(1).toString())){
+					if(  "Device".equals(row.getCell(0).toString()) && "site".equals(row.getCell(1).toString())){
 						dataFormat = "3";
 						fileName  = new File(filepath).getName();
 						waferID = fileName.substring(0, fileName.lastIndexOf("."));
 						break;
 					}
-					if("DeviceID".equals(row.getCell(0).toString()) && "LotID".equals(sheet.getRow(rowIndex+1).getCell(0).toString()) && "WaferID".equals(sheet.getRow(rowIndex+2).getCell(0).toString()))
+					if(  "DeviceID".equals(row.getCell(0).toString().trim()) && "LotID".equals(sheet.getRow(rowIndex+1).getCell(0).toString().trim()) && "WaferID".equals(sheet.getRow(rowIndex+2).getCell(0).toString().trim()))
 					{
-						dataFormat = "1";
+						dataFormat = "0";
 						waferID = sheet.getRow(rowIndex+2).getCell(2).toString();
 					}
-					if("Type".equals(row.getCell(0).toString())){
+					if( "Type".equals(row.getCell(0).toString())){
 						break;
 					}
 				}	
@@ -373,4 +378,8 @@ public class FileUtil {
 		}
 		return map;
 	}	
+	
+	public static void main(String[] args) {
+		System.out.println(getDataFormat("E:/test/wafer1.xlsx"));
+	}
 }

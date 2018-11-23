@@ -202,6 +202,20 @@ div#in ul {
 	overflow: auto;
 }
 
+#vectorMap .panel-body .table {
+	margin-bottom: 1px;
+}
+
+.coordinateInformation_div .panel-heading {
+	position: relative;
+}
+
+.coordinateInformation_div .panel-heading>.glyphicon-ok {
+	position: absolute;
+	right: 10px;
+	top: 12px;
+}
+
 #parameterMap {
 	overflow-y: auto;
 }

@@ -77,6 +77,8 @@ public class AutoGrab extends HttpServlet {
 			transport.put("productCategory", productCategory);
 			transport.put("description", description);
 			transport.put("currentUser", currentUser);
+			transport.put("sessionId", "null");
+			transport.put("interval", 0);
 
 			ZipFileParser zipUtil = new ZipFileParser();
 			result = zipUtil.Zip(transport);
@@ -91,8 +93,9 @@ public class AutoGrab extends HttpServlet {
 			result= util.getDataFormat(filePath);
 			String dataFormat = result.get("dataFormat").toString();
 			logWafer = result.get("waferNO").toString();
+			System.out.println("dataFormat:"+dataFormat+"======"+logWafer);
 			if ("0".equals(dataFormat)) {
-				status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,"",0);
+				status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,"",0,true);
 			}
 			
 			if ("2".equals(dataFormat)) {

@@ -126,7 +126,7 @@ public class UploadStorage extends HttpServlet {
 					status="上传失败，zip压缩文件中不包含任何一个CSV或者Excel文件！";
 				}
 			}else if(fileName.endsWith(".xlsx")){
-				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,sessionId,5);
+				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,sessionId,5,false);
 			}else{
 				status="文件格式有误！";
 			}
@@ -145,8 +145,8 @@ public class UploadStorage extends HttpServlet {
 	
 	
 	public static void main(String[] args) {
-		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\20180709-futureD.zip";
-		String fileName = "20180709-futureD.zip";
+		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\wafer51.xlsx";
+		String fileName = "wafer51.xlsx";
 		String temp = "E:/test";
 		File file = new File(temp);
 		if(!file.exists()){
@@ -169,12 +169,12 @@ public class UploadStorage extends HttpServlet {
 		map.put("interval", 0);
 		long time = System.currentTimeMillis();
 		ZipFileParser util = new ZipFileParser();
-//		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat);
-	   result = util.Zip(map);
-	   new FileDelete().deleteDirectory(temp);
+		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat,"",0,true);
+//	   result = util.Zip(map);
+//	   new FileDelete().deleteDirectory(temp);
 		System.out.println(System.currentTimeMillis()-time);
-		System.out.println(result);
-//		System.out.println(status);
+//		System.out.println(result);
+		System.out.println(status);
 		
 		
 	}

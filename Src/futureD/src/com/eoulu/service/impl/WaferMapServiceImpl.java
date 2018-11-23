@@ -144,10 +144,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Connection conn = new DataBaseUtil().getConnection();
 		map = getMapParameter(conn, waferNO);
 		map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
-		System.out.println("other:"+coordinate.getOtherDie(conn, waferId, waferNO));
 		
 		map.put("waferList", coordinate.getVectorMap(conn, waferId, "", ""));
-		System.out.println("current:"+coordinate.getVectorMap(conn, waferId, "", ""));
 		map.put("waferNO", waferNO);
 		try {
 			conn.close();
@@ -187,7 +185,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 		DataBaseUtil db = DataBaseUtil.getInstance();
 		Connection conn = db.getConnection();
 		List<Map<String, Object>> typeList = curveDao.getCurveType(conn, coordinateId, subdieName, deviceGroup);
-		Map<String, Object> temp = null, paramMap = null, curveMap = new HashMap<>(), result = new HashMap<>();
+		Map<String, Object> temp = null, paramMap = null, curveMap = null, result = new HashMap<>();
 		int curveTypeId = 0, fileType = 0;
 		String curveType = "", column = "";
 		SmithDao smithDao = new SmithDao();
@@ -196,6 +194,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 			curveTypeId = Integer.parseInt(temp.get("curve_type_id").toString());
 			fileType = Integer.parseInt(temp.get("curve_file_type").toString());
 			curveType = temp.get("curve_type").toString();
+			curveMap = new HashMap<>();
 			if (fileType == 0) {
 				paramMap = curveDao.getCurveColumn(conn, curveTypeId);
 				column = paramMap.get("column").toString().substring(1);

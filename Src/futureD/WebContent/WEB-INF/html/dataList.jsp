@@ -101,6 +101,7 @@
 										<td class="not_search operate_othertd"><span class="glyphicon glyphicon-edit" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span><span class="glyphicon glyphicon-eye-open" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span></td>
 										<td class="not_search product_category_td hide" data-ivalue="${waferListItem['product_category']}"></td>
 										<td class="not_search data_format_td hide" data-ivalue="${waferListItem['data_format']}"></td>
+										<td class="not_search die_type_td hide" data-ivalue="${waferListItem['die_type']}"></td>
 									</tr>
 								</c:forEach>
 							</tbody>

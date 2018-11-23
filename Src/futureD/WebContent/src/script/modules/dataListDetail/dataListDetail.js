@@ -14,7 +14,8 @@ dataListDetailStore.mock.allDetail = {
 };
 dataListDetailStore.mock.allDetailThead = [];
 dataListDetailStore.mock.vectorMap = {
-	filterArr: []
+	filterArr: [],
+	waferAjaxData: null
 };
 
 dataListDetailStore.state = Object.create(null);
@@ -35,7 +36,7 @@ dataListDetailStore.state = {
 		/*第一次进入矢量图分页*/
 		renderChartByCoordFlag: false,
 		smithObjArr: [],
-		currentDieCoord: null
+		currentDieCoord: []
 	},
 	parameterMap: {
 		curChartContainerNum: 0,
@@ -212,14 +213,15 @@ function renderVectorMapWafer(obj){
 	/*预处理数据*/
 	var dieData = [];
 	_.forOwn(mapInfo.waferList.currentDieList, function(v, k){
+		console.log(k)
 		var item = {};
 		item[k] = v.bin;
 		dieData.push(item);
-		if(_.isNil(dataListDetailStore.state.vectorMap.currentDieCoord) && v.bin == 1){
+		/*if(_.isNil(dataListDetailStore.state.vectorMap.currentDieCoord) && v.bin == 1){
 			dataListDetailStore.state.vectorMap.currentDieCoord = k.toString();
-		}
+		}*/
 	});
-	if(_.isNil(dataListDetailStore.state.vectorMap.currentDieCoord)) dataListDetailStore.state.vectorMap.currentDieCoord = "0:0";
+	/*if(_.isNil(dataListDetailStore.state.vectorMap.currentDieCoord)) dataListDetailStore.state.vectorMap.currentDieCoord = "0:0";*/
 	_.forOwn(mapInfo.otherDieType, function(v, k){
 		var item = {};
 		item[k] = v;
@@ -253,9 +255,11 @@ function renderVectorMapWafer(obj){
 		},
 		/*存放过滤后数据坐标 "x:y"*/
 		filterArr: dataListDetailStore.mock.vectorMap.filterArr,
-		currentDieCoord: dataListDetailStore.state.vectorMap.currentDieCoord,
-		// 第一次加载标志。可以做一些事情
+		currentDieCoord: "",
+		// 第一次加载标志。可以做一些事情 标志第一个高亮die
 		isFirst: true,
+		isSaveDieCoord: true,
+		saveDieCoord: dataListDetailStore.state.vectorMap.currentDieCoord,
 		coordsArra: dataListDetailStore.state.vectorMap.coordsArray,
 		returnFlag: true,
 		addEvent: true,
@@ -271,30 +275,21 @@ function renderVectorMapWafer(obj){
 				});
 				return ret;
 			});
-			var qualifiedNu = countByObj["1"];
-			var unQualifiedNu = countByObj["255"];
-			if(_.isNil(qualifiedNu)) qualifiedNu = 0;
-			if(_.isNil(unQualifiedNu)) unQualifiedNu = 0;
+			var qualifiedNu = countByObj["1"] || 0;
+			var unQualifiedNu = countByObj["255"] || 0;
 			$(".qualifiedInformation_div .panel-body tbody>tr:eq(2)>td:eq(1)").text(qualifiedNu);
 			$(".qualifiedInformation_div .panel-body tbody>tr:eq(3)>td:eq(1)").text(unQualifiedNu);
-			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+dataListDetailStore.state.vectorMap.currentDieCoord+"）");
-			/*Subdie Group DieType*/
-			_.forEach(_.compact(obj.subdie), function(v, i){
-				$("#SubdieSel").append('<option value="'+v+'">'+v+'</option>');
-			});
-			_.forEach(_.compact(obj.deviceGroup), function(v, i){
-				$("#GroupSel").append('<option value="'+v+'">'+v+'</option>');
-			});
+			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+dataListDetailStore.state.vectorMap.currentDieCoord[0]+"）");
 		},
 		clickCallback: function(cor){
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
-			dataListDetailStore.state.vectorMap.currentDieCoord = cor;
-			renderChartByCoord();
+			dataListDetailStore.state.vectorMap.currentDieCoord[0] = cor;
+			getIDByCoordANDRequ();
 		},
 		keydownCallback: function(cor){
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+cor+"）");
-			dataListDetailStore.state.vectorMap.currentDieCoord = cor;
-			renderChartByCoord();
+			dataListDetailStore.state.vectorMap.currentDieCoord[0] = cor;
+			getIDByCoordANDRequ();
 		},
 		resizeCallback: function(wi, hi, mapObj){
 			$(window).on("resize", _.debounce(function(){
@@ -372,10 +367,28 @@ function renderChartByCoord(ajaxData){
 		url: "VectorCurve",
 		data: ajaxData,
 		dataType: "json"
-	}).then(function(){
-		console.log(1)
+	}).then(function(data){
+		if(_.isNil(data) || _.isEmpty(data)){
+			eouluGlobal.S_getSwalMixin()({
+				title: "加载提示",
+				text: "曲线数据获取失败或者为空",
+				type: "warning",
+				showConfirmButton: false,
+			});
+		}else{
+			_.forOwn(data, function(v, k){
+				var ID = buildChartContainer(k);
+				judgeVectorCurveChart({
+					container: ID,
+					curveData: v,
+					curveType: k
+				});
+			});
+		}
 	}).always(function(){
-		swal.clickCancel();
+		setTimeout(function(){
+			swal.clickCancel();
+		}, 1200);
 	});
 	/*这里是随机数*/
 	/*var data = dataListDetailStore.mock.vectorMap.curveTypeData[_.random(0, 4, false)];
@@ -390,6 +403,444 @@ function renderChartByCoord(ajaxData){
 			callback: null
 		});
 	});*/
+}
+
+/*判断矢量Map的曲线*/
+function judgeVectorCurveChart(obj) {
+	var container = obj.container;
+	var curveData = obj.curveData;
+	var curveType = obj.curveType;
+	if(_.keys(curveData).length == 2){
+		/*普通曲綫*/
+		if(curveData.curve.length == 1 || curveData.curve.length == 0){
+			eouluGlobal.S_getSwalMixin()({
+				title: "加载提示",
+				text: "曲线数据不存在或只有一列",
+				type: "warning",
+				showConfirmButton: false,
+				timer: 1500
+			});
+		}else if(curveData.curve.length == 2){
+			
+		}else if(curveData.curve.length == 3){
+			var seriesData = [];
+			_.forOwn(_.countBy(curveData.curve[0]), function(v, k){
+				var start = _.findIndex(curveData.curve[0], function(o) { return _.toString(o) == _.toString(k); });
+				var item = {};
+				item.name = "P="+k;
+				item.data = _.slice(curveData.curve[2], start, start+v);
+				seriesData.push(item);
+			});
+			console.table(seriesData);
+			drawCommonCurve({
+				curveType: curveType,
+				container: container,
+				xAxisTitle: curveData.paramList[1],
+				yAxisTitle: curveData.paramList[2],
+				seriesData: seriesData,
+				callback: null
+			});
+		}
+	}else if(_.keys(curveData).length == 4){
+		/*Smith*/
+		drawDbCurveANDSmith({
+			smithAndCurve: curveData,
+			container: container
+		});
+	}
+
+
+	/*if (!_.isEmpty(obj.data.curveinfos)) {
+		var itemData = _.find(obj.data.curveinfos, function(v, i){
+			return v.curveType == obj.curveType;
+		});
+		var dimension = itemData.dimension;
+		var x_axis, y_axis, CVX, CVY, CVZ;
+		var Subdie = itemData.Subdie;
+		var DeviceGroup = itemData.DeviceGroup;
+		var xAxisTitle = itemData.ParamX + (itemData.ParamXUnit == "" ? "" : ("(" + itemData.ParamXUnit + "）"));
+		var yAxisTitle = itemData.ParamY + (itemData.ParamYUnit == "" ? "" : ("(" + itemData.ParamYUnit + "）"));
+		if(dimension == 0){
+			console.log("只加载史密斯");
+			var smithAndCurve = itemData.smithAndCurve;
+			drawDbCurveANDSmith({
+				smithAndCurve: smithAndCurve,
+				container: obj.container
+			});
+		}else if(dimension == 1){
+			dataListDetailSwalMixin({
+				title: '加载数据',
+				text: "当前曲线仅有一列数据！",
+				type: 'info',
+				showConfirmButton: false,
+				showCancelButton: false,
+				timer: 1500
+			});
+		}else if(dimension == 2){
+			x = itemData.axis[0].curvedatas;
+			y = itemData.axis[1].curvedatas;
+			drawCurve({
+				dimension: dimension,
+				curveType: obj.curveType,
+				container: obj.container,
+				xAxisTitle: xAxisTitle,
+				yAxisTitle: yAxisTitle,
+				CVX: CVX,
+				CVY: CVY,
+				CVZ: CVZ,
+				x_axis: x_axis,
+				y_axis: y_axis
+			});
+		}else if(dimension == 3){
+			CVZ = itemData.ZAxis;
+			CVX = itemData.XAxis;
+			CVY = itemData.YAxis;
+			drawCurve({
+				dimension: dimension,
+				curveType: obj.curveType,
+				container: obj.container,
+				xAxisTitle: xAxisTitle,
+				yAxisTitle: yAxisTitle,
+				CVX: CVX,
+				CVY: CVY,
+				CVZ: CVZ,
+				x_axis: x_axis,
+				y_axis: y_axis
+			});
+		}
+		obj.callback && obj.callback(Subdie, DeviceGroup);
+	}*/
+}
+
+/*矢量图分页smith绘制*/
+function drawDbCurveANDSmith(obj) {
+	var smithAndCurve = obj.smithAndCurve;
+	var container = obj.container;
+	/*首先构造内部容器*/
+	var str = '<div class="panel panel-info" data-dbcurveandsmith="S11">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S11'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S11</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>'+
+    			'<div class="panel panel-info" data-dbcurveandsmith="S12">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S12'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S12</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>'+
+    			'<div class="panel panel-info" data-dbcurveandsmith="S21">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S21'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S21</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>'+
+    			'<div class="panel panel-info" data-dbcurveandsmith="S22">'+
+    			  	'<div class="panel-heading">'+
+    			    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>S22'+
+    			  	'</div>'+
+    			  	'<div class="panel-body">'+
+	    	  			'<div class="picturetop"></div>'+
+	    	  			'<div class="picturebottom">'+
+	    	  				'<div class="picturebottom_in">'+
+	    						'<div class="pictureline">'+
+									'<p></p>'+
+								'</div>'+
+								'<div class="smithdata">'+
+									'<p class="smithdata1"><span class="Smith_Paramter">1-0-S Paramter</span> (<span class="Smith_Msg1">S22</span>)</p>'+
+									'<p class="smithdata2"><span class="Smith_Paramter">1-0-S Paramter</span> : <span class="Smith_Msg2">(0.83,-0.50),25.50GHz</span></p>'+
+								'</div>'+
+	    					'</div>'+
+	    	  			'</div>'+
+    			  	'</div>'+
+    			'</div>';
+    $("#"+container).empty().append(str).find("[data-dbcurveandsmith]").each(function(){
+    	var dbcurveandsmith = $(this).data("dbcurveandsmith");
+    	var iW = $(this).find(".panel-body").innerWidth();
+    	var multiples = 0.5;
+    	if($(window).width() <= 1199) multiples = 1;
+    	$(this).find(".picturetop").innerHeight(iW*multiples);
+    	/*找数据*/
+    	var classifyData = _.find(smithAndCurve, function(v, k){ if(_.toString(k).indexOf(dbcurveandsmith) > -1) return true; });
+    	if(dbcurveandsmith == "S11" || dbcurveandsmith == "S22"){
+    		var dom1 = $(this).find(".picturetop")[0];
+    		var msgdom1  = $(this).find(".picturebottom")[0];
+    		var title = [''];
+    		var legendName1 = [dbcurveandsmith];
+    		var smithInData = [];
+    		smithInData.push(classifyData);
+    		var smith1 = smithChart(dom1, title, legendName1, smithInData, dbcurveandsmith, msgdom1);
+    		if(dataListDetailStore.state.vectorMap.smithObjArr.length == 2){
+    			dataListDetailStore.state.vectorMap.smithObjArr.length = 0;
+    		}
+    		dataListDetailStore.state.vectorMap.smithObjArr.push(smith1);
+    	}else{
+    		$('<div id="'+container+'_'+dbcurveandsmith+'"></div>').appendTo($(this).find(".picturetop")).innerHeight($(this).find(".picturetop").innerHeight());
+    		//曲线
+    		var iiData = classifyData;
+    		var objec = {};
+    		objec.xCategories = [];
+    		_.forEach(iiData, function(v, i){
+    			// objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+    			objec.xCategories.push(v[0]);
+    		});
+    		objec.series = [];
+    		objec.series[0] = {};
+    		objec.series[0].data = [];
+    		_.forEach(iiData, function(v, i){
+    			objec.series[0].data.push(parseFloat(v[1]));
+    		});
+    		objec.container = $(this).find(".picturetop").children("div").attr("id");
+    		objec.msgDom = $(this).find(".picturebottom");
+    		objec.resetZoomButton = {
+    			position: {
+    				align: 'left', // by default
+    				// verticalAlign: 'top', // by default
+    				x: 0,
+    				y: 0
+    			},
+    			relativeTo: 'chart'
+    		};
+    		drawDbCurve(objec);
+    	}
+    });
+}
+
+/*smith图S12S21*/
+function drawDbCurve(obj){
+	var container = obj.container;
+	var xCategories = obj.xCategories;
+	var series = obj.series;
+	var msgDom = obj.msgDom;
+	var legend_enabled = obj.legend_enabled || false;
+	var zoomType = obj.zoomType || "None";
+	var resetZoomButton = obj.resetZoomButton;
+	var text = obj.text || null;
+	var chart = Highcharts.chart(container, {
+		chart: {
+			type: 'line',
+			zoomType: zoomType,
+			resetZoomButton: resetZoomButton
+		},
+		title: {
+			text: text
+		},
+        lang: {
+            loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
+        },
+        legend: {
+			enabled: legend_enabled
+		},
+	    xAxis: {
+			title: {
+				text: "GHz",
+			}, 
+			categories : xCategories,
+		}, 
+		yAxis: {
+			title: {
+				text: "dB",
+			},
+		    gridLineColor: '#eee',
+		    gridLineWidth: 1,
+		  /*  labels: {
+		      step: 0.01
+	    	}  */
+		},
+		series: series,
+		credits: {
+			enabled: false
+		},
+		tooltip: {
+			formatter: function (e) {
+				return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' dB';
+            },
+            useHTML: true
+			/*headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
+		},
+		plotOptions: {
+			series: {
+				point: {
+					events: {
+						mouseOver: function (pa) {
+							/*console.log(this);
+							console.log(pa);*/
+							var x = xCategories[this.x] ;
+							var y = this.y ;
+							var str = y+" dB,"+x+" GHz" ;
+							msgDom && msgDom.find(".Smith_Msg2").text(str);
+						}
+					}
+				},
+				showCheckbox: true
+			}
+		},
+	});
+	return chart;
+}
+
+/*矢量图分页普通chart绘制*/
+function drawCommonCurve(obj){
+	var curveType = obj.curveType;
+	var container = obj.container;
+	var xAxisTitle = obj.xAxisTitle;
+	var yAxisTitle = obj.yAxisTitle;
+	var seriesData = obj.seriesData;
+	/*var CVX = obj.CVX;
+	var CVY = obj.CVY;
+	var CVZ = obj.CVZ;
+	var x_axis = obj.x_axis;
+	var y_axis = obj.y_axis;*/
+	var chart;
+	var baseOption = {
+		credits: {
+			enabled: false
+		},
+		title: {
+			text: curveType
+		},
+		subtitle: {
+			text: null
+		},
+		lang: {
+		    loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
+		},
+        xAxis: {
+			title: {
+				text: xAxisTitle,
+			},
+			lineColor: 'black',
+		},
+		yAxis: [{
+			lineWidth: 1,
+			lineColor: 'black',
+			arrow: true,
+			reversed: false,
+			title: {
+				text: yAxisTitle,
+				align: 'high',
+				rotation: 0,
+			},
+		}],
+	};
+	chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
+			tooltip: {
+				headerFormat: '<b>{series.name}</b><br>',
+				pointFormat: '{point.x}, {point.y}'
+			},
+			series: seriesData
+		})
+	);
+		/*var yData  = [];
+		var arra = [];
+		_.times(CVX.length, function(i){
+			var item = [];
+			_.forEach(CVX[i], function(vv, ii){
+				var item1 = {};
+				item1.x = CVX[i][ii];
+				item1.y = CVY[i][ii];
+				item1.z = CVZ[i];
+				item.push(item1);
+			});
+			arra.push(item);
+		});
+		_.forEach(arra, function(v, i){
+			var sortArr = _.sortBy(arra[i], function(vv, ii){
+				return vv.x;
+			});
+			arra[i] = sortArr;
+		});
+		_.forEach(arra, function(v, i){
+			var item = {};
+			item.name = "P="+v[0].z;
+			item.data = [];
+			_.forEach(arra[i], function(vv, ii){
+				item.data.push(vv.y);
+			});
+			yData.push(item);
+		});*/
+	
+	obj.callback && _.isFunction(obj.callback) && obj.callback(chart);
+	return chart;
+}
+
+/*矢量Map根据坐标获取ID，然后请求数据*/
+function getIDByCoordANDRequ(){
+	if(_.isNil(dataListDetailStore.mock.vectorMap.waferAjaxData)) {
+		eouluGlobal.S_getSwalMixin()({
+			title: "加载曲线提示",
+			text: "获取不到参数",
+			type: "warning",
+			showConfirmButton: false,
+			timer: 1600
+		});
+	}else{
+		var coordinateIdObj = _.find(dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentDieList, function(v, k) {
+			return k == dataListDetailStore.state.vectorMap.currentDieCoord[0];
+		});
+		if(_.isNil(coordinateIdObj)) {
+			eouluGlobal.S_getSwalMixin()({
+				title: "加载曲线提示",
+				text: "选择die异常，获取不到参数",
+				type: "warning",
+				showConfirmButton: false,
+				timer: 1600
+			});
+		}else{
+			var ajaxData = {};
+			ajaxData.coordinateId = coordinateIdObj.coordinateId;
+			var subdie = $("#SubdieSel").val();
+			var deviceGroup = $("#GroupSel").val();
+			var dieType = $("#DieTypeSel").val();
+			if(_.isNil(subdie) || subdie == "AllSubdie") subdie = void(0);
+			if(_.isNil(deviceGroup) || deviceGroup == "AllGroup") deviceGroup = void(0);
+			if(_.isNil(dieType) || dieType == "AllDieType") dieType = void(0);
+			ajaxData.subdie = subdie;
+			ajaxData.deviceGroup = deviceGroup;
+			ajaxData.dieType = dieType;
+			renderChartByCoord(ajaxData);
+		}
+	}
 }
 
 /*page preload*/
@@ -415,9 +866,9 @@ $(function(){
 
 	/*回显晶圆信息*/
 	var webParam = eouluGlobal.S_getUrlPrmt().webParam;
-	var webParamStr;
+	var webParamStr, webParamArr;
 	if(!_.isNil(webParam)){
-		var webParamArr = webParam.split("futureDT2OnlineDataListSplitor");
+		webParamArr = webParam.split("futureDT2OnlineDataListSplitor");
 		webParamStr = '晶圆信息：'+webParamArr[0]+' / '+webParamArr[1]+' / '+webParamArr[2];
 	}else{
 		webParamStr = '晶圆信息获取失败!';
@@ -452,6 +903,9 @@ $(function(){
 	/*预加载参数图分页chart容器*/
 	_.forEach(dataListDetailStore.state.vectorMap.curveType, function(v){
 		buildChartContainer(v);
+	});
+	_.forEach(_.compact([webParamArr[3]]), function(v, i){
+		$("#DieTypeSel").append('<option value="'+v+'">'+v+'</option>');
 	});
 	/*矢量数据分页end*/
 });
@@ -664,7 +1118,6 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 		_.debounce(commonCalcLayout, 200)();
 	}else if(licontrols == "vectorMap" && !dataListDetailStore.state.vectorMap.renderChartByCoordFlag){
 		/*初始化曲线图*/
-		// renderChartByCoord();
 		$.ajax({
 			type: "GET",
 			url: "VectorMap",
@@ -674,19 +1127,25 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 			dataType: "json"
 		}).then(function(data){
 			/*第一次加载需要全部显示*/
+			/*保存*/
+			dataListDetailStore.mock.vectorMap.waferAjaxData = _.cloneDeep(data);
 			dataListDetailStore.mock.vectorMap.filterArr = [];
-			dataListDetailStore.state.vectorMap.currentDieCoord = null;
+			/*Subdie Group DieType*/
+			_.forEach(_.compact(data.subdie), function(v, i){
+				$("#SubdieSel").append('<option value="'+v+'">'+v+'</option>');
+			});
+			_.forEach(_.compact(data.deviceGroup), function(v, i){
+				$("#GroupSel").append('<option value="'+v+'">'+v+'</option>');
+			});
 			renderVectorMapWafer({
 				mapInfo: data.mapInfo
 			});
-			renderChartByCoord({
-				coordinateId: 205
-			});
+			getIDByCoordANDRequ();
+			dataListDetailStore.state.vectorMap.renderChartByCoordFlag = true;
 		}, function(){
-			eouluGlobal.C_server500Message({
+			/*eouluGlobal.C_server500Message({
 				callback: null
-			});
+			});*/
 		});
-		dataListDetailStore.state.vectorMap.renderChartByCoordFlag = true;
 	}
 });

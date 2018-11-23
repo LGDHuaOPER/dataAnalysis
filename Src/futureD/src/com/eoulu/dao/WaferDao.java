@@ -30,7 +30,7 @@ public class WaferDao{
 	 * @return
 	 */
 	public List<Map<String,Object>> listWafer(PageDTO page,String keyword,String Parameter,int deleteStatus){
-		String sql = "select wafer_id,product_category,wafer_number,device_number,lot_number,qualified_rate,left(test_end_date,10)test_end_date,dm_user.user_name test_operator,description,data_format from dm_wafer "
+		String sql = "select wafer_id,product_category,wafer_number,device_number,lot_number,qualified_rate,left(test_end_date,10)test_end_date,dm_user.user_name test_operator,description,data_format,die_type from dm_wafer "
 				+ "left join dm_user on dm_user.user_id=dm_wafer.test_operator "
 				+ "where delete_status="+deleteStatus;
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};

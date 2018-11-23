@@ -22,7 +22,7 @@ public class FilterResource {
 	
 	
 	private final static String[] resource={
-			"/css/","/js/","/image/",".css",".js","/assets/","/dist/","/src/","/font-awesome-4.5.0/" ,"/Login","/Static","html","DataList","WaferData","IndexInterface","Logon"
+			"/css/","/js/","/image/",".css",".js","/assets/","/dist/","/src/","/font-awesome-4.5.0/" ,"/Login","/Static","html","DataList","WaferData","IndexInterface","Logon","AutoGrab"
 		};
 		
 		public static boolean isExist(HttpServletRequest request){

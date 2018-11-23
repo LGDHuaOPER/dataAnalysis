@@ -134,6 +134,8 @@ function WaferMapPlotObj(option) {
     this.filterArr = option.filterArr;
     this.currentDieCoord = option.currentDieCoord;
     this.isFirst = option.isFirst;
+    this.isSaveDieCoord = option.isSaveDieCoord;
+    this.saveDieCoord = option.saveDieCoord;
     this.coordsArra = option.coordsArra;
     this.vectorMap = option.vectorMap;
     this.container = option.container;
@@ -162,6 +164,7 @@ if (WaferMapPlotObj.prototype.type == undefined) {
         var colorOrder = this.colorOrder;
         var filterArr = this.filterArr;
         var isFirst = this.isFirst;
+        var isSaveDieCoord = this.isSaveDieCoord;
         var coordsArra = this.coordsArra;
         var vectorMap = this.vectorMap;
         //计算行列坐标平均值
@@ -276,7 +279,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
                                 isFirst = false;
-                                Die.moveFlag = true;                    
+                                Die.moveFlag = true;
+                                if(isSaveDieCoord === true){
+                                    this.saveDieCoord[0] = key;
+                                }    
                             }
                             else if( this.currentDieCoord == key){
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
@@ -362,7 +368,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
                                 isFirst = false;
-                                Die.moveFlag = true;                    
+                                Die.moveFlag = true;
+                                if(isSaveDieCoord === true){
+                                    this.saveDieCoord[0] = key;
+                                }                   
                             }
                             else if( this.currentDieCoord == key){
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
@@ -453,7 +462,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
                                 isFirst = false;
-                                Die.moveFlag = true;                    
+                                Die.moveFlag = true;
+                                if(isSaveDieCoord === true){
+                                    this.saveDieCoord[0] = key;
+                                }                    
                             }
                             else if( this.currentDieCoord == key){
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
@@ -539,7 +551,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
                                 isFirst = false;
-                                Die.moveFlag = true;                    
+                                Die.moveFlag = true;
+                                if(isSaveDieCoord === true){
+                                    this.saveDieCoord[0] = key;
+                                }                    
                             }
                             else if( this.currentDieCoord == key){
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
@@ -626,7 +641,10 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 12){ // 第一次加载  
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
                                 isFirst = false;
-                                Die.moveFlag = true;                    
+                                Die.moveFlag = true; 
+                                if(isSaveDieCoord === true){
+                                    this.saveDieCoord[0] = key;
+                                }                   
                             }
                             else if( this.currentDieCoord == key){
                                 mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
@@ -685,8 +703,12 @@ function renderWaferMapByGetData(obj){
         filterArr: obj.filterArr,
         /*当前die坐标，显示框框*/
         currentDieCoord: obj.currentDieCoord,
-        /*第一次加载标志*/
+        /*第一次加载标志 第一个高亮*/
         isFirst: obj.isFirst,
+        /*是否保存第一个高亮die坐标标志*/
+        isSaveDieCoord: obj.isSaveDieCoord,
+        /*要保存第一个高亮die坐标的对象*/
+        saveDieCoord: obj.saveDieCoord,
         /*矢量图悬浮、点击事件用到的坐标数组*/
         coordsArra: obj.coordsArra,
         /*矢量图标志*/
@@ -822,7 +844,7 @@ function renderWaferMapByGetData(obj){
             for (var i = 1; i < len; i++) {
                 var a = ("Die_"+codeItem["vari"]);
                 var b = ("currentDie_"+codeItem["vari"]);
-                var c = codeItem[eval("obj.waferData.Direction"+codeItem["vari"].toUpperCase())];
+                var c = codeItem[eval("obj.waferData.Direction"+codeItem["vari"].toUpperCase())] || codeItem[eval("obj.waferData.direction"+codeItem["vari"].toUpperCase())];
                 console.log(a)
                 console.log(b)
                 console.log(c)
@@ -1181,6 +1203,8 @@ function buildColorGradation(obj) {
         filterArr: obj.filterArr,
         currentDieCoord: obj.currentDieCoord,
         isFirst: obj.isFirst,
+        isSaveDieCoord: obj.isSaveDieCoord,
+        saveDieCoord: obj.saveDieCoord,
         coordsArra: obj.coordsArra,
         returnFlag: obj.returnFlag,
         addEvent: obj.addEvent,

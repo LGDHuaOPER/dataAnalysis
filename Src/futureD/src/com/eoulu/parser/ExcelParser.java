@@ -123,7 +123,7 @@ public class ExcelParser {
 	}
 
 	public static String getExcelData(Connection conn,String filepath, String productCategory, String details,
-			String currentUser, String dataFormat,String sessionId,int interval) {
+			String currentUser, String dataFormat,String sessionId,int interval,boolean summation) {
 		boolean limit = false;
 		boolean databool = false;
 		int datanum = 1;
@@ -142,7 +142,7 @@ public class ExcelParser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ProgressSingleton.put(sessionId, interval+=5);
+		ProgressSingleton.put(sessionId, summation?interval:(interval+=5));
 		int paramNum = 0;
 		// 变量定义
 		String Tester = "", TestStarTime = "",TestStopTime = "",WaferID = "",LotID = "",DeviceID = "",FileName = "",ComputerName = "", TotalTestTime = "";
@@ -443,7 +443,7 @@ public class ExcelParser {
 				}
 			}
 		}
-		ProgressSingleton.put(sessionId, interval+=15);
+		ProgressSingleton.put(sessionId,  summation?interval:(interval+=15));
 		FileName = new File(filepath).getName();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		WaferDO wafer = new WaferDO();
@@ -477,12 +477,13 @@ public class ExcelParser {
 		map.put("sizeY", sizeY);
 		map.put("sessionId", sessionId);
 		map.put("interval", interval);
+		map.put("summation", summation);
 		System.out.println("读完了么");
 //		for(String key:dieMap.keySet()){
 //			System.out.println(Arrays.toString(dieMap.get(key).get(0)));
 //		}
 //		
-		
+		System.out.println("currentUser:"+currentUser);
 		WaferService service = new WaferServiceImpl();
 		if(conn==null){
 			conn = new DataBaseUtil().getConnection();
@@ -501,7 +502,7 @@ public class ExcelParser {
 		}else{
 			status = service.saveExcelData(conn,map, wafer, coordinateFlag);
 		}
-		ProgressSingleton.put(sessionId, 99);
+		ProgressSingleton.put(sessionId,summation?interval: 99);
 		return status;
 	}
 	

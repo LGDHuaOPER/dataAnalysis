@@ -108,6 +108,7 @@ public class ZipFileParser {
 		ProgressSingleton.put(sessionId, interval+=5);
 		try {
 			conn.setAutoCommit(false);
+			map.put("dataFormat", dataFormat);
 			// 导入map
 			getFiles(conn,file1.getAbsolutePath(),  filternum,map,db);
 			ProgressSingleton.put(sessionId, interval+=5);
@@ -236,6 +237,7 @@ public class ZipFileParser {
 				dataFormat = map.get("dataFormat").toString(),
 						sessionId = map.get("sessionId").toString();
 		int interval = Integer.parseInt(map.get("interval").toString());
+		
 		if (filternum == 1) {
 			filetool.addType(".map");
 		} else if (filternum == 2) {
@@ -246,6 +248,7 @@ public class ZipFileParser {
 			filetool.addType(".csv");
 		}
 		File[] files1 = file1.listFiles(filetool);
+		int summation = files1.length>0?(95-interval)/files1.length:95-interval;
 		for (int i = 0, length = files1.length; i < length; i++) {
 			try {
 				// zip,调用Zip方法
@@ -256,7 +259,7 @@ public class ZipFileParser {
 					WaferService service = new WaferServiceImpl();
 					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
 							description, files1[i].getAbsolutePath(),db);
-					ProgressSingleton.put(sessionId, interval+=5);
+					ProgressSingleton.put(sessionId, interval+=summation);
 					// 未找到对应的map文件
 					long timeCSV2 = System.currentTimeMillis();
 					System.out.println("how long:" + (timeCSV2 - timeCSV));
@@ -307,12 +310,12 @@ public class ZipFileParser {
 								filelist.add(CSV[j]);
 							}
 							status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
-									currentUser, dataFormat,sessionId,interval);
+									currentUser, dataFormat,sessionId,interval,true);
 						}
 						// 未找到对应的map文件
 					} else {
 						status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
-								currentUser, dataFormat,sessionId,interval);
+								currentUser, dataFormat,sessionId,interval,true);
 					}
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"success".equals(failcsv)) {

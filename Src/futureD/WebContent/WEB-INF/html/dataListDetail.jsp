@@ -129,6 +129,7 @@
 			    		    						<div class="panel panel-info">
 			    		    						  	<div class="panel-heading">
 			    		    						    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>坐标信息
+			    		    						    	<span class="glyphicon glyphicon-ok" aria-hidden="true" title="过滤"></span>
 			    		    						  	</div>
 			    		    						  	<div class="panel-body">
 			    		    						    	<table class="table table-striped table-bordered table-hover table-condensed">
