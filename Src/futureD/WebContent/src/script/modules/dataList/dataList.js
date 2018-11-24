@@ -161,10 +161,12 @@ function dataListSwalMixin(obj){
 	 	text: obj.text,
 	 	/*html: '',*/
 	 	type: obj.type || "info",
-	 	showConfirmButton: false,
+	 	showConfirmButton: obj.showConfirmButton || false,
 		timer: obj.timer,
 	}).then(function(result){
-		if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+		if(result.value){
+			_.isFunction(obj.confirmCallback) && obj.confirmCallback();
+		}else if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 			_.isFunction(obj.callback) && obj.callback();
 		}
 	});
@@ -430,20 +432,27 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 		eouluGlobal.S_XHR({
 			status200: function(data){
 				console.log(data);
-				dataListStore.state.additionFinishFlag = true;
 				dataListSwalMixin({
 					title: "添加提示",
 					text: data,
-					timer: 1500,
-					callback: null
+					timer: 10000,
+					showConfirmButton: true,
+					callback: function(){
+						eouluGlobal.S_settingURLParam({
+							currentPage: 1
+						}, false, false, false);
+					},
+					confirmCallback: function(){
+						eouluGlobal.S_settingURLParam({
+							currentPage: 1
+						}, false, false, false);
+					}
 				});
-				if(data.indexOf("有误") > -1 || data.indexOf("未接收") > -1){
+				dataListStore.state.additionFinishFlag = true;
+				if(data.indexOf("有误") > -1 || data.indexOf("未接收") > -1 || data.indexOf("失败") > -1){
 					barDestroy();
 				}else if(data.indexOf("成功") > -1){
 					$(".futureDT2_addition_r_foot .btn-warning").trigger("click");
-					eouluGlobal.S_settingURLParam({
-						currentPage: 1
-					}, false, false, false);
 				}
 			},
 			statusError: function(xhr, statusText){
@@ -508,7 +517,7 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 				dataListSwalMixin({
 					title: "修改提示",
 					text: data,
-					timer: 1600,
+					timer: 1800,
 					callback: null
 				});
 			}
@@ -557,7 +566,23 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 							var selectedItem = store.get("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem") || [];
 							_.pull(selectedItem, iThat.data("iid").toString());
 							store.set("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem", selectedItem);
-							window.location.reload();
+							if($(".g_bodyin_bodyin_body tbody>tr").length == 1){
+								var URLParam,
+								icurPage = $("body").data("currentpage") - 1 == 0 ? 1 : ($("body").data("currentpage") - 1);
+								if(dataListStore.state.pageObj.searchFlag){
+									URLParam = {
+										currentPage: icurPage,
+										keyword: dataListStore.state.pageObj.searchVal
+									};
+								}else{
+									URLParam = {
+										currentPage: icurPage,
+									};
+								}
+								eouluGlobal.S_settingURLParam(URLParam, false, false, false);
+							}else{
+								window.location.reload();
+							}
 						}
 					});
 				}else if(data == false){
@@ -619,8 +644,40 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 						type: "success",
 						timer: 1500,
 						callback: function(){
+							var URLParam,
+							icurPage;
+							if(selectedItem.length == $(".g_bodyin_bodyin_body tbody input[type='checkbox']:checked").length){
+								/*如果是都在本页删除*/
+								if($(".g_bodyin_bodyin_body tbody input[type='checkbox']:checked").length == $(".g_bodyin_bodyin_body tbody input[type='checkbox']").length){
+									/*如果全部删除了*/
+									icurPage = $("body").data("currentpage") - 1 == 0 ? 1 : ($("body").data("currentpage") - 1);
+								}else{
+									icurPage = $("body").data("currentpage");
+								}
+								if(dataListStore.state.pageObj.searchFlag){
+									URLParam = {
+										currentPage: icurPage,
+										keyword: dataListStore.state.pageObj.searchVal
+									};
+								}else{
+									URLParam = {
+										currentPage: icurPage,
+									};
+								}
+							}else{
+								if(dataListStore.state.pageObj.searchFlag){
+									URLParam = {
+										currentPage: 1,
+										keyword: dataListStore.state.pageObj.searchVal
+									};
+								}else{
+									URLParam = {
+										currentPage: 1,
+									};
+								}
+							}
 							store.set("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem", []);
-							window.location.reload();
+							eouluGlobal.S_settingURLParam(URLParam, false, false, false);
 						}
 					});
 				}else if(data == false){
