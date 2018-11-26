@@ -183,7 +183,13 @@ public class WaferDao{
 		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	
-	public String getWaferNO(int waferId){
+	public String getWaferNO(Connection conn,int waferId){
+		String sql = "select wafer_number from dm_wafer where wafer_id=?";
+		Object result = DataBaseUtil.getInstance().queryResult(conn,sql, new Object[]{waferId});
+		return result==null?"":result.toString();
+		
+	}
+	public String getWaferNO( int waferId){
 		String sql = "select wafer_number from dm_wafer where wafer_id=?";
 		Object result = DataBaseUtil.getInstance().queryResult(sql, new Object[]{waferId});
 		return result==null?"":result.toString();

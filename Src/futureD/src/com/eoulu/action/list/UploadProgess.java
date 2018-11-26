@@ -41,7 +41,7 @@ public class UploadProgess extends HttpServlet {
 		long sizeNumber = Long.valueOf(String.valueOf(size)).longValue(); 
 		long progressNumber = Long.valueOf(String.valueOf(progress)).longValue(); 
 		double percent =  new BigDecimal((double)progressNumber/sizeNumber*100).setScale(0, BigDecimal.ROUND_UP).doubleValue();
-		System.out.println("percent:"+percent);
+//		System.out.println("percent:"+percent);
 		response.getWriter().write(percent+"%");
 	}
 

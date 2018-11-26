@@ -145,8 +145,8 @@ public class UploadStorage extends HttpServlet {
 	
 	
 	public static void main(String[] args) {
-		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\wafer51.xlsx";
-		String fileName = "wafer51.xlsx";
+		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\AR0031-25T.zip";
+		String fileName = "AR0031-25T.zip";
 		String temp = "E:/test";
 		File file = new File(temp);
 		if(!file.exists()){
@@ -154,7 +154,7 @@ public class UploadStorage extends HttpServlet {
 		}
 		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
 		String productCatagory="1";
-		String description="TEST：测试Excel上传speed";
+		String description="TEST：测试AR0031-25T.zip";
 		String currentUser="TEST";
 		String dataFormat = "0";
 		Map<String,Object> result = null,map=new HashMap<String, Object>();
@@ -169,12 +169,12 @@ public class UploadStorage extends HttpServlet {
 		map.put("interval", 0);
 		long time = System.currentTimeMillis();
 		ZipFileParser util = new ZipFileParser();
-		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat,"",0,true);
-//	   result = util.Zip(map);
-//	   new FileDelete().deleteDirectory(temp);
+//		String status = ExcelParser.getExcelData(null,filePath, productCatagory, description, currentUser, dataFormat,"",0,true);
+	   result = util.Zip(map);
+	   new FileDelete().deleteDirectory(temp);
 		System.out.println(System.currentTimeMillis()-time);
-//		System.out.println(result);
-		System.out.println(status);
+		System.out.println(result);
+//		System.out.println(status);
 		
 		
 	}

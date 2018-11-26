@@ -59,6 +59,10 @@ function dataCompareRenderChart(obj){
 	/*CPK图*/
 	else if(obj.chartClassify == "CPK"){
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
+				tooltip: {
+					headerFormat: '<b>{point.key}</b><br>',
+					pointFormat: '{point.x}, {point.y}'
+				},
 				plotOptions: {
 					line: {
 						dataLabels: {
@@ -148,7 +152,7 @@ function dataCompareRenderChart(obj){
 		chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 				tooltip: {
 					headerFormat: '<b>{point.key}</b><br>',
-					pointFormat: '{point.x}, {point.y}'
+					pointFormat: '{point.x}, {point.y}%'
 				},
 				series: obj.series
 			})

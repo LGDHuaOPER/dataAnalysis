@@ -22,9 +22,9 @@ import com.eoulu.util.DataBaseUtil;
 public class CorrelationDao {
 
 	
-	public Map<String,Object> getCorrelation(int waferId, String paramX, String paramY, Double minX, Double maxX,
+	public Map<String,Object> getCorrelation(Connection conn,int waferId, String paramX, String paramY, Double minX, Double maxX,
 			Double minY, Double maxY){
-		Connection conn = new DataBaseUtil().getConnection();
+		
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<Double> XList = new ArrayList<Double>();
 		List<Double> YList = new ArrayList<Double>();

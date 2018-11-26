@@ -79,6 +79,7 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public String getWaferNO(int waferId) {
+		
 		return new WaferDao().getWaferNO(waferId);
 	}
 	

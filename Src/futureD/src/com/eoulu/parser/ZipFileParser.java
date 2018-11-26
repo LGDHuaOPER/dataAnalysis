@@ -265,7 +265,7 @@ public class ZipFileParser {
 					System.out.println("how long:" + (timeCSV2 - timeCSV));
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"success".equals(failcsv)) {
-						faileCSV.add(failcsv);
+						faileCSV.add(failcsv+"("+status+")");
 					}
 				} else if (files1[i].getName().endsWith(".map")) {
 					Mapnum = Mapnum + 1;
@@ -610,7 +610,10 @@ public class ZipFileParser {
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 			String line = "";
 			while ((line = br.readLine()) != null) {
-				filelist.add(line);
+				if(!"".equals(line)){
+					filelist.add(line);
+				}
+				
 			}
 			if (fis != null) {
 				fis.close();
@@ -1042,6 +1045,7 @@ public class ZipFileParser {
 		    Map<String, List<Object[]>> parametermap=new HashMap<String , List<Object[]>>();
 			dealparam = datanum>0? filelist.get(datanum-1).split(","):null;
 			int length= datanum>0? dealparam.length-6:0;//参数个数长度+1
+			System.out.println("length:"+length);
 			String parameterNameUnit="";
 			String Max[] = null;
 			String Min[] = null;
@@ -1073,12 +1077,17 @@ public class ZipFileParser {
 						parameterName=parameterNameUnit;
 					}
 					//设默认值
-					if("".equals(Min[6+dp])){
+					if(6+dp > Min.length-1 ){
 						min = "-9E37";
-					}else{
+					}else if("".equals(Min[6+dp])){
+						min = "-9E37";
+					}
+					else{
 						min=Min[6+dp];	
 					}
-					if("".equals(Max[6+dp])){
+					if(6+dp > Max.length-1){
+						max = "9E37";
+					}else if( "".equals(Max[6+dp])){
 						max = "9E37";
 					}else{
 						max=Max[6+dp];

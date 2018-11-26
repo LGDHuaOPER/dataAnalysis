@@ -18,9 +18,12 @@
         	console.warn("ajaxSetup, 局部事件success")
         },
         error: function(){
-        	eouluGlobal.C_server500Message({
-        		callback: null
-        	});
+        	console.warn($("body").data("iglobalerror"))
+        	if($("body").data("iglobalerror") != "allow") {
+        		eouluGlobal.C_server500Message({
+        			callback: null
+        		});
+        	}
         }
 	});
 	$( document ).ajaxError(function(event, jqxhr, settings, thrownError) {

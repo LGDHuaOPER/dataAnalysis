@@ -28,9 +28,10 @@ public class BoxPlotDao {
 		String column = "";
 		List<Double> ls = null;
 		Map<String, Object> map = new HashMap<>();
+		DataBaseUtil db =  DataBaseUtil.getInstance();
 		Connection conn = null;
 		try {
-			conn = new DataBaseUtil().getConnection();
+			conn = db.getConnection();
 			for(int i=0,length=waferIdStr.length;i<length;i++){
 				column = "";
 				ps = conn.prepareStatement(sql);
@@ -56,6 +57,8 @@ public class BoxPlotDao {
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}finally{
+			db.close(conn);
 		}
 		
 		return map;

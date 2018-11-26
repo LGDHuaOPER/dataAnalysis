@@ -283,7 +283,7 @@ public class ZipService {
 			String dieNO = "";
 			String subdieNO = "";
 			String group = "";
-			Object[] tempObj = null;
+			Object[] tempObj = null,subdieInfo=null;
 			for (File temp : files) {
 				String curveType = temp.getName();
 				File[] curvefile = temp.listFiles();
@@ -309,14 +309,16 @@ public class ZipService {
 					subdieNO = fileName[1];
 					group = fileName[2];
 					tempObj = table.get(dieNO + "," + subdieNO);
+					if(tempObj == null){
+						tempObj = table.get(dieNO + ",0" );
+						subdieInfo = new Object[] { tempObj[1], Integer.parseInt(subdieNO), "" ,tempObj[0]};
+						coordinate.saveSubdie(conn, subdieInfo);
+						table.put(dieNO + "," + subdieNO, tempObj);
+					}
 					waferId = Integer.parseInt(tempObj[0].toString());
 					coordinateId = Integer.parseInt(tempObj[1].toString());
 					subdieId = coordinate.getSubdieId(conn, coordinateId, Integer.parseInt(subdieNO),"");
 					List<String> list = util.getFile(curve.getAbsolutePath());
-					if(list.size()<66){
-						System.out.println(curveType+":"+name);
-						System.out.println(list.size());
-					}
 					if (".S2P".equalsIgnoreCase(su)) {
 						status = saveCurveType(conn, waferId, coordinateId, subdieId, curveType, group, name, 1);
 						if (!"success".equals(status)) {
@@ -342,6 +344,17 @@ public class ZipService {
 		long time2 = System.currentTimeMillis();
 		System.out.println("曲线数据：" + (time2 - time0));
 		return status;
+	}
+	
+	public static void main(String[] args) {
+		String name = "1-0_Voltate_CPD.CSV";
+		String[] fileName = null;
+		if (!name.contains("_") || (name.indexOf("-")<name.indexOf("_"))) {
+			fileName = name.substring(0,name.indexOf(".")).split("-");
+		} else {
+			fileName = name.substring(0,name.indexOf(".")).split("_");
+		}
+		System.out.println(Arrays.toString(fileName));
 	}
 
 	/**

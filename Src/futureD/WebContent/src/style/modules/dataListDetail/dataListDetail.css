@@ -293,28 +293,55 @@ div#in ul {
 }
 
 /* 高斯分布期望 */
-div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot div.row>div {
-	padding-left: 2px;
-	padding-right: 2px;
-	overflow-x: auto;
+div.panel[data-iallstatistics="gaussiandistribution"] .panel-body>.container-fluid>div.row>div {
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
-div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot div.row>div table {
+div.panel[data-iallstatistics="gaussiandistribution"] .panel-body>.container-fluid>div.row>div .panel-body {
+	padding: 10px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .panel-body>.container-fluid>div.row>div .panel-body>.container-fluid {
+	margin-left: -10px;
+	margin-right: -10px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_body, div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_foot {
+	display: inline-block;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_body {
+	width: calc(100% - 205px);
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_foot {
+	vertical-align: top;
+	width: 200px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot table {
 	margin-bottom: 2px;
 }
 
-div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot>div.container-fluid {
-	padding-left: 1px;
-	padding-right: 1px;
-}
-
-div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot th, div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
 	text-align: center;
-	max-width: 95px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 14px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td:nth-child(1) {
+	max-width: 80px;
+	min-width: 80px;
+	width: 80px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td:nth-child(2) {
+	max-width: 120px;
+	min-width: 120px;
+	width: 120px;
 }
 
 div[data-dbcurveandsmith] div.picturetop {

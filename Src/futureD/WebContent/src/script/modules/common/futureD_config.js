@@ -655,6 +655,26 @@
                 return (num * this.S_factorial(num - 1)); 
             } 
         },
+        // 普通数字和科学计数法保留精度
+        // @param isToPrecision [boolean] 是否用保留有效数字的方法 
+        S_ComSCMRound: function (num, precision, isToPrecision){
+            if(!_.isNumber(num) || !_.isNumber(precision)) {
+                console.warn("S_ComSCMRound参数不是数字");
+                return null;
+            }
+            var returnN,
+            strnum = _.toString(num);
+            if(strnum.indexOf("e")>-1){
+                returnN = _.toNumber(_.toString(_.round(strnum.match(/^\d+\.?\d+/)[0], precision)) +"e"+ strnum.match(/e([\+\-]?\d+)/)[1]);
+            }else{
+                if(isToPrecision === true){
+                    returnN = _.toNumber(num.toPrecision(precision));
+                }else{
+                    returnN = _.round(num, precision);
+                }
+            }
+            return returnN;
+        },
         // @DOM
         S_getCaretPosition: function(dom){
             var CaretPos = 0;

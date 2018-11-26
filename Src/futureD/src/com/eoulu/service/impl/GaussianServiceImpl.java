@@ -44,11 +44,15 @@ public class GaussianServiceImpl implements GaussianService{
 		List<Integer> frequencyList = new ArrayList<>();
 		System.out.println(functionList);
 		int total = Integer.parseInt(functionList.get(0).get("total").toString()),frequency=0,length=0;
-		double standard = Double.parseDouble(functionList.get(0).get("standard").toString()),
-				variance = new BigDecimal(Math.pow(standard, 2)).doubleValue(),
+		if(functionList.get(0).get("standard") == null){
+			return null;
+		}
+		double 
+		max =  Double.parseDouble(map.get("right").toString()),
+		min =  Double.parseDouble(map.get("left").toString()),
+		standard = Double.parseDouble(functionList.get(0).get("standard").toString()),
+		variance = new BigDecimal(Math.pow(standard, 2)).doubleValue(),
 				average = Double.parseDouble(functionList.get(0).get("average").toString()),
-				max =  Double.parseDouble(map.get("right").toString()),
-				min =  Double.parseDouble(map.get("left").toString()),
 				section = max-min,
 				columnCount = map.get("equal")==null?Math.sqrt(total)+1:Double.parseDouble(map.get("equal").toString()),
 						interval = section/(columnCount-1),expectation=0,x=0,rate=0,y=0,

@@ -229,6 +229,11 @@ public class CoordinateDao {
 		return db.operate(conn, sql, param)?"success":"添加失败！";
 	}
 	
+	public String saveSubdie(Connection conn,Object[] param){
+		String sql = "insert into dm_wafer_subdie (coordinate_id,subdie_number,subdie_name,wafer_id) values (?,?,?,?)";
+		return db.operate(conn, sql, param)?"success":"添加失败！";
+	}
+	
 	/**
 	 * 根据晶圆编号与die编号获取Coordinate主键
 	 * @param conn

@@ -44,7 +44,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			String waferNO = dao.getWaferNO(waferId);
+			String waferNO = dao.getWaferNO(conn,waferId);
 			map = getMapParameter(conn, waferNO);
 			map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
 			waferList = new ArrayList<WaferMapDTO>();
@@ -82,7 +82,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			String waferNO = dao.getWaferNO(waferId);
+			String waferNO = dao.getWaferNO(conn,waferId);
 			map = getMapParameter(conn, waferNO);
 			map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
 			waferList = new ArrayList<WaferMapDTO>();
@@ -140,8 +140,9 @@ public class WaferMapServiceImpl implements WaferMapService {
 		 WaferDao dao = new WaferDao();
 		 CoordinateDao coordinate = new CoordinateDao();
 		Map<String, Object> map = new HashMap<>();
-		String waferNO = dao.getWaferNO(waferId);
+		
 		Connection conn = new DataBaseUtil().getConnection();
+		String waferNO = dao.getWaferNO(conn,waferId);
 		map = getMapParameter(conn, waferNO);
 		map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
 		
