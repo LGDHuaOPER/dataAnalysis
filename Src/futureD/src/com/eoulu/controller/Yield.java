@@ -67,7 +67,7 @@ public class Yield extends HttpServlet {
 	}
 	
 	public static void main(String[] args) {
-		String waferIdStr = "162",
+		String waferIdStr = "195",
 				parameter = "";
 		List<String> paramList  = null;
 		if(!"".equals(parameter)){

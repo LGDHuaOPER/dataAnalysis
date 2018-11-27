@@ -255,6 +255,8 @@ div#in ul {
 }
 .panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .outSpan {
   position: relative;
+  margin-left: 0.5px;
+  margin-right: 0.5px;
   width: 0px;
 }
 .panel_map_color_order_distribution .chart_body>div:nth-child(2) .colorGradient .oneSpan>span:before,
@@ -342,6 +344,10 @@ div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td:nth-child(2
 	max-width: 120px;
 	min-width: 120px;
 	width: 120px;
+}
+
+div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot tbody>tr:nth-child(6) {
+	display: none;
 }
 
 div[data-dbcurveandsmith] div.picturetop {

@@ -128,7 +128,7 @@
                 title: "操作提示",
                 text: "服务器繁忙",
                 /*html: '',*/
-                type: "warning",
+                type: "error",
                 showConfirmButton: false,
                 timer: obj.timer===null ? null : 1600,
             }).then(function(result){
@@ -665,7 +665,7 @@
             var returnN,
             strnum = _.toString(num);
             if(strnum.indexOf("e")>-1){
-                returnN = _.toNumber(_.toString(_.round(strnum.match(/^\d+\.?\d+/)[0], precision)) +"e"+ strnum.match(/e([\+\-]?\d+)/)[1]);
+                returnN = _.toNumber(_.toString(_.round(strnum.match(/^\-?\d+\.?\d*/)[0], precision)) +"e"+ strnum.match(/e([\+\-]?\d+)/)[1]);
             }else{
                 if(isToPrecision === true){
                     returnN = _.toNumber(num.toPrecision(precision));

@@ -62,6 +62,7 @@ public class Login extends HttpServlet {
 		if(!"".equals(userName) && !"".equals(password) && compare.equals(password)){
 			result = "success";
 			HttpSession session = request.getSession();
+			session.setMaxInactiveInterval(-1);//设置session永不过期
 			session.setAttribute("userName", userName);
 			session.setAttribute("loginStatus", loginStatus);
 			List<String> userAuthority =  service.getAuthority(userName);

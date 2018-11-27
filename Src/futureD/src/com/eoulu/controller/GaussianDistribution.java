@@ -87,10 +87,10 @@ public class GaussianDistribution extends HttpServlet {
 
 	public static void main(String[] args) {
 		String parameter = "";
-		double left = 1000000,
-				right= 0;
+		double left = 0,
+				right= 0.000006;
 		int equal = 8,
-				waferId = 319;
+				waferId = 346;
 		Map<String,Object> result = new HashMap<>(),map = null;
 		List<String> paramList = null;
 		GaussianService service = new GaussianServiceImpl();
@@ -109,6 +109,9 @@ public class GaussianDistribution extends HttpServlet {
 		Map<String, List<Double>> rangeList = service.getRangList(paramList, waferId+"");
 		List<Double> ls = null;
 		for (int j=0,size=paramList.size();j<size;j++) {
+//			if(!paramList.get(j).equals("Demo1.Result")){
+//				continue;
+//			}
 			ls = rangeList.get(paramList.get(j));
 			left = "".equals(parameter)?ls.get(0):left;
 			right = "".equals(parameter)?ls.get(1):right;

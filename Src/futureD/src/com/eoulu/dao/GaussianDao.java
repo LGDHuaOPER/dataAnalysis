@@ -32,7 +32,7 @@ public class GaussianDao {
 	
 	public List<Double> getRangeByColumn(Connection conn,int waferId,String column){
 		List<Double> ls = null;
-		String sql = "select max("+column+"),min("+column+") from dm_wafer_coordinate_data where wafer_id=?";
+		String sql = "select max("+column+"),min("+column+") from dm_wafer_coordinate_data where wafer_id=? and "+column+" is not null and "+column+"<= 9*power(10,30) and "+column+">= -9*power(10,30)";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, waferId);

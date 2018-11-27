@@ -77,7 +77,7 @@ public class CPKServlet extends HttpServlet {
 	
 	public static void main(String[] args) {
 		CPKService service = new CPKServiceImpl();
-		String waferIdStr = "161",
+		String waferIdStr = "346",
 				parameter = "";
 		Map<String, Object> result = new HashMap<>();
 		if (!"".equals(parameter)) {

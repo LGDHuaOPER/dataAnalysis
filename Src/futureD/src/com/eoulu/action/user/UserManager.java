@@ -32,19 +32,24 @@ public class UserManager extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
 		UserService service = new UserServiceImpl();
 		
 		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword");
-		String currentPage = request.getParameter("currentPage")==null?"1":request.getParameter("currentPage");
+		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
 		PageDTO page = new PageDTO();
-		page.setCurrentPage(Integer.parseInt(currentPage));
 		page.setRow(10);
-		page.setPageCount(service.countUser( keyword));
+		int totalCount = service.countUser( keyword);
+		page.setPageCount(totalCount);
+		currentPage = currentPage<=page.getTotalPage()?currentPage:1;
+		page.setCurrentPage(currentPage);
 		String userName = request.getSession().getAttribute("userName").toString();
 		String userId = service.getUserId(userName)==null?"0":service.getUserId(userName);
 		Hashtable<String, Object> table = new Hashtable<>();
 		table.put("userList", service.listUserByPage(page,  keyword));
 		table.put("currentPage", currentPage);
+		table.put("totalCount", totalCount);
 		table.put("totalPage", page.getTotalPage());
 		table.put("allRole", service.listRole());
 		table.put("currentRole", service.getRoleName(Integer.parseInt(userId)));

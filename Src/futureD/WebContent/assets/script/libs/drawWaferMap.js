@@ -1218,7 +1218,7 @@ function buildColorGradation(obj) {
     // console.log("colorMap.getValues", colorMap.getValues());
     // console.log("currentDieCoord", obj.currentDieCoord);
     var positionFlag = (obj.waferData.DirectionX || obj.waferData.directionX) + (obj.waferData.DirectionY || obj.waferData.directionY);
-    obj.callback && obj.callback(positionFlag);
+    obj.callback && obj.callback(positionFlag, newRenderWaferMap);
     obj.resizeCallback && obj.resizeCallback(width, height, newRenderWaferMap);
     if(obj.returnFlag){
         return newRenderWaferMap;

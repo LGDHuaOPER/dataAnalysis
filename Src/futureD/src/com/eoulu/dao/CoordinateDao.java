@@ -466,12 +466,12 @@ public class CoordinateDao {
 	 * @param right
 	 * @return
 	 */
-	public double getMedian(Connection conn,int waferId,double left ,double right){
-		String sql = "select a.C1 from "
-				+ " (select  C1,@rownum:=@rownum + 1 AS  num from (select @rownum:=0)r,dm_wafer_coordinate_data where wafer_id=? and c1 between ? and ? order by C1) a "
-				+ "where a.num=(select (count(*)+1)div 2 from dm_wafer_coordinate_data where wafer_id=? and c1 between ? and ? )";
+	public String getMedian(Connection conn,int waferId,double left ,double right,String column){
+		String sql = "select a."+column+" from "
+				+ " (select  "+column+",@rownum:=@rownum + 1 AS  num from (select @rownum:=0)r,dm_wafer_coordinate_data where wafer_id=? and "+column+" between ? and ? order by "+column+") a "
+				+ "where a.num=(select (count(*)+1)div 2 from dm_wafer_coordinate_data where wafer_id=? and "+column+" between ? and ? )";
 		Object result = db.queryResult(conn, sql, new Object[]{waferId,left,right,waferId,left,right});
-		return result==null?0:Double.parseDouble(result.toString());
+		return result==null?"":result.toString();
 	}
 	
 	/**

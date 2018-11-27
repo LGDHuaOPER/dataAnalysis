@@ -981,7 +981,7 @@ $(document).on("click", ".operate_othertd .glyphicon-eye-open", function(e){
 	e.stopPropagation();
 	var waferId = $(this).data("iid");
 	var dataFormat = $(this).parent().siblings(".data_format_td").data("ivalue");
-	var webParam = $(this).parent().siblings(".product_category_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".lot_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".wafer_number_td").data("ivalue")+"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".die_type_td").data("ivalue");
+	var webParam = $(this).parent().siblings(".device_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".lot_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".wafer_number_td").data("ivalue")+"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".die_type_td").data("ivalue");
 	eouluGlobal.S_settingURLParam({
 		waferId: waferId,
 		dataFormat: dataFormat,

@@ -2,6 +2,7 @@ package com.eoulu.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,14 +43,14 @@ public class Histogram extends HttpServlet {
 
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
-		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr").trim();
+		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr").trim(),parameter = request.getParameter("parameter")==null?"":request.getParameter("parameter").trim();
 		double left = request.getParameter("leftRange")==null?0:Double.parseDouble(request.getParameter("leftRange")),right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
 		int equal = request.getParameter("equal")==null?8:Integer.parseInt(request.getParameter("equal"));
 		HistogramService service = new HistogramServiceImpl();
 		GaussianService gaussian = new GaussianServiceImpl();
 		List<String> paramList = null;
-		Map<String,List<Double>> rangList = null;
-		if(request.getParameter("parameter")==null){
+		
+		if("".equals(parameter)){
 			String[] paramAtt = request.getParameterValues("paramAtt[]");
 			if(paramAtt!=null){
 				paramList = new ArrayList<>();
@@ -59,22 +60,27 @@ public class Histogram extends HttpServlet {
 			}else{
 				paramList =  service.getWaferParameter(waferIdStr);	
 			}
-			rangList = gaussian.getRangList(paramList, waferIdStr);
 		}else{
 			paramList = new ArrayList<>();
-			paramList.add(request.getParameter("parameter"));
+			paramList.add(parameter);
 		}
-		
-		Map<String,Object> result = new LinkedHashMap<>();
-		List<String> sectionX = FunctionUtil.getRangeOrderAsc(left, right, equal);
-		result.put("sectionX", sectionX);
+		Map<String, List<Double>> rangeList = gaussian.getRangList(paramList, waferIdStr);
+//		System.out.println(new Gson().toJson(rangeList));
+		Map<String,Object> result = new HashMap<>(),map = new HashMap<>();
+		List<String> sectionX = null;
+		result.put("", sectionX);
 		Map<String,Object> percentList = null;
 		for(int i=0,size=paramList.size();i<size;i++){
-			left = rangList==null?left:rangList.get(paramList.get(i)).get(1);
-			right = rangList==null?right: rangList.get(paramList.get(i)).get(0);
+			left = "".equals(parameter)?rangeList.get(paramList.get(i)).get(0):left;
+			right = "".equals(parameter)?rangeList.get(paramList.get(i)).get(1):right;
+			sectionX = FunctionUtil.getRangeOrderAsc(left, right, equal);
 			percentList = service.getPercent(paramList.get(i), waferIdStr, sectionX);
-			result.put(paramList.get(i), percentList);
+			map = new HashMap<>();
+			map.put("sectionX", sectionX);
+			map.put("percentList", percentList);
+			result.put(paramList.get(i), map);
 		}
+		System.out.println(new Gson().toJson(result));
 		response.getWriter().write(new Gson().toJson(result));
 	}
 
@@ -86,15 +92,14 @@ public class Histogram extends HttpServlet {
 	}
 
 	public static void main(String[] args) {
-		String waferIdStr = "161";
+		String waferIdStr = "347",parameter="";
 		double left = 5500.2,right=6500;
 		int equal = 8;
 		HistogramService service = new HistogramServiceImpl();
-		YieldService yieldService = new YieldServiceImpl();
-		
+		GaussianService gaussian = new GaussianServiceImpl();
 		List<String> paramList = null;
-		Map<String,List<Double>> rangeList = null;
-//		if(request.getParameter("parameter")==null){
+		
+		if("".equals(parameter)){
 			String[] paramAtt = null;
 			if(paramAtt!=null){
 				paramList = new ArrayList<>();
@@ -104,20 +109,25 @@ public class Histogram extends HttpServlet {
 			}else{
 				paramList =  service.getWaferParameter(waferIdStr);	
 			}
-			rangeList = yieldService.getRangeList(waferIdStr, paramList);
-//		}else{
-//			paramList = new ArrayList<>();
-//			paramList.add(request.getParameter("parameter"));
-//		}
-		Map<String,Object> result = new LinkedHashMap<>();
-		List<String> sectionX = FunctionUtil.getRangeOrderAsc(left, right, equal);
-		result.put("sectionX", sectionX);
+		}else{
+			paramList = new ArrayList<>();
+			paramList.add(parameter);
+		}
+		Map<String, List<Double>> rangeList = gaussian.getRangList(paramList, waferIdStr);
+		System.out.println(new Gson().toJson(rangeList));
+		Map<String,Object> result = new HashMap<>(),map = new HashMap<>();
+		List<String> sectionX = null;
+		result.put("", sectionX);
 		Map<String,Object> percentList = null;
 		for(int i=0,size=paramList.size();i<size;i++){
-			left = rangeList==null?left:rangeList.get(paramList.get(i)).get(1);
-			right = rangeList==null?right: rangeList.get(paramList.get(i)).get(0);
-			percentList = service.getPercent(paramList.get(i), waferIdStr,sectionX);
-			result.put(paramList.get(i), percentList);
+			left = "".equals(parameter)?rangeList.get(paramList.get(i)).get(0):left;
+			right = "".equals(parameter)?rangeList.get(paramList.get(i)).get(1):right;
+			sectionX = FunctionUtil.getRangeOrderAsc(left, right, equal);
+			percentList = service.getPercent(paramList.get(i), waferIdStr, sectionX);
+			map = new HashMap<>();
+			map.put("sectionX", sectionX);
+			map.put("percentList", percentList);
+			result.put(paramList.get(i), map);
 		}
 		System.out.println(new Gson().toJson(result));
 	}

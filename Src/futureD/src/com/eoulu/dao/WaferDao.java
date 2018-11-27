@@ -35,8 +35,8 @@ public class WaferDao{
 				+ "where delete_status="+deleteStatus;
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += "  and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
-			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
+			sql += "  and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like ? or description like ? ) ";
+			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		}
 		sql += "  order by gmt_modified desc limit ?,? ";
 		

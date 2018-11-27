@@ -113,6 +113,25 @@ public class ParameterDao {
 		return list;
 	}
 	
+	public Map<String,Object> getLimit(int waferId,String parameter,Connection conn){
+		String sql = "select upper_limit,lower_limit from dm_wafer_parameter where wafer_id=? and parameter_name=?";
+		PreparedStatement ps;
+		Map<String, Object> map = new HashMap();
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1,waferId);
+			ps.setString(2, parameter);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				map.put("upper",rs.getDouble("upper_limit"));
+				map.put("lower",rs.getDouble("lower_limit"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
+	
 	public String insertMapParameter(Connection conn,MapParameterDO map){
 		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		String flag = "success";

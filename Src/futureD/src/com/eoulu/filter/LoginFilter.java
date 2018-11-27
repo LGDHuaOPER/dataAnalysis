@@ -56,7 +56,7 @@ public class LoginFilter implements Filter{
 //				System.out.println("request.getContextPath()=" + request.getContextPath());
 //				response.sendRedirect(request.getContextPath() + "/Login/login.jsp");
 				request.getRequestDispatcher("/IndexInterface").forward(request, response);
-				return;
+				return;  
 			} else {
 				String[] result = currentURL.split("/"); 
 				String authority = result[result.length-1];

@@ -31,4 +31,51 @@
 	}).ajaxSend(function(event, jqXHR, ajaxOptions){
 		console.warn("document上的ajaxSend");
 	});
+
+	$(document).on("click", ".g_info_r .glyphicon-off", function(){
+	  	eouluGlobal.S_getSwalMixin()({
+		 	title: "确定退出吗？",
+		 	text: "此操作为安全退出",
+		 	/*html: '',*/
+		 	type: "warning",
+		 	showCancelButton: true,
+		  	confirmButtonText: '确定，删除！',
+		  	cancelButtonText: '不，取消！',
+		  	reverseButtons: false
+		}).then(function(result){
+			if (result.value) {
+				$.ajax({
+					type: "GET",
+					url: "Logon",
+					dataType: "json"
+				}).then(function(data){
+					if(data == "OK"){
+						eouluGlobal.S_getSwalMixin()({
+							title: "提示",
+							text: "退出成功",
+							type: "info",
+							showConfirmButton: false,
+							timer: 1500
+						}).then(function(){
+							eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
+						});
+					}else{
+						eouluGlobal.S_getSwalMixin()({
+							title: "提示",
+							text: "退出失败",
+							type: "info",
+							showConfirmButton: false,
+							timer: 1500
+						});
+					}
+				});
+			} else if (result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.cancel) {
+				
+			}
+		});
+	});
+	$(document).on("click", ".g_info_r .glyphicon-user", function(){
+		eouluGlobal.S_settingURLParam({}, false, false, false, "UserInstall");
+	});
+
 })();
