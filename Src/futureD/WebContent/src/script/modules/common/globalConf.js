@@ -39,7 +39,7 @@
 		 	/*html: '',*/
 		 	type: "warning",
 		 	showCancelButton: true,
-		  	confirmButtonText: '确定，删除！',
+		  	confirmButtonText: '确定，退出！',
 		  	cancelButtonText: '不，取消！',
 		  	reverseButtons: false
 		}).then(function(result){

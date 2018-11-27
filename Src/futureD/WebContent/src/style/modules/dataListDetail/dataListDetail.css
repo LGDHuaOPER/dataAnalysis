@@ -314,12 +314,12 @@ div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_bo
 }
 
 div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_body {
-	width: calc(100% - 205px);
+	width: calc(100% - 185px);
 }
 
 div.panel[data-iallstatistics="gaussiandistribution"] .container-fluid>.chart_foot {
 	vertical-align: top;
-	width: 200px;
+	width: 180px;
 }
 
 div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot table {
@@ -335,15 +335,15 @@ div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
 }
 
 div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td:nth-child(1) {
-	max-width: 80px;
-	min-width: 80px;
-	width: 80px;
+	max-width: 70px;
+	min-width: 70px;
+	width: 70px;
 }
 
 div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td:nth-child(2) {
-	max-width: 120px;
-	min-width: 120px;
-	width: 120px;
+	max-width: 110px;
+	min-width: 110px;
+	width: 110px;
 }
 
 div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot tbody>tr:nth-child(6) {

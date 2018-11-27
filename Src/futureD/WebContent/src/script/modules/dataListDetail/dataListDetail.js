@@ -461,16 +461,19 @@ function judgeVectorCurveChart(obj) {
 				seriesData: [{
 					data: curveData.curve[2]
 				}],
+				xcategories: curveData.curve[1],
 				callback: callback
 			});
 		}else if(curveData.curve.length == 3){
 			/*P轴 X轴 Y轴*/
-			var seriesData = [];
+			var seriesData = [],
+			xcategories;
 			_.forOwn(_.countBy(curveData.curve[0]), function(v, k){
 				var start = _.findIndex(curveData.curve[0], function(o) { return _.toString(o) == _.toString(k); });
 				var item = {};
 				item.name = "P="+k;
 				item.data = _.slice(curveData.curve[2], start, start+v);
+				xcategories = _.slice(curveData.curve[1], start, start+v);
 				seriesData.push(item);
 			});
 			console.table(seriesData);
@@ -480,6 +483,7 @@ function judgeVectorCurveChart(obj) {
 				xAxisTitle: curveData.paramList[1],
 				yAxisTitle: curveData.paramList[2],
 				seriesData: seriesData,
+				xcategories: xcategories,
 				callback: callback
 			});
 		}
@@ -491,68 +495,6 @@ function judgeVectorCurveChart(obj) {
 			callback: callback
 		});
 	}
-
-
-	/*if (!_.isEmpty(obj.data.curveinfos)) {
-		var itemData = _.find(obj.data.curveinfos, function(v, i){
-			return v.curveType == obj.curveType;
-		});
-		var dimension = itemData.dimension;
-		var x_axis, y_axis, CVX, CVY, CVZ;
-		var Subdie = itemData.Subdie;
-		var DeviceGroup = itemData.DeviceGroup;
-		var xAxisTitle = itemData.ParamX + (itemData.ParamXUnit == "" ? "" : ("(" + itemData.ParamXUnit + "）"));
-		var yAxisTitle = itemData.ParamY + (itemData.ParamYUnit == "" ? "" : ("(" + itemData.ParamYUnit + "）"));
-		if(dimension == 0){
-			console.log("只加载史密斯");
-			var smithAndCurve = itemData.smithAndCurve;
-			drawDbCurveANDSmith({
-				smithAndCurve: smithAndCurve,
-				container: obj.container
-			});
-		}else if(dimension == 1){
-			dataListDetailSwalMixin({
-				title: '加载数据',
-				text: "当前曲线仅有一列数据！",
-				type: 'info',
-				showConfirmButton: false,
-				showCancelButton: false,
-				timer: 1500
-			});
-		}else if(dimension == 2){
-			x = itemData.axis[0].curvedatas;
-			y = itemData.axis[1].curvedatas;
-			drawCurve({
-				dimension: dimension,
-				curveType: obj.curveType,
-				container: obj.container,
-				xAxisTitle: xAxisTitle,
-				yAxisTitle: yAxisTitle,
-				CVX: CVX,
-				CVY: CVY,
-				CVZ: CVZ,
-				x_axis: x_axis,
-				y_axis: y_axis
-			});
-		}else if(dimension == 3){
-			CVZ = itemData.ZAxis;
-			CVX = itemData.XAxis;
-			CVY = itemData.YAxis;
-			drawCurve({
-				dimension: dimension,
-				curveType: obj.curveType,
-				container: obj.container,
-				xAxisTitle: xAxisTitle,
-				yAxisTitle: yAxisTitle,
-				CVX: CVX,
-				CVY: CVY,
-				CVZ: CVZ,
-				x_axis: x_axis,
-				y_axis: y_axis
-			});
-		}
-		obj.callback && obj.callback(Subdie, DeviceGroup);
-	}*/
 }
 
 /*矢量图分页smith绘制*/
@@ -781,6 +723,7 @@ function drawCommonCurve(obj){
 	var xAxisTitle = obj.xAxisTitle;
 	var yAxisTitle = obj.yAxisTitle;
 	var seriesData = obj.seriesData;
+	var xcategories = obj.xcategories;
 	var callback = obj.callback;
 	/*var CVX = obj.CVX;
 	var CVY = obj.CVY;
@@ -806,6 +749,7 @@ function drawCommonCurve(obj){
 				text: xAxisTitle,
 			},
 			lineColor: 'black',
+			categories: xcategories
 		},
 		yAxis: [{
 			lineWidth: 1,
@@ -827,35 +771,6 @@ function drawCommonCurve(obj){
 			series: seriesData
 		})
 	);
-		/*var yData  = [];
-		var arra = [];
-		_.times(CVX.length, function(i){
-			var item = [];
-			_.forEach(CVX[i], function(vv, ii){
-				var item1 = {};
-				item1.x = CVX[i][ii];
-				item1.y = CVY[i][ii];
-				item1.z = CVZ[i];
-				item.push(item1);
-			});
-			arra.push(item);
-		});
-		_.forEach(arra, function(v, i){
-			var sortArr = _.sortBy(arra[i], function(vv, ii){
-				return vv.x;
-			});
-			arra[i] = sortArr;
-		});
-		_.forEach(arra, function(v, i){
-			var item = {};
-			item.name = "P="+v[0].z;
-			item.data = [];
-			_.forEach(arra[i], function(vv, ii){
-				item.data.push(vv.y);
-			});
-			yData.push(item);
-		});*/
-	
 	callback && _.isFunction(callback) && callback(chart, "CommonCurve");
 	return chart;
 }
@@ -1230,32 +1145,34 @@ function draw_map_color_order_distribution(obj){
 	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
 	var itemHeight = colorGradientDom.height();
 	var itemWidth = colorGradientDom.width() / (all*1.2);
+	var multip = 2;
+	if($("body").innerWidth()<1366) multip = 3;
 	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*2+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(twoDiff, function(ii){
 	    var color = getGradientColor ('#00FFFF', '#0000FF', twoDiff, twoDiff-ii);
 		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
 	});
 	colorGradientDom.append("<span class='colorGradientSpan twoSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*2+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(threeDiff, function(ii){
 	    var color = getGradientColor ('#00FF00', '#00FFFF', threeDiff, threeDiff-ii);
 		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
 	});
 	colorGradientDom.append("<span class='colorGradientSpan threeSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*2+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(fourDiff, function(ii){
 	    var color = getGradientColor ('#FFFF00', '#00FF00', fourDiff, fourDiff-ii);
 		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
 	});
 	colorGradientDom.append("<span class='colorGradientSpan fourSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*2+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(fiveDiff, function(ii){
 	    var color = getGradientColor ('#FF0000', '#FFFF00', fiveDiff, fiveDiff-ii);
 		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
 	});
 	colorGradientDom.append("<span class='colorGradientSpan fiveSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*2+"px;'></span>");
+	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	
 	var countObj = _.countBy(dieData, function(v, i){
@@ -1318,13 +1235,6 @@ function draw_other_chart(obj){
 			}), function(vv, kk){
 				return _.toString(kk) == _.toString(waferNO);
 			});
-			console.log(iparam)
-			console.log(data)
-			console.log(curDataItem)
-			console.log(waferNO)
-			console.log(_.find(data, function(v, k){
-				return _.toString(k) == _.toString(iparam);
-			}))
 			if(curDataItem.length<20){
 				var errorArrItem = _.find(errorArr, function(v, i){
 					return v.chartCNName == "CPK图";
@@ -1424,21 +1334,7 @@ function draw_other_chart(obj){
 			}), function(vv, kk){
 				return _.toString(kk) == _.toString(curWaferId);
 			});
-			/*iindata.extreme.unshift(iparam);*/
-			var iidata2 = [];
-			_.forEach(iindata.extreme, function(v, i){
-				var item2 = [];
-				item2.push(iparam);
-				item2.push(v);
-				iidata2.push(item2);
-			});
-			var iidata3 = [];
-			_.forEach(iindata.soft, function(v, i){
-				var item3 = [];
-				item3.push(iparam);
-				item3.push(v);
-				iidata3.push(item3);
-			});
+			/*暂时处理*/
 			series = [{
 					name: '观测值',
 					data: [iindata.eigenValue],
@@ -1449,7 +1345,8 @@ function draw_other_chart(obj){
 					name: '极端异常值',
 					color: Highcharts.getOptions().colors[0],
 					type: 'scatter',
-					data: iidata2,
+					// x, y positions where 0 is the first category
+					data: iindata.extreme,
 					marker: {
 						fillColor: 'white',
 						lineWidth: 1,
@@ -1462,7 +1359,7 @@ function draw_other_chart(obj){
 					name: '温和异常值',
 					color: Highcharts.getOptions().colors[1],
 					type: 'scatter',
-					data: iidata3,
+					data: iindata.soft,
 					marker: {
 						fillColor: '#ccc',
 						lineWidth: 1,
@@ -1490,7 +1387,9 @@ function draw_other_chart(obj){
 				return _.toString(kk) == _.toString(waferNO);
 			});
 			iiitem.data = _.map(iiidata, function(v, i){
-				return _.toNumber(eouluGlobal.S_ComSCMRound(parseFloat(v), 2, true));
+				var iflag = true;
+				if(parseFloat(v)>0) iflag = false;
+				return _.toNumber(eouluGlobal.S_ComSCMRound(parseFloat(v), 2, iflag));
 			});
 
 			xAxis = {
@@ -1513,7 +1412,11 @@ function draw_other_chart(obj){
 			});
 			title_text = "高斯分布图-"+iparam;
 			xAxis = [{
-				categories: iiiindata.groupX,
+				categories: _.map(iiiindata.groupX, function(v){
+					var iflag = true;
+					if(v>0) iflag = false;
+					return eouluGlobal.S_ComSCMRound(v, 2, iflag);
+				}),
 				crosshair: true,
 				type: 'linear',
 			}];
@@ -1576,7 +1479,9 @@ function draw_other_chart(obj){
 				$trs.eq(7).children("td").eq(1).data("ivalue", iiiindata.variance);
 				$trs.find("td:nth-child(2)").each(function(i, el){
 					if(i == 4) return true;
-					var roundV = eouluGlobal.S_ComSCMRound(parseFloat($(this).data("ivalue")), 2, true);
+					var iflag = true;
+					if(parseFloat($(this).data("ivalue"))>0) iflag = false;
+					var roundV = eouluGlobal.S_ComSCMRound(parseFloat($(this).data("ivalue")), 2, iflag);
 					$(this).attr("title", $(this).data("ivalue")).text(roundV);
 				});
 			};
@@ -1649,6 +1554,8 @@ function ajax_all_chart(obj){
 		dataType: "json",
 		beforeSend: function(){
 			$("body").data("iglobalerror", "allow");
+			/*提示框修改text*/
+			$("#swal2-content").text("正在请求"+whenArrItem.chartCNName+"数据，绘图进度 "+(times+1)+"/"+alltimes);
 		}
 	}).then(function(data){
 		/*console.log(whenArrItem.chartAjaxUrl, data); // GaussianDistribution {}*/
@@ -1663,7 +1570,7 @@ function ajax_all_chart(obj){
 			/*显示当前图表父容器*/
 			$("#parameterMap>div.panel[data-iallstatistics='"+whenArrItem.classify+"']").fadeIn(100);
 			/*提示框修改text*/
-			$("#swal2-content").text("正在绘制"+whenArrItem.chartCNName+"，进度"+(times+1)+"/"+alltimes);
+			$("#swal2-content").text("正在绘制"+whenArrItem.chartCNName+"，绘图进度 "+(times+1)+"/"+alltimes);
 			var paramsArr,
 			webParam = $("body").data("webparam"),
 			waferNO;
