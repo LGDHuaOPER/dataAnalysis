@@ -36,7 +36,7 @@ public class RecycleBinRemove extends HttpServlet {
 		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId");
 		boolean flag = service.delete(waferId);
 		if(flag){
-			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "回收站", "删除晶圆"+service.getWaferNO(Integer.parseInt(waferId)), request.getSession());
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "回收站", "删除晶圆"+service.getWaferNO(waferId), request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
 	}

@@ -48,7 +48,7 @@ public class WriteExcel {
 			XSSFRow row = sheet.createRow(i);
 			XSSFCell cell = row.createCell(0);
 			cell.setCellValue(att[i]);
-			XSSFCell c = row.createCell(1);
+			XSSFCell c = row.createCell(2);
 			if (i == 6) {
 				c.setCellValue(quantity);
 				continue;
@@ -78,11 +78,11 @@ public class WriteExcel {
 				continue;
 			}
 			if ("TestStarTime".equals(att[i])) {
-				c.setCellValue(secondary.get(0).get("test_start_date").toString());
+				c.setCellValue("\""+secondary.get(0).get("test_start_date").toString()+"\"");
 				continue;
 			}
 			if ("TestStopTime".equals(att[i])) {
-				c.setCellValue(secondary.get(0).get("test_end_date").toString());
+				c.setCellValue("\""+secondary.get(0).get("test_end_date").toString()+"\"");
 				continue;
 			}
 			if ("TotalTestTime".equals(att[i])) {
@@ -165,7 +165,7 @@ public class WriteExcel {
 		String value = "";
 		Map<String, Object> data = null;
 		System.out.println(start + 1);
-		System.out.println(dataList.size());
+		System.out.println(paramList);
 		for (int k = start + 1, size = dataList.size()+start+1; k < size; k++) {
 			data = dataList.get(k-start-1);
 			XSSFRow r = sheet.createRow(k);
@@ -187,8 +187,13 @@ public class WriteExcel {
 					continue;
 				}
 				if (i > 1 && i < size2 - 1) {
-					value = data.get("C" + (i - 1)).toString();
-					cell.setCellValue(Double.parseDouble(value));
+					if(data.get("C" + (i - 1))==null || "".equals(data.get("C" + (i - 1)).toString())){
+						cell.setCellValue("");
+					}else{
+						value = data.get("C" + (i - 1)).toString();
+						cell.setCellValue(Double.parseDouble(value));
+					}
+					
 					if (!("".equals(upperList.get(i - 2)) || "".equals(lowerList.get(i - 2))
 							|| (Double.parseDouble(value) >= Double.parseDouble(lowerList.get(i - 2))
 							&& Double.parseDouble(value) <= Double.parseDouble(upperList.get(i - 2))))) {

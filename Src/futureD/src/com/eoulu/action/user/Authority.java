@@ -45,10 +45,11 @@ public class Authority extends HttpServlet {
 	
 	public static void main(String[] args) {
 		UserService service = new UserServiceImpl();
-		int  userId = 2;
-		String authority = "1,2";
-//		System.out.println(service.listAuthority(userId));
-		System.out.println(service.updateAuthority(authority, userId));
+		int  userId = 4;
+//		String authority = "1,2";
+		System.out.println(new Gson().toJson(service.listAuthority(userId)));
+		System.out.println("endd");
+//		System.out.println(service.updateAuthority(authority, userId));
 	}
 
 }

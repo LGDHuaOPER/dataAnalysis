@@ -74,7 +74,7 @@ public class WaferData extends HttpServlet {
 		WaferDataService service = new WaferDataServiceImpl();
 		long time = System.currentTimeMillis();
 //		service.getWaferData(183);
-//		System.out.println(service.getWaferData(183));
+		System.out.println(new Gson().toJson(service.getWaferData(352)));
 //		service.getExportExcel(183, "E:/waferC.xlsx");
 		System.out.println(System.currentTimeMillis()-time);
 		

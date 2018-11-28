@@ -51,8 +51,8 @@
 			</div>
 			<div class="g_bodyin_body">
 				<div class="g_bodyin_bodyin">
-					<div class="g_bodyin_bodyin_tit bootstro" data-bootstro-title="数据列表引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加上传数据，删除选中数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
-						<div class="g_bodyin_bodyin_tit_l"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true" title="上传添加新数据"></span><span class="glyphicon glyphicon-remove" aria-hidden="true" title="删除选中"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" title="跳转至回收站" style="display: none;"></span></div>
+					<div class="g_bodyin_bodyin_tit bootstro" data-bootstro-title="数据列表引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加上传数据，删除选中数据或者跳转至回收站</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
+						<div class="g_bodyin_bodyin_tit_l"><!-- <img src="assets/img/common/remove.svg" alt=""> --><span class="glyphicon glyphicon-remove-circle" aria-hidden="true" title="上传添加新数据"></span><span class="glyphicon glyphicon-remove" aria-hidden="true" title="删除选中"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" title="跳转至回收站"></span></div>
 						<div class="g_bodyin_bodyin_tit_r">
 							<div>
 								<form class="form-inline">
@@ -83,6 +83,7 @@
 									<th>操作</th>
 									<th class="hide">产品类别</th>
 									<th class="hide">数据格式</th>
+									<th class="hide">器件类型</th>
 								</tr>
 							</thead>
 							<tbody>

@@ -49,7 +49,7 @@ public class AuthorityModify extends HttpServlet {
 		String authority = request.getParameter("authority")==null?"":request.getParameter("authority");
 		boolean flag = service.updateAuthority(authority, Integer.parseInt(userId));
 		if(flag){
-			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", "修改"+service.getUserName(Integer.parseInt(userId))+"的权限", request.getSession());
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", "修改"+service.getUserName(userId)+"的权限", request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
 	}

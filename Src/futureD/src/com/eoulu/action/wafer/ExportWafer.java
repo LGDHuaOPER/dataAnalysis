@@ -62,5 +62,11 @@ public class ExportWafer extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
+	
+	public static void main(String[] args) {
+		WaferDataService service = new WaferDataServiceImpl();
+		service.getExportExcel(352, "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\AR0031-25 (1).xlsx");
+		System.out.println("end");
+	}
 
 }

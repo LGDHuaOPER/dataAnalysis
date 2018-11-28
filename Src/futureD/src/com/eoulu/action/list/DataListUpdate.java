@@ -56,7 +56,7 @@ public class DataListUpdate extends HttpServlet {
 		wafer.setWaferId(waferId);
 		boolean flag = service.update(wafer);
 		if(flag){
-			new LogServiceImpl().insertLog(userName, "数据列表", "修改了晶圆"+service.getWaferNO(waferId), request.getSession());
+			new LogServiceImpl().insertLog(userName, "数据列表", "修改了晶圆"+service.getWaferNO(waferId+""), request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
 		

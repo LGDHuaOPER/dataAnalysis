@@ -6,7 +6,6 @@
 var dataListStore = Object.create(null);
 dataListStore.state = Object.create(null);
 dataListStore.state.userName = null;
-dataListStore.state.additionProgress = 0;
 dataListStore.state.additionFinishFlag = false;
 dataListStore.state.pageObj = {
 	pageOption: null,
@@ -167,6 +166,7 @@ function dataListSwalMixin(obj){
 		if(result.value){
 			_.isFunction(obj.confirmCallback) && obj.confirmCallback();
 		}else if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+			/*result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer || result.dismiss == swal.DismissReason.cancel*/
 			_.isFunction(obj.callback) && obj.callback();
 		}
 	});
@@ -432,6 +432,9 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 		eouluGlobal.S_XHR({
 			status200: function(data){
 				console.log(data);
+				data = _.toString(data).replace(/^"/, "").replace(/"$/, "");
+				console.log(data)
+				console.log(typeof data)
 				dataListSwalMixin({
 					title: "添加提示",
 					text: data,
@@ -619,7 +622,7 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 	if(_.isNil(selectedItem) || _.isEmpty(selectedItem)) return false;
   	eouluGlobal.S_getSwalMixin()({
 	 	title: "确定删除吗？",
-	 	text: "删除后将放入回收站",
+	 	text: "将删除选中的"+selectedItem.length+"条数据，删除后将放入回收站",
 	 	/*html: '',*/
 	 	type: "warning",
 	 	showCancelButton: true,
@@ -987,4 +990,9 @@ $(document).on("click", ".operate_othertd .glyphicon-eye-open", function(e){
 		dataFormat: dataFormat,
 		webParam: webParam
 	}, false, false, false, "WaferData");
+});
+
+/*跳转至回收站*/
+$(".g_bodyin_bodyin_tit_l>.glyphicon-trash").click(function(){
+	eouluGlobal.S_settingURLParam({}, false, false, false, "RecycleBin");
 });

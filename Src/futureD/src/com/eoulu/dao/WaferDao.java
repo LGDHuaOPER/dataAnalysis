@@ -297,6 +297,7 @@ public class WaferDao{
 	
 	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType){
 		String sql = "select "+("".equals(dieType)?"":"concat('"+dieType+"','') die_type,")+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number+0";
+		System.out.println("sql:"+sql);
 		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	

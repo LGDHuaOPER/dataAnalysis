@@ -75,7 +75,7 @@ public interface WaferService {
 	 * @param waferId
 	 * @return
 	 */
-	String getWaferNO(int waferId);
+	String getWaferNO(String waferId);
 	
 	/**
 	 * CSV、map、曲线文件的存储

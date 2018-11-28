@@ -675,6 +675,40 @@
             }
             return returnN;
         },
+        //  将传入数据转换为字符串,并清除字符串中非数字与.的字符，按数字格式补全字符串
+        //  @ obj.num 如果全是非数字非.，则输出0.00[zeroTime]
+        S_complateFloatStr: function(obj) {
+            var num = obj.num,
+            zeroTime = obj.zeroTime || 2;
+            if(_.isNumber(num) || _.isString(num)){
+                num += '';
+                var zeroStr = '';
+                _.times(zeroTime, function(){
+                    zeroStr+='0';
+                });
+                num = num.replace(/[^0-9|\.]/g, ''); //清除字符串中的非数字非.字符
+                if (/^0+/) //清除字符串开头的0
+                    num = num.replace(/^0+/, '');
+                if (!/\./.test(num)) //为整数字符串在末尾添加.00
+                    num += '.'+zeroStr;
+                if (/^\./.test(num)) //字符以.开头时,在开头添加0
+                    num = '0' + num;
+                num += zeroStr; //在字符串末尾补零
+                var numMatch = num.match(new RegExp("\\d\+\\.\\d\{"+zeroTime+"\}"));
+                if(_.isNil(numMatch)){
+                    console.warn("S_complateFloatStr num正则匹配异常");
+                    return null;
+                }else{
+                    num = numMatch[0];
+                    return num;
+                }
+                // num = num.match(/\d+\.\d{2}/)[0];
+            }else{
+                console.warn("S_complateFloatStr参数属性num类型错误");
+                return null;
+            }
+        },
+
         // @DOM
         S_getCaretPosition: function(dom){
             var CaretPos = 0;

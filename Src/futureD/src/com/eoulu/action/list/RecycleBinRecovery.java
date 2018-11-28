@@ -36,7 +36,7 @@ public class RecycleBinRecovery extends HttpServlet {
 		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId");
 		boolean flag = service.recovery(waferId);
 		if(flag){
-			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "回收站", "恢复晶圆"+service.getWaferNO(Integer.parseInt(waferId))+"至数据列表", request.getSession());
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "回收站", "恢复晶圆"+service.getWaferNO(waferId)+"至数据列表", request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
 	}

@@ -36,17 +36,20 @@ public class RecycleBin extends HttpServlet {
 		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
 		
 		WaferService service = new WaferServiceImpl();
+		int totalCount = service.countWafer(keyword,Parameter,1);
 		PageDTO page = new PageDTO();
 		page.setRow(10);
-		page.setPageCount(service.countWafer(keyword,Parameter,1));
-		page.setCurrentPage(currentPage<page.getTotalPage()?currentPage:1);
+		page.setPageCount(totalCount);
+		currentPage = currentPage<=page.getTotalPage()?currentPage:1;
+		page.setCurrentPage(currentPage);
 		request.setAttribute("waferList", service.listWafer(page, keyword,Parameter,1));
 		if(!"".equals(keyword)){
 			request.setAttribute("keyword", keyword);
 		}
 		request.setAttribute("currentPage", currentPage);
+		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("totalPage", page.getTotalPage());
-		request.getRequestDispatcher("").forward(request, response);
+		request.getRequestDispatcher("/WEB-INF/html/recycle.jsp").forward(request, response);
 	}
 
 	/**

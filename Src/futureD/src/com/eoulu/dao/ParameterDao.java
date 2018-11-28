@@ -352,7 +352,7 @@ public class ParameterDao {
 				paramList.add(rs.getString(1));
 				upperList.add(rs.getString(3));
 				lowerList.add(rs.getString(4));
-				column += ","+rs.getString(2);
+				column += ",ifnull("+rs.getString(2)+",'')" +rs.getString(2);
 			}
 			
 		} catch (SQLException e) {

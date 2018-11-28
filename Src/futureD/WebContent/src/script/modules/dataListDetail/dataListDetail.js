@@ -456,12 +456,17 @@ function judgeVectorCurveChart(obj) {
 			drawCommonCurve({
 				curveType: curveType,
 				container: container,
-				xAxisTitle: curveData.paramList[1],
-				yAxisTitle: curveData.paramList[2],
+				xAxisTitle: curveData.paramList[0],
+				yAxisTitle: curveData.paramList[1],
 				seriesData: [{
-					data: curveData.curve[2]
+					name: curveType,
+					data: curveData.curve[1]
 				}],
-				xcategories: curveData.curve[1],
+				xcategories: _.map(curveData.curve[0], function(v){
+					var iflag = true;
+					if(Math.abs(v)>0) iflag = false;
+					return eouluGlobal.S_ComSCMRound(v, 2, iflag);
+				}),
 				callback: callback
 			});
 		}else if(curveData.curve.length == 3){
@@ -1145,8 +1150,9 @@ function draw_map_color_order_distribution(obj){
 	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
 	var itemHeight = colorGradientDom.height();
 	var itemWidth = colorGradientDom.width() / (all*1.2);
-	var multip = 2;
-	if($("body").innerWidth()<1366) multip = 3;
+	var multip = 4;
+	if($("body").innerWidth()<1920) multip = 5;
+	if($("body").innerWidth()<1366) multip = 6;
 	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(twoDiff, function(ii){
@@ -1197,7 +1203,7 @@ function draw_map_color_order_distribution(obj){
 	});
 	$tableO.find("th").each(function(i){
 		if($(this).text().trim() == "") {
-			$(this).text(i+"区间");
+			$(this).text((i+1)+"区间");
 			$tableO.find("td").eq(i).text("0个");
 		}
 	});
@@ -1388,7 +1394,7 @@ function draw_other_chart(obj){
 			});
 			iiitem.data = _.map(iiidata, function(v, i){
 				var iflag = true;
-				if(parseFloat(v)>0) iflag = false;
+				if(Math.abs(parseFloat(v))>0) iflag = false;
 				return _.toNumber(eouluGlobal.S_ComSCMRound(parseFloat(v), 2, iflag));
 			});
 
@@ -1414,7 +1420,7 @@ function draw_other_chart(obj){
 			xAxis = [{
 				categories: _.map(iiiindata.groupX, function(v){
 					var iflag = true;
-					if(v>0) iflag = false;
+					if(Math.abs(v)>0) iflag = false;
 					return eouluGlobal.S_ComSCMRound(v, 2, iflag);
 				}),
 				crosshair: true,
@@ -1480,7 +1486,7 @@ function draw_other_chart(obj){
 				$trs.find("td:nth-child(2)").each(function(i, el){
 					if(i == 4) return true;
 					var iflag = true;
-					if(parseFloat($(this).data("ivalue"))>0) iflag = false;
+					if(Math.abs(parseFloat($(this).data("ivalue")))>0) iflag = false;
 					var roundV = eouluGlobal.S_ComSCMRound(parseFloat($(this).data("ivalue")), 2, iflag);
 					$(this).attr("title", $(this).data("ivalue")).text(roundV);
 				});

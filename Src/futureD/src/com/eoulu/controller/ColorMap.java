@@ -74,9 +74,10 @@ public class ColorMap extends HttpServlet {
 			paramList  = histogram.getWaferParameter(waferIdStr);
 		}
 		
-		YieldService yieldService = new YieldServiceImpl();
-		rangeList = yieldService.getRangeList(waferIdStr, paramList);
+		GaussianService gaussian = new GaussianServiceImpl();
+		 rangeList = gaussian.getRangList(paramList, waferIdStr);
 		result = service.getColorMap( waferAtt, paramList, rangeList);
+//		System.out.println(new Gson().toJson(result));
 		response.getWriter().write(new Gson().toJson(result));
 	}
 
@@ -88,7 +89,7 @@ public class ColorMap extends HttpServlet {
 	}
 	
 	public static void main(String[] args) {
-		String waferIdStr = "162",
+		String waferIdStr = "347",
 				parameter = "";
 		double left = -20,right=20;
 		int equal = 8;	
@@ -120,11 +121,11 @@ public class ColorMap extends HttpServlet {
 			paramList  = histogram.getWaferParameter(waferIdStr);
 		}
 		
-		YieldService yieldService = new YieldServiceImpl();
-		rangeList = yieldService.getRangeList(waferIdStr, paramList);
-//		System.out.println("rangeList:"+rangeList);
+		GaussianService gaussian = new GaussianServiceImpl();
+	 rangeList = gaussian.getRangList(paramList, waferIdStr);
+		System.out.println("rangeList:"+rangeList);
 		result = service.getColorMap( waferAtt, paramList, rangeList);
-		System.out.println(new Gson().toJson(result));
+//		System.out.println(new Gson().toJson(result));
 	}
 
 }

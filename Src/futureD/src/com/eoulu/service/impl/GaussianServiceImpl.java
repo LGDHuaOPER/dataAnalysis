@@ -69,7 +69,8 @@ public class GaussianServiceImpl implements GaussianService{
 			rate = frequency/total;
 			expectation += frequency*rate;
 			y = FunctionUtil.getNormality(x, standard, average);
-			System.out.println("y:"+y);
+//			System.out.println("y:"+y);
+//			groups.add(new BigDecimal(x).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			groups.add(x);
 			frequencyList.add(frequency);
 			density.add(y);

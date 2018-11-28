@@ -407,10 +407,10 @@ public class ExcelParser {
 								} else if ("infinity".equals(value)) {
 									value = "9E31";
 								} else {
-									value = "-10000";
+									value = null;
 								}
 								att[5+j-1] = value;
-								bin = bin && ((Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0])) || value==null ||"".equals(value) );
+								bin = bin && ( value==null || "".equals(value) || (Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0]))  );
 							}
 							att[4] = bin?1:255;
 							dieMap.get(DieType).add(att);
@@ -429,7 +429,7 @@ public class ExcelParser {
 								} else if ("infinity".equals(value)) {
 									value = "9E31";
 								} else {
-									value = "-10000";
+									value = null;
 								}
 								att[5+j-1] = value;
 								bin = bin && ((Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0])) || value==null ||"".equals(value) );

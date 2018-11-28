@@ -109,8 +109,8 @@ public class UserDao {
 	 * @return
 	 */
 	public boolean update(UserDO user) {
-		String sql = "update dm_user set user_name=?,password=?,sex=?,telephone=?,email=?,role_id=? where user_id=?";
-		Object[] param = new Object[] { user.getUserName(), user.getPassword(), user.getSex(), user.getTelephone(),
+		String sql = "update dm_user set user_name=?,sex=?,telephone=?,email=?,role_id=? where user_id=?";
+		Object[] param = new Object[] { user.getUserName(), user.getSex(), user.getTelephone(),
 				user.getEmail(), user.getRoleId(), user.getUserId() };
 		return db.operate(sql, param);
 	}
@@ -223,9 +223,9 @@ public class UserDao {
 	 * @param userId
 	 * @return
 	 */
-	public boolean delete(int userId) {
-		String sql = "delete from dm_user where user_id=? and role_id<>3";
-		return db.operate(sql, new Object[] { userId });
+	public boolean delete(String userId) {
+		String sql = "delete from dm_user where user_id in("+userId+") and role_id<>3";
+		return db.operate(sql, null);
 	}
 
 	/**

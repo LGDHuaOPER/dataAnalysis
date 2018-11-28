@@ -58,7 +58,7 @@ public interface UserService {
 	  * @param userName
 	  * @return
 	  */
-	 boolean remove(int userId);
+	 boolean remove(String userId);
 	 
 	 /**
 	  * 修改指定用户权限
@@ -119,7 +119,7 @@ public interface UserService {
 	  * @param userId
 	  * @return
 	  */
-	 String getUserName(int userId);
+	 String getUserName(String userId);
 	 
 	 /**
 	  * 用户修改密码

@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public boolean remove(int userId) {
+	public boolean remove(String userId) {
 		return dao.delete(userId);
 	}
 
@@ -157,8 +157,13 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public String getUserName(int userId) {
-		return dao.getUserName(userId);
+	public String getUserName(String userId) {
+		String userName = "";
+		String[] att = userId.split(",");
+		for(int i=0,length=att.length;i<length;i++){
+			userName += ","+dao.getUserName(Integer.parseInt(att[i]));
+		}
+		return userName;
 	}
 
 	@Override

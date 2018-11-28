@@ -40,12 +40,16 @@ public class UserRemove extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=utf-8");
-		int userId = request.getParameter("userId")==null?0:Integer.parseInt(request.getParameter("userId"));
-		
+		String userId = request.getParameter("userId")==null?"":request.getParameter("userId");
+		boolean flag = false;
+		if("".equals(userId)){
+			response.getWriter().write(new Gson().toJson(flag));
+			return;
+		}
 		UserService service = new UserServiceImpl();
-		boolean flag = service.remove(userId);
+		 flag = service.remove(userId);
 		if(flag){
-			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", "删除用户"+service.getUserName(userId), request.getSession());
+			new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", "删除用户:"+service.getUserName(userId), request.getSession());
 		}
 		response.getWriter().write(new Gson().toJson(flag));
 		

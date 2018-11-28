@@ -78,9 +78,15 @@ public class WaferServiceImpl implements WaferService {
 	}
 
 	@Override
-	public String getWaferNO(int waferId) {
+	public String getWaferNO(String waferId) {
+		WaferDao dao = new WaferDao();
+		String[] att = waferId.split(",");
+		String waferNO = dao.getWaferNO(Integer.parseInt(att[0]));
+		for(int i=1,length=att.length;i<length;i++){
+			waferNO += ","+dao.getWaferNO(Integer.parseInt(att[i]));
+		}
 		
-		return new WaferDao().getWaferNO(waferId);
+		return waferNO;
 	}
 	
 	@Override

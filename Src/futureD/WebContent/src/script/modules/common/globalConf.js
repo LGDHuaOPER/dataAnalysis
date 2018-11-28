@@ -7,6 +7,14 @@
 		eouluGlobal.C_setProjectName(ProjectName);
 	}
 
+	/*全局判断userName不存在*/
+	if(!_.isEqual(eouluGlobal.S_getCurPageHref(), eouluGlobal.S_getLoginHref())){
+		if(_.isNil($("body").data("curusername")) || _.isEmpty($("body").data("curusername"))){
+			eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
+			return false;
+		}
+	}
+
 	/*全局ajax和xhr请求拦截处理*/
 	jQuery.ajaxSetup({
 		beforeSend: function(XMLHttpReq){

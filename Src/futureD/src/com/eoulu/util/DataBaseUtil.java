@@ -58,7 +58,6 @@ public class DataBaseUtil{
 		return DataBaseSingle.db;
 	}
 	
-	
 	public Connection getConnection(){
 		try {
 			Driver driver = new Driver();

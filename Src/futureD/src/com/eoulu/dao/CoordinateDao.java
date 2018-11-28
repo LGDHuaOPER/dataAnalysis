@@ -420,6 +420,7 @@ public class CoordinateDao {
 				+ "when "+column+" between "+multipleMin+" and "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+area3+"*100,2),'%')  "
 				+ "else '-100%' end ) percent "
 				+ " from dm_wafer_coordinate_data where wafer_id=? order by "+column+" desc";
+//		System.out.println("sql:"+sql);
 		Map<String,Object> result = new HashMap<>();
 		Map<String,Object> colorMap = new HashMap<>();
 		PreparedStatement ps;
@@ -431,7 +432,8 @@ public class CoordinateDao {
 			
 			while(rs.next()){
 				int bin = -1;//
-				percent="";
+				percent = rs.getString(5);
+				colorMap = new HashMap<>();
 				if(rs.getInt(3)!=-1) {
 					num++;
 					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=upper){
@@ -440,7 +442,7 @@ public class CoordinateDao {
 					}else {
 						bin=255;
 					}
-					percent = rs.getString(5);
+					
 				}
 				colorMap.put("bin", bin);
 				colorMap.put("percent", percent);
