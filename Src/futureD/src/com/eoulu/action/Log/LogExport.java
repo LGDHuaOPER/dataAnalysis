@@ -1,6 +1,9 @@
 package com.eoulu.action.Log;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,10 +38,19 @@ public class LogExport extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=utf-8");
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		String path = request.getContextPath()+"/down/log-"+df.format(new Date())+".xlsx";
+		StringBuffer wholePath = request.getRequestURL();
+		String servletPath = request.getServletPath();
+		String path = request.getServletContext().getRealPath("/")+"down/";
+		path=URLDecoder.decode(path,"gbk");
+		File file = new File(path);
+		if(!file.exists() && !file.isDirectory()){
+			file.mkdir();
+		}
+		 path = path+"/log-"+df.format(new Date())+".xlsx";
 		String logIdStr = request.getParameter("logIdStr")==null?"":request.getParameter("logIdStr");
-		
-		response.getWriter().write(new Gson().toJson(new LogServiceImpl().exportExcel(path, logIdStr)));
+		 new LogServiceImpl().exportExcel(path, logIdStr);
+		path = wholePath.toString().split(servletPath)[0]+"/down/log-"+df.format(new Date())+".xlsx";
+		response.getWriter().write(new Gson().toJson(path));
 	}
 
 	/**

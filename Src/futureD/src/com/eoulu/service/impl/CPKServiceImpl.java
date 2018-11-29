@@ -26,12 +26,13 @@ import com.eoulu.util.DataBaseUtil;
 public class CPKServiceImpl implements CPKService{
 	private final static double Variance=6E-6;
 	@Override
-	public Map<String,List<Double>> getCPK(String waferIdStr, String param) {
+	public Map<String,List<Object>> getCPK(String waferIdStr, String param) {
 		HistogramDao histogram = new HistogramDao();
-		Map<String,List<Double>> waferMap=new HashMap();
+		Map<String,List<Object>> waferMap=new HashMap();
 		Connection conn = new DataBaseUtil().getConnection();
 		List<Map<String,Object>> limit = null,list = null;
-		List<Double> result = null,ls=null,datas=null;
+		List<Object> result = null;
+		List<Double> ls=null,datas=null;
 		double upper = 0,lower=0,avg=0,variance=0,StandardDeviation=0,CPKu=0,CPKI=0,CPK=0;
 		int waferId = 0,count = 0;String waferNO = "";
 		String att[] = waferIdStr.split(",");
@@ -50,7 +51,7 @@ public class CPKServiceImpl implements CPKService{
 				lower =  Double.parseDouble(limit.get(0).get("lower_limit").toString());//参数对应数据的下限
 			}
 			count = histogram.getQuantity(conn, waferId, "and "+column+" is not null and "+column+" < 9E30 and bin <>-1");
-			result = new ArrayList<Double>();
+			result = new ArrayList<Object>();
 			list = new CPKDao().getData(conn, column, waferId,count);
 //			System.out.println(list);
 //			if(list==null){
@@ -69,7 +70,12 @@ public class CPKServiceImpl implements CPKService{
 				 CPKu = (upper-avg>0?upper-avg:avg-upper)/(StandardDeviation*3);
 				 CPKI = (avg-lower>0?avg-lower:lower-avg)/(StandardDeviation*3);
 				 CPK = CPKu>CPKI?CPKI:CPKu;
-				result.add(CPK);
+				 if(Double.isNaN(CPK)){
+					 result.add("");
+				 }else{
+					 result.add(CPK);
+				 }
+				
 			}
 			waferNO = new YieldDao().getWaferNO(conn, waferId);
 			waferMap.put(waferNO, result);

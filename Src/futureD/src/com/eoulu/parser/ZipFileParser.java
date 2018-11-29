@@ -227,6 +227,7 @@ public class ZipFileParser {
 	public static void CSV(Connection conn,String path,int filternum, Map<String,Object> map,DataBaseUtil db) {
 		WaferDao fileDao = new WaferDao();
 		ParameterDao parameterDao = new ParameterDao();
+		WaferService service = new WaferServiceImpl();
 		File file1 = new File(path);
 		FileFilterTool filetool = new FileFilterTool();
 		// 上传失败的CSV文件
@@ -256,7 +257,6 @@ public class ZipFileParser {
 					CSVnum = CSVnum + 1;
 //					 WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));// 把map文件内容写入CSV文件
 					long timeCSV = System.currentTimeMillis();
-					WaferService service = new WaferServiceImpl();
 					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
 							description, files1[i].getAbsolutePath(),db);
 					ProgressSingleton.put(sessionId, interval+=summation);
@@ -983,9 +983,9 @@ public class ZipFileParser {
 					mapDO.setDieYMax(dieSizeY);
 					mapDO.setCuttingEdgeLength(flatLength);
 					mapDO.setWaferNumber(waferNO);
-					mapDO.setDirectionX(filelist.size()>0?filelist.get(0):"Right");
-					mapDO.setDirectionY(filelist.size()>0?filelist.get(1):"Top");
-					mapDO.setSetCoorX(filelist.size()>0?filelist.get(2):"Right");
+					mapDO.setDirectionX(filelist.size()>0?filelist.get(0):"Left");
+					mapDO.setDirectionY(filelist.size()>0?filelist.get(1):"Down");
+					mapDO.setSetCoorX(filelist.size()>0?filelist.get(2):"Left");
 					mapDO.setSetCoorY(filelist.size()>0?filelist.get(3):"Down");
 					mapDO.setSetCoorDieX(filelist.size()>0?Integer.parseInt(filelist.get(4)):0);
 					mapDO.setSetCoorDieY(filelist.size()>0?Integer.parseInt(filelist.get(5)):1);

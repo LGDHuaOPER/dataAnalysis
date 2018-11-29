@@ -17,6 +17,7 @@ import org.apache.catalina.tribes.util.Arrays;
 
 import com.eoulu.transfer.WaferMapDTO;
 import com.eoulu.util.DataBaseUtil;
+import com.google.gson.Gson;
 
 /**
  * @author mengdi
@@ -412,12 +413,12 @@ public class CoordinateDao {
 		WaferMapDTO wafer = new WaferMapDTO();
 		wafer.setParameter(parameter);
 		String condition = " abs("+column+") ",percent="";
-		double multipleMax = upper>0?2*upper:upper-upper,multipleMin = lower<0?2*lower:lower-lower,area1 = Math.abs(upper),area2 = Math.abs(upper-lower),area3 = Math.abs(lower);
+		double interval = Math.abs(upper-lower),multipleMax = upper+interval,multipleMin = lower-interval;
 		String sql  = "select x_coordinate,y_coordinate,bin,"+column+","
 				+ "(case when "+column+">"+multipleMax+" then '+100%' "
-				+ "when "+column+" between "+upper+" and "+multipleMax+" then concat('+',round(abs("+condition+"-abs("+upper+"))/"+area1+"*100,2),'%') "
-				+ "when "+column+" between "+lower+" and "+upper+" then concat(round(abs("+condition+"-abs("+lower+"))/"+area2+"*100,2),'','%') "
-				+ "when "+column+" between "+multipleMin+" and "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+area3+"*100,2),'%')  "
+				+ "when "+column+" between "+upper+" and "+multipleMax+" then concat('+',round(abs("+condition+"-abs("+upper+"))/"+interval+"*100,2),'%') "
+				+ "when "+column+" between "+lower+" and "+upper+" then concat(round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'','%') "
+				+ "when "+column+" between "+multipleMin+" and "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'%')  "
 				+ "else '-100%' end ) percent "
 				+ " from dm_wafer_coordinate_data where wafer_id=? order by "+column+" desc";
 //		System.out.println("sql:"+sql);

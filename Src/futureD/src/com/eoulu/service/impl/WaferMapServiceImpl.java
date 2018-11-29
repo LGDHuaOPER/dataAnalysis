@@ -51,8 +51,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 			waferList.add(coordinate.getAllParameter(conn, waferId));
 			for (String param : paramList) {
 				List<Double> ls = rangeList.get(param);
-				upper = ls.get(0);
-				lower = ls.get(1);
+				upper = ls.get(1);
+				lower = ls.get(0);
 				column = parameterDao.getColumnByName(conn, param, waferId);
 				waferList.add(coordinate.getPerParameter(conn, waferId, column, param, upper, lower));
 			}

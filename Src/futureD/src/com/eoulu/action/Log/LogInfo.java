@@ -38,12 +38,15 @@ public class LogInfo extends HttpServlet {
 		int currentPage = request.getParameter("currentPage")==null?0:Integer.parseInt(request.getParameter("currentPage"));
 		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword");
 		PageDTO page = new PageDTO();
-		page.setCurrentPage(currentPage);
+		int totalCount = service.countLog(keyword);
 		page.setRow(10);
-		page.setPageCount(service.countLog(keyword));
+		page.setPageCount(totalCount);
+		currentPage = currentPage<=page.getTotalPage()?currentPage:1;
+		page.setCurrentPage(currentPage);
 		Hashtable<String, Object> table = new Hashtable<>();
 		table.put("logList", service.listLog(page,keyword));
 		table.put("currentPage", currentPage);
+		table.put("totalCount", totalCount);
 		table.put("totalPage", page.getTotalPage());
 		response.getWriter().write(new Gson().toJson(table));
 	}

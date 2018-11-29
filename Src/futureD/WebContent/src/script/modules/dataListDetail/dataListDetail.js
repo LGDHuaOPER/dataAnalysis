@@ -31,7 +31,7 @@ dataListDetailStore.state = {
 		coordsArray: new HashTable(),
 		waferMapObj: Object.create(null),
 		curSelectedDie: Object.create(null),
-		curveType: ["ID_VD", "OutputCurve", "SP2RF", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
+		curveType: ["ID_VD", "OutputCurve", "SP2", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
 		curCurveTypeNo: 0,
 		/*第一次进入矢量图分页*/
 		renderChartByCoordFlag: false,
@@ -151,7 +151,7 @@ function buildSignalTbodyData(data){
 function renderSignalTbodyData(){
 	if(dataListDetailStore.mock.allDetail.chunkIndex<dataListDetailStore.mock.allDetail.chunkTbodyData.length-1){
 		dataListDetailStore.mock.allDetail.chunkIndex++;
-		console.log(dataListDetailStore.mock.allDetail.chunkIndex)
+		// console.log(dataListDetailStore.mock.allDetail.chunkIndex)
 		buildSignalTbodyData(dataListDetailStore.mock.allDetail.chunkTbodyData[dataListDetailStore.mock.allDetail.chunkIndex]);
 		_.forOwn(dataListDetailStore.mock.allDetail.tbody, function(v, k){
 			var str = renderTheadTbody({
@@ -227,12 +227,6 @@ function commonCalcLayout(){
 /*矢量Map图晶圆图*/
 function renderVectorMapWafer(obj){
 	var mapInfo = obj.mapInfo;
-	/*加载矢量图*/
-	/*var dieDataList = dataListDetailStore.mock.vectorMap.waferData1.waferMapDataList[0];
-	dataListDetailStore.mock.vectorMap.filterArr = [];
-	_.forEach(dieData, function(v, i){
-		dataListDetailStore.mock.vectorMap.filterArr.push(_.keys(v)[0]);
-	});*/
 	/*预处理数据*/
 	var dieData = [];
 	_.forOwn(mapInfo.waferList.currentDieList, function(v, k){
@@ -288,7 +282,7 @@ function renderVectorMapWafer(obj){
 		curSelectedDie: dataListDetailStore.state.vectorMap.curSelectedDie,
 		vectorMap: true,
 		callback: function(positionFlag){
-			$(".vectorMap_l .positionFlag_div>img").attr("src", "assets/img/modules/dataListDetail/"+positionFlag+".png");
+			$(".positionFlag_div>img").attr("src", "assets/img/modules/dataListDetail/"+positionFlag+".png");
 			$(".qualifiedInformation_div .panel-body tbody>tr:eq(1)>td:eq(1)").text(mapInfo.waferList.yield);
 			var countByObj = _.countBy(dieData, function(v, i){
 				var ret;
@@ -311,7 +305,7 @@ function renderVectorMapWafer(obj){
 				callback: null,
 				ajaxCallback: function(){
 					setTimeout(function(){
-						swal.clickCancel();
+						swal.close();
 						$("div.vectorMap_l").scrollTop(scrollTopH);
 					}, 1500);
 				}
@@ -325,7 +319,7 @@ function renderVectorMapWafer(obj){
 				callback: null,
 				ajaxCallback: function(){
 					setTimeout(function(){
-						swal.clickCancel();
+						swal.close();
 						$("div.vectorMap_l").scrollTop(scrollTopH);
 					}, 1500);
 				}
@@ -405,6 +399,10 @@ function renderChartByCoord(obj){
 		showConfirmButton: false,
 	});
 	$("div.all_charts_rows>div").fadeOut(100);
+	$(".row.all_charts_rows").find("div[data-highcharts-chart]").each(function(i, el){
+		$(el).highcharts().destroy();
+	});
+	console.table(Highcharts.charts);
 	$.ajax({
 		type: "GET",
 		url: "VectorCurve",
@@ -770,8 +768,12 @@ function drawCommonCurve(obj){
 	};
 	chart = Highcharts.chart(obj.container, _.merge({}, baseOption, {
 			tooltip: {
-				headerFormat: '<b>{series.name}</b><br>',
-				pointFormat: '{point.x}, {point.y}'
+				// Defaults to <span style="font-size: 10px">{point.key}</span><br/>
+				// {point.x} == {point.key}
+				headerFormat: '{point.key}, {point.y}<br>',
+				// 默认是：<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>.
+				// {point.x} 为series data里数组每项里的每个点的x  0,1,2...
+				pointFormat: '<b>{series.name}</b>'
 			},
 			series: seriesData
 		})
@@ -824,6 +826,28 @@ function getIDByCoordANDRequ(obj){
 }
 
 /*参数分布统计*/
+/*寻找参数上下限*/
+function findParamUpLow(param){
+	var UpLow = {};
+	if(param.toLocaleUpperCase() == "ALL"){
+		UpLow.up = "无";
+		UpLow.low = "无";
+	}else{
+		var data = $("body").data("result").paramLimit;
+		var iindex = _.findIndex(data.paramList, function(v, i){
+			return v.replace(/\([\s\S]*\)$/, "") == param;
+		});
+		if(iindex == -1){
+			UpLow.up = "无";
+			UpLow.low = "无";
+		}else{
+			UpLow.up = data.upperList[iindex];
+			UpLow.low = data.lowerList[iindex];
+		}
+	}
+	return _.cloneDeep(UpLow);
+}
+
 function buildParameterChartContainer(obj){
 	var classify = obj.classify;
 	var paramsArr = obj.paramsArr;
@@ -979,6 +1003,7 @@ function draw_map_good_rate(obj){
 			nums: 256
 		},
 		callback: function(positionFlag, newRenderWaferMap){
+			var uplow = findParamUpLow(IDParamObj.param);
 			var str = '<div class="container-fluid">'+
 						'<table class="table table-striped table-bordered table-hover table-condensed">'+
 							'<thead>'+
@@ -986,6 +1011,8 @@ function draw_map_good_rate(obj){
 									'<th>合格数</th>'+
 									'<th>不合格数</th>'+
 									'<th>良率</th>'+
+									'<th>下限</th>'+
+									'<th>上限</th>'+
 								'</tr>'+
 							'</thead>'+
 							'<tbody>'+
@@ -993,6 +1020,8 @@ function draw_map_good_rate(obj){
 									'<td>'+currentDieItem.qualify+'</td>'+
 									'<td>'+currentDieItem.unqulify+'</td>'+
 									'<td>'+currentDieItem.yield+'</td>'+
+									'<td>'+uplow.low+'</td>'+
+									'<td>'+uplow.up+'</td>'+
 								'</tr>'+
 							'</tbody>'+
 						'</table>'+
@@ -1017,8 +1046,8 @@ function draw_map_color_order_distribution(obj){
 	currentDieItem = _.find(waferData.waferList, function(v, k){
 		return _.toString(v.parameter) == _.toString(IDParamObj.param);
 	}),
-	theMax = 1000, 
-	theMin = -1000, 
+	theMax = 200, 
+	theMin = -100, 
 	lowwer = theMin+_.floor((theMax-theMin)/3), 
 	upper = theMin+_.floor((theMax-theMin)/3)*2, 
 	midder = _.floor((theMax+theMin)/2),
@@ -1027,18 +1056,41 @@ function draw_map_color_order_distribution(obj){
 	threeDiff = midder - lowwer,
 	fourDiff = upper - midder,
 	fiveDiff = theMax - upper,
-	precision = 1;
+	precision = 0;
 	_.forOwn(currentDieItem.currentDieList, function(v, k){
 		var item = {},
 		iNo,
-		ibin;
+		ibin,
+		addNum,
+		percentV,
+		binV;
 		if(_.isObject(v)){
-			iNo = parseFloat(v.percent)*Math.pow(10,precision);
-			ibin = v.bin;
+			percentV = v.percent;
+			binV = v.bin;
 		}else{
-			iNo = v*Math.pow(10,precision);
-			ibin = v;
+			percentV = v;
+			binV = v;
 		}
+
+		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
+		var addMat = percentV.match(/^\+/);
+		var minusMat = percentV.match(/^\-/);
+		if(_.isNil(addMat) && _.isNil(minusMat)){
+			/*合格数据*/
+			addNum = 0;
+		}else{
+			if(!_.isNil(addMat)){
+				/*大于上限*/
+				addNum = 100;
+			}
+			if(!_.isNil(minusMat)){
+				/*小于下限*/
+				addNum = 0;
+			}
+		}
+		iNo = iNo+(addNum);
+		ibin = binV;
+
 		/*判断位置*/
 		if(ibin == 12){
 			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
@@ -1055,9 +1107,9 @@ function draw_map_color_order_distribution(obj){
 				item[k] = {bin: ibin, color: "2:"+iiNo};
 			}else if(lowwer<=iNo && iNo<midder){
 				item[k] = {bin: ibin, color: "3:"+iiNo};
-			}else if(midder<=iNo && iNo<upper){
+			}else if(midder<=iNo && iNo<=upper){
 				item[k] = {bin: ibin, color: "4:"+iiNo};
-			}else if(upper<=iNo && iNo<theMax){
+			}else if(upper<iNo && iNo<theMax){
 				item[k] = {bin: ibin, color: "5:"+iiNo};
 			}else if(theMax<=iNo){
 				iNo = theMax;
@@ -1067,7 +1119,7 @@ function draw_map_color_order_distribution(obj){
 		/*判断位置end*/
 		dieData.push(item);
 	});
-	_.forOwn(waferData.otherDieType, function(v, k){
+	/*_.forOwn(waferData.otherDieType, function(v, k){
 		var item = {},
 		iNo,
 		ibin;
@@ -1078,7 +1130,7 @@ function draw_map_color_order_distribution(obj){
 			iNo = v;
 			ibin = v;
 		}
-		/*判断位置*/
+		// 判断位置
 		if(ibin == 12){
 			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
 			item[k] = {bin: 12, color: "12:"};
@@ -1103,10 +1155,10 @@ function draw_map_color_order_distribution(obj){
 				item[k] = {bin: ibin, color: "6:"+iiNo};
 			}
 		}
-		/*判断位置end*/
+		// 判断位置end
 		dieData.push(item);
-	});
-	console.log(dieData);
+	});*/
+	console.table(dieData);
 	/*预处理数据end*/
 
 	var inH = that.innerWidth();
@@ -1150,9 +1202,10 @@ function draw_map_color_order_distribution(obj){
 	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
 	var itemHeight = colorGradientDom.height();
 	var itemWidth = colorGradientDom.width() / (all*1.2);
-	var multip = 4;
-	if($("body").innerWidth()<1920) multip = 5;
-	if($("body").innerWidth()<1366) multip = 6;
+	var multip = _.floor((theMax-theMin)/200);
+	if($("body").innerWidth()<1920) multip = multip+0.5;
+	if($("body").innerWidth()<1366) multip = multip+0.5;
+	console.log("multip", multip);
 	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(twoDiff, function(ii){
@@ -1731,7 +1784,7 @@ $(function(){
 	setTimeout(function(){
 		getTableDataANDRender();
 		setTimeout(function(){
-			swal.clickCancel();
+			swal.close();
 		}, 20);
 	}, 50);
 	/*加载参数数据分页结束*/
@@ -1854,7 +1907,7 @@ $(document).on("click", "div.webParam button", function(){
 });
 
 /*点击收起*/
-$(document).on("click", ".vectorMap_l div.panel-heading>span.glyphicon, #parameterMap div.panel-heading>span.glyphicon", function(){
+$(document).on("click", ".vectorMap_l div.panel-heading>span.glyphicon:not(.glyphicon-ok), #parameterMap div.panel-heading>span.glyphicon:not(.glyphicon-ok)", function(){
 	$(this).toggleClass("glyphicon-menu-down glyphicon-menu-right").parent().parent().toggleClass("panel-info panel-success");
 	if($(this).hasClass("glyphicon-menu-right")){
 		$(this).parent().next().slideUp(200);
@@ -1939,7 +1992,7 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 				callback: null,
 				ajaxCallback: function(){
 					setTimeout(function(){
-						swal.clickCancel();
+						swal.close();
 					}, 1500);
 				}
 			});
@@ -1951,3 +2004,124 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 		});
 	}
 });
+
+/*点击过滤*/
+$(document).on("click", "#filterMap", function(e){
+	e.stopPropagation();
+	eouluGlobal.S_getSwalMixin()({
+		title: '加载数据',
+		text: "正在请求过滤后Map数据...",
+		type: 'info',
+		showConfirmButton: false,
+		showCancelButton: false,
+	});
+	var ajaxData = {},
+	subdie = $("#SubdieSel").val(),
+	deviceGroup = $("#GroupSel").val(),
+	dieType = $("#DieTypeSel").val();
+	if(_.isNil(subdie) || subdie == "AllSubdie") subdie = void(0);
+	if(_.isNil(deviceGroup) || deviceGroup == "AllGroup") deviceGroup = void(0);
+	if(_.isNil(dieType) || dieType == "AllDieType") dieType = void(0);
+	ajaxData.waferId = $("body").data("waferid");
+	ajaxData.subdie = subdie;
+	ajaxData.deviceGroup = deviceGroup;
+	ajaxData.dieType = dieType;
+	$.ajax({
+		type: "GET",
+		url: "VectorMapFilter",
+		data: ajaxData,
+		dataType: "json"
+	}).then(function(data){
+		if(_.isNil(data) || _.isEmpty(data)){
+
+		}else{
+			/*提示框修改text*/
+			$("#swal2-content").text("请求Map数据完成，正在请求曲线数据...");
+			var scrollTopH = $("div.vectorMap_l").scrollTop();
+			/*保存*/
+			dataListDetailStore.mock.vectorMap.filterArr = _.keys(data.currentDieList);
+			renderVectorMapWafer({
+				mapInfo: dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo
+			});
+			getIDByCoordANDRequ({
+				callback: null,
+				ajaxCallback: function(){
+					setTimeout(function(){
+						// swal.clickCancel();
+						swal.close();
+						$("div.vectorMap_l").scrollTop(scrollTopH);
+					}, 1500);
+				}
+			});
+		}
+	});
+});
+
+/*右键切换开始*/
+$.contextMenu({
+	selector: '[id^="SP2_charts_"]>[data-dbcurveandsmith]>.panel-body',
+	callback: function(key, options) {
+		alert(key+"图功能正在开发");
+		// window.console && console.log(m) || alert(m);
+	},
+	items: {
+		"Smith": {
+			name: "Smith",
+			icon: ""
+		},
+		"Polar": {
+			name: "Polar",
+			icon: ""
+		},
+		"XYOfPhase": {
+			name: "XYOfPhase",
+			icon: ""
+		},
+		"XYOfMagnitude": {
+			name: "XYOfMagnitude",
+			icon: ""
+		},
+		"XYdBOfMagnitude": {
+			name: "XYdBOfMagnitude",
+			icon: ""
+		}
+	}
+});
+/*$.contextMenu({
+	selector: '.Mos_Vg_Vd_Id0_col',
+	callback: function(key, options) {
+		var m = "clicked: " + key;
+		window.console && console.log(m) || alert(m);
+		console.log(options)
+	},
+	items: {
+		"edit": {
+			name: "Edit",
+			icon: ""
+		},
+		"cut": {
+			name: "Cut",
+			icon: "cut"
+		},
+		"copy": {
+			name: "Copy",
+			icon: "copy"
+		},
+		"paste": {
+			name: "Paste",
+			icon: "paste"
+		},
+		"delete": {
+			name: "Delete",
+			icon: "delete"
+		},
+		"sep1": "---------",
+		"quit": {
+			name: "Quit",
+			icon: function() {
+				return 'context-menu-icon context-menu-icon-quit';
+			}
+		}
+	}
+});*/
+

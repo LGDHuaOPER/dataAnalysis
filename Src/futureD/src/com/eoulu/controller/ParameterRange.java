@@ -40,9 +40,8 @@ public class ParameterRange extends HttpServlet {
 		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr").trim();
 		HistogramService histogram = new HistogramServiceImpl();
 		List<String> paramList  = histogram.getWaferParameter(waferIdStr);
-		YieldService yieldService = new YieldServiceImpl();
-		
-		Map<String,List<Double>> rangeList = yieldService.getRangeList(waferIdStr, paramList);
+		GaussianService service = new GaussianServiceImpl();
+		Map<String, List<Double>> rangeList = service.getRangList(paramList,waferIdStr);
 		Map<String,Object> result = new HashMap<>();
 		result.put("paramList", paramList);
 		result.put("rangeList", rangeList);

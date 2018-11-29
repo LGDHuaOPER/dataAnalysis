@@ -56,7 +56,6 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void updateLoginDate(String userName,String currentLogin) {
 		String lastLogin = dao.getLastLogin(userName);
-		System.out.println("========="+lastLogin);
 		if( "".equals(lastLogin) || dao.update(lastLogin, userName)){
 			dao.updateLoginDate(currentLogin, userName);
 		}
@@ -158,9 +157,10 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public String getUserName(String userId) {
-		String userName = "";
+		
 		String[] att = userId.split(",");
-		for(int i=0,length=att.length;i<length;i++){
+		String userName = dao.getUserName(Integer.parseInt(att[0]));
+		for(int i=1,length=att.length;i<length;i++){
 			userName += ","+dao.getUserName(Integer.parseInt(att[i]));
 		}
 		return userName;

@@ -295,8 +295,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             rect.y = y;
                             rect.width = dieXZoom;
                             rect.height = dieYZoom;
-                            //Die.Dieno=dieCount;
-                            Die.Bin = bin;
+                            Die.Dieno=dieCount;
+                            Die.Bin = BBin;
                             Die.rect = rect;
                             coordsArra.add(key, Die);
                         }
@@ -384,8 +384,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             rect.y = y;
                             rect.width = dieXZoom;
                             rect.height = dieYZoom;
-                            //Die.Dieno=dieCount;
-                            Die.Bin = bin;
+                            Die.Dieno=dieCount;
+                            Die.Bin = BBin;
                             Die.rect = rect;
                             coordsArra.add(key, Die);
                         }
@@ -478,8 +478,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             rect.y = y;
                             rect.width = dieXZoom;
                             rect.height = dieYZoom;
-                            //Die.Dieno=dieCount;
-                            Die.Bin = bin;
+                            Die.Dieno=dieCount;
+                            Die.Bin = BBin;
                             Die.rect = rect;
                             coordsArra.add(key, Die);
                         }
@@ -567,8 +567,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             rect.y = y;
                             rect.width = dieXZoom;
                             rect.height = dieYZoom;
-                            //Die.Dieno=dieCount;
-                            Die.Bin = bin;
+                            Die.Dieno=dieCount;
+                            Die.Bin = BBin;
                             Die.rect = rect;
                             coordsArra.add(key, Die);
                         }
@@ -614,6 +614,7 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             if(vectorMap){
                                 if(!_.isEmpty(filterArr)){
                                     if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        // 过滤只针对当前器件类型  bin12是其他器件类型的 暂时不考虑
                                         Die.filterFlag = "undisabled";
                                     }
                                     else{
@@ -657,8 +658,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                             rect.y = y;
                             rect.width = dieXZoom;
                             rect.height = dieYZoom;
-                            //Die.Dieno=dieCount;
-                            Die.Bin = bin;
+                            Die.Dieno=dieCount;
+                            Die.Bin = BBin;
                             Die.rect = rect;
                             coordsArra.add(key, Die);
                         }
@@ -722,6 +723,7 @@ function renderWaferMapByGetData(obj){
         $(can).on({
             mousemove: function(e){
                 e.stopPropagation();
+                // console.log(obj.coordsArra.getValues())
                 obj.curSelectedDie = null;
                 var p = eouluGlobal.S_getEventPosition(e);
                 // debugger;
@@ -731,7 +733,7 @@ function renderWaferMapByGetData(obj){
                         if (obj.coordsArra.containsKey(key)) {
                             var die = obj.coordsArra.getValue(key);
                             if (IsInnerRect(die.rect, p)) {
-                                obj.curSelectedDie = die;
+                                obj.curSelectedDie = _.cloneDeep(die);
                                 obj.curSelectedDie.x = j;
                                 obj.curSelectedDie.y = i;
                                 break;
@@ -766,7 +768,7 @@ function renderWaferMapByGetData(obj){
                         if (obj.coordsArra.containsKey(key)) {
                             var die = obj.coordsArra.getValue(key);
                             if (IsInnerRect(die.rect, p)) {
-                                obj.curSelectedDie = die;
+                                obj.curSelectedDie = _.cloneDeep(die);
                                 obj.curSelectedDie.x = j;
                                 obj.curSelectedDie.y = i;
                                 break;
@@ -798,8 +800,8 @@ function renderWaferMapByGetData(obj){
             var code = e.keyCode || e.which || e.charCode;
             var currentDie_x = "";
             var currentDie_y = "";
-            for (var i = obj.waferData.maxY; i >= obj.waferData.minY; i--) {
-                for (var j = obj.waferData.minX; j <= obj.waferData.maxX; j++) {
+            for (var i = parseFloat(obj.waferData.maxY); i >= parseFloat(obj.waferData.minY); i--) {
+                for (var j = parseFloat(obj.waferData.minX); j <= parseFloat(obj.waferData.maxX); j++) {
                     var key = j + ":" + i;
                     if (obj.coordsArra.containsKey(key)) {
                         var die = obj.coordsArra.getValue(key);
@@ -850,17 +852,17 @@ function renderWaferMapByGetData(obj){
                 console.log(c)
                 // a = b + c + i;
                 var ee = a+ " = " + b + c + "i";
+                // console.log(ee)
                 eval(ee);
                 var newkey = Die_x + ":" + Die_y;
                 if (obj.coordsArra.containsKey(newkey)) {
-                    if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12) { //遇到bin值为-1或12的die跳过
+                    if (obj.coordsArra.getValue(newkey).Bin == -1 || obj.coordsArra.getValue(newkey).Bin == 12 || obj.coordsArra.getValue(newkey).filterFlag == "disabled") { //遇到bin值为-1或12或者disabled的die跳过
                         continue;
                     } else {
                         break;
                     }
                 }
             }
-
             /*if (positionFlag == "LeftDown") {
                 switch (code) {
                     case 37:
@@ -1083,12 +1085,15 @@ function renderWaferMapByGetData(obj){
                 }
             }*/
             if (_.indexOf([37, 38, 39, 40], code) > -1) {
-                var newkey = Die_x + ":" + Die_y;
-                if (obj.coordsArra.containsKey(newkey)) {
+                var newkey2 = Die_x + ":" + Die_y;
+                // console.log("newkey2", newkey2)
+                // console.log("obj.coordsArra.getValues()", obj.coordsArra.getValues())
+                // console.log("obj.coordsArra.getKeys()", obj.coordsArra.getKeys())
+                if (obj.coordsArra.containsKey(newkey2)) {
                     newWaferMap.setPlotParam({
-                        currentDieCoord: newkey
+                        currentDieCoord: newkey2
                     }).plot();
-                    obj.keydownCallback && obj.keydownCallback(newkey);
+                    obj.keydownCallback && obj.keydownCallback(newkey2);
                 }
             }
         });

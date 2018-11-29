@@ -36,22 +36,26 @@ public class DataListAjax extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=utf-8");
 		
-		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword"),
-				Parameter = request.getParameter("Parameter")==null?"":request.getParameter("Parameter");
+		String keyword = request.getParameter("keyword")==null?"":request.getParameter("keyword");
+		String Parameter = request.getParameter("Parameter")==null?"":request.getParameter("Parameter");
 		int currentPage = request.getParameter("currentPage")==null?1:Integer.parseInt(request.getParameter("currentPage"));
 		
 		WaferService service = new WaferServiceImpl();
+		int totalCount = service.countWafer(keyword,Parameter,0);
 		PageDTO page = new PageDTO();
 		page.setRow(10);
-		page.setPageCount(service.countWafer(keyword,Parameter,0));
-		page.setCurrentPage(currentPage<page.getTotalPage()?currentPage:1);
+		page.setPageCount(totalCount);
+		currentPage = currentPage<=page.getTotalPage()?currentPage:1;
+		page.setCurrentPage(currentPage);
 
 		Map<String,Object> result = new HashMap<>();
 		result.put("waferInfo", service.listWafer(page, keyword,Parameter,0));
 		result.put("currentPage", currentPage);
 		result.put("totalPage", page.getTotalPage());
+		result.put("totalCount", totalCount);
 		
 		response.getWriter().write(new Gson().toJson(result));
+		
 		
 	}
 

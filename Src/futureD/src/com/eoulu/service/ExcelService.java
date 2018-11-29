@@ -168,9 +168,9 @@ public class ExcelService {
 		map.setDiameter(diameter);
 		map.setDieXMax(sizeX);
 		map.setDieYMax(sizeY);
-		map.setDirectionX("Right");
+		map.setDirectionX("Left");
 		map.setDirectionY("Down");
-		map.setSetCoorX("Right");
+		map.setSetCoorX("Left");
 		map.setSetCoorY("Down");
 		map.setSetCoorDieX(1);
 		map.setSetCoorDieY(1);

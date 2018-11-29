@@ -64,6 +64,7 @@ public class CPKServlet extends HttpServlet {
 		for (int i=0,size=paramList.size();i<size;i++) {
 			result.put(paramList.get(i), service.getCPK(waferIdStr, paramList.get(i)));
 		}
+		System.out.println(new Gson().toJson(result));
 		response.getWriter().write(new Gson().toJson(result));
 	
 	}
@@ -77,7 +78,7 @@ public class CPKServlet extends HttpServlet {
 	
 	public static void main(String[] args) {
 		CPKService service = new CPKServiceImpl();
-		String waferIdStr = "346",
+		String waferIdStr = "354",
 				parameter = "";
 		Map<String, Object> result = new HashMap<>();
 		if (!"".equals(parameter)) {

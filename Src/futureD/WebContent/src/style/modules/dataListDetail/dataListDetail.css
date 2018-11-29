@@ -202,6 +202,15 @@ div#in ul {
 	overflow: auto;
 }
 
+div.positionFlag_div {
+	display: inline-block;
+	position: absolute;
+	top: -10px;
+	z-index: 9;
+	width: 120px;
+	height: 120px;
+}
+
 #vectorMap .panel-body .table {
 	margin-bottom: 1px;
 }
@@ -225,6 +234,12 @@ div#in ul {
 	margin-right: -15px;
 }
 
+/* Map良率分布 */
+.panel_map_good_rate_distribution .chart_foot table th, .panel_map_good_rate_distribution .chart_foot table td {
+	text-align: center;
+	font-size: 14px;
+}
+
 /* 色阶分布 */
 .panel_map_color_order_distribution .chart_foot {
   text-align: center;
@@ -234,10 +249,10 @@ div#in ul {
 }
 .panel_map_color_order_distribution .chart_foot table th {
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
 }
 .panel_map_color_order_distribution .chart_foot table td {
-  font-size: 13px;
+  font-size: 12px;
 }
 .panel_map_color_order_distribution .chart_body {
 	border-bottom: 1px dashed #ccc;

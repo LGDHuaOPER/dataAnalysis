@@ -19,6 +19,7 @@
 	<link rel="stylesheet" href="assets/style/libs/bootstro.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 	<!-- 变 -->
 	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
 </head>
@@ -80,14 +81,6 @@
 					    	<div class="vectorMap_in">
 			    		    	<div class="vectorMap_l">
 			    		    		<div class="container-fluid">
-			    		    			<!-- 坐标图 -->
-			    		    			<div class="row">
-			    		    				<div class="col-sm-12 col-md-12 col-lg-6">
-			    		    					<div class="positionFlag_div">
-			    		    						<img src="" alt="">
-			    		    					</div>
-			    		    				</div>
-			    		    			</div>
 			    		    			<!-- 信息 -->
 			    		    			<div class="row">
 			    		    				<div class="col-sm-12 col-md-12 col-lg-6">
@@ -129,7 +122,7 @@
 			    		    						<div class="panel panel-info">
 			    		    						  	<div class="panel-heading">
 			    		    						    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>坐标信息
-			    		    						    	<span class="glyphicon glyphicon-ok" aria-hidden="true" title="过滤"></span>
+			    		    						    	<span class="glyphicon glyphicon-ok" id="filterMap" aria-hidden="true" title="过滤"></span>
 			    		    						  	</div>
 			    		    						  	<div class="panel-body">
 			    		    						    	<table class="table table-striped table-bordered table-hover table-condensed">
@@ -188,10 +181,10 @@
 			    		    					  	</div>
 			    		    					</div><!-- OutputCurve end -->
 			    		    				</div>
-			    		    				<div class="col-sm-12 col-md-12 col-lg-12 SP2RF_col">
+			    		    				<div class="col-sm-12 col-md-12 col-lg-12 SP2_col">
 			    		    					<div class="panel panel-info">
 			    		    					  	<div class="panel-heading">
-			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>SP2RF
+			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>SP2
 			    		    					  	</div>
 			    		    					  	<div class="panel-body">
 			    		    					    	<div class="panel_chart_body"></div>
@@ -225,6 +218,10 @@
 			    		    		</div>
 			    		    	</div>
 			    		    	<div class="vectorMap_r">
+			    		    		<!-- 坐标图 -->
+			    		    		<div class="positionFlag_div">
+			    		    			<img src="" alt="" height="120" width="120">
+			    		    		</div>
 			    		    		<canvas id="canvas_vectorMap"></canvas>
 			    					<div id="in" style="position: absolute; z-index: 10;"></div>
 			    		    	</div>
@@ -316,6 +313,9 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/drawingSmith.js"></script>
 	<script src="assets/script/libs/drawWaferMap.js"></script>
+	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
+	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
+	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	<!-- 变 -->
 	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>

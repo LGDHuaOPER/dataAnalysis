@@ -189,7 +189,6 @@ public class UserDao {
 					(page.getCurrentPage() - 1) * page.getRow(), page.getCurrentPage() * page.getRow() };
 		}
 		sql += " order by user_id limit ?,?";
-		System.out.println(sql);
 		return db.queryToList(sql, param);
 	}
 

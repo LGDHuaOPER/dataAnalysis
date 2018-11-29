@@ -37,18 +37,10 @@ public class LoginFilter implements Filter{
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		// 获取根目录所对应的绝对路径
 		String currentURL = request.getRequestURI();
-		// 截取到当前文件名用于比较
-		String targetURL = currentURL.substring(currentURL.indexOf("/", 1), currentURL.length());
-		// 如果session不为空就返回该session，如果为空就返回null
+//		System.out.println("currentURL:"+currentURL);
 		HttpSession session = request.getSession(false);
-		if ("/Login/login.jsp".equals(targetURL)) {// 判断请求是否有权限
-			if(session != null){
-				session.removeAttribute("userName");
-			}
-			chain.doFilter(request, response);
-
-		} else {
 			if(FilterResource.isExist(request)){
+//				System.out.println(111);
 				chain.doFilter(request, response);
 			}else
 			if (session == null || session.getAttribute("userName") == null) {
@@ -68,9 +60,10 @@ public class LoginFilter implements Filter{
 					}
 				}else{
 					chain.doFilter(request, response);
+//					System.out.println(222);
 				}
+//				System.out.println(333);
 			}
-		}
 
 	}
 

@@ -37,10 +37,10 @@ public class LogDao {
 	public List<Map<String,Object>> listLog(PageDTO page,String keyword){
 		String sql = "select log_id,user_name,page,description,substring_index(gmt_create,' ',1) operate_date,substring_index(gmt_create,' ',-1) operate_time,ip_address,location "
 				+ " from dm_log ";
-		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getCurrentPage()*page.getRow()};
+		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += " where user_name like ? or  page like ? or description like ? or location like ?";
-			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%",(page.getCurrentPage()-1)*page.getRow(),page.getCurrentPage()*page.getRow()};
+			sql += " where user_name like ? or  page like ? or description like ? or location like ? or gmt_create like binary ?";
+			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%",(page.getCurrentPage()-1)*page.getRow(),page.getCurrentPage()*page.getRow()};
 		}
 		sql += "  order by gmt_create desc limit ?,?";
 		return db.queryToList(sql,param );
@@ -54,8 +54,8 @@ public class LogDao {
 		String sql = "select count(*) from dm_log";
 		Object[] param = null;
 		if(!"".equals(keyword)){
-			sql += " where user_name like ? or  page like ? or description like ? or location like ?";
-			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%"};
+			sql += " where user_name like ? or  page like ? or description like ? or location like ?  or gmt_create like binary ?";
+			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%"};
 		}
 		Object result = db.queryResult(sql, param);
 		return result==null?0:Integer.parseInt(result.toString());

@@ -437,6 +437,7 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 				console.log(typeof data)
 				dataListSwalMixin({
 					title: "添加提示",
+					// html: data,
 					text: data,
 					timer: 10000,
 					showConfirmButton: true,

@@ -89,7 +89,7 @@ public class ColorMap extends HttpServlet {
 	}
 	
 	public static void main(String[] args) {
-		String waferIdStr = "347",
+		String waferIdStr = "355",
 				parameter = "";
 		double left = -20,right=20;
 		int equal = 8;	
@@ -123,9 +123,9 @@ public class ColorMap extends HttpServlet {
 		
 		GaussianService gaussian = new GaussianServiceImpl();
 	 rangeList = gaussian.getRangList(paramList, waferIdStr);
-		System.out.println("rangeList:"+rangeList);
+//		System.out.println("rangeList:"+rangeList);
 		result = service.getColorMap( waferAtt, paramList, rangeList);
-//		System.out.println(new Gson().toJson(result));
+		System.out.println(new Gson().toJson(result));
 	}
 
 }

@@ -94,7 +94,7 @@ public class GaussianServiceImpl implements GaussianService{
 		result.put("columnInterval", interval);
 		result.put("frequency", frequencyList);
 		result.put("groupX", groups);
-//		result.put("density", density);
+		result.put("density", density);
 		return result;
 	}
 
@@ -116,7 +116,6 @@ public class GaussianServiceImpl implements GaussianService{
 			for (int i = 0, length = waferAtt.length; i < length; i++) {
 				waferId = Integer.parseInt(waferAtt[i]);
 				map = paramDao.getLimit(waferId, paramList.get(j), conn);
-				System.out.println(map);
 				if(map == null){
 					column = dao.getParameterColumn(conn, waferId, paramList.get(j));
 					list = dao.getRangeByColumn(conn, waferId, column);

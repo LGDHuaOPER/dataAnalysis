@@ -72,7 +72,7 @@ public class LogServiceImpl implements LogService{
 		return dao.countLog(keyword);
 	}
 	
-	public static String exportExcel(String path ,String logIdStr){
+	public static void exportExcel(String path ,String logIdStr){
 		List<Map<String,Object>> list = dao.listLog(logIdStr);
 		//创建HSSFWorkbook对象  
 		XSSFWorkbook wb = new XSSFWorkbook();  
@@ -88,7 +88,6 @@ public class LogServiceImpl implements LogService{
 		for(int i=0,size=list.size();i<size;i++){
 			XSSFRow row = sheet.createRow(i+1);
 			map = list.get(i);
-			System.out.println(map);
 			for(int j=0,size2=map.size()+1;j<size2;j++){
 				XSSFCell cell = row.createCell(j);
 				if(j==0){
@@ -122,16 +121,28 @@ public class LogServiceImpl implements LogService{
 		}
 		
 		//输出Excel文件  
-		FileOutputStream output;
-		try {
-			output = new FileOutputStream(path);
-			wb.write(output);  
-			output.flush();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}  
+		FileOutputStream output = null;
+			try {
+				output = new FileOutputStream(path);
+				wb.write(output);  
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}finally{
+				try {
+					if(output != null){
+						output.flush();
+						output.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			
+			
 		
-		return path;
 			
 	}
 
