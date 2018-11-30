@@ -50,13 +50,13 @@ public class ZipFileParser {
 	
 	private static boolean fileType = false;
 	
-	public static ArrayList<String> filelist = new ArrayList<String>();
+	public static ArrayList<String> filelist = null;
 	// zip压缩文件中 上传失败的CSV文件,map文件 和 excel文件
-	public static ArrayList<String> faileCSV = new ArrayList<String>();
+	public static ArrayList<String> faileCSV = null;
 	// 存放map的晶圆编号和路径
-	public static Map<String, Object> mapfilelist = new HashMap<String, Object>();
+	public static Map<String, Object> mapfilelist = null;
 	// 存放map的晶圆编号和路径
-	public Map<String, Object> excelfilelist = new HashMap<String, Object>();
+	public static Map<String, Object> excelfilelist = null;
 	// CSV总个数
 	public static int CSVnum = 0;
 	// Map总个数
@@ -66,6 +66,11 @@ public class ZipFileParser {
 	private static String logWafer = "";
 
 	public static Map<String, Object> Zip(Map<String,Object> map ) {
+		filelist = new ArrayList<String>();
+		faileCSV = new ArrayList<String>();
+		mapfilelist = new HashMap<String, Object>();
+		excelfilelist = new HashMap<String, Object>();
+		CSVnum = 0;Mapnum = 0;Excelnum = 0;logWafer = "";
 		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
 		String filename = "";// 上传失败的CSV、Map、Excel文件名
 		String status = "",
@@ -165,7 +170,12 @@ public class ZipFileParser {
 			if (failnum == (CSVnum + Mapnum + Excelnum)) {
 				status = "全部上传失败：" + filename + "," + errorFile.toString();
 			} else {
-				status = "部分导入成功，未导入文件有：" + filename + "," + errorFile.toString();
+				if("".equals(errorFile.toString())){
+					status = "导入失败：" + filename ;
+				}else{
+					status = "部分导入成功，未导入文件有：" + filename + "," + errorFile.toString();
+				}
+				
 			}
 		} else {
 			status = "success";
@@ -256,16 +266,13 @@ public class ZipFileParser {
 				if (files1[i].getName().endsWith(".CSV") || files1[i].getName().endsWith(".csv")) {
 					CSVnum = CSVnum + 1;
 //					 WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));// 把map文件内容写入CSV文件
-					long timeCSV = System.currentTimeMillis();
 					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
 							description, files1[i].getAbsolutePath(),db);
 					ProgressSingleton.put(sessionId, interval+=summation);
-					// 未找到对应的map文件
-					long timeCSV2 = System.currentTimeMillis();
-					System.out.println("how long:" + (timeCSV2 - timeCSV));
 					failcsv = getReturn(files1[i].getName(), status);
-					if (!"success".equals(failcsv)) {
-						faileCSV.add(failcsv+"("+status+")");
+					if (!"success".equals(status)) {
+//						faileCSV.add(failcsv+"("+status+")");
+						faileCSV.add(failcsv);
 					}
 				} else if (files1[i].getName().endsWith(".map")) {
 					Mapnum = Mapnum + 1;
@@ -339,6 +346,7 @@ public class ZipFileParser {
 	// 判断问题CSV
 	public static String getReturn(String filename, String status) {
 		String name = "";
+		System.out.println("status:"+status);
 		switch (status) {
 		case "上传失败，目标文件内容有误！":
 			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(内容有误)";
@@ -436,7 +444,12 @@ public class ZipFileParser {
 			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(FlatLength为空)";
 			break;
 		default:
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(其他错误)";
+			if(status.contains("曲线")){
+				name = status;
+			}else{
+				name = filename+status;
+			}
+			
 		}
 		return name;
 	}
@@ -824,17 +837,19 @@ public class ZipFileParser {
 			List<String> filelist1=new ArrayList<String>(),filelist=new ArrayList<String>(),invalidationList = new ArrayList<String>();//存放8个参数
 			FileInputStream fis = null;
 			String status="success";//map文件标志信息
-			String waferNO="";
+			String waferNO="",fileEncode = FileCode.getEncode(file);
+			System.out.println("fileEncode:"+fileEncode);
 			int flagnum=0;
 			double diameter=-1,dieSizeX=-1,dieSizeY=-1,flatLength=-1;
 			try {
 				fis = new FileInputStream(file);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis,"Unicode"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis,fileEncode));
 				String line = "";
 				
 				while ((line = br.readLine()) != null){
 					filelist1.add(line);
 				}
+				
 				//map文件为ANSI编码方式
 				if(filelist1.size()<5){
 					br.close();

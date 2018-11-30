@@ -7,12 +7,21 @@ var dataListStore = Object.create(null);
 dataListStore.state = Object.create(null);
 dataListStore.state.userName = null;
 dataListStore.state.additionFinishFlag = false;
+dataListStore.state.additionErrorFlag = false;
 dataListStore.state.pageObj = {
 	pageOption: null,
 	currentPage: null,
 	pageCount: null,
 	searchFlag: false,
 	searchVal: ""
+};
+dataListStore.state.authorityJQDomMap = {
+	"管理员": [$(".g_info_r .glyphicon-user")],
+	"上传": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove-circle']")],
+	"删除": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove']"), $(".operate_othertd [data-iicon='glyphicon-remove']")],
+	"回收站": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-trash']")],
+	"修改": [$(".operate_othertd [data-iicon='glyphicon-edit']")],
+	"详细数据": [$(".operate_othertd [data-iicon='glyphicon-eye-open']")]
 };
 dataListStore.state.productCategory = [];
 /*dataListStore.state.device_numberArr = _.isNil(store.get("futureDT2Online__dataList__device_numberArr")) ? [] : store.get("futureDT2Online__dataList__device_numberArr");*/
@@ -210,16 +219,16 @@ function getProgress(value){
 				/*dataListStore.state.additionProgress+= _.random(0, 99-dataListStore.state.additionProgress, true);
 				dataListStore.state.additionProgress = _.floor(dataListStore.state.additionProgress*10)/10;*/
 				$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", value).css("width", value+"%").text(value+"%");
-				if(dataListStore.state.additionFinishFlag){
-					/*setTimeout(function(){
-						eouluGlobal.S_getSwalMixin()({
-							showConfirmButton: false,
-							title: "提交进度",
-							text: "处理完成",
-							timer: 1500,
-							type: "success"
-						});
-					}, 1000);*/
+				if(dataListStore.state.additionErrorFlag === true){
+					eouluGlobal.S_getSwalMixin()({
+						showConfirmButton: false,
+						title: "提交进度",
+						text: "提交出错，进度请求中止！",
+						timer: 1800,
+						type: "error"
+					});
+					dataListStore.state.additionErrorFlag = false;
+				}else if(dataListStore.state.additionFinishFlag){
 					$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", 100).css("width", "100%").text("100%");
 					dataListStore.state.additionFinishFlag = false;
 				}else{
@@ -232,7 +241,7 @@ function getProgress(value){
 				console.log(errorThrown)
 			}
 		});
-	}, 20);
+	}, 50);
 }
 
 function barDestroy(){
@@ -249,6 +258,23 @@ function barDestroy(){
 
 /*page onload*/
 $(function(){
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: _.cloneDeep(dataListStore.state.authorityJQDomMap),
+		callback: function(){
+			$(".g_bodyin_bodyin_tit_l>img:visible").each(function(i, el){
+				if(i>0) $(el).css("margin-left", "15px");
+				if($(el).is("[data-iicon='glyphicon-trash']")) $(el).css("margin-left", "12px");
+			});
+			$(".g_bodyin_bodyin_body tbody>tr").each(function(i, el){
+				$(el).find("td.operate_othertd img:visible").each(function(ii, ele){
+					if(ii>0) $(ele).css("margin-left", "5px");
+				});
+			});
+		}
+	});
+	/*判断权限end*/
+
 	tableEllipsis();
 
 	/*初始化分页组件*/
@@ -343,7 +369,7 @@ $(window).on("resize", function(){
 });
 
 /*添加修改打开关闭*/
-$(".g_bodyin_bodyin_tit_l>.glyphicon-remove-circle").click(function(){
+$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove-circle']").click(function(){
 	$(".futureDT2_bg_cover, .futureDT2_addition").slideDown(200);
 	$(".futureDT2_addition_l, .futureDT2_addition_r").height($(".futureDT2_addition").height());
 	barDestroy();
@@ -361,7 +387,7 @@ $(".futureDT2_addition_r_foot .btn-warning, .futureDT2_update_r_foot .btn-warnin
 	});
 	$("div.futureDT2_addition_r_progress").slideUp(30);
 });
-$(document).on("click", ".operate_othertd>.glyphicon-edit", function(e){
+$(document).on("click", ".operate_othertd>[data-iicon='glyphicon-edit']", function(e){
 	e.stopPropagation();
 	var iThat = $(this).parent();
 	$(".futureDT2_bg_cover, .futureDT2_update").slideDown(200);
@@ -398,6 +424,8 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 		});
 		eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交中...");
 		/*显示进度条*/
+		dataListStore.state.additionFinishFlag = false;
+		dataListStore.state.additionErrorFlag = false;
 		$("div.futureDT2_addition_r_progress").slideDown(30);
 		$("div.futureDT2_addition_r_progress .progress-bar").attr("aria-valuenow", 0).css("width", "0%").text("0%");
 		getProgress(0);
@@ -453,6 +481,7 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 					}
 				});
 				dataListStore.state.additionFinishFlag = true;
+				dataListStore.state.additionErrorFlag = false;
 				if(data.indexOf("有误") > -1 || data.indexOf("未接收") > -1 || data.indexOf("失败") > -1){
 					barDestroy();
 				}else if(data.indexOf("成功") > -1){
@@ -465,6 +494,8 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 				eouluGlobal.C_server500Message({
 					callback: null
 				});
+				dataListStore.state.additionFinishFlag = false;
+				dataListStore.state.additionErrorFlag = true;
 			},
 			readyState4: function(readyState, xhr, status){
 				eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
@@ -537,7 +568,7 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 });
 
 /*删除和批量删除*/
-$(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
+$(document).on("click", ".operate_othertd [data-iicon='glyphicon-remove']", function(e){
 	e.stopPropagation();
 	var iThat = $(this);
   	eouluGlobal.S_getSwalMixin()({
@@ -618,7 +649,7 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 		  	});
 		}
 	});
-}).on("click", ".g_bodyin_bodyin_tit_l>.glyphicon-remove", function(){
+}).on("click", ".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove']", function(){
 	var selectedItem = store.get("futureDT2Online__"+dataListStore.state.userName+"__dataList__selectedItem");
 	if(_.isNil(selectedItem) || _.isEmpty(selectedItem)) return false;
   	eouluGlobal.S_getSwalMixin()({
@@ -981,7 +1012,7 @@ $(".isRequired").on("input propertychange change", function(){
 });
 
 /*跳转详细数据页面*/
-$(document).on("click", ".operate_othertd .glyphicon-eye-open", function(e){
+$(document).on("click", ".operate_othertd [data-iicon='glyphicon-eye-open']", function(e){
 	e.stopPropagation();
 	var waferId = $(this).data("iid");
 	var dataFormat = $(this).parent().siblings(".data_format_td").data("ivalue");
@@ -994,6 +1025,6 @@ $(document).on("click", ".operate_othertd .glyphicon-eye-open", function(e){
 });
 
 /*跳转至回收站*/
-$(".g_bodyin_bodyin_tit_l>.glyphicon-trash").click(function(){
+$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-trash']").click(function(){
 	eouluGlobal.S_settingURLParam({}, false, false, false, "RecycleBin");
 });

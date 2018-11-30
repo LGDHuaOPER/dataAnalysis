@@ -50,6 +50,7 @@ public class ExportWafer extends HttpServlet {
 		if("0".equals(dataFormat)){
 			service.getExportExcel(waferId, path);
 			path = wholePath.toString().split(servletPath)[0]+"/down/"+URLEncoder.encode(waferNO,"utf-8")+".xlsx";
+			path=URLDecoder.decode(path,"gbk");
 		}
 		System.out.println(path);
 		response.getWriter().write(path);

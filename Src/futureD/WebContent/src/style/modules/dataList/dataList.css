@@ -95,20 +95,19 @@ body {
 
 .g_bodyin_bodyin_tit_l {
 	position: absolute;
-	width: 130px;
+	width: 140px;
 }
 
-.g_bodyin_bodyin_tit_l .glyphicon {
-	font-size: 22px;
-    padding: 3px;
+/* .g_bodyin_bodyin_tit_l>img+img {
+	margin-left: 15px;
 }
 
-.g_bodyin_bodyin_tit_l .glyphicon+.glyphicon {
-	margin-left: 10px;
-}
+.g_bodyin_bodyin_tit_l>img+img+img {
+	margin-left: 12px;
+} */
 
 .g_bodyin_bodyin_tit_r {
-	padding-left: 130px;
+	padding-left: 140px;
 	height: 40px;
 	text-align: right;
 }
@@ -136,7 +135,7 @@ body {
 	top: 1px;
 }
 
-span.glyphicon {
+span.glyphicon, img[data-iicon] {
 	cursor: pointer;
 }
 
@@ -174,13 +173,9 @@ span.glyphicon {
 }
 
 /* 操作栏单元格 */
-.g_bodyin_bodyin_body tbody td.operate_othertd .glyphicon {
-	font-size: 20px;
-}
-
-.g_bodyin_bodyin_body tbody td.operate_othertd .glyphicon+.glyphicon {
-	margin-left: 8px;
-}
+/* .g_bodyin_bodyin_body tbody td.operate_othertd img+img {
+	margin-left: 5px;
+} */
 
 /* 分页 */
 .futureDT2_page_wrapper {

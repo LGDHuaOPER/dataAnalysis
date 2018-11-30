@@ -40,7 +40,7 @@ public class LoginFilter implements Filter{
 //		System.out.println("currentURL:"+currentURL);
 		HttpSession session = request.getSession(false);
 			if(FilterResource.isExist(request)){
-//				System.out.println(111);
+				System.out.println(111);
 				chain.doFilter(request, response);
 			}else
 			if (session == null || session.getAttribute("userName") == null) {
@@ -53,16 +53,17 @@ public class LoginFilter implements Filter{
 				String[] result = currentURL.split("/"); 
 				String authority = result[result.length-1];
 				if(FilterResource.isController(authority)){
+//					System.out.println(222);
 					if(FilterResource.isAuthority(authority, request)){
 						chain.doFilter(request, response);
 					}else{
 						response.getWriter().write(new Gson().toJson("{message:没有对应权限}"));
 					}
-				}else{
+				} else
+				if(FilterResource.isAjax(authority)){
+//					System.out.println(333);
 					chain.doFilter(request, response);
-//					System.out.println(222);
 				}
-//				System.out.println(333);
 			}
 
 	}

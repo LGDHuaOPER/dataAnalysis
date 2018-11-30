@@ -12,16 +12,16 @@
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
 	<title>futureD数据对比</title>
-	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/modules/dataCompare/dataCompare.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstro.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/pagination.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
 </head>
-<body data-curpage="dataCompare">
-	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
+<body data-curpage="dataCompare" data-curusername="${userName}">
+	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
 		<div class="g_info_m">
@@ -123,8 +123,8 @@
 						    				  <div class="panel-body">
 						    				   		<!-- List group -->
 						    				   		<ul class="list-group" id="home_param_ul">
-						    				   		    <li class="list-group-item" data-iparam="TotalYield"><span class="badge">选中</span>Total Yield</li>
-						    				   		    <li class="list-group-item" data-iparam="共有参数2"><span class="badge">选中</span>共有参数2</li>
+						    				   		    <!--<li class="list-group-item" data-iparam="TotalYield"><span class="badge">选中</span>Total Yield</li>
+						    				   		     <li class="list-group-item" data-iparam="共有参数2"><span class="badge">选中</span>共有参数2</li>
 						    				   		    <li class="list-group-item" data-iparam="共有参数3"><span class="badge">选中</span>共有参数3</li>
 						    				   		    <li class="list-group-item" data-iparam="共有参数4"><span class="badge">选中</span>共有参数4</li>
 						    				   		    <li class="list-group-item" data-iparam="共有参数5"><span class="badge">选中</span>共有参数5</li>
@@ -132,7 +132,7 @@
 						    				   		    <li class="list-group-item" data-iparam="共有参数7"><span class="badge">选中</span>共有参数7</li>
 						    				   		    <li class="list-group-item" data-iparam="共有参数8"><span class="badge">选中</span>共有参数8</li>
 						    				   		    <li class="list-group-item" data-iparam="共有参数9"><span class="badge">选中</span>共有参数9</li>
-						    				   		    <li class="list-group-item" data-iparam="共有参数10"><span class="badge">选中</span>共有参数10</li>
+						    				   		    <li class="list-group-item" data-iparam="共有参数10"><span class="badge">选中</span>共有参数10</li> -->
 						    				   		</ul>
 						    				  </div>
 						    				</div>
@@ -258,26 +258,24 @@
 			</div>
 		</div>
 	</div>
-	<script src="../script/libs/jquery-3.3.1.min.js"></script>
-	<script src="../script/libs/bootstrap.min.js"></script>
-	<script src="../script/libs/lodash.min.js"></script>
-	<script src="../script/libs/store.legacy.min.js"></script>
-	<script src="../script/libs/moment-with-locales.min.js"></script>
-	<script src="../script/libs/sweetalert2.min.js"></script>
-	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="../script/common/futureDT2session.js"></script>
-	<script src="../script/common/pagination.min.js"></script>
-	<script src="../script/libs/newhighcharts.js"></script>	
-	<script src="../script/libs/highcharts-axis-arrow.js"></script>
-	<script src="../script/libs/highcharts-more.js"></script>
-	<script src="../script/libs/histogram-bellcurve.js"></script>
-	<script src="../script/libs/bootstro.js"></script>
-	<script src="../script/common/futureD_bootstro.js"></script>
-	<script src="../script/common/futureD_config.js"></script>
-	<script src="../script/common/mock.js"></script>
-	<!-- <script src="../script/libs/progressbar.min.js"></script> -->
-	<script src="../script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<script src="../script/libs/drawWaferMap.js"></script>
-	<script src="../script/modules/dataCompare/dataCompare.js"></script>
+	<script src="assets/script/libs/jquery-3.3.1.min.js"></script>
+	<script src="assets/script/libs/bootstrap.min.js"></script>
+	<script src="assets/script/libs/lodash.min.js"></script>
+	<script src="assets/script/libs/store.legacy.min.js"></script>
+	<script src="assets/script/libs/moment-with-locales.min.js"></script>
+	<script src="assets/script/libs/sweetalert2.min.js"></script>
+	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="assets/script/libs/pagination.min.js"></script>
+	<script src="assets/script/libs/newhighcharts.js"></script>	
+	<script src="assets/script/libs/highcharts-axis-arrow.js"></script>
+	<script src="assets/script/libs/highcharts-more.js"></script>
+	<script src="assets/script/libs/histogram-bellcurve.js"></script>
+	<script src="assets/script/libs/bootstro.js"></script>
+	<script src="assets/script/common/futureD_bootstro.js"></script>
+	<script src="assets/script/libs/drawWaferMap.js"></script>
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
+	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
+	<script src="src/script/modules/common/globalConf.js"></script>
 </body>
 </html>

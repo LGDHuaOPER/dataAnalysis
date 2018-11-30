@@ -43,9 +43,9 @@ public class Correlation extends HttpServlet {
 		String waferIdStr = request.getParameter("waferIdStr") == null ?"":request.getParameter("waferIdStr");
 		String status = "",paramX = request.getParameter("paramX")==null?"":request.getParameter("paramX").trim(),
 				paramY = request.getParameter("paramY")==null?"":request.getParameter("paramY").trim();
-		double minX= request.getParameter("minX")==null?0:Double.parseDouble(request.getParameter("minX").trim()),
+		double minX= request.getParameter("minX")==null?100000:Double.parseDouble(request.getParameter("minX").trim()),
 				maxX= request.getParameter("maxX")==null?0:Double.parseDouble(request.getParameter("maxX").trim()),
-				minY= request.getParameter("minY")==null?0:Double.parseDouble(request.getParameter("minY").trim()),
+				minY= request.getParameter("minY")==null?100000:Double.parseDouble(request.getParameter("minY").trim()),
 				maxY= request.getParameter("maxY")==null?0:Double.parseDouble(request.getParameter("maxY").trim());
 		
 		CorrelationService service2 = new CorrelationServiceImpl();

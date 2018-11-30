@@ -59,20 +59,22 @@ public class ZipService {
 		int waferFlag = 0;
 		String status = null;
 		for (String dieType:parameterList.keySet()) {
-			waferFlag = dao.queryWaferinfo(wafer.getWaferNumber(), wafer.getLotNumber(), wafer.getDeviceNumber(), dieType);
+			waferFlag = dao.queryWaferinfo(conn,wafer.getWaferNumber(), wafer.getLotNumber(), wafer.getDeviceNumber(), dieType);
 			if(waferFlag != 0){
-				dao.remove(waferFlag+"", 2);
+				dao.remove(conn,waferFlag, 2);
 				
 			}
 			wafer.setDieType(dieType);
 			status = dao.insert(conn, wafer);
 			if (!"success".equals(status)) {
+				status = "晶圆信息存储失败！";
 				break;
 			}
 			int waferId = dao.getWaferID(conn, wafer.getWaferNumber(), dieType);
 			List<Object[]> list = parameterList.get(dieType);
 			status = parameterDao.insertParameter(conn, list, waferId);
 			if (!"success".equals(status)) {
+				status = "晶圆参数存储失败！";
 				break;
 			}
 			
@@ -117,7 +119,7 @@ public class ZipService {
 		Object[] subdieInfo = null;
 		try {
 			for (int m = datanum; m < filelist.size(); m++) {
-				index++;
+//				index++;
 				String data[] = filelist.get(m).split(",");
 				if (m == datanum) {
 					paramLength = data.length;
@@ -125,6 +127,7 @@ public class ZipService {
 					column += ",C" + (j - 6);
 					columnStr += ",?";
 					}
+					System.out.println("data:"+Arrays.toString(data));
 				}
 				obj = new Object[paramLength];
 				if (data.length == 0)
@@ -179,7 +182,8 @@ public class ZipService {
 				obj[1] = diepos;
 				obj[2] = data[0];
 				obj[3] = data[1];
-				obj[4] = index;
+//				obj[4] = index;
+				obj[4] = data[4];
 				obj[6] = TestTime;
 				boolean bin = true;
 				String str = "";
@@ -273,7 +277,7 @@ public class ZipService {
 		// 曲线文件夹名字与CSV文件名字相同
 		file = file.substring(0, file.lastIndexOf("."));
 		File file1 = new File(file);
-		String status = null;
+		String status = "success";
 		// 各曲线文件夹
 		File[] files = file1.listFiles();
 		if (files != null) {
@@ -300,10 +304,10 @@ public class ZipService {
 					} else {
 						fileName = name.substring(0, curve.getName().indexOf(".")).split("_");
 					}
-					if (fileName.length < 3) {
+					if (fileName.length < 3 || fileName[0].contains("_") || fileName[0].contains("-") || fileName[1].contains("_") || fileName[1].contains("-")) {
 						System.out.println("curveType:"+curveType+"----"+name);
-						status = "曲线数据文件名格式有误！";
-						break;
+						status = curveType+"文件夹下的"+name+"文件名格式有误！";
+						return status;
 					}
 					dieNO = fileName[0];
 					subdieNO = fileName[1];

@@ -186,6 +186,7 @@ public class WaferServiceImpl implements WaferService {
 				conn.rollback();
 				return status;
 			}
+			System.out.println("wafer:"+status);
 			//次要信息
 			Object[] param = new Object[] { waferID, "", tester, totalTestTime };
 			if(dao.getSecondaryInfo(conn, waferID).size()>0){
@@ -198,7 +199,7 @@ public class WaferServiceImpl implements WaferService {
 				return status;
 			}
 			
-			
+			System.out.println("ciyao:"+status);
 			List<String> mapparameters = parameterDao.getEightParameter(conn, waferID);
 			status = zipUtil.saveCoordinateData(conn, filelist, datanum, dietypeName, mapparameters, waferID,invalidationList);
 			if (!"success".equals(status)) {
@@ -221,12 +222,14 @@ public class WaferServiceImpl implements WaferService {
 			conn.commit();
 		} catch (IOException e) {
 			e.printStackTrace();
+			status = "读取失败！";
 			try {
 				conn.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
 		} catch (SQLException e) {
+			status = "存储失败！";
 			e.printStackTrace();
 			try {
 				conn.rollback();
@@ -234,6 +237,7 @@ public class WaferServiceImpl implements WaferService {
 				e1.printStackTrace();
 			}
 		}
+		System.out.println("end==="+status);
 		return status;
 	}
 

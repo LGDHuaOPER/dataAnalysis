@@ -92,7 +92,7 @@ public class CoordinateDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			flag = "晶圆die数据添加失败！";
+			flag = "晶圆die数据存储失败！";
 		}
 		return flag;
 	}

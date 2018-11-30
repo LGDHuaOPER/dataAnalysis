@@ -78,7 +78,7 @@ public class CPKServiceImpl implements CPKService{
 				
 			}
 			waferNO = new YieldDao().getWaferNO(conn, waferId);
-			waferMap.put(waferNO, result);
+			waferMap.put(att[i], result);
 		}
 		
 		

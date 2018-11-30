@@ -13,6 +13,40 @@
 			eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
 			return false;
 		}
+
+		/*判断权限*/
+		var userAuthorityStr = $("body").data("userauthority");
+		if(_.isNil(userAuthorityStr) || _.isEmpty(userAuthorityStr) || _.isEqual(userAuthorityStr, "[]")){
+			eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
+			return false;
+		}else{
+			var userAuthorityStrArr = userAuthorityStr.replace(/^\[/,"").replace(/\]$/,"").split(", ");
+			if(userAuthorityStrArr.length == 3){
+				var userAuthorityObj = [];
+				var userAuthorityArr0 = userAuthorityStrArr[0].split(","),
+				userAuthorityArr1 = userAuthorityStrArr[1].split(","),
+				userAuthorityArr2 = userAuthorityStrArr[2].split(",");
+				_.forEach(userAuthorityArr0, function(v, i){
+					var item ={};
+					item.name = v;
+					item.value = _.toNumber(userAuthorityArr2[i]);
+					item.url = userAuthorityArr1[i];
+					userAuthorityObj.push(item);
+				});
+				var page;
+				if(_.indexOf(eouluGlobal.S_getAllAuthorityPage(), eouluGlobal.S_getCurPageHref()) > -1){
+					page = "ALL";
+				}else{
+					page = null;
+				}
+				eouluGlobal.C_setCurPageJudgedAuthority(eouluGlobal.S_pageReturnAuthorityHandler({
+					objec: {
+						page: page
+					},
+					userAuthorityObj: userAuthorityObj
+				}));
+			}
+		}
 	}
 
 	/*全局ajax和xhr请求拦截处理*/
@@ -63,7 +97,7 @@
 							text: "退出成功",
 							type: "info",
 							showConfirmButton: false,
-							timer: 1500
+							timer: 1000
 						}).then(function(){
 							eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
 						});

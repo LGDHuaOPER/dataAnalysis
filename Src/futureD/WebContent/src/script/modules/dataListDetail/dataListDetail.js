@@ -1322,7 +1322,23 @@ function draw_other_chart(obj){
 			});
 			title_text = "直方图-"+iparam;
 			xAxis = {
-				categories: ndata.sectionX,
+				categories: _.map(ndata.sectionX, function(v, i){
+					var vArr = v.split("~");
+					_.forEach(vArr, function(vv, ii, arr){
+						var vArrIt;
+						if(vv.indexOf("∞")>-1){
+							vArrIt = vv;
+						}else{
+							if(vv.length>8){
+								vArrIt = numeral(vv).format('0.0000e+0');
+							}else{
+								vArrIt = vv;
+							}
+						}
+						arr[ii] = vArrIt;
+					});
+					return _.join(vArr, "~");
+				}),
 				type: 'linear',
 				labels: {
 					rotation: -45  // 设置轴标签旋转角度
@@ -1631,21 +1647,16 @@ function ajax_all_chart(obj){
 			/*提示框修改text*/
 			$("#swal2-content").text("正在绘制"+whenArrItem.chartCNName+"，绘图进度 "+(times+1)+"/"+alltimes);
 			var paramsArr,
-			webParam = $("body").data("webparam"),
-			waferNO;
+			// webParam = $("body").data("webparam"),
+			waferNO = $("body").data("waferid"); // 2018-11-30修改，意思是晶圆主键
 			if(["map_good_rate_distribution", "map_color_order_distribution"].indexOf(whenArrItem.classify) > -1){
-				if(!_.isNil(webParam)){
-					waferNO = webParam.split("futureDT2OnlineDataListSplitor")[2];
-					var waferList = _.find(data, function(v, k){
-						return _.toString(k) == _.toString(waferNO);
-					}).waferList;
-					paramsArr = _.reduce(waferList, function(result, value, i) {
-					  result.push(value.parameter);
-					  return result;
-					}, []);
-				}else{
-					paramsArr = [];
-				}
+				var waferList = _.find(data, function(v, k){
+					return _.toString(k) == _.toString(waferNO);
+				}).waferList;
+				paramsArr = _.reduce(waferList, function(result, value, i) {
+				  result.push(value.parameter);
+				  return result;
+				}, []);
 			}else{
 				paramsArr = _.keys(data);
 				paramsArr = _.sortBy(paramsArr, function(vv, ii){
@@ -1657,11 +1668,6 @@ function ajax_all_chart(obj){
 					}
 					return returnV;
 				});
-				if(!_.isNil(webParam)){
-					waferNO = webParam.split("futureDT2OnlineDataListSplitor")[2];
-				}else{
-					paramsArr = [];
-				}
 			}
 			var IDParamObjArr = buildParameterChartContainer({
 				classify: whenArrItem.classify,

@@ -48,8 +48,11 @@ public class LogExport extends HttpServlet {
 		}
 		 path = path+"/log-"+df.format(new Date())+".xlsx";
 		String logIdStr = request.getParameter("logIdStr")==null?"":request.getParameter("logIdStr");
-		 new LogServiceImpl().exportExcel(path, logIdStr);
+		path = new LogServiceImpl().exportExcel(path, logIdStr);
+		System.out.println(path);
 		path = wholePath.toString().split(servletPath)[0]+"/down/log-"+df.format(new Date())+".xlsx";
+		path=URLDecoder.decode(path,"gbk");
+		System.out.println(path);
 		response.getWriter().write(new Gson().toJson(path));
 	}
 

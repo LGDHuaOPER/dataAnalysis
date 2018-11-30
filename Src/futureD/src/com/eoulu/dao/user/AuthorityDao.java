@@ -27,7 +27,7 @@ public class AuthorityDao {
 	 * @return
 	 */
 	public List<Map<String,Object>> listAuthority(String page){
-		String sql = "select authority_id from dm_authority where page=?";
+		String sql = "select authority_id from dm_authority where page=? and  hidden=0";
 		return DataBaseUtil.getInstance().queryToList(sql, new Object[]{page});
 	}
 	
@@ -36,7 +36,7 @@ public class AuthorityDao {
 	 * @return
 	 */
 	public List<Map<String,Object>> getAuthorityPage(){
-		String sql = "select distinct page from dm_authority ";
+		String sql = "select distinct page from dm_authority where hidden=0";
 		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	/**
@@ -57,13 +57,13 @@ public class AuthorityDao {
 	 * @return
 	 */
 	public List<Map<String,Object>> listAuthority(){
-		String sql = "select authority_name,authority_url from dm_authority";
+		String sql = "select authority_name,authority_url from dm_authority where hidden=0";
 		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	
-	public List<String> getAuthorityUrl(){
+	public List<String> getAuthorityUrl(String condition){
 		
-		String sql = "select authority_url from dm_authority";
+		String sql = "select authority_url from dm_authority "+condition;
 		return   DataBaseUtil.getInstance().queryList(sql, null);
 		
 	}

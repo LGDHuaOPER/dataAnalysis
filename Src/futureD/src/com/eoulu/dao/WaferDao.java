@@ -323,6 +323,7 @@ public class WaferDao{
 	 * @return
 	 */
 	public double getYieldPerParameter(Connection conn,int waferId,String upper,String lower,String column){
+		System.out.println("column:"+column);
 		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
 		double yield = 0;
 		try {
@@ -336,6 +337,9 @@ public class WaferDao{
 					qualified++;
 				}
 				
+			}
+			if(count == 0){
+				return 0;
 			}
 			yield = new BigDecimal((double)qualified/count).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
 		} catch (SQLException e) {

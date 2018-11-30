@@ -9,6 +9,11 @@ recycleStore.state.pageObj = {
 	searchFlag: false,
 	searchVal: ""
 };
+recycleStore.state.authorityJQDomMap = {
+	"管理员": [$(".g_info_r .glyphicon-user")],
+	"恢复": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-share-alt']"), $(".operate_othertd [data-iicon='glyphicon-share-alt']")],
+	"删除": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove']"), $(".operate_othertd [data-iicon='glyphicon-remove']")]
+};
 
 function tableEllipsis(){
 	// 表格自适应出现省略号
@@ -106,6 +111,12 @@ function delStoreSelectItem(obj){
 
 /*page onload*/
 $(function(){
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: _.cloneDeep(recycleStore.state.authorityJQDomMap)
+	});
+	/*判断权限end*/
+
 	tableEllipsis();
 
 	/*初始化分页组件*/
@@ -280,7 +291,7 @@ $(".g_bodyin_bodyin_tit_r .form-control-feedback").click(function(){
 });
 
 /*永久删除*/
-$(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
+$(document).on("click", ".operate_othertd [data-iicon='glyphicon-remove']", function(e){
 	e.stopPropagation();
 	var iThat = $(this);
   	eouluGlobal.S_getSwalMixin()({
@@ -334,7 +345,7 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 		}else if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.cancel){
 		}
 	});
-}).on("click", ".operate_othertd .glyphicon-share-alt", function(e){
+}).on("click", ".operate_othertd [data-iicon='glyphicon-share-alt']", function(e){
 	e.stopPropagation();
 	var iThat = $(this);
   	eouluGlobal.S_getSwalMixin()({
@@ -390,17 +401,17 @@ $(document).on("click", ".operate_othertd .glyphicon-trash", function(e){
 	});
 });
 
-$(".g_bodyin_bodyin_tit_l>.glyphicon-remove, .g_bodyin_bodyin_tit_l>.glyphicon-share-alt").click(function(){
+$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove'], .g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-share-alt']").click(function(){
 	var selectedItem = store.get("futureDT2Online__"+recycleStore.state.userName+"__recycle__selectedItem");
 	if(_.isNil(selectedItem) || _.isEmpty(selectedItem)) return false;
 	var messa1,
 	messa2,
 	iurl;
-	if($(this).is(".glyphicon-remove")){
+	if($(this).is("[data-iicon='glyphicon-remove']")){
 		messa1 = "永久删除";
 		messa2 = "删除后无法恢复";
 		iurl = "RecycleBinRemove";
-	}else if($(this).is(".glyphicon-share-alt")){
+	}else if($(this).is("[data-iicon='glyphicon-share-alt']")){
 		messa1 = "恢复";
 		messa2 = "恢复后可在数据列表找到";
 		iurl = "RecycleBinRecovery";

@@ -25,7 +25,7 @@
 	<!-- 变 -->
 	<link rel="stylesheet" href="src/style/modules/dataList/dataList.css" type="text/css">
 </head>
-<body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}">
+<body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -41,7 +41,7 @@
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit bootstro" data-bootstro-title="数据列表引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
@@ -52,7 +52,7 @@
 			<div class="g_bodyin_body">
 				<div class="g_bodyin_bodyin">
 					<div class="g_bodyin_bodyin_tit bootstro" data-bootstro-title="数据列表引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加上传数据，删除选中数据或者跳转至回收站</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
-						<div class="g_bodyin_bodyin_tit_l"><!-- <img src="assets/img/common/remove.svg" alt=""> --><span class="glyphicon glyphicon-remove-circle" aria-hidden="true" title="上传添加新数据"></span><span class="glyphicon glyphicon-remove" aria-hidden="true" title="删除选中"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" title="跳转至回收站"></span></div>
+						<div class="g_bodyin_bodyin_tit_l"><img src="assets/img/common/addition_28px.svg" data-iicon="glyphicon-remove-circle" alt="添加上传" title="上传添加新数据"><img src="assets/img/common/del_32px.svg" data-iicon="glyphicon-remove" alt="删除选中" title="删除选中"><img src="assets/img/common/trash_32px.svg" data-iicon="glyphicon-trash" alt="回收站" title="跳转至回收站"></div>
 						<div class="g_bodyin_bodyin_tit_r">
 							<div>
 								<form class="form-inline">
@@ -99,7 +99,7 @@
 										<td class="test_end_date_td" data-ivalue="${waferListItem['test_end_date']}" title="${waferListItem['test_end_date']}">${waferListItem['test_end_date']}</td>
 										<td class="test_operator_td" data-ivalue="${waferListItem['test_operator']}" title="${waferListItem['test_operator']}">${waferListItem['test_operator']}</td>
 										<td class="description_td" data-ivalue="${waferListItem['description']}" title="${waferListItem['description']}">${waferListItem['description']}</td>
-										<td class="not_search operate_othertd"><span class="glyphicon glyphicon-edit" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span><span class="glyphicon glyphicon-eye-open" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" data-iid="${waferListItem['wafer_id']}"></span></td>
+										<td class="not_search operate_othertd"><img src="assets/img/common/update_24px.svg" data-iid="${waferListItem['wafer_id']}" data-iicon="glyphicon-edit" alt="修改" title="修改"><img src="assets/img/common/detail_24px.svg" data-iid="${waferListItem['wafer_id']}" data-iicon="glyphicon-eye-open" alt="详细信息" title="详细信息"><img src="assets/img/common/del_24px.svg" data-iid="${waferListItem['wafer_id']}" data-iicon="glyphicon-remove" alt="删除" title="删除"></td>
 										<td class="not_search product_category_td hide" data-ivalue="${waferListItem['product_category']}"></td>
 										<td class="not_search data_format_td hide" data-ivalue="${waferListItem['data_format']}"></td>
 										<td class="not_search die_type_td hide" data-ivalue="${waferListItem['die_type']}"></td>

@@ -55,7 +55,7 @@ public class YieldServiceImpl implements YieldService{
 					yield = wafer.getYieldPerParameter(conn, waferId, right+"", left+"", column);
 				}
 				waferNO = yieldDao.getWaferNO(conn, waferId);
-				map.put(waferNO, yield*100+"%");
+				map.put(att[j], yield*100+"%");
 			}
 			result.put(parameter, map);
 		}

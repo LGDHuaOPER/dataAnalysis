@@ -53,26 +53,13 @@ public class LogServiceImpl implements LogService{
 		return dao.insertLog(param);
 	}
 	
-	public static void main(String[] args) {
-		
-		LogService service = new LogServiceImpl();
-		PageDTO page = new PageDTO();
-		page.setCurrentPage(1);
-		page.setRow(10);
-		page.setPageCount(2);
-		System.out.println(service.insertLog("Admin", "数据列表", "ceshi", null));
-//		System.out.println(new Gson().toJson(service.listLog(page,"数")));
-//		System.out.println(dao.countLog("不"));
-//		System.out.println(exportExcel("E:/test.xlsx", "1"));
-		
-	}
 
 	@Override
 	public int countLog(String keyword) {
 		return dao.countLog(keyword);
 	}
 	
-	public static void exportExcel(String path ,String logIdStr){
+	public static String exportExcel(String path ,String logIdStr){
 		List<Map<String,Object>> list = dao.listLog(logIdStr);
 		//创建HSSFWorkbook对象  
 		XSSFWorkbook wb = new XSSFWorkbook();  
@@ -142,7 +129,7 @@ public class LogServiceImpl implements LogService{
 			}
 			
 			
-		
+		return path;
 			
 	}
 

@@ -50,6 +50,7 @@ public class UploadFile extends HttpServlet {
 	    File file01 = (File) PathresultMap.get("file01");
 	    //key:文件名；value：文件路径
 	    Map<String,String> map  = util.getFormByProgress(file01, request, tempPath);
+	    System.out.println("map:"+map);
 		response.getWriter().write(new Gson().toJson(map));
 	}
 

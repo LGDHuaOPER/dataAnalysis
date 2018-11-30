@@ -27,6 +27,8 @@
         projectName: "futureD",
         versionNO: "1536897675562",
         loginHref: "IndexInterface",
+        allAuthorityPage: ["HomeInterface"],
+        curPageJudgedAuthority: null,
         pageAllConfig: {
             "futureDT2": {
                 canUseAjax: false
@@ -54,7 +56,264 @@
                 "i": false,
                 "success": true
             }
-        }
+        },
+        futureDT2SysAuthority: [{
+            "pageName": "数据列表",
+            "weight": 1,
+            "pageUrl": "DataList",
+            "authority": [{
+                "name": "数据列表",
+                "value": 7,
+                "url": "DataList"
+            }, {
+                "name": "上传",
+                "value": 8,
+                "url": "UploadStorage"
+            }, {
+                "name": "修改",
+                "value": 9,
+                "url": "DataListUpdate"
+            }, {
+                "name": "删除",
+                "value": 10,
+                "url": "DataListRemove"
+            }]
+        }, {
+            "pageName": "数据对比",
+            "weight": 5,
+            "pageUrl": "DataCompare",
+            "authority": [{
+                "name": "数据对比",
+                "value": 14,
+                "url": "DataCompare"
+            }, {
+                "name": "晶圆数据",
+                "value": 43,
+                "url": "DataListAjax"
+            }, {
+                "name": "良率晶圆",
+                "value": 44,
+                "url": "WaferMap"
+            }, {
+                "name": "色阶晶圆",
+                "value": 45,
+                "url": "ColorMap"
+            }, {
+                "name": "良品率",
+                "value": 46,
+                "url": "ShowYield"
+            }, {
+                "name": "直方图",
+                "value": 47,
+                "url": "Histogram"
+            }, {
+                "name": "箱线图",
+                "value": 48,
+                "url": "Boxplot"
+            }, {
+                "name": "CPK图",
+                "value": 49,
+                "url": "CPKServlet"
+            }]
+        }, {
+            "pageName": "回收站",
+            "weight": 3,
+            "pageUrl": "RecycleBin",
+            "authority": [{
+                "name": "回收站",
+                "value": 12,
+                "url": "RecycleBin"
+            }, {
+                "name": "删除",
+                "value": 20,
+                "url": "RecycleBinRemove"
+            }, {
+                "name": "恢复",
+                "value": 21,
+                "url": "RecycleBinRecovery"
+            }]
+        }, {
+            "pageName": "详细数据",
+            "weight": 2,
+            "pageUrl": "WaferData",
+            "authority": [{
+                "name": "详细数据",
+                "value": 11,
+                "url": "WaferData"
+            }, {
+                "name": "导出",
+                "value": 22,
+                "url": "ExportWafer"
+            }, {
+                "name": "矢量数据",
+                "value": 23,
+                "url": "VectorMap"
+            }, {
+                "name": "参数分布",
+                "value": 27,
+                "url": "WaferMap"
+            }]
+        }, {
+            "pageName": "工程分析",
+            "weight": 4,
+            "pageUrl": "ProjectAnalysis",
+            "authority": [{
+                "name": "工程分析",
+                "value": 13,
+                "url": "ProjectAnalysis"
+            }, {
+                "name": "RF-S2P分析",
+                "value": 15,
+                "url": "Analysis"
+            }, {
+                "name": "数据分析",
+                "value": 16,
+                "url": "DataStatistics"
+            }]
+        }],
+        // 以页面为单位的权限对象，包含跳转权限
+        futureDT2PageAuthority: [{
+            "pageName": "数据列表",
+            "weight": 1,
+            "pageUrl": "DataList",
+            "authority": [{
+                "name": "数据列表",
+                "value": 7,
+                "url": "DataList"
+            }, {
+                "name": "上传",
+                "value": 8,
+                "url": "UploadStorage"
+            }, {
+                "name": "修改",
+                "value": 9,
+                "url": "DataListUpdate"
+            }, {
+                "name": "删除",
+                "value": 10,
+                "url": "DataListRemove"
+            }, {
+                "name": "回收站",
+                "value": 12,
+                "url": "RecycleBin"
+            }, {
+                "name": "详细数据",
+                "value": 11,
+                "url": "WaferData"
+            }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }, {
+            "pageName": "数据对比",
+            "weight": 5,
+            "pageUrl": "DataCompare",
+            "authority": [{
+                "name": "数据对比",
+                "value": 14,
+                "url": "DataCompare"
+            }, {
+                "name": "晶圆数据",
+                "value": 43,
+                "url": "DataListAjax"
+            }, {
+                "name": "良率晶圆",
+                "value": 44,
+                "url": "WaferMap"
+            }, {
+                "name": "色阶晶圆",
+                "value": 45,
+                "url": "ColorMap"
+            }, {
+                "name": "良品率",
+                "value": 46,
+                "url": "ShowYield"
+            }, {
+                "name": "直方图",
+                "value": 47,
+                "url": "Histogram"
+            }, {
+                "name": "箱线图",
+                "value": 48,
+                "url": "Boxplot"
+            }, {
+                "name": "CPK图",
+                "value": 49,
+                "url": "CPKServlet"
+            }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }, {
+            "pageName": "回收站",
+            "weight": 3,
+            "pageUrl": "RecycleBin",
+            "authority": [{
+                "name": "回收站",
+                "value": 12,
+                "url": "RecycleBin"
+            }, {
+                "name": "删除",
+                "value": 20,
+                "url": "RecycleBinRemove"
+            }, {
+                "name": "恢复",
+                "value": 21,
+                "url": "RecycleBinRecovery"
+            }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }, {
+            "pageName": "详细数据",
+            "weight": 2,
+            "pageUrl": "WaferData",
+            "authority": [{
+                "name": "详细数据",
+                "value": 11,
+                "url": "WaferData"
+            }, {
+                "name": "导出",
+                "value": 22,
+                "url": "ExportWafer"
+            }, {
+                "name": "矢量数据",
+                "value": 23,
+                "url": "VectorMap"
+            }, {
+                "name": "参数分布",
+                "value": 27,
+                "url": "WaferMap"
+            }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }, {
+            "pageName": "工程分析",
+            "weight": 4,
+            "pageUrl": "ProjectAnalysis",
+            "authority": [{
+                "name": "工程分析",
+                "value": 13,
+                "url": "ProjectAnalysis"
+            }, {
+                "name": "RF-S2P分析",
+                "value": 15,
+                "url": "Analysis"
+            }, {
+                "name": "数据分析",
+                "value": 16,
+                "url": "DataStatistics"
+            }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }]
     };
 
     // 定义一些api
@@ -76,6 +335,12 @@
             _DefaultParam.projectName = str;
             return this; //返回当前方法，即 eouluGlobal对象
         },
+        // 设置判断后的权限对象
+        C_setCurPageJudgedAuthority: function(o){
+            _DefaultParam.curPageJudgedAuthority = o;
+            return this; //返回当前方法，即 eouluGlobal对象
+        },
+        /* @ 系统页面特殊处理类*/
         // 按钮不可点击
         C_btnDisabled: function(JQObj, isChangeText, newText){
             JQObj.css("cursor","not-allowed").prop("disabled","disabled");
@@ -138,6 +403,44 @@
             });
             return this;
         },
+        // 页面权限普通处理
+        C_pageAuthorityCommonHandler: function(obj){
+            var authorityJQDomMap = obj.authorityJQDomMap,
+            callback = obj.callback;
+            var userAuthObj = eouluGlobal.S_getCurPageJudgedAuthority();
+            if(!_.isNil(userAuthObj) && !_.isEmpty(userAuthObj)){
+                if(userAuthObj.isAll === true){
+                    _.forOwn(authorityJQDomMap, function(v, k){
+                        var findDOMFlag = _.find(userAuthObj.userAuthority, function(vv, ii){
+                            return vv.name == k; 
+                        });
+                        if(_.isNil(findDOMFlag)){
+                            if(_.isArray(v)){
+                                _.forEach(v, function(vv, ii){
+                                    vv.hide();
+                                });
+                            }else{
+                                v.hide();
+                            }
+                        }
+                    });
+                }else if(userAuthObj.isAll === false){
+                    _.forOwn(userAuthObj.diff, function(v, k){
+                        var name = _.values(v)[0].name;
+                        var hideObj = authorityJQDomMap[name];
+                        if(_.isArray(hideObj)){
+                            _.forEach(hideObj, function(vv, ii){
+                                vv.hide();
+                            });
+                        }else{
+                            hideObj.hide();
+                        }
+                    });
+                }
+            }
+            callback && _.isFunction(callback) && callback(userAuthObj);
+        },
+        /* @ 系统页面特殊处理类end*/
 
     /* 这里定义不可以链式调用的，以S_开头 */
         // 同步或异步动态加载脚本
@@ -276,6 +579,9 @@
         S_getLoginHref: function(){
             return _DefaultParam.loginHref;
         },
+        S_getCurPageJudgedAuthority: function(){
+            return _DefaultParam.curPageJudgedAuthority;
+        },
         S_getBaseUrl: function(){
             return (window.location.href.split(_DefaultParam.projectName)[0]+_DefaultParam.projectName);
         },
@@ -317,6 +623,70 @@
             }
             return returnVar;
         },
+        S_getFutureDT2SysAuthority: function(classify){
+            return _DefaultParam.futureDT2SysAuthority;
+        },
+        S_getFutureDT2PageAuthority: function(classify){
+            return _DefaultParam.futureDT2PageAuthority;
+        },
+        S_getAllAuthorityPage: function(classify){
+            return _DefaultParam.allAuthorityPage;
+        },
+
+        /* @ 系统页面特殊处理类*/
+        // 根据页面获取该页面权限对象
+        S_getPageAuthorityByPage: function(obj){
+            var curAuthorityObj,
+            iHref = this.S_getCurPageHref();
+            if(_.isNil(obj)){
+                curAuthorityObj = _.cloneDeep(_.find(_DefaultParam.futureDT2PageAuthority, function(v, i){
+                    return _.isEqual(v.pageUrl, iHref);
+                }));
+            }else{
+                if(_.isNil(obj.page) || _.isEmpty(obj.page)){
+                    curAuthorityObj = _.cloneDeep(_.find(_DefaultParam.futureDT2PageAuthority, function(v, i){
+                        return _.isEqual(v.pageUrl, iHref);
+                    }));
+                }else if(_.isEqual(_.toUpper(obj.page), "ALL")){
+                    curAuthorityObj = _.cloneDeep(_DefaultParam.futureDT2PageAuthority);
+                }else{
+                    curAuthorityObj = _.cloneDeep(_.find(_DefaultParam.futureDT2PageAuthority, function(v, i){
+                        return _.isEqual(v.pageUrl, obj.page);
+                    }));
+                }
+            }
+            return curAuthorityObj;
+        },
+        // 根据处理好的用户权限对象来返回差异，即不存在的权限
+        S_pageReturnAuthorityHandler: function(obj){
+            var objec = obj.objec,
+            userAuthorityObj = obj.userAuthorityObj,
+            getAllAuthorityCallback = obj.getAllAuthorityCallback;
+            var returnObj;
+            var pageAuthority = this.S_getPageAuthorityByPage(objec);
+            if(!_.isNil(pageAuthority)){
+                returnObj = {};
+                if(_.isArray(pageAuthority)){
+                    /*表示获取了全部权限*/
+                    getAllAuthorityCallback && _.isFunction(getAllAuthorityCallback) && getAllAuthorityCallback(pageAuthority);
+                    returnObj.diff = {};
+                    returnObj.isAll = true;
+                }else{
+                    // S_getObjDifference 大的对象为第一个参数
+                    returnObj.diff = this.S_getObjDifference(_.groupBy(pageAuthority.authority, function(v){return v.value;}), _.groupBy(userAuthorityObj, function(vv){return vv.value;}));
+                    returnObj.isAll = false;
+                }
+                returnObj.pageAuthority = pageAuthority;
+                returnObj.userAuthority = userAuthorityObj;
+            }else{
+                returnObj = null;
+            }
+            return returnObj;
+        },
+        /* @ 系统页面特殊处理类end*/
+
+        /* @ 文件处理类*/
+        // 获取文件大小
         S_getFileSize: function(value){
             if(null==value||value==''){
                 return "0 Bytes";
@@ -331,7 +701,7 @@
             return size+unitArr[index];
         },
         
-        // @http处理类@
+        /* @http处理类@ */
         S_createXHR: function(){
             // IE7+,Firefox, Opera, Chrome ,Safari
             if (typeof XMLHttpRequest != "undefined") {
@@ -597,6 +967,42 @@
         S_isInteger: function(obj) {
             return (obj | 0) === obj;
         },
+
+        /*源数据：
+        [{
+            "name": "数据列表",
+            "value": 7,
+            "url": "DataList"
+        }, {
+            "name": "上传",
+            "value": 8,
+            "url": "UploadStorage"
+        }]
+        返回数据：
+        {name: Array(2), value: Array(2), url: Array(2)}
+        name: (2) ["数据列表", "上传"]
+        url: (2) ["DataList", "UploadStorage"]
+        value: (2) [7, 8]
+        __proto__: Object*/
+        S_groupItemVByItemK: function(obj){
+            var objec = obj.objec;
+            var returnV;
+            if(_.isArray(objec)){
+                returnV = _.reduce(objec, function(result, v, i, arr) {
+                    _.forEach(_.keys(v), function(vv, ii) {
+                        result[vv] = result[vv] || [];
+                        result[vv].push(v[vv]);
+                        // (result[value] || (result[value] = [])).push(key);
+                    });
+                    return result;
+                }, {});
+            }else{
+                console.warn("S_groupItemVByItemK参数属性objec不是数组");
+                returnV = null;
+            }
+            return returnV;
+        },
+
         // 阿拉伯数字转汉字
         S_numToChineseSm: function(section){
             if(!this.S_isInteger(section)){

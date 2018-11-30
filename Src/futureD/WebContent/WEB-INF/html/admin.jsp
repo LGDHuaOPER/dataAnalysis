@@ -12,16 +12,17 @@
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
 	<title>futureD管理员</title>
-	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/modules/admin/admin.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstro.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/pagination.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="src/style/modules/admin/admin.css" type="text/css">
+	
 </head>
-<body data-curpage="admin">
-	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
+<body data-curpage="admin" data-curusername="${userName}">
+	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
 		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
@@ -39,7 +40,7 @@
 				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
-					  	<li><a href="index.html">系统主页面</a></li>
+					  	<li><a href="">系统主页面</a></li>
 					  	<li class="active">管理员</li>
 					</ol>
 				</div>
@@ -50,7 +51,7 @@
 					<div class="tab-content">
 					    <div role="tabpanel" class="tab-pane fade in active" id="staffManage">
 					    	<div class="staffManage_tit">
-					    		<div class="staffManage_tit_l bootstro" data-bootstro-title="管理员页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加用户，删除用户，</p><p>还可以重新生成Mock数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="glyphicon glyphicon-refresh" aria-hidden="true" title="重新生成mock数据"></span></div>
+					    		<div class="staffManage_tit_l bootstro" data-bootstro-title="管理员页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加用户，删除用户，</p><p>还可以重新生成Mock数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div>
 					    		<div class="staffManage_tit_r bootstro" data-bootstro-title="管理员页面引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>搜索区域</h4><p>在这里您可以搜索关键词</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 					    			<div class="staffManage_tit_r_in">
 					    				<!-- <div class="input-group">
@@ -72,7 +73,7 @@
 					    				  	<div class="form-group has-feedback">
 					    				  	  	<div class="input-group">
 					    				  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
-					    				  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找">
+					    				  	    	<input type="text" class="form-control" id="search_input" placeholder="请输入关键词查找" value="${keyword}">
 					    				  	  	</div>
 					    				  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
 					    				  	</div>
@@ -112,12 +113,12 @@
 					    			  	<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出选中
 					    			</button>
 					    			<button type="button" class="btn btn-primary export_current" aria-label="Left Align">
-					    			  	<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出当前页
+					    			  	<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出所有
 					    			</button>
 					    		</div>
 					    		<div class="operaDailyLog_tit_r">
 					    			<div>
-					    				<form class="form-inline">
+					    				<div class="form-inline">
 					    				  	<div class="form-group has-feedback">
 					    				  	  	<div class="input-group">
 					    				  	    	<span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
@@ -126,7 +127,7 @@
 					    				  	  	<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
 					    				  	</div>
 					    				  	<button class="btn btn-default" disabled="disabled" id="search_button2">搜索</button>
-					    				</form>
+					    				</div>
 					    			</div>
 					    		</div>
 					    	</div>
@@ -236,10 +237,10 @@
 					<div class="container-fluid">
 						<div class="row">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
-						  	<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control" placeholder="请输入用户名" id="staff_update_user_name"></div>
+						  	<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control" placeholder="请输入用户名" id="staff_update_user_name" ></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
 						</div>
-						<div class="row">
+						<!-- <div class="row">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="password" class="form-control isRequired" placeholder="请输入密码" id="staff_update_password"><span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
@@ -248,7 +249,7 @@
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="password" class="form-control isRequired" placeholder="请再次输入密码" id="staff_update_password2"><span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></div>
-						</div>
+						</div> -->
 						<div class="row">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6"><select id="staff_update_sex" class="form-control isRequired">
@@ -318,19 +319,19 @@
 			</div>
 		</div>
 	</div><!-- staff_authority end -->
-	<script src="../script/libs/jquery-3.3.1.min.js"></script>
-	<script src="../script/libs/bootstrap.min.js"></script>
-	<script src="../script/libs/lodash.min.js"></script>
-	<script src="../script/libs/store.legacy.min.js"></script>
-	<script src="../script/libs/moment-with-locales.min.js"></script>
-	<script src="../script/libs/sweetalert2.min.js"></script>
-	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="../script/common/futureDT2session.js"></script>
-	<script src="../script/common/pagination.min.js"></script>
-	<script src="../script/libs/bootstro.js"></script>
-	<script src="../script/common/futureD_bootstro.js"></script>
-	<script src="../script/common/futureD_config.js"></script>
-	<script src="../script/common/mock.js"></script>
-	<script src="../script/modules/admin/admin.js"></script>
+	<script src="assets/script/libs/jquery-3.3.1.min.js"></script>
+	<script src="assets/script/libs/bootstrap.min.js"></script>
+	<script src="assets/script/libs/lodash.min.js"></script>
+	<script src="assets/script/libs/store.legacy.min.js"></script>
+	<script src="assets/script/libs/moment-with-locales.min.js"></script>
+	<script src="assets/script/libs/sweetalert2.min.js"></script>
+	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="assets/script/libs/pagination.min.js"></script>
+	<script src="assets/script/libs/bootstro.js"></script>
+	<script src="assets/script/common/futureD_bootstro.js"></script>
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- <script src="assets/script/common/mock.js"></script> -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<script src="src/script/modules/admin/admin.js"></script>
 </body>
 </html>

@@ -81,151 +81,79 @@ dataCompareState.chartTypeMap = {
 	"correlationgraph": "scatter",
 	// "gaussiandistribution": "gaussiandistribution",
 };
-dataCompareState.mock = {
-	dataCompare: futuredGlobal.S_getDataCompare(),
-	boxlinediagram_data: futuredGlobal.S_getDataCompare().boxlinediagram.data["5"],
-};
 
-function redirectLogin(obj){
-	dataCompareSwalMixin({
-		title: 'mock数据异常',
-		text: obj.text,
-		type: 'error',
-		showConfirmButton: false,
-		timer: 2500,
-	}).then(function(result){
-		if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-			window.location.assign(obj.url);
-		}
-	});
-}
 
-function getdataCompareData(searchVal, isGetFilterAllData, isGetAllData){
-	var futureDT2__datalist__pageDataObj = store.get('futureDT2__datalist__pageDataObj');
-	if(_.isEmpty(futureDT2__datalist__pageDataObj) || _.isNil(futureDT2__datalist__pageDataObj)){
-		redirectLogin({
-			text: "意外被删除，请重新进入下数据列表！",
-			url: "dataList.html"
-		});
-		return false;
-	}else{
-		var dataCompareData = JSON.parse(futureDT2__datalist__pageDataObj).data;
-		store.set('futureDT2__datalist__selectedItem', []);
-		var futureDT2__datalist__selectedItem = store.get('futureDT2__datalist__selectedItem');
-		if(_.isEmpty(futureDT2__datalist__selectedItem) || _.isNil(futureDT2__datalist__selectedItem)){
-			var returndataCompareData = [];
-			if(searchVal == null || searchVal == ""){
-				returndataCompareData = _.cloneDeep(dataCompareData);
-			}else{
-				_.forEach(dataCompareData, function(v){
-					_.forOwn(v, function(o){
-						if(String(o.value).indexOf(searchVal)>-1){
-							if(_.indexOf(dataCompareState.sellectObj.selectItem, v.wafer_id.value)>-1){
-								dataCompareState.sellectObj.selectSearchItem.push(v.wafer_id.value);
-							}
-							returndataCompareData.push(v);
-							return false;
+//页面数据
+
+function dataCompareRenderData(currentPage){
+	var searchVal = $("#search_input").val().trim();
+	$.ajax({
+	       url: 'DataListAjax', 
+	       type: 'GET',
+	       data: {
+	    	   currentPage : currentPage ,
+	    	   keyword : searchVal,
+	       },
+	       dataType: 'json',
+	       async : false ,
+	       success: function (data) {
+	    	   console.log("data",data);
+	    	   var str = "";
+	    	   data.waferInfo.map(function(v, i, arr){
+		   			var ii = v.wafer_id;
+		   			str+='<tr>'+
+		   					'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
+		   					'<td class="product_category" data-itext="'+v.product_category+'">'+v.product_category+'</td>'+
+		   					'<td class="device_number" data-itext="'+v.device_number+'">'+v.device_number+'</td>'+
+		   					'<td class="lot_number" data-itext="'+v.lot_number+'">'+v.lot_number+'</td>'+
+		   					'<td class="wafer_number" data-itext="'+v.wafer_number+'">'+v.wafer_number+'</td>'+
+		   					'<td class="qualified_rate" data-itext="'+v.qualified_rate+'">'+v.qualified_rate+'</td>'+
+		   					'<td class="test_end_date" data-itext="'+v.test_end_date+'">'+v.test_end_date+'</td>'+
+		   					'<td class="test_operator" data-itext="'+v.test_operator+'">'+v.test_operator+'</td>'+
+		   					'<td class="description" data-itext="'+v.description+'">'+v.description+'</td>'+
+		   					'<td class="data_format" data-itext="'+v.data_format+'" style="display:none;">'+v.data_format+'</td>'+
+		   				'</tr>';
+		   		});
+		   		$(".home_dataCompare_top tbody").empty().append(str);
+		   		
+		   		dataCompareState.pageObj.pageCount = data.totalPage;
+				dataCompareState.pageObj.itemLength = data.totalCount;
+				dataCompareState.pageObj.data =data.waferInfo;
+				
+				//修改为全选当前页
+				if(dataCompareState.searchObj.hasSearch){
+					$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
+						if(_.indexOf(dataCompareState.sellectObj.selectSearchItem, $(this).data("ivalue").toString()) > -1){
+							$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
 						}
 					});
-				});
-			}
-			if(isGetAllData) return returndataCompareData;
-			var filterArray = _.filter(returndataCompareData, function(o) { return o.delete_status.value == "0"; });
-			if(isGetFilterAllData) return filterArray;
-			var chunkArray = _.chunk(_.reverse(_.sortBy(filterArray, function(o) { return o.test_start_date.value; })), 10);
-			if(dataCompareState.searchObj.hasSearch){
-				dataCompareState.pageSearchObj.pageCount = chunkArray.length;
-				dataCompareState.pageSearchObj.itemLength = filterArray.length;
-				dataCompareState.pageSearchObj.data = _.cloneDeep(chunkArray);
-			}else{
-				dataCompareState.pageObj.pageCount = chunkArray.length;
-				dataCompareState.pageObj.itemLength = filterArray.length;
-				dataCompareState.pageObj.data = _.cloneDeep(chunkArray);
-			}
-			return chunkArray;
-		}else{
-			var dataCompareDataArr = [];
-			_.forEach(futureDT2__datalist__selectedItem, function(v, i){
-				if(searchVal == null || searchVal == ""){
-					dataCompareDataArr.push(_.find(dataCompareData, function(o){
-						return o.wafer_id.value == v;
-					}));
+
+					$(".home_dataCompare_top tbody td:not(.not_search)").each(function(){
+						var iText = $(this).text();
+						var ireplace = "<b style='color:red'>"+dataCompareState.searchObj.searchVal+"</b>";
+						var iHtml = iText.replace(new RegExp(dataCompareState.searchObj.searchVal, 'g'), ireplace);
+						$(this).empty().html(iHtml);
+					});
+					$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectSearchItem.length);
 				}else{
-					var item = _.find(dataCompareData, function(o){
-						return o.wafer_id.value == v;
-					});
-					_.forOwn(item, function(va, ke){
-						if(String(va.value).indexOf(searchVal) > -1){
-							if(_.indexOf(dataCompareState.sellectObj.selectItem, v.wafer_id.value)>-1){
-								dataCompareState.sellectObj.selectSearchItem.push(v.wafer_id.value);
-							}
-							dataCompareDataArr.push(item);
-							return false;
+					$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
+						if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
+							$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
 						}
 					});
+					$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 				}
-			});
-			if(isGetAllData) return dataCompareDataArr;
-			var filterArray2 = _.filter(dataCompareDataArr, function(o) { return o.delete_status.value == "0"; });
-			if(isGetFilterAllData) return filterArray2;
-			var chunkArray2 = _.chunk(_.reverse(_.sortBy(filterArray2, function(o) { return o.test_start_date.value; })), 10);
-			if(dataCompareState.searchObj.hasSearch){
-				dataCompareState.pageSearchObj.pageCount = chunkArray2.length;
-				dataCompareState.pageSearchObj.itemLength = filterArray2.length;
-				dataCompareState.pageSearchObj.data = _.cloneDeep(chunkArray2);
-			}else{
-				dataCompareState.pageObj.pageCount = chunkArray2.length;
-				dataCompareState.pageObj.itemLength = filterArray2.length;
-				dataCompareState.pageObj.data = _.cloneDeep(chunkArray2);
-			}
-			return chunkArray2;
-		}
-	}
-}
-
-function dataCompareRenderData(obj){
-	if(obj.chunkArr!=undefined){
-		var str = '';
-		obj.chunkArr[obj.currentPage - 1].map(function(v, i, arr){
-			var ii = v.wafer_id.value;
-			var iii = (obj.currentPage - 1)*10+(i+1);
-			str+='<tr>'+
-					'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-					'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-					'<td data-itext="'+v.device_number.value+'">'+v.device_number.value+'</td>'+
-					'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
-					'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
-					'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
-					'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
-					'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
-					'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-				'</tr>';
-		});
-		$(".home_dataCompare_top tbody").empty().append(str);
-
-		if(dataCompareState.searchObj.hasSearch){
-			$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
-				if(_.indexOf(dataCompareState.sellectObj.selectSearchItem, $(this).data("ivalue").toString()) > -1){
-					$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-				}
-			});
-
-			$(".home_dataCompare_top tbody td:not(.not_search)").each(function(){
-				var iText = $(this).text();
-				var ireplace = "<b style='color:red'>"+dataCompareState.searchObj.searchVal+"</b>";
-				var iHtml = iText.replace(new RegExp(dataCompareState.searchObj.searchVal, 'g'), ireplace);
-				$(this).empty().html(iHtml);
-			});
-			$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectSearchItem.length);
-		}else{
-			$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
-				if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-					$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-				}
-			});
-			$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
-		}
-	}
+	       },
+	       error: function (data, status, e) {
+	    	   dataCompareSwalMixin({
+	    			title: '异常',
+	    			text: "服务器繁忙！",
+	    			type: 'error',
+	    			showConfirmButton: false,
+	    			timer: 2000,
+	    		})
+	       }
+	  });  
 }
 
 function eleResize(){
@@ -360,6 +288,43 @@ function groupJudgeRenderNav(classify){
 		}
 	});
 	renderNav(mapArr);
+}
+
+function renderCommonParameter(){
+	var waferIdStr = dataCompareState.sellectObj.selectItem.join(",");
+	if(waferIdStr !=""){
+		$.ajax({
+		       url: 'ParameterRange', 
+		       type: 'GET',
+		       data: {
+		    	   waferIdStr : waferIdStr ,
+		       },
+		       dataType: 'json',
+		       success: function (data) {
+		    	   console.log("data",data);
+		    	   var str = "";
+		    	   if(data.paramList.length != 0){
+		    		   str = '<li class="list-group-item" data-iparam="TotalYield"><span class="badge">选中</span>Total Yield</li>';
+		    		   for(var _i = 0 ; _i < data.paramList.length ; _i++){
+		    			  str += '<li class="list-group-item" data-iparam="'+data.paramList[_i]+'"><span class="badge">选中</span>'+data.paramList[_i]+'</li>';
+		    		   }
+		    	   }
+		    	   $("#home_param_ul").empty().append(str); 
+		       },
+		       error: function (data, status, e) {
+		    	   dataCompareSwalMixin({
+		    			title: '异常',
+		    			text: "服务器繁忙！",
+		    			type: 'error',
+		    			showConfirmButton: false,
+		    			timer: 2000,
+		    		})
+		       }
+		  });
+	}
+	else{
+		$("#home_param_ul").empty(); 
+	}
 }
 
 /*渲染图表外部面板*/
@@ -885,13 +850,11 @@ $(window).on("resize", function(){
 
 /*page onload*/
 $(function(){
+	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	/*判断是否有选中*/
-	var dataArr = getdataCompareData(null);
-	if(dataArr !== false){
-		dataCompareRenderData({
-			chunkArr: dataArr,
-			currentPage: 1
-		});
+	//var dataArr = getdataCompareData(null);
+	//if(dataArr !== false){
+		dataCompareRenderData(1);
 
 		// 分页元素ID（必填）
 		dataCompareState.pageObj.selector = '#pagelist';
@@ -919,23 +882,16 @@ $(function(){
 		    	// 首次不执行
 			    if (!obj.isFirst) {
 			      // do something
-			      	var dataArr = getdataCompareData(dataCompareState.searchObj.searchVal);
-			      	dataCompareRenderData({
-						chunkArr: dataArr,
-						currentPage: dataCompareState.pageObj.currentPage
-					});
+			      	dataCompareRenderData(obj.curr);
 			    }
 		  	}
 		};
 		// 初始化分页器
 		dataCompareState.paginationObj.normal = new Pagination(dataCompareState.pageObj.selector, dataCompareState.pageObj.pageOption);
-	}
+	//}
 });
 
 /*event handler*/
-$(".g_info_r>.glyphicon-user").click(function(){
-	window.location.assign("admin.html");
-});
 
 $(".g_info_r>.glyphicon-search").click(function(){
 	var g_info_m = $(".g_info_m").innerWidth();
@@ -993,7 +949,7 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 		$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 	}
 	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
-
+	renderCommonParameter();
 	groupJudgeRenderNav("wafer");
 });
 
@@ -1006,84 +962,43 @@ $("#checkAll").on({
 			that.prop("checked") ? ($(this).parent().parent().removeClass("info").addClass("warning")) : ($(this).parent().parent().removeClass("warning info"));
 		});
 		dataCompareState.sellectObj.selectAll = that.prop("checked");
+		
+		var select_tr  = $(".home_dataCompare_top tbody tr");
 		if(that.prop("checked")){
-			dataCompareSwalMixin({
-				title: '加载全部数据',
-				text: "正在加载中......",
-				type: 'info',
-				showConfirmButton: false,
-				showCancelButton: false
-			});
-			/*判断有没有搜索过*/
-			var idata = JSON.parse(store.get('futureDT2__datalist__pageDataObj')).data;
-			if(dataCompareState.searchObj.hasSearch){
-				dataCompareState.sellectObj.selectSearchItem = [];
-				idata.map(function(v, i){
-					if(v.delete_status.value != "0") return true;
-					_.forOwn(v, function(o){
-						if(String(o.value).indexOf(dataCompareState.searchObj.searchVal)>-1){
-							dataCompareState.sellectObj.selectSearchItem.push(v.wafer_id.value);
-							if(_.indexOf(dataCompareState.sellectObj.selectItem, v.wafer_id.value) == -1){
-								dataCompareState.sellectObj.selectItem.push(v.wafer_id.value);
-								var ii = v.wafer_id.value;
-								var str = '<tr>'+
-										'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-										'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-										'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
-										'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
-										'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
-										'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
-										'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
-										'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-									'</tr>';
-								if($(".home_dataCompare_bottom tbody>tr").length){
-									$(".home_dataCompare_bottom tbody>tr:first").before(str);
-								}else{
-									$(".home_dataCompare_bottom tbody").append(str);
-								}
-							}
-							return false;
-						}
-					});
-				});
-				dataCompareState.sellectObj.selectItem = _.uniq(dataCompareState.sellectObj.selectItem);
-			}else{
-				var str2 = '';
-				dataCompareState.sellectObj.selectItem = [];
-				idata.map(function(v, i){
-					if(v.delete_status.value != "0") return true;
-					dataCompareState.sellectObj.selectItem.push(v.wafer_id.value);
-					var ii = v.wafer_id.value;
-					str2 = '<tr>'+
-							'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
-							'<td data-itext="第'+ii+'条'+v.product_category.value+'">第'+ii+'条'+v.product_category.value+'</td>'+
-							'<td data-itext="'+v.lot_number.value+'">'+v.lot_number.value+'</td>'+
-							'<td data-itext="'+v.wafer_number.value+'">'+v.wafer_number.value+'</td>'+
-							'<td data-itext="'+v.qualified_rate.value+'">'+v.qualified_rate.value+'</td>'+
-							'<td data-itext="'+v.test_start_date.value+'">'+v.test_start_date.value+'</td>'+
-							'<td data-itext="'+v.archive_user.value+'">'+v.archive_user.value+'</td>'+
-							'<td data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-						'</tr>' + str2;
-				});
-				$(".home_dataCompare_bottom tbody").empty().append(str2);
+			for(var i = 0 ; i < select_tr.length ; i++){
+				if(_.indexOf(dataCompareState.sellectObj.selectItem, select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()) < 0){
+					dataCompareState.sellectObj.selectItem.push(select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString());
+					
+					var str = '<tr>'+
+						'<td class="not_search"><input type="checkbox" data-ivalue="'+select_tr.eq(i).find("input[type='checkbox']").data("ivalue")+'"></td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".product_category").text()+'">'+select_tr.eq(i).find(".product_category").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".device_number").text()+'">'+select_tr.eq(i).find(".device_number").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".lot_number").text()+'">'+select_tr.eq(i).find(".lot_number").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".wafer_number").text()+'">'+select_tr.eq(i).find(".wafer_number").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".qualified_rate").text()+'">'+select_tr.eq(i).find(".qualified_rate").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".test_end_date").text()+'">'+select_tr.eq(i).find(".test_end_date").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".test_operator").text()+'">'+select_tr.eq(i).find(".test_operator").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".description").text()+'">'+select_tr.eq(i).find(".description").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".data_format").text()+'" style="display:none;">'+select_tr.eq(i).find(".data_format").text()+'</td>'+
+					'</tr>';
+					if($(".home_dataCompare_bottom tbody>tr").length){
+						$(".home_dataCompare_bottom tbody>tr:first").before(str);
+					}else{
+						$(".home_dataCompare_bottom tbody").append(str);
+					}
+				}
 			}
-			
-			setTimeout(function(){
-				swal.clickCancel();
-			}, 2000);
 		}else{
-			if(dataCompareState.searchObj.hasSearch){
-				dataCompareState.sellectObj.selectSearchItem.map(function(v){
-					_.pull(dataCompareState.sellectObj.selectItem, v);
-					$(".home_dataCompare_bottom tbody [type='checkbox'][data-ivalue='"+Number(v)+"']").parent().parent().remove();
-				});
-				dataCompareState.sellectObj.selectSearchItem = [];
-			}else{
-				dataCompareState.sellectObj.selectItem = [];
-				$(".home_dataCompare_bottom tbody").empty();
+			console.log("selectItem2",dataCompareState.sellectObj.selectItem);
+			for(var i = 0 ; i < select_tr.length ; i++){
+				if(_.indexOf(dataCompareState.sellectObj.selectItem, select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()) > -1){
+					dataCompareState.sellectObj.selectItem.splice(dataCompareState.sellectObj.selectItem.indexOf(select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()), 1);
+					console.log("selectItem2",dataCompareState.sellectObj.selectItem);
+					$(".home_dataCompare_bottom tbody>tr  input[data-ivalue ='"+select_tr.eq(i).find("input[type='checkbox']").data("ivalue")+"']").parent().parent().remove();
+				}
 			}
-		}
-
+		}	
+		renderCommonParameter();
 		groupJudgeRenderNav("wafer");
 	}
 });
@@ -1113,13 +1028,9 @@ $("#search_button").on("click", function(){
 	var isearch = $("#search_input").val().trim();
 	dataCompareState.searchObj.hasSearch = isearch == "" ? false : true;
 	dataCompareState.searchObj.searchVal = dataCompareState.searchObj.hasSearch == true ? isearch : null;
-	var dataArr = getdataCompareData(isearch);
-	if(dataArr !== false){
-		dataCompareRenderData({
-			chunkArr: dataArr,
-			currentPage: 1
-		});
-	}
+
+	dataCompareRenderData(1);
+	
 	if(dataCompareState.searchObj.hasSearch){
 		dataCompareState.pageSearchObj.currentPage = 1;
 		dataCompareState.pageSearchObj.pageOption.curr = 1;
@@ -1138,6 +1049,7 @@ $("#search_button").on("click", function(){
 	}
 	return false;
 });
+
 
 /*翻页跳页*/
 $("#jumpText").on("input propertychange", function(){
@@ -1177,7 +1089,6 @@ $("#jumpPage").on("click", function(){
 				console.log(dataCompareState.paginationObj.normal);
 	          	dataCompareState.paginationObj.normal.options.callback && dataCompareState.paginationObj.normal.options.callback({
 	            	curr: dataCompareState.paginationObj.normal.pageNumber,
-	            	/*limit: dataCompareState.paginationObj.normal.options.limit,*/
 	            	isFirst: false
 	          	});
 			}

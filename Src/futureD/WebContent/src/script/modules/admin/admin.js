@@ -8,13 +8,12 @@ var adminSwalMixin = swal.mixin({
 });
 
 var adminState = new Object();
-adminState.futureDT2__session = store.get("futureDT2__session");
 adminState.staffUpdateUser = "";
 adminState.staffAuthorityUser = "";
 adminState.adminRoleMap = {
-	"1": "成员",
-	"2": "管理员",
-	"3": "超级管理员"
+	"成员": "1",
+	"管理员": "2",
+	"超级管理员": "3"
 };
 adminState.staffPageObj = {
 	selector: null,
@@ -41,36 +40,9 @@ adminState.operateSellectObj = {
 	selectItem: []
 };
 adminState.hasRequestData = false;
-adminState.operatePageArr = ["管理员", "数据列表", "工程分析", "数据统计"];
-adminState.operateDescriptionArr = ["添加", "修改", "删除", "查询"];
-adminState.cityIpMap = {
-	"北京": {
-		"ip": "123.125.71.73",
-		"inde": 0
-	},
-	"上海": {
-		"ip": "114.80.166.240",
-		"inde": 1
-	},
-	"天津": {
-		"ip": "125.39.9.34",
-		"inde": 2
-	},
-	"重庆": {
-		"ip": "106.95.255.253",
-		"inde": 3
-	},
-	"苏州": {
-		"ip": "58.192.191.255",
-		"inde": 4
-	},
-	"成都": {
-		"ip": "218.89.23.4",
-		"inde": 5
-	}
-};
 adminState.operateChunkArr = [];
 adminState.authorityRender = false;
+
 
 function staffSubmitBtn(That, classify){
 	if($(".staff_"+classify+"_r_bodyin div.row>div:nth-child(3)>.glyphicon-info-sign").length == 0){
@@ -86,96 +58,157 @@ function staffSubmitBtn(That, classify){
 	}
 }
 
-function adminRender(cur, reset, signalDelete){
-	var futureDT2__userDB;
+function adminRender(cur, signalDelete){
 	adminState.staffPageObj.currentPage = cur;
-	if(reset){
-		futureDT2__userDB = futuredGlobal.S_getAdmin_staff();
-		store.set("futureDT2__userDB", futureDT2__userDB);
-	}else{
-		futureDT2__userDB = store.get("futureDT2__userDB");
+	adminState.staffPageObj.currentPage = 0;
+	adminState.staffPageObj.pageCount = 0;
+	adminState.staffPageObj.itemLength = 0;
+	var ajaxData ;
+	var isserch = $("#search_input").val().trim();
+	if(isserch != ""){
+		ajaxData = {
+    	   currentPage : cur,
+    	   keyword : isserch
+		}
 	}
-	if(!futureDT2__userDB){
-		adminSwalMixin({
-			title: '异常',
-			text: "mock数据失败！请登录",
-			type: 'error',
-			showConfirmButton: false,
-			timer: 2000,
-		});
-		adminState.staffPageObj.currentPage = 0;
-		adminState.staffPageObj.pageCount = 0;
-		adminState.staffPageObj.itemLength = 0;
-		window.location.assign("login.html");
-	}else{
-		var futureDT2__userDBArr = [];
-		_.forOwn(futureDT2__userDB, function(o){
-			futureDT2__userDBArr.push(o);
-		});
-		var futureDT2__userDBChunkArr = _.chunk(futureDT2__userDBArr, 10);
-		var str = '';
-		if(futureDT2__userDBChunkArr[cur-1] == undefined){
-			adminSwalMixin({
-				title: '异常',
-				text: "mock数据失败！无数据",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			});
-		}else{
-			_.forEach(futureDT2__userDBChunkArr[cur-1], function(v, i, arr){
-				var iRole = _.find(adminState.adminRoleMap, function(vv, ii){ return ii == v.role_id.value;});
-				str+='<tr>'+
-						'<td class="not_search"><input type="checkbox" data-ivalue="'+v.user_id.value+'" data-iname="'+v.user_name.value+'"></td>'+
-						'<td data-itext="'+((cur-1)*10+i+1)+'">'+((cur-1)*10+i+1)+'</td>'+
-						'<td class="td__user_name" title="'+v.user_name.value+'" data-itext="'+v.user_name.value+'" data-ivalue="'+v.user_name.value+'">'+v.user_name.value+'</td>'+
-						'<td class="td__sex" title="'+v.sex.value+'" data-itext="'+v.sex.value+'" data-ivalue="'+v.sex.value+'">'+v.sex.value+'</td>'+
-						'<td class="td__telephone" title="'+v.telephone.value+'" data-itext="'+v.telephone.value+'" data-ivalue="'+v.telephone.value+'">'+v.telephone.value+'</td>'+
-						'<td class="td__email" title="'+v.email.value+'" data-itext="'+v.email.value+'" data-ivalue="'+v.email.value+'">'+v.email.value+'</td>'+
-						'<td class="td__role_id" data-ivalue="'+v.role_id.value+'" title="'+iRole+'" data-itext="'+iRole+'">'+iRole+'</td>'+
-						'<td class="td__password not_search" data-ivalue="'+v.password.value+'">'+v.password.value+'</td>'+
-						'<td class="td__authority not_search" data-ivalue="'+v.authority.value+'"></td>'+
-						'<td class="td__operate not_search"><span class="glyphicon glyphicon-edit" aria-hidden="true" title="修改" data-ivalue="'+v.user_id.value+'" data-iname="'+v.user_name.value+'"></span><span class="glyphicon glyphicon-user" aria-hidden="true" title="授权" data-ivalue="'+v.user_id.value+'" data-iname="'+v.user_name.value+'"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" title="删除" data-ivalue="'+v.user_id.value+'" data-iname="'+v.user_name.value+'"></span></td>'+
-					'</tr>';
-			});
+	else{
+		ajaxData = {
+    	   currentPage : cur,
 		}
-		$(".staffManage_body tbody").empty().append(str);
-		adminState.staffPageObj.pageCount = futureDT2__userDBChunkArr.length;
-		adminState.staffPageObj.itemLength = futureDT2__userDBArr.length;
+	}
+	   $.ajax({
+	       url: 'UserManager', 
+	       type: 'get',
+	       dataType: 'json', 
+	       data: ajaxData,
+	       async : false,
+	       success: function (data){
+	    	   console.log("data",data);
+	    	   $("body").attr("currentRole",data.currentRole);
+	    	   var str  ="";
+	    	   _.forEach(data.userList, function(v, i, arr){
+	    			var iRole = adminState.adminRoleMap[v.role_name];
+	    			  str+='<tr class="tr_admin">'+
+	    					'<td class="not_search"><input type="checkbox" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'" class="user_id" ></td>'+
+	    					'<td data-itext="'+((cur-1)*10+i+1)+'">'+((cur-1)*10+i+1)+'</td>'+
+	    					'<td class="td__user_name showField" title="'+v.user_name+'" data-iuserId="'+v.user_id+'" data-itext="'+v.user_name+'" data-ivalue="'+v.user_name+'">'+v.user_name+'</td>'+
+	    					'<td class="td__sex" title="'+v.sex+'" data-itext="'+v.sex+'" data-ivalue="'+v.sex+'">'+v.sex+'</td>'+
+	    					'<td class="td__telephone showField" title="'+v.telephone+'" data-itext="'+v.telephone+'" data-ivalue="'+v.telephone+'">'+v.telephone+'</td>'+
+	    					'<td class="td__email showField" title="'+v.email+'" data-itext="'+v.email+'" data-ivalue="'+v.email+'">'+v.email+'</td>'+
+	    					'<td class="td__role_id" data-ivalue="'+iRole+'" title="'+v.role_name+'" data-itext="'+v.role_name+'">'+v.role_name+'</td>'+
+	    					/*'<td class="td__password not_search" data-ivalue="'+v.password+'">'+v.password+'</td>'+
+	    					'<td class="td__authority not_search" data-ivalue="'+v.authority+'"></td>'+*/
+	    					'<td class="td__operate not_search"><span class="glyphicon glyphicon-edit" aria-hidden="true" title="修改" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'"></span><span class="glyphicon glyphicon-user" aria-hidden="true" title="授权" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" title="删除" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'"></span></td>'+
+	    				'</tr>';
+	    		});
 
-		if(signalDelete == true){
-			_.forEach(adminState.staffSellectObj.selectItem, function(val){
-				$(".staffManage_body tbody .td__user_name[title='"+String(val)+"']").siblings("td:eq(0)").children("input").prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-			});
-			$("#checkAll").prop("checked", adminState.staffPageObj.itemLength == adminState.staffSellectObj.selectItem.length);
-			adminState.staffSellectObj.selectAll = $("#checkAll").prop("checked");
-		}
-
+	    		$(".staffManage_body tbody").empty().append(str);
+	    		
+	    		if(isserch != ""){
+	    			if( $(".staffManage_body tbody .tr_admin").length >= 1){
+	    				var reg = new RegExp("(" + isserch + ")", "g");
+	    				for(var i = 0 ; i < $(".staffManage_body tbody .tr_admin").length ; i++){
+	    					for(var j = 0 ; j <  $(".staffManage_body tbody .tr_admin").eq(i).find(".showField").length ; j++){
+	    						var str = $(".staffManage_body tbody .tr_admin").eq(i).find(".showField").eq(j).text();
+	    						var newstr = str.replace(reg, "<font color=red>$1</font>");
+	    						 $(".staffManage_body tbody .tr_admin").eq(i).find(".showField").eq(j).text("").html(newstr);
+	    					}
+	    					
+	    				}
+	    			}
+	    		}
+	    		adminState.staffPageObj.pageCount = data.userList.length;
+	    		adminState.staffPageObj.itemLength = data.totalCount;
+	       },
+	       error: function (data, status, e) {
+				
+	       }
+	   }); 
+	
+	if(signalDelete == true){
+		_.forEach(adminState.staffSellectObj.selectItem, function(val){
+			$(".staffManage_body tbody .td__user_name[title='"+String(val)+"']").siblings("td:eq(0)").children("input").prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+		});
+		$("#checkAll").prop("checked", adminState.staffPageObj.itemLength == adminState.staffSellectObj.selectItem.length);
+		adminState.staffSellectObj.selectAll = $("#checkAll").prop("checked");
 	}
 }
 
 function operateRendaer(cur){
-	var iArr = _.cloneDeep(adminState.operateChunkArr[cur - 1]);
-	var str = '';
-	_.forEach(iArr, function(v, i, arr){
-		str+='<tr>'+
-				'<td class="not_search"><input type="checkbox" data-ivalue="'+v.log_id.value+'"></td>'+
-				'<td data-itext="'+((cur-1)*10+i+1)+'">'+((cur-1)*10+i+1)+'</td>'+
-				'<td title="'+v.user_name.value+'" data-itext="'+v.user_name.value+'">'+v.user_name.value+'</td>'+
-				'<td title="'+v.page.value+'" data-itext="'+v.page.value+'">'+v.page.value+'</td>'+
-				'<td title="'+v.description.value+'" data-itext="'+v.description.value+'">'+v.description.value+'</td>'+
-				'<td title="'+v.gmt_create.value+'" data-itext="'+v.gmt_create.value+'">'+v.gmt_create.value+'</td>'+
-				'<td title="'+v.ip_address.value+'" data-itext="'+v.ip_address.value+'">'+v.ip_address.value+'</td>'+
-				'<td title="'+v.location.value+'" data-itext="'+v.location.value+'">'+v.location.value+'</td>'+
-			'</tr>';
-	});
-	$(".operaDailyLog_body tbody").empty().append(str);
+	var keyword = $("#search_input2").val().trim();
+	if(keyword == ""){
+		var ajax_data = { currentPage : cur }
+	}
+	else{
+		var ajax_data = { currentPage : cur ,keyword : keyword }
+	}
+	adminState.operateHasSearch = false;
+	$.ajax({
+	       url: 'LogInfo', 
+	       type: 'GET',
+	       dataType: 'json', 
+	       data: ajax_data,
+	       async : false,
+	       success: function (data) {
+	       		console.log("data",data);
+		       	adminState.operateChunkArr = data.logList;
+	  			adminState.operatePageObj.pageCount = data.totalPage;
+	  			adminState.operatePageObj.itemLength = data.totalPage *10;  //总数据条数
+	  			var cur = data.currentPage;
+	  			adminState.operatePageObj.currentPage = cur;
+	  			
+	  			var iArr = data.logList;
+	  			var str = '';
+	  			_.forEach(iArr, function(v, i, arr){
+	  				str+='<tr class="tr_operate">'+
+  						'<td class="not_search"><input type="checkbox" data-ivalue="'+v.log_id+'"></td>'+
+  						'<td data-itext="'+((cur-1)*10+i+1)+'">'+((cur-1)*10+i+1)+'</td>'+
+  						'<td title="'+v.user_name+'" data-itext="'+v.user_name+'" class="showField td_user_name">'+v.user_name+'</td>'+
+  						'<td title="'+v.page+'" data-itext="'+v.page+'"  class="showField">'+v.page+'</td>'+
+  						'<td title="'+v.description+'" data-itext="'+v.description+'" class="showField">'+v.description+'</td>'+
+  						'<td title="'+v.operate_date+" "+v.operate_time+'" data-itext="'+v.operate_date+" "+v.operate_time+'" class="showField">'+v.operate_date+" "+v.operate_time+'</td>'+
+  						'<td title="'+v.ip_address+'" data-itext="'+v.ip_address+'"  >'+v.ip_address+'</td>'+
+  						'<td title="'+v.location+'" data-itext="'+v.location+'"  class="showField">'+v.location+'</td>'+
+  					'</tr>';
+	  			});
+	  			$(".operaDailyLog_body tbody").empty().append(str);
+	  			
+	  			if(keyword != ""){
+	  				adminState.operateHasSearch = true;
+	    			if( $(".operaDailyLog_body tbody .tr_operate").length >= 1){
+	    				var reg = new RegExp("(" + keyword + ")", "g");
+	    				for(var i = 0 ; i < $(".operaDailyLog_body tbody .tr_operate").length ; i++){
+	    					for(var j = 0 ; j < $(".operaDailyLog_body tbody .tr_operate").eq(i).find(".showField").length ; j++){
+	    						var str = $(".operaDailyLog_body tbody .tr_operate").eq(i).find(".showField").eq(j).text();
+	    						var newstr = str.replace(reg, "<font color=red>$1</font>");
+	    						$(".operaDailyLog_body tbody .tr_operate").eq(i).find(".showField").eq(j).text("").html(newstr);
+	    					}
+	    				}
+	    			}
+	    		}
+	  			adminState.operatePageObj.pageCount = data.logList.length;
+	    		adminState.operatePageObj.itemLength = data.totalCount;
+	    		
+	       },
+	       error: function (data, status, e) {
+	    	   adminSwalMixin({
+  				title: '异常',
+  				text: "服务器繁忙！",
+  				type: 'error',
+  				showConfirmButton: false,
+  				timer: 2000,
+  			});
+	       }
+	   }); 
+	
+	
 }
 
 /*page onload*/
 $(function(){
+	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
+	
 	adminRender(1, false);
-
 	// 分页元素ID（必填）
 	adminState.staffPageObj.selector = '#pagelist';
 	// 分页配置
@@ -209,6 +242,18 @@ $(function(){
 	      			$(this).siblings("td:eq(0)").children("input").prop("checked", true).parent().parent().addClass("warning").removeClass("info");
 	      		}
 	      	});
+	      	adminState.staffPageObj.currentPage = obj.curr;
+	       //跳页判断全选按钮是否选中  
+		   var checked_length = $(".staffManage_body .tr_admin input[type=checkbox]:checked").length;
+		   var all_tr_length =  $(".staffManage_body .tr_admin .td__role_id[data-ivalue!=3]").length;
+		   if(checked_length == all_tr_length){
+			   $("#checkAll").prop("checked", true);
+		   }
+		   else{
+			 $("#checkAll").prop("checked", false);
+		   }
+		   adminState.staffSellectObj.selectAll = $("#checkAll").prop("checked");
+	      	
 	    }
 	  }
 	};
@@ -233,26 +278,12 @@ $(function(){
 		    adminState.staffHasSearch && ($("#search_button").trigger("click"));
 		}
 	});
-
-	$(".staffManage_tit_l>.glyphicon-refresh").click(function(){
-		adminRender(1, true);
-	});
+	//$(document).on("click","#pagelist ")
+	
 
 	/*批量删除*/
 	$(".staffManage_tit_l .glyphicon-trash").click(function(){
-		var ifutureDT2__userDB = store.get("futureDT2__userDB");
-		if(!ifutureDT2__userDB){
-			adminSwalMixin({
-				title: '异常',
-				text: "mock数据失败！请登录",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			});
-			window.location.assign("login.html");
-			return false;
-		}
-
+		console.log("adminState",adminState);
 		if(adminState.staffSellectObj.selectItem.length == 0){
 			swal({
 			  	position: 'center',
@@ -266,35 +297,9 @@ $(function(){
 			return false;
 		}
 
-		var curUserSession = adminState.futureDT2__session;
-		if(_.isNil(curUserSession)){
-			adminSwalMixin({
-				title: '异常',
-				text: "删除数据失败！请登录",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			});
-			window.location.assign("login.html");
-			return false;
-		}else{
-			adminState.staffSellectObj.selectItem.map(function(val, ind, arr){
-				if(ifutureDT2__userDB[val].role_id.value == "3"){
-					adminSwalMixin({
-						title: '异常',
-						text: "超级管理员不能被删除！",
-						type: 'error',
-						showConfirmButton: false,
-						timer: 2000,
-					});
-					return false;
-				}
-			});
-		}
-
 		adminSwalMixin({
 		 	title: '确定删除吗？',
-		 	text: "删除后该用户不再存在，点击刷新按钮可以重置数据！",
+		 	text: "删除后该用户不再存在！",
 		 	type: 'warning',
 		  	showCancelButton: true,
 		  	confirmButtonText: '确定，删除！',
@@ -302,34 +307,54 @@ $(function(){
 		  	reverseButtons: false
 		}).then(function(result) {
 		  if (result.value) {
-		  	var IDArr = adminState.staffSellectObj.selectItem;
-		  	var iText = 1;
-		  	if(adminState.staffSellectObj.selectAll){
-		  		iText = 0;
+		  	var IDArr = adminState.staffSellectObj.selectItem; 
+		  	var userId='';
+		  	for(var i = 0 ; i < IDArr.length; i++){
+		  		i == (IDArr.length-1) ? userId += ($(".staffManage_body .tr_admin td[data-itext='"+IDArr[i]+"']").data("iuserid")) : userId += ($(".staffManage_body .tr_admin td[data-itext='"+IDArr[i]+"']").data("iuserid")) +",";
 		  	}
-		  	
-		  	_.forEach(IDArr, function(val){
-		  		delete ifutureDT2__userDB[val];
-		  		store.set("futureDT2__userDB", _.cloneDeep(ifutureDT2__userDB));
-		  	});
-		  	adminRender(iText, false);
-		  	adminState.staffHasSearch && ($("#search_button").trigger("click"));
-		  	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
-		  	adminState.staffPageObj.pageOption.curr = iText;
-		  	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
-		  	adminState.staffSellectObj.selectItem = [];
-		  	if(adminState.staffSellectObj.selectAll){
-		  		$("#checkAll").prop("checked", false);
-		  		adminState.staffSellectObj.selectAll = false;
-		  	}
-
-		    adminSwalMixin({
-		    	title: '删除成功！',
-		    	text: "被选中的记录已经删除",
-		    	type: 'success',
-		    	showConfirmButton: false,
-		    	timer: 1800,
-		    });
+		  	$.ajax({
+			       url: 'UserRemove', 
+			       type: 'POST',
+			       data: {
+			    	   userId : userId ,
+			       },
+			       dataType: 'json', 
+			       success: function (data) {
+			    	   if(data == true){
+			    		   var iText = 1;
+				   		  	if(adminState.staffSellectObj.selectAll){
+				   		  		iText = 0;
+				   		  	}
+				   		  	adminRender(iText, false);
+				   		  	adminState.staffHasSearch && ($("#search_button").trigger("click"));
+				   		  	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
+				   		  	adminState.staffPageObj.pageOption.curr = iText;
+				   		  	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+				   		  	adminState.staffSellectObj.selectItem = [];
+				   		  	if(adminState.staffSellectObj.selectAll){
+				   		  		$("#checkAll").prop("checked", false);
+				   		  		adminState.staffSellectObj.selectAll = false;
+				   		  	}
+				   		  	adminSwalMixin({
+						    	title: '删除成功！',
+						    	text: "被选中的记录已经删除",
+						    	type: 'success',
+						    	showConfirmButton: false,
+						    	timer: 1800,
+						    });
+			    	   }
+			       },
+			       error: function (data, status, e) {
+			    	   adminSwalMixin({
+			   				title: '异常',
+			   				text: "服务器繁忙！",
+			   				type: 'error',
+			   				showConfirmButton: false,
+			   				timer: 2000,
+			   			});
+			       }
+			   });  
+		    
 		  } else if (
 		    // Read more about handling dismissals
 		    result.dismiss === swal.DismissReason.cancel
@@ -347,10 +372,11 @@ $(function(){
 
 	$(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-trash", function(e){
 		e.stopPropagation();
+		 console.log("pageOption",adminState.staffPageObj);
 		var iThat = $(this);
 		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
 			adminSwalMixin({
-				title: '异常',
+				title: '',
 				text: "超级管理员不能被删除",
 				type: 'error',
 				showConfirmButton: false,
@@ -358,30 +384,17 @@ $(function(){
 			});
 			return false;
 		}
-		var curUserSession = adminState.futureDT2__session;
-		if(_.isNil(curUserSession)){
+		if(iThat.parent().siblings(".td__role_id").data("ivalue") > adminState.adminRoleMap[$("body").attr("currentRole")]){
 			adminSwalMixin({
-				title: '异常',
-				text: "删除数据失败！请登录",
+				title: '',
+				text: "权限不足，您删除不了角色等级大于您的用户",
 				type: 'error',
 				showConfirmButton: false,
 				timer: 2000,
 			});
-			window.location.assign("login.html");
 			return false;
-		}else{
-			if(iThat.parent().siblings(".td__role_id").data("ivalue") > curUserSession.data.role_id.value){
-				adminSwalMixin({
-					title: '异常',
-					text: "权限不足，您删除不了角色等级大于您的用户",
-					type: 'error',
-					showConfirmButton: false,
-					timer: 2000,
-				});
-				return false;
-			}
 		}
-
+		
 		adminSwalMixin({
 		  title: '确定删除吗？',
 		  text: "删除后该用户不再存在，点击刷新按钮可以重置数据！",
@@ -392,44 +405,52 @@ $(function(){
 		  reverseButtons: false
 		}).then(function(result) {
 		  if (result.value) {
-		  	var iText;
-		  	if(adminState.staffPageObj.currentPage < adminState.staffPageObj.pageCount){
-		  		iText = adminState.staffPageObj.currentPage;
-		  	}else if(adminState.staffPageObj.itemLength%10 != 1){
-		  		iText = adminState.staffPageObj.currentPage;
-		  	}else{
-		  		iText = adminState.staffPageObj.currentPage - 1;
-		  	}
-		  	var ID = iThat.data("iname").toString();
-
-		  	var ifutureDT2__userDB = store.get("futureDT2__userDB");
-		  	if(!ifutureDT2__userDB){
-		  		adminSwalMixin({
-		  			title: '异常',
-		  			text: "mock数据失败！请登录",
-		  			type: 'error',
-		  			showConfirmButton: false,
-		  			timer: 2000,
-		  		});
-		  		window.location.assign("login.html");
-		  		return false;
-		  	}
-		  	delete ifutureDT2__userDB[ID];
-		  	store.set("futureDT2__userDB", _.cloneDeep(ifutureDT2__userDB));
-		  	adminRender(iText, false, true);
-		  	adminState.staffHasSearch && ($("#search_button").trigger("click"));
-		  	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
-		  	adminState.staffPageObj.pageOption.curr = iText;
-		  	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
-		  	_.pull(adminState.staffSellectObj.selectItem, ID);
-		  	
-		    adminSwalMixin({
-		    	title: '删除成功！',
-		    	text: "被选中的记录已经删除",
-		    	type: 'success',
-		    	showConfirmButton: false,
-		    	timer: 1800,
-		    });
+			  var userId = 	iThat.parent().parent().find(".user_id").data("ivalue");
+			  $.ajax({
+			       url: 'UserRemove', 
+			       type: 'POST',
+			       data: {
+			    	   userId : userId ,
+			       },
+			       dataType: 'json', 
+			       success: function (data) {
+			    	   if(data == true){
+			    		    var iText;
+				   		  	if(adminState.staffPageObj.currentPage < adminState.staffPageObj.pageCount){
+				   		  		iText = adminState.staffPageObj.currentPage;
+				   		  	}else if(adminState.staffPageObj.itemLength%10 != 1){
+				   		  		iText = adminState.staffPageObj.currentPage;
+				   		  	}else{
+				   		  		iText = adminState.staffPageObj.currentPage - 1;
+				   		  	}
+				   		  	var ID = iThat.data("iname").toString();
+				   		  	adminRender(iText, false, true);
+				   		  	adminState.staffHasSearch && ($("#search_button").trigger("click"));
+				   		  	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
+				   		  	adminState.staffPageObj.pageOption.curr = iText;
+				   		  	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+				   		  	_.pull(adminState.staffSellectObj.selectItem, ID);
+				   		  	
+				   		    adminSwalMixin({
+				   		    	title: '删除成功！',
+				   		    	text: "被选中的记录已经删除",
+				   		    	type: 'success',
+				   		    	showConfirmButton: false,
+				   		    	timer: 1800,
+				   		    });
+			    	   }
+			       },
+			       error: function (data, status, e) {
+			    	   adminSwalMixin({
+			   				title: '异常',
+			   				text: "服务器繁忙！",
+			   				type: 'error',
+			   				showConfirmButton: false,
+			   				timer: 2000,
+			   			});
+			       }
+			   });  
+			  
 		  } else if (
 		    // Read more about handling dismissals
 		    result.dismiss === swal.DismissReason.cancel
@@ -455,36 +476,17 @@ $(function(){
 				"selected": true,
 				"disabled": false
 			}).parent().attr("readonly", "readonly").prop("disabled", true);
+			//$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
 		}else{
 			$(".staff_update #staff_update_role_id option[value='请选择用户角色']").prop({
 				"selected": true
 			}).parent().removeAttr("readonly").prop("disabled", false);
 			$(".staff_update #staff_update_role_id option[value='3']").prop("disabled", true);
+			//$(".staff_update_r_foot>.btn-primary").prop("disabled", false);
 		}
-		var curUserSession = adminState.futureDT2__session;
-		if(_.isNil(curUserSession)){
-			adminSwalMixin({
-				title: '异常',
-				text: "修改数据失败！请登录",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			});
-			window.location.assign("login.html");
-			return false;
-		}else{
-			if(iThat.parent().siblings(".td__role_id").data("ivalue") > curUserSession.data.role_id.value){
-				adminSwalMixin({
-					title: '异常',
-					text: "权限不足，您修改不了超级管理员",
-					type: 'error',
-					showConfirmButton: false,
-					timer: 2000,
-				});
-				return false;
-			}
-		}
-
+		
+		$(".staff_update_r_bodyin #staff_update_user_name").attr("userId",iTd.parent().find(".not_search").eq(0).find("input").data("ivalue"));
+		
 		$("[id^='staff_update_']").each(function(){
 			if($(this).is("#staff_update_password2")){
 				return true;
@@ -499,9 +501,10 @@ $(function(){
 				adminState.staffUpdateUser = iVal.toString();
 			}
 		});
-
+		
 		$(".futureDT2_bg_cover, .staff_update").slideDown(250);
 		$(".staff_update_l, .staff_update_r").height($(".staff_update").height());
+		
 	});
 
 	$(".staff_update_r_foot .btn-warning").click(function(){
@@ -522,6 +525,7 @@ $(document).on("mouseover", ".staffManage_body td", function(){
 	$(this).parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !$(this).parent().find("[type='checkbox']").prop("checked")).change();
 }).on("click", ".staffManage_body tbody [type='checkbox']", function(e){
 	e.stopPropagation();
+	if($(this).parent().parent().find(".td__role_id").data("ivalue") == 3){ return false};
 	$(this).parent().parent().toggleClass("warning info");
 }).on("change", ".staffManage_body tbody [type='checkbox']", function(){
 	var iname = $(this).data("iname").toString();
@@ -535,46 +539,37 @@ $("#checkAll").on({
 	click: function(){
 		var that = $(this);
 		$(".staffManage_body tbody [type='checkbox']").each(function(){
+			if($(this).parent().parent().find(".td__role_id").data("ivalue") == 3){ return true};
 			$(this).prop("checked", that.prop("checked"));
 			that.prop("checked") ? ($(this).parent().parent().removeClass("info").addClass("warning")) : ($(this).parent().parent().removeClass("warning info"));
 		});
 		adminState.staffSellectObj.selectAll = that.prop("checked");
 		if(that.prop("checked")){
 			adminState.staffSellectObj.selectItem = [];
-			_.forOwn(store.get("futureDT2__userDB"), function(v, k, obj){
-				adminState.staffSellectObj.selectItem.push(k.toString());
-			});
+			for(var i = 0 ; i < $(".tr_admin").length ; i++){
+				if($(".tr_admin").eq(i).find("input[type='checkbox']").is(':checked')){
+					adminState.staffSellectObj.selectItem.push($(".tr_admin").eq(i).find(".td__user_name").attr("title").toString());
+				}
+			}
 		}else{
 			adminState.staffSellectObj.selectItem = [];
 		}
 	}
 });
 
-/*搜索组件开始*/
+//搜索组件开始
 $(".staffManage_tit_r_in .form-control-feedback").click(function(){
 	$(this).prev().children("input").val("");
 });
 
 $("#search_button").on("click", function(){
-	var isearch = $("#search_input").val().trim();
-	$(".staffManage_body tbody td:not(.not_search)").each(function(){
-		var iiText = _.isNil($(this).data("itext")) ? "" : $(this).data("itext");
-		$(this).empty().text(iiText);
-	});
-	if(isearch == ""){
-		adminState.staffHasSearch = false;
-		return false;
-	}else{
-		$(".staffManage_body tbody td:not(.not_search)").each(function(){
-			var iText = $(this).text();
-			var ireplace = "<b style='color:red'>"+isearch+"</b>";
-			var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
-			$(this).empty().html(iHtml);
-		});
-		adminState.staffHasSearch = true;
-		return false;
-	}
+	adminRender(1, false);
+	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
+	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
 });
+
+
+
 
 $("#search_input").on("input propertychange change", function(){
 	if($(this).val().trim() != ""){
@@ -683,56 +678,85 @@ $("#staff_addition_email, #staff_update_email").on("input propertychange change"
 	$(this).parent().next().empty().append(str);
 });
 
-$("#staff_addition_user_name").on("input propertychange change", function(){
+// gaixia
+$("#staff_addition_user_name").on("blur", function(){
 	var newUser = $("#staff_addition_user_name").val().trim();
+	var str;
 	if(newUser == ""){
 		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
 		$(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
 		$(this).parent().next().empty().append(str);
 		return false;
 	}
-	var ifutureDT2__userDB = store.get("futureDT2__userDB");
-	var str;
-	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
-		ifutureDT2__userDB = futuredGlobal.S_getAdmin_staff();
-	}
-
-	if(!_.isNil(_.find(ifutureDT2__userDB, function(vv, kk){
-		return kk == newUser;
-	}))){
-		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
-		$(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
-	}else{
-		str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
-		staffSubmitBtn($(this), "addition");
-	}
-	$(this).parent().next().empty().append(str);
+	$.ajax({
+       url: 'UserNameQuery', 
+       type: 'get',
+       data: {
+    	   userName : newUser ,
+       },
+       dataType: 'json', 
+       success: function (data) {
+    	   if(data == ""){
+    		   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+    		   staffSubmitBtn($(this), "addition");
+    	   }
+    	   else{
+    		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
+    		   $(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
+    	   }
+    	   $("#staff_addition_user_name").parent().next().empty().append(str);
+       },
+       error: function (data, status, e) {
+    	   adminSwalMixin({
+   				title: '异常',
+   				text: "服务器繁忙！",
+   				type: 'error',
+   				showConfirmButton: false,
+   				timer: 2000,
+   			});
+       }
+   });  
 });
 
-$("#staff_update_user_name").on("input propertychange change", function(){
-	var newUser = $("#staff_update_user_name").val().trim();
+$("#staff_update_user_name").on("blur", function(){
+	var str;
+	var newUser = $(this).val().trim();
 	if(newUser == ""){
 		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
 		$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
 		$(this).parent().next().empty().append(str);
 		return false;
 	}
-	var ifutureDT2__userDB = store.get("futureDT2__userDB");
-	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
-		ifutureDT2__userDB = futuredGlobal.S_getAdmin_staff();
-	}
-	var userArr = [];
-	_.forOwn(ifutureDT2__userDB, function(val, ke){
-		if(ke != adminState.staffUpdateUser) userArr.push(ke);
-	});
-	if(_.indexOf(userArr, newUser) > -1){
-		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
-		$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
-	}else{
-		str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
-		staffSubmitBtn($(this), "update");
-	}
-	$(this).parent().next().empty().append(str);
+	$.ajax({
+	       url: 'UserNameQuery', 
+	       type: 'get',
+	       data: {
+	    	   userName : newUser ,
+	       },
+	       dataType: 'json', 
+	       success: function (data) {
+	    	   console.log("data",data);
+	    	   if(data == ""){
+	    		   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+	    		   staffSubmitBtn($(this), "update");
+	    	   }
+	    	   else{
+	    		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
+	    		   $(".staff_update_r_foot>.btn-primary").prop("disabled", true);
+	    	   }
+	    	   $("#staff_update_user_name").parent().next().empty().append(str);
+	       },
+	       error: function (data, status, e) {
+	    	   adminSwalMixin({
+	   				title: '异常',
+	   				text: "服务器繁忙！",
+	   				type: 'error',
+	   				showConfirmButton: false,
+	   				timer: 2000,
+	   			});
+	       }
+	   });  
+	
 });
 
 $(".row .has-feedback .form-control-feedback").click(function(){
@@ -745,118 +769,98 @@ $(".row .has-feedback .form-control-feedback").click(function(){
 });
 
 $(".staff_addition_r_foot>.btn-primary").click(function(){
-	var newUser = $("#staff_addition_user_name").val().trim();
-	var ifutureDT2__userDB = store.get("futureDT2__userDB");
-	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
-		ifutureDT2__userDB = futuredGlobal.S_getAdmin_staff();
-	}
-	var inItem;
-	_.forOwn(ifutureDT2__userDB, function(val){
-		inItem = val;
-		return false;
-	});
-
-	if(!_.isNil(_.find(ifutureDT2__userDB, function(vv, kk){
-		return kk == newUser;
-	}))){
-		adminSwalMixin({
-			title: '添加成员异常',
-			text: "该成员已存在！请更改",
-			type: 'error',
-			showConfirmButton: false,
-			timer: 2500,
-		});
-		return false;
-	}
-
-	var maxID = Number(_.last(_.sortBy(ifutureDT2__userDB, function(o) { return o.user_id.value; })).user_id.value) + 1;
-	var merObj = _.cloneDeep(inItem);
-	merObj.user_name.value = newUser;
-	merObj.user_id.value = maxID;
-	merObj.telephone.value = $("#staff_addition_telephone").val().trim();
-	merObj.sex.value = $("#staff_addition_sex").val().trim();
-	merObj.role_id.value = $("#staff_addition_role_id").val().trim();
-	merObj.password.value = $("#staff_addition_password").val().trim();
-	merObj.last_login.value = null;
-	merObj.gmt_create.value = moment().format("YYYY-MM-DD HH:mm:ss");
-	merObj.email.value = $("#staff_addition_email").val().trim();
-	merObj.current_login.value = null;
-	merObj.authority.value = [];
-	var item = {};
-	item[newUser] = merObj;
-	store.set("futureDT2__userDB", _.assign(ifutureDT2__userDB, item));
-	adminSwalMixin({
-		title: '添加成员成功',
-		text: "成员已添加，现在可以使用该账户登录了",
-		type: 'success',
-		showConfirmButton: false,
-		timer: 2500,
-	});
-	$(".staff_addition_r_foot .btn-warning").trigger("click");
-	setTimeout(function(){
-		window.location.reload();
-	}, 2000);
+	//添加提交交互
+	var userName = $("#staff_addition_user_name").val().trim();
+	var sex = $("#staff_addition_sex").val().trim();
+	var telephone = $("#staff_addition_telephone").val().trim();
+	var email = $("#staff_addition_email").val().trim();
+	var roleId =$("#staff_addition_role_id").val();
+	$.ajax({
+	       url: 'UserOperate', 
+	       type: 'POST',
+	       dataType: 'json', 
+	       data: {
+	    	   userName : userName ,
+	    	   sex : sex ,
+	    	   telephone : telephone ,
+	    	   email : email ,
+	    	   roleId : roleId ,
+	       },
+	       success: function (data) {
+	       		if(data == "添加成功！"){
+	    		    adminRender( adminState.staffPageObj.currentPage, false);
+	    		    new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	    		    adminState.staffHasSearch && ($("#search_button").trigger("click"));
+	    		    $(".futureDT2_bg_cover, .staff_addition").slideUp(250);
+	    		    adminSwalMixin({
+	    				title: '添加成功',
+	    				text: "成员信息添加成功！",
+	    				type: 'success',
+	    				showConfirmButton: false,
+	    				timer: 2000,
+	    			});
+	       		}
+	       },
+	       error: function (data, status, e) {
+	    	   adminSwalMixin({
+   				title: '异常',
+   				text: "服务器繁忙！",
+   				type: 'error',
+   				showConfirmButton: false,
+   				timer: 2000,
+   			});
+	       }
+	   }); 
+	
+	
+	
 });
 
 $(".staff_update_r_foot>.btn-primary").click(function(){
-	var newUser = $("#staff_update_user_name").val().trim();
-	var ifutureDT2__userDB = store.get("futureDT2__userDB");
-	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
-		ifutureDT2__userDB = futuredGlobal.S_getAdmin_staff();
-	}
-	var inItem = _.find(ifutureDT2__userDB, function(vv, kk){
-		return kk == adminState.staffUpdateUser;
-	});
-	var userArr = [];
-	_.forOwn(ifutureDT2__userDB, function(val, ke){
-		if(ke != adminState.staffUpdateUser) userArr.push(ke);
-	});
-
-	if(_.indexOf(userArr, newUser) > -1){
-		adminSwalMixin({
-			title: '修改成员异常',
-			text: "您修改了用户名，修改后的用户名重复！请更改",
-			type: 'error',
-			showConfirmButton: false,
-			timer: 2500,
-		});
-		return false;
-	}
-
-	delete ifutureDT2__userDB[adminState.staffUpdateUser];
-	var maxID = Number(_.last(_.sortBy(ifutureDT2__userDB, function(o) { return o.user_id.value; })).user_id.value) + 1;
-	var merObj = _.cloneDeep(inItem);
-	merObj.user_name.value = newUser;
-	merObj.user_id.value = maxID;
-	merObj.telephone.value = $("#staff_update_telephone").val().trim();
-	merObj.sex.value = $("#staff_update_sex").val().trim();
-	merObj.role_id.value = $("#staff_update_role_id").val().trim();
-	merObj.password.value = $("#staff_update_password").val().trim();
-	/*merObj.last_login.value = null;*/
-	/*merObj.gmt_create.value = moment().format("YYYY-MM-DD HH:mm:ss");*/
-	merObj.email.value = $("#staff_update_email").val().trim();
-	/*merObj.current_login.value = null;*/
-	/*merObj.authority.value = [];*/
-	var item = {};
-	item[newUser] = merObj;
-	store.set("futureDT2__userDB", _.assign(ifutureDT2__userDB, item));
-	if(adminState.futureDT2__session.data.user_name.value == adminState.staffUpdateUser){
-		var iitem = {};
-		iitem.expires = adminState.futureDT2__session.expires;
-		iitem.data = merObj;
-		store.set('futureDT2__session', iitem);
-	}
-	adminSwalMixin({
-		title: '修改成员成功',
-		text: "成员已修改，现在可以使用该账户登录了",
-		type: 'success',
-		showConfirmButton: false,
-		timer: 2500,
-	});
-	$(".staff_update_r_foot .btn-warning").trigger("click");
-	setTimeout(function(){
-		window.location.reload();
-	}, 2000);
+	var userId = $(".staff_update_r #staff_update_user_name").attr("userId");
+	var userName = $("#staff_update_user_name").val().trim();
+	var sex = $("#staff_update_sex").val().trim();
+	var telephone = $("#staff_update_telephone").val().trim();
+	var email = $("#staff_update_email").val().trim();
+	var roleId =$("#staff_update_role_id").val();
+	//添加修改提交交互
+	$.ajax({
+	       url: 'UserOperate', 
+	       type: 'POST',
+	       dataType: 'json', 
+	       data: {
+	    	   userId : userId ,
+	    	   userName : userName ,
+	    	   sex : sex ,
+	    	   telephone : telephone ,
+	    	   email : email ,
+	    	   roleId : roleId ,
+	       },
+	       success: function (data) {
+	       		if(data == "修改成功！"){
+	    		    adminRender( adminState.staffPageObj.currentPage, false);
+	    		    new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	    		    adminState.staffHasSearch && ($("#search_button").trigger("click"));
+	    		    $(".futureDT2_bg_cover, .staff_update").slideUp(250);
+	    		    adminSwalMixin({
+	    				title: '修改成功',
+	    				text: "成员信息修改成功！",
+	    				type: 'success',
+	    				showConfirmButton: false,
+	    				timer: 2000,
+	    			});
+	       		}
+	       },
+	       error: function (data, status, e) {
+	    	   adminSwalMixin({
+   				title: '异常',
+   				text: "服务器繁忙！",
+   				type: 'error',
+   				showConfirmButton: false,
+   				timer: 2000,
+   			});
+	       }
+	   }); 
 });
 
 /*操作日志*/
@@ -867,79 +871,10 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   	if($(e.target).parent().data("iclassify") == "operaDailyLog"){
   		$(".g_info .glyphicon-question-sign").hide();
   		if(!adminState.hasRequestData){
-  			var ifutureDT2__userDB = store.get("futureDT2__userDB");
-  			if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
-  				adminSwalMixin({
-  					title: '异常',
-  					text: "Mock数据失败！请登录",
-  					type: 'error',
-  					showConfirmButton: false,
-  					timer: 2000,
-  				});
-  				window.location.assign("login.html");
-  				return false;
-  			}
-  			var futuredAdminOperArr = [];
-  			var hasUserArr = [];
-  			_.forOwn(ifutureDT2__userDB, function(v, k, obj){
-  				hasUserArr.push(k);
-  			});
-  			var futureDT2__admin__operation = store.get("futureDT2__admin__operation");
-  			if(_.isNil(futureDT2__admin__operation)){
-  				futureDT2__admin__operation = futuredGlobal.S_getAdmin_operation();
-  				_.times(63, function(i){
-  					var copyObj = _.cloneDeep(futureDT2__admin__operation[0]);
-  					var ii = String(i+1);
-  					_.forOwn(copyObj, function(v, k, obj){
-  						if(v.detail === null){
-  							obj[k].value = _.padEnd(v.value, v.value.length+ii.length, ii);
-  						}else{
-  							switch(v.detail)
-  							{
-  							case "user_name":
-  								obj[k].value = hasUserArr[(i%hasUserArr.length)];
-  							  	break;
-  							case "page":
-  								obj[k].value = adminState.operatePageArr[(i%adminState.operatePageArr.length)];
-  							  	break;
-  							case "description":
-  								obj[k].value = adminState.operateDescriptionArr[(i%adminState.operateDescriptionArr.length)] + ii;
-  							  	break;
-  							case "time":
-  							  	obj[k].value = moment().add(Number(ii), 'days').format("YYYY-MM-DD HH:mm:ss");
-  							  	break;
-  							case "ip_address":
-  								obj[k].value = _.find(adminState.cityIpMap, function(iv, ik){
-  									return iv.inde == (i%6);
-  								}).ip;
-  								break;
-  							default:
-  							/*地理位置*/
-  							  	obj[k].value = _.findKey(adminState.cityIpMap, function(iv, ik){
-  							  		return iv.inde == (i%6);
-  							  	});
-  							}
-  						}
-  					});
-  					futuredAdminOperArr.push(copyObj);
-  				}); /*times end*/
-  				/*mock数据结束*/
-  				store.set("futureDT2__admin__operation", _.cloneDeep(futuredAdminOperArr));
-  			}else{
-  				futuredAdminOperArr = futureDT2__admin__operation;
-  			}
   			
-  			adminState.operateChunkArr = _.chunk(futuredAdminOperArr, 10);
-  			adminState.operatePageObj.pageCount = adminState.operateChunkArr.length;
-  			adminState.operatePageObj.itemLength = futuredAdminOperArr.length;
-  			
-  			var cur = 1;
-  			if(adminState.operatePageObj.pageCount == 0){
-  				cur = 0;
-  			}
-  			adminState.operatePageObj.currentPage = cur;
+  			var cur = 1 ;
   			operateRendaer(cur);
-
+  			
   			// 分页元素ID（必填）
   			adminState.operatePageObj.selector = '#pagelist2';
   			// 分页配置
@@ -967,12 +902,21 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   			    if (!obj.isFirst) {
   			      // do something
   			      	operateRendaer(obj.curr);
-  			      	adminState.operateHasSearch && ($("#search_button2").trigger("click"));
-  			      	$(".operaDailyLog_body tbody [type='checkbox']").each(function(){
-  			      		if(_.indexOf(adminState.operateSellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
-  			      			$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
-  			      		}
-  			      	});
+	  			   $(".operaDailyLog_body tbody [type='checkbox']").each(function(){
+			      		if(_.indexOf(adminState.operateSellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
+			      			$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
+			      		}
+			      	});
+	  			   
+	  			   //跳页判断全选按钮是否选中  
+	  			   var checked_length = $(".operaDailyLog_body .tr_operate input[type=checkbox]:checked").length;
+	  			   if(checked_length == $(".operaDailyLog_body .tr_operate").length){
+	  				   $("#checkAll2").prop("checked", true);
+	  			   }
+	  			   else{
+	  				 $("#checkAll2").prop("checked", false);
+	  			   }
+	  			   adminState.operateSellectObj.selectAll = $("#checkAll2").prop("checked");
   			    }
   			  }
   			};
@@ -1003,24 +947,9 @@ $("#jumpPage2").on("click", function(){
 });
 
 $("#search_button2").on("click", function(){
-	var isearch = $("#search_input2").val().trim();
-	if(isearch == ""){
-		$(".operaDailyLog_body tbody td:not(.not_search)").each(function(){
-			var iiText = _.isNil($(this).data("itext")) ? "" : $(this).data("itext");
-			$(this).empty().text(iiText);
-		});
-		adminState.operateHasSearch = false;
-		return false;
-	}else{
-		$(".operaDailyLog_body tbody td:not(.not_search)").each(function(){
-			var iText = $(this).text();
-			var ireplace = "<b style='color:red'>"+isearch+"</b>";
-			var iHtml = iText.replace(new RegExp(isearch, 'g'), ireplace);
-			$(this).empty().html(iHtml);
-		});
-		adminState.operateHasSearch = true;
-		return false;
-	}
+	 operateRendaer(1);
+	 adminState.operatePageObj.pageOption.count = adminState.operatePageObj.itemLength;
+	 new Pagination(adminState.operatePageObj.selector, adminState.operatePageObj.pageOption);
 });
 
 $(".operaDailyLog_tit_r .form-control-feedback").click(function(){
@@ -1042,17 +971,37 @@ $("#search_input2").on("input propertychange change", function(){
 	}
 });
 
-/*导出*/
-$("button.export_current").click(function(){
-	window.open("../static/admin_export_current.xlsx");
-});
 
-$("button.export_select").click(function(){
-	if(adminState.operateSellectObj.selectAll){
-		window.open("../static/admin_export_select_all.xlsx");
-	}else{
-		window.open("../static/admin_export_select_one.xlsx");
+$("button.export_current,button.export_select").click(function(){
+	var logIdStr = "";
+	if($(this).hasClass("export_select")){  /*导出选中*/
+		for(var i = 0 ; i <  adminState.operateSellectObj.selectItem.length; i++){
+			logIdStr = adminState.operateSellectObj.selectItem.join(",");
+		}
 	}
+	$.ajax({
+	       url: 'LogExport', 
+	       type: 'get',
+	       dataType: 'json', 
+	       data: {
+	    	   logIdStr : logIdStr ,
+	       },
+	       success: function (data) {
+	    	   console.log("data",data);
+	    	   if(data != ""){
+	    		   window.location.href = data;
+	    	   }
+	       },
+	       error: function (data, status, e) {
+	    	   adminSwalMixin({
+				title: '异常',
+				text: "服务器繁忙！",
+				type: 'error',
+				showConfirmButton: false,
+				timer: 2000,
+			});
+	       }
+	   }); 
 });
 
 $(document).on("mouseover", ".operaDailyLog_body td", function(){
@@ -1089,9 +1038,11 @@ $("#checkAll2").on({
 		adminState.operateSellectObj.selectAll = that.prop("checked");
 		if(that.prop("checked")){
 			adminState.operateSellectObj.selectItem = [];
-			_.forEach(store.get("futureDT2__admin__operation"), function(v, i, arr){
-				adminState.operateSellectObj.selectItem.push(v.log_id.value.toString());
-			});
+			for(var i = 0 ; i < $(".tr_operate").length ; i++){
+				if($(".tr_operate").eq(i).find("input[type='checkbox']").is(':checked')){
+					adminState.operateSellectObj.selectItem.push($(".tr_operate").eq(i).find("input[type='checkbox']").data("ivalue").toString());
+				}
+			}
 		}else{
 			adminState.operateSellectObj.selectItem = [];
 		}
@@ -1103,66 +1054,92 @@ $("#checkAll2").on({
 $(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-user", function(e){
 	e.stopPropagation();
 	var iThat = $(this);
-	
-	var curUserSession = adminState.futureDT2__session;
-	if(_.isNil(curUserSession)){
+	if(iThat.parent().siblings(".td__role_id").data("ivalue") > adminState.adminRoleMap[$("body").attr("currentrole")]){
 		adminSwalMixin({
 			title: '异常',
-			text: "修改数据失败！请登录",
+			text: "权限不足，您修改不了角色等级比你高的",
 			type: 'error',
 			showConfirmButton: false,
 			timer: 2000,
 		});
-		window.location.assign("login.html");
 		return false;
-	}else{
-		if(iThat.parent().siblings(".td__role_id").data("ivalue") > curUserSession.data.role_id.value){
-			adminSwalMixin({
-				title: '异常',
-				text: "权限不足，您修改不了角色等级比你高的",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			});
-			return false;
-		}
-		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
-			$(".staff_authority_r_foot>.btn-primary").prop("disabled", true);
-		}else{
-			$(".staff_authority_r_foot>.btn-primary").prop("disabled", false);
-		}
 	}
+	if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
+		$(".staff_authority_r_foot>.btn-primary").prop("disabled", true);
+	}else{
+		$(".staff_authority_r_foot>.btn-primary").prop("disabled", false);
+	}
+	
 	$(".futureDT2_bg_cover, .staff_authority").slideDown(250);
 	var iTd = iThat.parent();
 	adminState.staffAuthorityUser = iTd.siblings(".td__user_name").data("ivalue").toString();
 	var authority = iTd.siblings(".td__authority").data("ivalue");
 	if(!adminState.authorityRender){
-		var str = '';
-		_.forOwn(futuredGlobal.S_getAdmin_authorityMap(), function(val, key, obj){
-			str+='<tr>'+
-					'<td><span><input type="checkbox">'+key+'</span></td>'+
-					'<td>';
-			_.forEach(val, function(v, i, arr){
-				str+='<span><input type="checkbox" data-ivalue="'+v.authority_id+'">'+v.authority_name+'</span>';
-			});
-			str+='</td></tr>';
-		});
-		$(".staff_authority_r_bodyin tbody").empty().append(str);
-		adminState.authorityRender = true;
+		var userId = iTd.parent().find("td").eq(0).find("input").data("ivalue");
+		$(".staff_authority_r_bodyin").attr("userId",userId);
+		$.ajax({
+		       url: 'Authority', 
+		       type: 'get',
+		       dataType: 'json', 
+		       data: {
+		    	   userId : userId ,
+		       },
+		       async : false,
+		       success: function (data) {
+		    	   console.log("data",data);
+		    	   var str = '';
+		    	   for(var key in data){
+		    		   if(key != "roleName" && key != "userAuthority"){
+		    			   str+='<tr>'+
+							'<td><span><input type="checkbox">'+key+'</span></td>'+
+							'<td>';
+			    		   if(data[key].authority.indexOf(",") > -1){
+			    			   for(var i = 0 ; i < data[key].authority.split(",").length ; i++){
+			    				   if(data[key].authorityName.split(",")[i] == key){
+				    				   continue;
+				    			   }
+			    				   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority.split(",")[i]+'">'+data[key].authorityName.split(",")[i]+'</span>';
+			    			   }
+			    		   }
+			    		   else{
+			    			   if(data[key].authorityName == key){
+			    				   continue;
+			    			   }
+			    			   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority+'">'+data[key].authorityName+'</span>';
+			    		   }
+		    		   }
+		    	   }
+		    	    $(".staff_authority_r_bodyin tbody").empty().append(str);
+			    	$(".staff_authority_r_bodyin tbody span>input").each(function(){
+			    			$(this).prop("checked", false);
+			    	});
+		    	   //加载选中权限
+		    	  if(data.userAuthority != ""){
+		    		  var userAuthorityArr = data.userAuthority.split(",");
+		    			_.forEach(userAuthorityArr, function(o){
+		    				$(".staff_authority_r_bodyin tbody td:nth-child(2) span>input[data-ivalue='"+o+"']").prop("checked", true);
+		    			});
+		    			$(".staff_authority_r_bodyin tbody tr").each(function(){
+		    				$(this).children("td:eq(0)").find("input").prop("checked", $(this).children("td:eq(1)").find("input").length == $(this).children("td:eq(1)").find("input").filter(":checked").length);
+		    			});
+		    	  }
+		    	   
+		       },
+		       error: function (data, status, e) {
+		    	   adminSwalMixin({
+	   				title: '异常',
+	   				text: "服务器繁忙！",
+	   				type: 'error',
+	   				showConfirmButton: false,
+	   				timer: 2000,
+	   			});
+		       }
+		   }); 
+		
+		//adminState.authorityRender = true;
 	}
 	$(".staff_authority_r_tit").text("详细信息 - "+adminState.staffAuthorityUser);
-
-	$(".staff_authority_r_bodyin tbody span>input").each(function(){
-		$(this).prop("checked", false);
-	});
-	_.forEach(authority, function(o){
-		$(".staff_authority_r_bodyin tbody td:nth-child(2) span>input[data-ivalue='"+o+"']").prop("checked", true);
-	});
-	$(".staff_authority_r_bodyin tbody tr").each(function(){
-		$(this).children("td:eq(0)").find("input").prop("checked", $(this).children("td:eq(1)").find("input").length == $(this).children("td:eq(1)").find("input").filter(":checked").length);
-	});
-
-	$(".staff_authority_l, .staff_authority_r").height($(".staff_authority").height());
+	 $(".staff_authority_l, .staff_authority_r").height($(".staff_authority").height());
 });
 
 $(".staff_authority_r_foot .btn-warning").click(function(){
@@ -1170,76 +1147,55 @@ $(".staff_authority_r_foot .btn-warning").click(function(){
 	adminState.staffAuthorityUser = "";
 });
 
+//父集选中
 $(document).on("change", ".staff_authority_r_bodyin tbody td:nth-child(1) span>input", function(){
 	$(this).parent().parent().next().find("input").prop("checked", $(this).prop("checked"));
 });
-
+//子集选中
 $(document).on("change", ".staff_authority_r_bodyin tbody td:nth-child(2) span>input", function(){
 	$(this).parent().parent().prev().find("input").prop("checked", $(this).parent().parent().find("input").length == $(this).parent().parent().find("input").filter(":checked").length);
 });
-
+//授权提交
 $(".staff_authority_r_foot .btn-primary").click(function(){
-	var ifutureDT2__userDB = store.get("futureDT2__userDB");
-	if(_.isEmpty(ifutureDT2__userDB) || _.isNil(ifutureDT2__userDB)){
-		adminSwalMixin({
-			title: '异常',
-			text: "mock数据失败！请登录",
-			type: 'error',
-			showConfirmButton: false,
-			timer: 2000,
-		});
-		window.location.assign("login.html");
-	}else{
-		var iArr = [];
-		$(".staff_authority_r_bodyin tbody td:nth-child(2) span>input:checked").each(function(){
-			iArr.push($(this).data("ivalue"));
-		});
-		ifutureDT2__userDB[adminState.staffAuthorityUser].authority.value = iArr;
-		store.set("futureDT2__userDB", _.cloneDeep(ifutureDT2__userDB));
-		adminSwalMixin({
-			title: '授权成功！',
-			text: "已经对"+adminState.staffAuthorityUser+"进行了授权，数据已更新",
-			type: 'success',
-			showConfirmButton: false,
-			timer: 2000,
-		});
-		$(".staff_authority_r_foot .btn-warning").trigger("click");
-		adminState.staffPageObj.pageOption.curr = adminState.staffPageObj.currentPage;
-		new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
-		adminRender(adminState.staffPageObj.currentPage, false);
-		adminState.staffHasSearch && ($("#search_button").trigger("click"));
-	}
+	var iArr = [];
+	$(".staff_authority_r_bodyin tbody td:nth-child(2) span>input:checked").each(function(){
+		iArr.push($(this).data("ivalue"));
+	});
+	var userId =  $(".staff_authority_r_bodyin").attr("userId");
+	var authority = iArr.join(",");
+	$.ajax({
+	       url: 'AuthorityModify', 
+	       type: 'POST',
+	       dataType: 'json', 
+	       data: {
+	    	   userId : userId ,
+	    	   authority : authority
+	       },
+	       success: function (data) {
+	    	   console.log("data",data);
+	    	   if(data == true){
+	    		   adminSwalMixin({
+	    				title: '授权成功！',
+	    				text: "已经对"+adminState.staffAuthorityUser+"进行了授权，数据已更新",
+	    				type: 'success',
+	    				showConfirmButton: false,
+	    				timer: 2000,
+	    			});
+	    		   $(".staff_authority_r_foot .btn-warning").trigger("click");
+	    	   }
+	       },
+	       error: function (data, status, e) {
+	    	   adminSwalMixin({
+				title: '异常',
+				text: "服务器繁忙！",
+				type: 'error',
+				showConfirmButton: false,
+				timer: 2000,
+			});
+	       }
+	   }); 
+	
+	/*
+	//添加刷新
+	adminState.staffHasSearch && ($("#search_button").trigger("click"));*/
 });
-
-/*var a = [{
-	alphabetic_coordinate: "0:0",
-	bin: "1",
-	die_number: 1,
-	value: 0.00023
-}, {
-	alphabetic_coordinate: "1:0",
-	bin: "255",
-	die_number: 2,
-	value: 0.00023
-}, {
-	alphabetic_coordinate: "2:0",
-	bin: "1",
-	die_number: 3,
-	value: 0.00023
-}, {
-	alphabetic_coordinate: "0:1",
-	bin: "-1",
-	die_number: 4,
-	value: 0.00023
-}, {
-	alphabetic_coordinate: "0:2",
-	bin: "1",
-	die_number: 5,
-	value: 0.00023
-}];
-_.reduce(a, function(result, va, i){
-	var item = {};
-	item[va.alphabetic_coordinate] = va.value;
-	result.push(item);
-	return result;
-}, []);*/

@@ -57,7 +57,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 				waferList.add(coordinate.getPerParameter(conn, waferId, column, param, upper, lower));
 			}
 			map.put("waferList", waferList);
-			result.put(waferNO, map);
+			result.put(waferAtt[i], map);
 		}
 		try {
 			conn.close();
@@ -95,7 +95,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 				waferList.add(coordinate.getColorMap(conn, waferId, column, param, upper, lower));
 			}
 			map.put("waferList", waferList);
-			result.put(waferNO, map);
+			result.put(waferId+"", map);
 		}
 		try {
 			conn.close();

@@ -134,6 +134,7 @@ public class ExcelParser {
 		XSSFSheet sheet = null;;
 		try {
 			excelFileInputStream = new FileInputStream(filepath);
+			System.out.println("excelFileInputStream:"+excelFileInputStream);
 			XSSFWorkbook workbook = new XSSFWorkbook(excelFileInputStream);
 			excelFileInputStream.close();
 			sheet = workbook.getSheetAt(0);
@@ -160,7 +161,6 @@ public class ExcelParser {
 		
 		// 传参之用
 		Map<String, Object> map = new HashMap<>();
-		System.out.println("总行数：" + sheet.getLastRowNum());
 		
 		int maxX = 0, minX = 10000000, maxY = 0, minY = 10000000,x=0,y=0,dieNO=0;
 		String alphabetic = "";
@@ -177,7 +177,10 @@ public class ExcelParser {
 				flag = true;
 				continue;
 			}
-			if(!"Type Yield".equals(row.getCell(0).toString()) && flag){
+			if("Type Yield".equals(row.getCell(0).toString())){
+				break;
+			}
+			if(flag){
 				alphabetic = row.getCell(1).toString();
 				x = Cal(alphabetic.split("/")[1]);
 				y = Cal(alphabetic.split("/")[0]);
@@ -186,6 +189,7 @@ public class ExcelParser {
 				maxY = maxY>y?minY:y;
 				minY = minY<y?minY:y;
 			}
+			
 		}
 		ProgressSingleton.put(sessionId, interval+=5);
 		Map<String,Integer> dieLimit = new HashMap<>();
@@ -339,7 +343,6 @@ public class ExcelParser {
 			}
 			if ("Type".equals(row.getCell(0).toString())) {
 				databool = true;
-				paramNum = 0;
 				int j = 2,count=0;
 				if (row.getCell(j) != null) {
 					if ("DieX".equalsIgnoreCase(row.getCell(j).toString())) {
@@ -370,7 +373,6 @@ public class ExcelParser {
 					condition +=",?";
 					j++;
 				}
-				paramNum = j - 2;
 				continue;
 
 			}
@@ -378,12 +380,74 @@ public class ExcelParser {
 				if ("Type Yield".equals(row.getCell(0).toString())) {
 					continue;
 				} else {
-						String DieType = row.getCell(0).toString().trim(),value=null;
-						List<String> ls = limitMap.get(DieType);
-						if (row.getCell(1) == null || !row.getCell(1).toString().contains("/")) {
-							continue;
+					int init = coordinateFlag ? 4 : 2;
+					int length = paramNum + init;
+					String DieType = row.getCell(0).toString().trim(),value=null;
+					List<String> ls = limitMap.get(DieType);
+					if (row.getCell(1) == null || !row.getCell(1).toString().contains("/")) {
+						continue;
+					}
+					System.out.println("paramNum:"+paramNum);
+					if(coordinateFlag){
+						att = new Object[6+paramNum];
+						att[0] = row.getCell(1).toString().trim();
+						att[1] = row.getCell(2).toString().trim();
+						att[2] = row.getCell(3).toString().trim();
+						dieNO++;
+						att[3] = dieNO;
+						att[5] = 0;
+						boolean bin=true;
+						if (dieMap.containsKey(DieType)) {
+							
+							for (int j = init; j < length; j++) {
+								if (row.getCell(j) == null || "".equals(row.getCell(j).toString().trim())) {
+									value = " ";
+								} else {
+									value = row.getCell(j).toString();
+								}
+								Matcher isNum = pattern.matcher(value);
+								Matcher isNum2 = pattern2.matcher(value);
+								if (isNum.matches()) {
+								} else if (isNum2.matches()) {
+								} else if ("infinity".equals(value)) {
+									value = "9E31";
+								} else {
+									value = null;
+								}
+								att[5+j-init+1] = value;
+								bin = bin && ( value == null || "".equals(value) || (Double.parseDouble(value)>=Double.parseDouble(ls.get(j-init).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-init).split(",")[0]))  );
+							}
+							att[4] = bin?1:255;
+							dieMap.get(DieType).add(att);
+						} else {
+							dieList = new ArrayList<>();
+							for (int j = init; j < length; j++) {
+								if (row.getCell(j) == null || "".equals(row.getCell(j).toString().trim())) {
+									value = " ";
+								} else {
+									value = row.getCell(j).toString();
+								}
+								Matcher isNum = pattern.matcher(value);
+								Matcher isNum2 = pattern2.matcher(value);
+								if (isNum.matches()) {
+								} else if (isNum2.matches()) {
+								} else if ("infinity".equals(value)) {
+									value = "9E31";
+								} else {
+									value = null;
+								}
+								att[5+j-init+1] = value;
+								bin = bin && (value==null ||"".equals(value) || (Double.parseDouble(value)>=Double.parseDouble(ls.get(j-init).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-init).split(",")[0])) );
+							
+							}
+							att[4] = bin?1:255;
+							dieList.add(att);
+							dieMap.put(DieType, dieList);
 						}
-						att = new Object[6+paramNum-1];
+						datanum++;
+					}else{
+						
+						att = new Object[6+paramNum];
 						att[0] = row.getCell(1).toString().trim();
 						String str = getDieXY(row.getCell(1).toString().trim(), dieLimit);
 						att[1] = str.split(",")[0];
@@ -394,7 +458,7 @@ public class ExcelParser {
 						boolean bin=true;
 						if (dieMap.containsKey(DieType)) {
 							
-							for (int j = 2; j <= paramNum; j++) {
+							for (int j = init; j < length; j++) {
 								if (row.getCell(j) == null || "".equals(row.getCell(j).toString().trim())) {
 									value = " ";
 								} else {
@@ -409,14 +473,14 @@ public class ExcelParser {
 								} else {
 									value = null;
 								}
-								att[5+j-1] = value;
-								bin = bin && ( value==null || "".equals(value) || (Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0]))  );
+								att[5+j-init+1] = value;
+								bin = bin && ( value == null || "".equals(value) || (Double.parseDouble(value)>=Double.parseDouble(ls.get(j-init).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-init).split(",")[0]))  );
 							}
 							att[4] = bin?1:255;
 							dieMap.get(DieType).add(att);
 						} else {
 							dieList = new ArrayList<>();
-							for (int j = 2; j <= paramNum; j++) {
+							for (int j = init; j < length; j++) {
 								if (row.getCell(j) == null || "".equals(row.getCell(j).toString().trim())) {
 									value = " ";
 								} else {
@@ -431,8 +495,9 @@ public class ExcelParser {
 								} else {
 									value = null;
 								}
-								att[5+j-1] = value;
-								bin = bin && ((Double.parseDouble(value)>=Double.parseDouble(ls.get(j-2).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-2).split(",")[0])) || value==null ||"".equals(value) );
+								System.out.println(init+"init"+length+"length:"+(5+j-init+1));
+								att[5+j-init+1] = value;
+								bin = bin && (value==null ||"".equals(value) || (Double.parseDouble(value)>=Double.parseDouble(ls.get(j-init).split(",")[1]) && Double.parseDouble(value)<=Double.parseDouble(ls.get(j-init).split(",")[0])) );
 							
 							}
 							att[4] = bin?1:255;
@@ -440,6 +505,8 @@ public class ExcelParser {
 							dieMap.put(DieType, dieList);
 						}
 						datanum++;
+					}
+						
 				}
 			}
 		}
@@ -479,10 +546,10 @@ public class ExcelParser {
 		map.put("interval", interval);
 		map.put("summation", summation);
 		System.out.println("读完了么");
-//		for(String key:dieMap.keySet()){
-//			System.out.println(Arrays.toString(dieMap.get(key).get(0)));
-//		}
-//		
+		for(String key:dieMap.keySet()){
+			System.out.println(Arrays.toString(dieMap.get(key).get(0)));
+		}
+		
 		System.out.println("currentUser:"+currentUser);
 		WaferService service = new WaferServiceImpl();
 		if(conn==null){
