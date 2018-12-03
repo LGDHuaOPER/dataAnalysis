@@ -31,6 +31,7 @@ public class CorrelationDao {
 		String columnX =  new GaussianDao().getParameterColumn(conn, waferId, paramX);
 		String columnY =  new GaussianDao().getParameterColumn(conn, waferId, paramY);
 		String sql = "select "+columnX+","+columnY+" from dm_wafer_coordinate_data where wafer_id=?";
+		System.out.println(sql);
 		PreparedStatement ps;
 		try {
 			ps = conn.prepareStatement(sql);

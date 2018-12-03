@@ -1,16 +1,22 @@
 package com.eoulu.action.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSONObject;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
+import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.record.City;
+import com.maxmind.geoip2.record.Country;
+import com.maxmind.geoip2.record.Location;
+import com.maxmind.geoip2.record.Postal;
+import com.maxmind.geoip2.record.Subdivision;
 
-import me.hupeng.ipLocationService.IpLocationResult;
-import me.hupeng.ipLocationService.IpLocationService;
 
 
 
@@ -78,17 +84,20 @@ public class iPLocation {
 	  public void getIPAndCity(HttpServletRequest request){
 			iPLocation util = new iPLocation();
 			String ip = util.getIpAddress(request);
-			request.getSession().setAttribute("IP", util.getIpAddress(request));
+			
 //			IpLocationService ipLocationService = new IpLocationService();
 //			IpLocationResult ipLocationResult = ipLocationService.getIpLocationResult(util.getIpAddress(request));
 //			String city =  ipLocationResult.getCity()==null?"本地":ipLocationResult.getCity();
 			String city = "";
 			try {
-				city = getAddress("ip="+ip, "utf-8");
+//				city = getAddress("ip="+ip, "utf-8");
 			} catch (Exception e) {
 				e.printStackTrace();
+			}finally{
+				request.getSession().setAttribute("IP",ip);
+				request.getSession().setAttribute("city", city);
 			}
-			request.getSession().setAttribute("city", city);
+			
 	  }
 	  
 	  public static String getAddress(String params, String encoding) throws Exception{  
@@ -134,17 +143,47 @@ public class iPLocation {
 	          
 	    }  
 	  
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, GeoIp2Exception {
+		//GeoIP2-City 数据库文件
+		File database = new File("/zip/GeoLiteCity.dat");
+
+		// 创建 DatabaseReader对象
+		DatabaseReader reader = new DatabaseReader.Builder(database).build();
+
+		InetAddress ipAddress = InetAddress.getByName("128.101.101.101");
+
+		CityResponse response = reader.city(ipAddress);
+
+		Country country = response.getCountry();
+		System.out.println(country.getIsoCode());            // 'US'
+		System.out.println(country.getName());               // 'United States'
+		System.out.println(country.getNames().get("zh-CN")); // '美国'
+
+		Subdivision subdivision = response.getMostSpecificSubdivision();
+		System.out.println(subdivision.getName());    // 'Minnesota'
+		System.out.println(subdivision.getIsoCode()); // 'MN'
+
+		City city = response.getCity();
+		System.out.println(city.getName()); // 'Minneapolis'
+
+		Postal postal = response.getPostal();
+		System.out.println(postal.getCode()); // '55455'
+
+		Location location = response.getLocation();
+		System.out.println(location.getLatitude());  // 44.9733
+		System.out.println(location.getLongitude()); // -93.2323
+
 //		IpLocationService ipLocationService = new IpLocationService();
 //		IpLocationResult ipLocationResult = ipLocationService.getIpLocationResult("183.175.12.160");
 //		System.out.println(ipLocationResult.getCountry() + " -----" + ipLocationResult.getProvince() + "--"
 //				+ ipLocationResult.getCity());
-//		try {
-//			System.out.println(getAddress("ip=183.175.12.160","utf-8"));
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+//		System.out.println(getAddress("ip=192.168.3.7", "utf-8"));
+		try {
+			System.out.println(getAddress("ip=183.175.12.160","utf-8"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 //		String date = df.format(new Date());
 //		System.out.println(date);

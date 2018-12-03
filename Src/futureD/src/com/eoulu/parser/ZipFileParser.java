@@ -246,7 +246,9 @@ public class ZipFileParser {
 				 description = map.get("description").toString(), 
 				 currentUser = map.get("currentUser").toString(),
 				dataFormat = map.get("dataFormat").toString(),
-						sessionId = map.get("sessionId").toString();
+						sessionId = map.get("sessionId").toString(),
+						fileName = map.get("fileName").toString(),
+								lastModified = map.get("lastModified").toString();
 		int interval = Integer.parseInt(map.get("interval").toString());
 		
 		if (filternum == 1) {
@@ -267,7 +269,7 @@ public class ZipFileParser {
 					CSVnum = CSVnum + 1;
 //					 WriteToCsv(files1[i].getAbsolutePath(), (String) mapfilelist.get(waferid));// 把map文件内容写入CSV文件
 					status = service.saveZipData(conn,mapfilelist, files1[i].getAbsolutePath(), productCategory, currentUser,
-							description, files1[i].getAbsolutePath(),db);
+							description, fileName,db,lastModified);
 					ProgressSingleton.put(sessionId, interval+=summation);
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"success".equals(status)) {

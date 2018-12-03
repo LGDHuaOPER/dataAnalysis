@@ -73,7 +73,7 @@ public class FileUtil {
 		
 		
 	public Map<String, String> getFormByProgress(File file01, HttpServletRequest request, String tempPath) {
-		String fileName = null,filePath = null;
+		String fileName = null,filePath = null,lastModified=null;
 		Map<String, String> map = new HashMap<>();
 		DiskFileItemFactory factory = new DiskFileItemFactory();// 1、创建一个DiskFileItemFactory工厂
 		factory.setRepository(file01);// 设置临时目录
@@ -100,11 +100,9 @@ public class FileUtil {
 					long progress = 0;
 					if (item.isFormField()) {
 						
-
 					} else {
 						Map<String, String> tempMap = new HashMap<String, String>();
 						fileName = item.getName();
-						
 						if (fileName == null || fileName.trim().equals("")) {
 							continue;
 						}

@@ -70,12 +70,15 @@ public class UploadStorage extends HttpServlet {
 				currentUser = request.getSession().getAttribute("userName").toString(),
 						sessionId = request.getSession().getId()+fileName+"Progress",
 						temp = pathMap.get("temp").toString(),
+						lastModified = request.getParameter("lastModified").toString(),
 						status = null,logWafer="";
 		description = currentUser+":"+description;
 		Map<String,Object> result = null,map=new HashMap<String, Object>();
 		map.put("filePath", filePath);
 		map.put("temp", temp);
-		map.put("fileName", fileName.substring(0, fileName.indexOf(".")));
+//		map.put("fileName", fileName.substring(0, fileName.indexOf(".")));
+		map.put("fileName", fileName);
+		map.put("lastModified", lastModified);
 		map.put("productCategory", productCategory);
 		map.put("description", description);
 		map.put("currentUser", currentUser);

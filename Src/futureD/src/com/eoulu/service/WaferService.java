@@ -89,7 +89,7 @@ public interface WaferService {
 	 * @param invalidationList 无效die，来自map文件
 	 * @return
 	 */
-	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel,DataBaseUtil db);
+	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel,DataBaseUtil db,String lastModified);
 	 
 	 /**
 	  * EOULU标准Excel
@@ -146,6 +146,8 @@ public interface WaferService {
 		List<String> getWaferParameter(String waferId);
 		
 		boolean getWafer(String fileName,String editTime);
+		
+		boolean getCompareFile(String fileName,String lastModified);
 		
 }
 

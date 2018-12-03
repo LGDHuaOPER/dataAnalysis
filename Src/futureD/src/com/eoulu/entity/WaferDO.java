@@ -28,6 +28,13 @@ public class WaferDO {
 	private Integer dataFormat;
 	private String gmtCreate;
 	private String gmtModified;
+	private String lastModified;
+	public String getLastModified() {
+		return lastModified;
+	}
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
+	}
 	public Integer getWaferId() {
 		return waferId;
 	}

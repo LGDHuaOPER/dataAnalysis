@@ -162,9 +162,13 @@ span.glyphicon {
 }
 
 .allDetail_body table th, .allDetail_body table td {
-	max-width: 135px;
-	min-width: 135px;
-	width: 135px;
+	max-width: 130px;
+	min-width: 130px;
+	width: 130px;
+	font-size: 15px;
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .allDetail_body .table_head {
@@ -207,8 +211,8 @@ div.positionFlag_div {
 	position: absolute;
 	top: -10px;
 	z-index: 9;
-	width: 120px;
-	height: 120px;
+	width: 110px;
+	height: 110px;
 }
 
 #vectorMap .panel-body .table {

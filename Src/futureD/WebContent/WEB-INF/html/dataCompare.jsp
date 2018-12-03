@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
 </head>
-<body data-curpage="dataCompare" data-curusername="${userName}">
+<body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -275,7 +275,7 @@
 	<script src="assets/script/libs/drawWaferMap.js"></script>
 	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
+	<script src="src/script/modules/dataCompare/dataCompare2.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
 </body>
 </html>

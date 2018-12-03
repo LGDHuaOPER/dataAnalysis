@@ -36,7 +36,7 @@ public class GaussianServiceImplTest {
 	}
 
 	
-	@Test
+	@Ignore
 	public void testGetGaussian() {
 		Map<String,Object> result = new HashMap<>(),map = null;
 		HistogramService histogram = new HistogramServiceImpl();
@@ -58,9 +58,10 @@ public class GaussianServiceImplTest {
 		System.out.println(new Gson().toJson(result));
 	}
 
-	@Ignore
+	@Test
 	public void testGetRangList() {
-		
+		double a = 1,b = 2;
+		assertEquals(a, b);
 	}
 
 	@Ignore

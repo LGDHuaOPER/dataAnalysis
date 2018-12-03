@@ -82,5 +82,40 @@ public class Correlation extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
+	
+	public static void main(String[] args) {
+		String waferIdStr = "424,373";
+		String status = "",paramX = "Param1",
+				paramY = "Param2";
+		double minX= 4600,
+				maxX= 6500,
+				minY= 4500,
+				maxY= 6500;
+		
+		CorrelationService service2 = new CorrelationServiceImpl();
+		Map<String, Object> result = null;
+		if(!"".equals(paramX) && !"".equals(paramY)){
+			result = service2.getCorrelation(waferIdStr, paramX, paramY, minX, maxX, minY, maxY);
+			result.put("status", status);
+			System.out.println(result);
+			return;
+		}
+		HistogramService service = new HistogramServiceImpl();
+		GaussianService gaussian = new GaussianServiceImpl();
+		List<String> paramList = service.getWaferParameter(waferIdStr );
+		Map<String, List<Double>> rangList = gaussian.getRangList(paramList, waferIdStr);
+		if (paramList.size() >= 2) {
+			paramX = paramList.get(0);
+			paramY = paramList.get(1);
+			minX = rangList.get(paramX).get(1);
+			maxX = rangList.get(paramX).get(0);
+			minY = rangList.get(paramY).get(1);
+			maxY = rangList.get(paramY).get(0);
+			result = service2.getCorrelation(waferIdStr, paramX, paramY, minX, maxX, minY, maxY);
+		} else {
+			status = "所选晶圆参数小于两个，无法绘制！";
+		}
+		result.put("status", status);
+	}
 
 }

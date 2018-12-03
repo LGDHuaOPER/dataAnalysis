@@ -155,7 +155,7 @@ public class URLUtil {
                   
             connection = (HttpURLConnection)url.openConnection();// 新建连接实例  
                   
-            connection.setConnectTimeout(2000);// 设置连接超时时间，单位毫�?  
+            connection.setConnectTimeout(10000);// 设置连接超时时间，单位毫�?  
               
             connection.setReadTimeout(100000);// 设置读取数据超时时间，单位毫�?  
               

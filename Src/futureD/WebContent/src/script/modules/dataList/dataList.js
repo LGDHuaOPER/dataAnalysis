@@ -97,6 +97,12 @@ dataListStore.addition.filePath = {
 	message: "文件上传异常！请重试",
 	reg: null
 };
+dataListStore.addition.lastModified = {
+	value: null,
+	isRequired: true,
+	message: "文件修改时间异常，请删除或刷新后重新选择文件",
+	reg: null
+};
 
 dataListStore.update = Object.create(null);
 dataListStore.update.productCategory = {
@@ -139,8 +145,19 @@ function injectStoreValue(obj){
 			obj.obj[k].value = null;
 		});
 	}else{
+		var extr;
+		if(_.isNil(obj.extra) || _.isEmpty(obj.extra)) {
+			extr = [];
+		}else{
+			extr = obj.extra.key;
+		}
 		_.forOwn(obj.obj, function(v, k){
-			if(_.indexOf(obj.exclude, _.toString(k)) == -1) obj.obj[k].value = _.trim($("#"+obj.prefix+k).val());
+			if(_.indexOf(obj.exclude, _.toString(k)) == -1 && _.indexOf(extr, _.toString(k)) == -1) {
+				obj.obj[k].value = _.trim($("#"+obj.prefix+k).val());
+			}
+		});
+		_.forEach(extr, function(v, i){
+			obj.obj[v].value = obj.extra.value[i];
 		});
 	}
 }
@@ -408,10 +425,20 @@ $(document).on("click", ".operate_othertd>[data-iicon='glyphicon-edit']", functi
 $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primary").click(function(){
 	var iparent = $(this).parents("[data-iparent]").data("iparent");
 	if(_.isEqual(iparent, "addition")){
+		var lastModified;
+		if($("#add_file_Upload").get(0).files.length == 0){
+			lastModified = null;
+		}else{
+			lastModified = _.toString($("#add_file_Upload").get(0).files[0].lastModified);
+		}
 		injectStoreValue({
 			obj: dataListStore.addition,
 			exclude: ["file", "fileName", "filePath"],
-			prefix: "futureDT2_addition_"
+			prefix: "futureDT2_addition_",
+			extra: {
+				key: ["lastModified"],
+				value: [lastModified]
+			}
 		});
 		var flag1 = validationStoreValue({
 			obj: dataListStore.addition,

@@ -65,6 +65,10 @@ public class AutoGrab extends HttpServlet {
 		currentUser = map.get("currentUser").toString();
 		description = map.get("description").toString();
 		editTime = map.get("editTime").toString();
+		if(!service.getCompareFile(fileName, editTime)){
+			response.getWriter().write(new Gson().toJson(status));
+			return;
+		}
 		if(service.getWafer(fileName, editTime)){
 			response.getWriter().write(new Gson().toJson(status));
 			return;

@@ -33,7 +33,7 @@ public class CorrelationServiceImpl implements CorrelationService{
 		for(int i=0,length=att.length;i<length;i++){
 			waferId = Integer.parseInt(att[i]);
 			map = new CorrelationDao().getCorrelation(conn,waferId, paramX, paramY, minX, maxX, minY, maxY);
-			waferNO = new WaferDao().getWaferNO(conn,waferId);
+//			waferNO = new WaferDao().getWaferNO(conn,waferId);
 			result.put(waferId+"", map);
 		}
 	   db.close(conn);

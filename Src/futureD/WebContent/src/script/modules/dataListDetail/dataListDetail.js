@@ -73,6 +73,14 @@ dataListDetailStore.state = {
 		// "correlationgraph": "scatter",
 		"gaussiandistribution": "高斯分布图",
 	},
+	authorityJQDomMap: {
+		"管理员": [$(".g_info_r .glyphicon-user")],
+		// "详细数据": [$(".g_menu li[role='presentation'][data-iclassify='allDetail']")],
+		"导出": [$("div.webParam button")],
+		"矢量数据": [$(".g_menu li[role='presentation'][data-iclassify='vectorMap']")],
+		"参数分布": [$(".g_menu li[role='presentation'][data-iclassify='parameterMap']")]
+	},
+	authorityNull: false
 };
 
 
@@ -89,7 +97,7 @@ function renderTheadTbody(obj){
 	var thead = dataListDetailStore.mock.allDetail.thead;
 	_.forEach(obj.data, function(v, i){
 		if(obj.th){
-			str+='<th>'+v+'</th>';
+			str+='<th title="'+v+'">'+v+'</th>';
 		}else if(obj.td){
 			if(i == 2){
 				if(v == 1){
@@ -99,12 +107,12 @@ function renderTheadTbody(obj){
 				}
 			}else if(i > 3){
 				if(parseFloat(v) > parseFloat(thead.UpLimit[i-4])  || parseFloat(v) < parseFloat(thead.LowerLimit[i-4])){
-					str+='<td style="color: red;">'+v+'</td>';
+					str+='<td style="color: red;" title="'+v+'">'+v+'</td>';
 				}else{
-					str+='<td>'+v+'</td>';
+					str+='<td title="'+v+'">'+v+'</td>';
 				}
 			}else{
-				str+='<td>'+v+'</td>';
+				str+='<td title="'+v+'">'+v+'</td>';
 			}
 		}
 	});
@@ -328,7 +336,7 @@ function renderVectorMapWafer(obj){
 		resizeCallback: function(wi, hi, mapObj){
 			$(window).on("resize", _.debounce(function(){
 				calculateLayout(wi, hi, mapObj);
-			}, 200));
+			}, 150));
 		}
 	});
 }
@@ -956,6 +964,7 @@ function buildParameterChartContainer(obj){
 
 /*参数分布统计 Map良率绘制*/
 function draw_map_good_rate(obj){
+	console.log("draw_map_good_rate",obj);
 	var data = obj.data;
 	var waferNO = obj.waferNO;
 	if(_.isNil(waferNO)) return false;
@@ -1033,6 +1042,7 @@ function draw_map_good_rate(obj){
 
 /*map色阶分布图绘制*/
 function draw_map_color_order_distribution(obj){
+	console.log("draw_map_color_order_distribution",obj);
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
@@ -1264,6 +1274,7 @@ function draw_map_color_order_distribution(obj){
 
 /*参数分布统计 其他图表绘制*/
 function draw_other_chart(obj){
+	console.log("draw_other_chart",obj);
 	/*参数获取*/
 	var chartType = obj.chartType;
 	var classify = obj.classify;
@@ -1775,80 +1786,106 @@ function ajax_all_chart(obj){
 }
 /*参数分布统计end*/
 /*page preload*/
-$(".tab-content div[role='tabpanel']").innerWidth($(".tab-content").innerWidth()).innerHeight($(".tab-content").innerHeight());
+$(".tab-content div[role='tabpanel']").innerWidth($(".tab-co	ntent").innerWidth()).innerHeight($(".tab-content").innerHeight());
 $(".vectorMap_l, .vectorMap_r").innerHeight($("#vectorMap").innerHeight());
+eouluGlobal.S_getSwalMixin()({
+	title: "加载提示",
+	text: "正在加载数据",
+	type: "info",
+	showConfirmButton: false
+});
 
 /*page onload*/
 $(function(){
-	/*加载参数数据分页*/
-	eouluGlobal.S_getSwalMixin()({
-		title: "加载提示",
-		text: "正在加载数据",
-		type: "info",
-		showConfirmButton: false
-	});
-	setTimeout(function(){
-		getTableDataANDRender();
-		setTimeout(function(){
-			swal.close();
-		}, 20);
-	}, 50);
-	/*加载参数数据分页结束*/
-
-	/*回显晶圆信息*/
-	var webParam = eouluGlobal.S_getUrlPrmt().webParam;
-	var webParamStr, webParamArr;
-	if(!_.isNil(webParam)){
-		webParamArr = webParam.split("futureDT2OnlineDataListSplitor");
-		webParamStr = '晶圆信息：'+webParamArr[0]+' / '+webParamArr[1]+' / '+webParamArr[2];
-	}else{
-		webParamStr = '晶圆信息获取失败!';
-	}
-	webParamStr+='<button type="button" class="btn btn-default" aria-label="Left Align">'+
-					  '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出'+
-					'</button>';
-	$("div.webParam").html(webParamStr);
-	var waferId = eouluGlobal.S_getUrlPrmt().waferId;
-	var dataFormat = eouluGlobal.S_getUrlPrmt().dataFormat;
-	if(_.isNil(waferId) || _.isNil(dataFormat)){
-		eouluGlobal.S_getSwalMixin()({
-			title: "异常",
-			text: "参数不完整",
-			type: "warning",
-			showConfirmButton: false,
-			timer: 1500
-		}).then(function(result){
-			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-				eouluGlobal.S_settingURLParam({}, false, false, false, "DataList");
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: _.cloneDeep(dataListDetailStore.state.authorityJQDomMap),
+		callback: function(){
+			if($(".g_menu li[role='presentation'][data-iclassify]:visible").length == 0){
+				eouluGlobal.S_getSwalMixin()({
+					title: "权限判断提示",
+					text: "权限不足，请先申请",
+					type: "error",
+					showConfirmButton: false,
+					timer: 2000
+				}).then(function(){
+					eouluGlobal.S_settingURLParam({}, false, false, false, "DataList");
+				});
+				dataListDetailStore.state.authorityNull = true;
+				return false;
+			}else if($(".g_menu li[role='presentation'][data-iclassify]:visible.active").length == 0){
+				$(".g_menu li[role='presentation'][data-iclassify]:visible:not(.active)").eq(0).children("a").trigger("click");
+			}else{
+				setTimeout(function(){
+					swal.close();
+				}, 300);
 			}
-		});
-		return false;
-	}else{
-		$("body").data({
-			"waferid": waferId,
-			"dataformat": dataFormat
-		});
-	}
+		}
+	});
+	/*判断权限end*/
 
-	/*矢量数据分页*/
-	/*预加载参数图分页chart容器*/
-	_.forEach(dataListDetailStore.state.vectorMap.curveType, function(v){
-		buildChartContainer(v);
-	});
-	_.forEach(_.compact([webParamArr[3]]), function(v, i){
-		$("#DieTypeSel").append('<option value="'+v+'">'+v+'</option>');
-	});
-	/*矢量数据分页end*/
+	if(dataListDetailStore.state.authorityNull !== true){
+		/*加载参数数据分页*/
+		setTimeout(function(){
+			getTableDataANDRender();
+		}, 50);
+		/*加载参数数据分页结束*/
+
+		/*回显晶圆信息*/
+		var webParam = eouluGlobal.S_getUrlPrmt().webParam;
+		var webParamStr, webParamArr;
+		if(!_.isNil(webParam)){
+			webParamArr = webParam.split("futureDT2OnlineDataListSplitor");
+			webParamStr = '晶圆信息：'+webParamArr[0]+' / '+webParamArr[1]+' / '+webParamArr[2];
+		}else{
+			webParamStr = '晶圆信息获取失败!';
+		}
+		webParamStr+='<button type="button" class="btn btn-default" aria-label="Left Align">'+
+						  '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出'+
+						'</button>';
+		$("div.webParam").html(webParamStr);
+		var waferId = eouluGlobal.S_getUrlPrmt().waferId;
+		var dataFormat = eouluGlobal.S_getUrlPrmt().dataFormat;
+		if(_.isNil(waferId) || _.isNil(dataFormat)){
+			eouluGlobal.S_getSwalMixin()({
+				title: "异常",
+				text: "参数不完整",
+				type: "warning",
+				showConfirmButton: false,
+				timer: 1500
+			}).then(function(result){
+				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+					eouluGlobal.S_settingURLParam({}, false, false, false, "DataList");
+				}
+			});
+			return false;
+		}else{
+			$("body").data({
+				"waferid": waferId,
+				"dataformat": dataFormat
+			});
+		}
+
+		/*矢量数据分页*/
+		/*预加载参数图分页chart容器*/
+		_.forEach(dataListDetailStore.state.vectorMap.curveType, function(v){
+			buildChartContainer(v);
+		});
+		_.forEach(_.compact([webParamArr[3]]), function(v, i){
+			$("#DieTypeSel").append('<option value="'+v+'">'+v+'</option>');
+		});
+		/*矢量数据分页end*/
+	}
 });
 
 /*event listener*/
 /*浏览器窗口大小改变普通事件*/
-$(window).on("resize", _.debounce(commonCalcLayout, 200));
+$(window).on("resize", _.debounce(commonCalcLayout, 150));
 $(window).on("resize", _.debounce(function(){
 	_.forEach(dataListDetailStore.state.vectorMap.smithObjArr, function(v, i, arr){
 		arr[i].onresize();
 	});
-}, 200));
+}, 150));
 
 $(".allDetail_body .table_body").on("scroll", _.debounce(function(){
 	/*console.log($(this)); // jquery DOM  div.table_body
@@ -1969,7 +2006,7 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 			});
 		}, 50);
 	}else if(licontrols == "allDetail"){
-		_.debounce(commonCalcLayout, 200)();
+		_.debounce(commonCalcLayout, 150)();
 	}else if(licontrols == "vectorMap" && !dataListDetailStore.state.vectorMap.renderChartByCoordFlag){
 		/*初始化曲线图*/
 		$.ajax({

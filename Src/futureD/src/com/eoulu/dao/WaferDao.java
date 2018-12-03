@@ -8,10 +8,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.eoulu.entity.WaferDO;
 import com.eoulu.transfer.PageDTO;
@@ -90,8 +94,8 @@ public class WaferDao{
 	 */
 	public String insert(Connection conn,WaferDO wafer){
 		String sql = "insert into dm_wafer (wafer_number,die_type,device_number,lot_number,product_category,wafer_file_name,qualified_rate,"
-				+ "test_start_date,test_end_date,test_operator,archive_user,description,total_test_quantity,data_format,gmt_create,gmt_modified,delete_status) "
-				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)";
+				+ "test_start_date,test_end_date,test_operator,archive_user,description,total_test_quantity,data_format,gmt_create,gmt_modified,delete_status,file_last_modified) "
+				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?)";
 		Object[] param = new Object[16];
 		param[0] = wafer.getWaferNumber();
 		param[1] = wafer.getDieType();
@@ -109,8 +113,30 @@ public class WaferDao{
 		param[13] = wafer.getDataFormat();
 		param[14] = wafer.getGmtCreate();
 		param[15] = wafer.getGmtModified();
+		param[16] = wafer.getLastModified();
 		String flag = DataBaseUtil.getInstance().operate(conn, sql, param)?"success":"晶圆添加失败！";
 		return flag;
+	}
+	
+	
+	public static Map<String,Object> getFile(){
+		Map<String,Object> map = new HashMap<>();
+		String sql = "select  wafer_file_name,ifnull(max(file_last_modified),'') file_last_modified from dm_wafer where delete_status=0 group by wafer_file_name";
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				map.put(rs.getString(1), rs.getString(2));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			db.close(conn);
+		}
+		return map;
 	}
 	
 	/**

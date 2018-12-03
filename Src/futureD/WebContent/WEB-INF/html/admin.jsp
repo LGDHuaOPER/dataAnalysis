@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="src/style/modules/admin/admin.css" type="text/css">
 	
 </head>
-<body data-curpage="admin" data-curusername="${userName}">
+<body data-curpage="admin" data-curusername="${userName}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

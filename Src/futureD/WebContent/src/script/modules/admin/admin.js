@@ -979,6 +979,7 @@ $("button.export_current,button.export_select").click(function(){
 			logIdStr = adminState.operateSellectObj.selectItem.join(",");
 		}
 	}
+	console.log("logIdStr",logIdStr);
 	$.ajax({
 	       url: 'LogExport', 
 	       type: 'get',

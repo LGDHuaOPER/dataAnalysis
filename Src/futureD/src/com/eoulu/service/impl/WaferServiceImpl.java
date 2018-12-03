@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +92,7 @@ public class WaferServiceImpl implements WaferService {
 	
 	@Override
 	public synchronized String saveZipData(Connection conn,Map<String,Object> mapFileList,String file, String productCategory, String archiveUser,
-			String description, String csvExcel,DataBaseUtil db) {
+			String description, String csvExcel,DataBaseUtil db,String lastModified) {
 		WaferDao dao = new WaferDao();
 		ParameterDao parameterDao = new ParameterDao();
 		ZipFileParser util = new ZipFileParser();
@@ -176,9 +177,10 @@ public class WaferServiceImpl implements WaferService {
 			wafer.setProductCategory(productCategory);
 			wafer.setDataFormat(0);
 			wafer.setGmtCreate(df.format(new Date()));
-			wafer.setFileName(new File(csvExcel).getName());
+			wafer.setFileName(csvExcel);
 			wafer.setDeleteStatus(0);
 			wafer.setTotalTestQuantity(0);
+			wafer.setLastModified(lastModified);
 			Map<String, List<Object[]>> parameterList = util.getParameter(filelist, datanum, testerWaferSerialIDnum,
 					limitnum, dieTypeList);
 			status = zipUtil.saveWaferInfo(conn,  wafer, parameterList,tester,totalTestTime);
@@ -725,6 +727,29 @@ public class WaferServiceImpl implements WaferService {
 	@Override
 	public boolean recovery(String waferId) {
 		return new WaferDao().remove(waferId, 0);
+	}
+
+	@Override
+	public boolean getCompareFile(String fileName, String lastModified) {
+		Map<String,Object> map = new WaferDao().getFile();
+		boolean flag = false;
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if(map.containsKey(fileName)){
+			String time = map.get(fileName).toString();
+			try {
+				Date date = df.parse(time);
+				Date date2 = df.parse(lastModified);
+				if(date.before(date2)){
+					flag = true;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}else{
+			flag = true;
+		}
+		
+		return flag;
 	}
 	
 	
