@@ -137,9 +137,9 @@ function dataCompareRenderChart(obj){
 				legend: {
 					layout: 'vertical',
 					align: 'left',
-					x: 60,
+					x: 55,
 					verticalAlign: 'top',
-					y: 10,
+					y: 25,
 					floating: true,
 					backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
 				},
