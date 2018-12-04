@@ -128,5 +128,7 @@ public interface UserService {
 	  * @return
 	  */
 	 boolean updatePassword(String password,String userName);
+	 
+	 String getAuthorityId();
 
 }

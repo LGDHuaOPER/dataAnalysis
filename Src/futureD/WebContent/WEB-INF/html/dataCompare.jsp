@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
 </head>
-<body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}">
+<body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" >
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -111,6 +111,7 @@
 						    						<th>批次编号</th>
 						    						<th>晶圆编号</th>
 						    						<th>合格率</th>
+						    						<th title="双击全部删除" class="home_dataCompare_bottom_del_all">删除选中</th>
 						    					</thead>
 						    					<tbody></tbody>
 						    				</table>
@@ -272,6 +273,7 @@
 	<script src="assets/script/libs/histogram-bellcurve.js"></script>
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
+	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	<script src="assets/script/libs/drawWaferMap.js"></script>
 	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>

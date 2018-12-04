@@ -45,6 +45,9 @@ public class UserServiceImpl implements UserService{
 		if( password != null && !"".equals(password)){
 			return "用户名不能重复！";
 		}
+		if("".equals(user.getPassword())){
+			return "密码不能为空！";
+		}
 		return dao.insert(user)?"添加成功！":"添加失败！";
 	}
 
@@ -80,6 +83,9 @@ public class UserServiceImpl implements UserService{
 		String reqUrl = "",reqId="";
 		reqUrl = dao.getUserAuthority(userName);
 		List<Map<String,Object>> authorityPerPage = authorityDao.getAuthority(reqUrl);
+		if(authorityPerPage == null){
+			return null;
+		}
 		reqUrl = "";
 		for(int j=0,size2=authorityPerPage.size();j<size2;j++){
 			reqName += ","+authorityPerPage.get(j).get("authority_name").toString();
@@ -169,6 +175,21 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public boolean updatePassword(String password, String userName) {
 		return dao.updatePassword(password, userName);
+	}
+
+	@Override
+	public String getAuthorityId() {
+		List<String> ls = authorityDao.getAuthorityId();
+		String authority = "";
+		for(int i=0,size=ls.size();i<size;i++){
+			if(i == 0){
+				authority += ls.get(i);
+			}else{
+				authority += ","+ls.get(i);
+			}
+			
+		}
+		return authority;
 	}
 	
 	

@@ -220,7 +220,7 @@
 			    		    	<div class="vectorMap_r">
 			    		    		<!-- 坐标图 -->
 			    		    		<div class="positionFlag_div">
-			    		    			<img src="" alt="" height="120" width="120">
+			    		    			<img src="" alt="坐标图" height="100" width="100">
 			    		    		</div>
 			    		    		<canvas id="canvas_vectorMap"></canvas>
 			    					<div id="in" style="position: absolute; z-index: 10;"></div>

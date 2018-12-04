@@ -103,10 +103,10 @@ public class FunctionUtil {
 	
 	
 	public static List<String> getRangeOrderAsc(double A,double B,int n){
-		 DecimalFormat format = new DecimalFormat("#.00");
+//		 DecimalFormat format = new DecimalFormat("#.00");
 		List<String> getrangelist=new ArrayList<String>();
-		String smallthanlimit = "-∞~" + format.format(A);
-		String bigthanlimit = format.format(B) + "~+∞";
+		String smallthanlimit = "-∞~" + A;
+		String bigthanlimit = B + "~+∞";
 		getrangelist.add(smallthanlimit);
 		double S1,S2;
 		String str=null;
@@ -114,7 +114,7 @@ public class FunctionUtil {
 		{     
 			S1=A+(B-A)*(s-1)/n;
 			S2=A+(B-A)*(s)/n;
-			str= format.format(S1) +"~"+ format.format(S2);
+			str= S1 +"~"+ S2;
 			getrangelist.add(str);
 		}
 		getrangelist.add(bigthanlimit);

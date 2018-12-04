@@ -182,6 +182,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                         y_Min = i;
                     if(y_Min == y_Max)
                     	y_Min = y_Min-1;
+                    if(x_Max == x_Min)
+                    	x_Min = x_Min-1;
                 }
             }
         }

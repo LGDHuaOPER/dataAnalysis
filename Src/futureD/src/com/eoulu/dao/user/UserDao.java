@@ -22,15 +22,10 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class UserDao {
 
-	private static DataBaseUtil db = new DataBaseUtil();
+	private static DataBaseUtil db = DataBaseUtil.getInstance();
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private static Hashtable<String, String> table = new Hashtable<>();
+	
 
-	static {
-		table.put("操作账户", "user_name");
-		table.put("联系电话", "telephone");
-		table.put("电子邮箱", "email");
-	}
 
 	/**
 	 * 根据用户名获取密码
@@ -39,7 +34,7 @@ public class UserDao {
 	 * @return
 	 */
 	public String getPassword(String userName) {
-		String sql = "select password from dm_user where user_name=?";
+		String sql = "select password from dm_user where binary user_name=?";
 		Object result = db.queryResult(sql, new Object[] { userName });
 		return result == null ? "" : result.toString();
 	}
@@ -51,13 +46,13 @@ public class UserDao {
 	 * @return
 	 */
 	public String getUserId(String userName) {
-		String sql = "select user_id from dm_user where user_name=?";
+		String sql = "select user_id from dm_user where binary user_name=?";
 		Object result = db.queryResult(sql, new Object[] { userName });
 		return result == null ? "" : result.toString();
 	}
 
 	public static String getUserId(Connection conn, String userName) {
-		String sql = "select user_id from dm_user where user_name='"+userName+"' and 1";
+		String sql = "select user_id from dm_user where binary user_name='"+userName+"' and 1";
 		Object result = db.queryResult(conn, sql, null);
 		return result == null ? "" : result.toString();
 	}
@@ -75,7 +70,7 @@ public class UserDao {
 	 * @return
 	 */
 	public String getLastLogin(String userName) {
-		String sql = "select current_login from dm_user where user_name=?";
+		String sql = "select current_login from dm_user where binary user_name=?";
 		Object result = db.queryResult(sql, new Object[] { userName });
 		return result == null ? "" : result.toString();
 	}
@@ -88,9 +83,9 @@ public class UserDao {
 	 */
 	public boolean insert(UserDO user) {
 
-		String sql = "insert into dm_user (user_name,password,sex,telephone,email,role_id,authority,gmt_create) value (?,?,?,?,?,?,'',?)";
+		String sql = "insert into dm_user (user_name,password,sex,telephone,email,role_id,authority,gmt_create) value (?,?,?,?,?,?,?,?)";
 		Object[] param = new Object[] { user.getUserName(), user.getPassword(), user.getSex(), user.getTelephone(),
-				user.getEmail(), user.getRoleId(), df.format(new Date()) };
+				user.getEmail(), user.getRoleId(),user.getAuthority(), df.format(new Date()) };
 		return db.operate(sql, param);
 	}
 
@@ -112,8 +107,16 @@ public class UserDao {
 		String sql = "update dm_user set user_name=?,sex=?,telephone=?,email=?,role_id=? where user_id=?";
 		Object[] param = new Object[] { user.getUserName(), user.getSex(), user.getTelephone(),
 				user.getEmail(), user.getRoleId(), user.getUserId() };
+		if(user.getAuthority() != null && !"".equals(user.getAuthority())){
+			sql = "update dm_user set user_name=?,sex=?,telephone=?,email=?,role_id=?,authority=? where user_id=?";
+			param = new Object[] { user.getUserName(), user.getSex(), user.getTelephone(),
+					user.getEmail(), user.getRoleId(),user.getAuthority(), user.getUserId() };
+		}
+		
 		return db.operate(sql, param);
 	}
+	
+	
 	/**
 	 * 修改密码
 	 * @param password
@@ -121,7 +124,7 @@ public class UserDao {
 	 * @return
 	 */
 	public boolean updatePassword(String password,String userName){
-		String sql = "update dm_user set password=? where user_name=?";
+		String sql = "update dm_user set password=? where binary user_name=?";
 		return db.operate(sql, new Object[]{password,userName});
 	}
 
@@ -133,7 +136,7 @@ public class UserDao {
 	 * @return
 	 */
 	public boolean update(String lastLogin, String userName) {
-		String sql = "update dm_user set last_login=? where user_name=?";
+		String sql = "update dm_user set last_login=? where binary user_name=?";
 		Object[] param = new Object[] { lastLogin, userName };
 		return db.operate(sql, param);
 	}
@@ -146,7 +149,7 @@ public class UserDao {
 	 * @return
 	 */
 	public boolean updateLoginDate(String currentLogin, String userName) {
-		String sql = "update dm_user set current_login=? where user_name=?";
+		String sql = "update dm_user set current_login=? where binary user_name=?";
 		Object[] param = new Object[] { currentLogin, userName };
 		return db.operate(sql, param);
 	}
@@ -158,7 +161,7 @@ public class UserDao {
 	 * @return
 	 */
 	public String getUserAuthority(String userName) {
-		String sql = "select authority from dm_user where user_name=?";
+		String sql = "select authority from dm_user where binary user_name=?";
 		Object result = db.queryResult(sql, new Object[] { userName });
 		return result == null ? "" : result.toString();
 	}
@@ -184,7 +187,7 @@ public class UserDao {
 				+ "dm_role.role_name,left(gmt_create,10) gmt_create,left(last_login,10) last_login "
 				+ "from dm_user left join dm_role on dm_user.role_id=dm_role.role_id ";
 		if (!"".equals(keyword)) {
-			sql += "where  user_name like ?  or telephone like ? or email like ? ";
+			sql += "where  user_name like binary ?  or telephone like binary ? or email like binary ? ";
 			param = new Object[] { "%" + keyword + "%", "%" + keyword + "%", "%" + keyword + "%",
 					(page.getCurrentPage() - 1) * page.getRow(), page.getCurrentPage() * page.getRow() };
 		}
@@ -196,7 +199,7 @@ public class UserDao {
 		Object[] param = null;
 		String sql = "select count(*) from dm_user ";
 		if (!"".equals(keyword)) {
-			sql += "where  user_name like ?  or telephone like ? or email like ? ";
+			sql += "where  user_name like binary ?  or telephone like binary ? or email like binary ? ";
 			param = new Object[] { "%" + keyword + "%", "%" + keyword + "%", "%" + keyword + "%" };
 		}
 		Object result = db.queryResult(sql, param);

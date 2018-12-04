@@ -34,12 +34,12 @@ public class UserNameQuery extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		String userName = request.getParameter("userName")==null?"":request.getParameter("userName").trim();
 		UserService service = new UserServiceImpl();
-		String status = "";
+		boolean flag = false;
 		if(!"".equals(service.getUserId(userName))){
-			status = "用户已存在！";
+			flag = true;
 		}
 	
-		response.getWriter().write(new Gson().toJson(status));
+		response.getWriter().write(new Gson().toJson(flag));
 	}
 
 	/**

@@ -87,7 +87,7 @@ public class UploadStorage extends HttpServlet {
 		map.put("interval", 5);
 		WaferService service = new WaferServiceImpl();
 		ZipFileParser zipUtil = new ZipFileParser();
-		System.out.println("fileName:"+fileName);
+		System.out.println("lastModified:"+lastModified);
 		System.out.println("filePath:"+filePath);
 		ProgressSingleton.put(sessionId, 5);
 		boolean flag = false;

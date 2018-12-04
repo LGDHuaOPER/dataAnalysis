@@ -833,6 +833,7 @@
                     case 4:
                         // alert("请求响应完成得到全部数据");
                         if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+                            console.log(xhr)
                             var data = xhr.responseText;
                             that.S_isFunction(obj.status200) && obj.status200(data, xhr.status, xhr);
                         } else {
@@ -870,7 +871,7 @@
                     contentType = "application/json";
                     break;
                     case "XML":
-                    contentType = "text/xml";
+                    contentType = "text/xml"; // jquery text/plain
                     break;
                     default:
                     contentType = "application/x-www-form-urlencoded";

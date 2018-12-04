@@ -190,7 +190,7 @@ div#in ul {
 
 .vectorMap_in {
 	display: grid;
-	grid-template-columns: 600px 1fr;
+	grid-template-columns: 590px 1fr;
 	grid-template-areas: "vectorMap_l  vectorMap_r";
 }
 
@@ -206,13 +206,24 @@ div#in ul {
 	overflow: auto;
 }
 
+.vectorMap_l>.container-fluid {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.vectorMap_l>.container-fluid>.row {
+	margin-left: -10px;
+	margin-right: -10px;
+}
+
 div.positionFlag_div {
 	display: inline-block;
 	position: absolute;
-	top: -10px;
+	top: -13px;
+	left: -3px;
 	z-index: 9;
-	width: 110px;
-	height: 110px;
+	width: 100px;
+	height: 100px;
 }
 
 #vectorMap .panel-body .table {

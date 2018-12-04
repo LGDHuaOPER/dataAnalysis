@@ -21,7 +21,6 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class AuthorityDao {
 
-	
 	/**
 	 * 获取页面的权限值
 	 * @return
@@ -36,7 +35,7 @@ public class AuthorityDao {
 	 * @return
 	 */
 	public List<Map<String,Object>> getAuthorityPage(){
-		String sql = "select distinct page from dm_authority where hidden=0";
+		String sql = "select distinct page from dm_authority where hidden=0 and page<>'管理员'";
 		return DataBaseUtil.getInstance().queryToList(sql, null);
 	}
 	/**
@@ -66,6 +65,11 @@ public class AuthorityDao {
 		String sql = "select authority_url from dm_authority "+condition;
 		return   DataBaseUtil.getInstance().queryList(sql, null);
 		
+	}
+	
+	public static List<String> getAuthorityId(){
+		String sql = "select authority_id from dm_authority where hidden=0";
+		return DataBaseUtil.getInstance().queryList(sql, null);
 	}
 	
 }

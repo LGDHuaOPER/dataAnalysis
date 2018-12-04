@@ -376,9 +376,9 @@ $(function(){
 		var iThat = $(this);
 		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
 			adminSwalMixin({
-				title: '',
+				title: '提示',
 				text: "超级管理员不能被删除",
-				type: 'error',
+				type: 'warning',
 				showConfirmButton: false,
 				timer: 2000,
 			});
@@ -470,21 +470,36 @@ $(function(){
 	$(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-edit", function(e){
 		e.stopPropagation();
 		var iThat = $(this);
+		
+		if(iThat.parent().siblings(".td__role_id").data("ivalue") > adminState.adminRoleMap[$("body").attr("currentrole")]){
+			adminSwalMixin({
+				title: '提示',
+				text: "权限不足，您修改不了角色等级比你高的",
+				type: 'warning',
+				showConfirmButton: false,
+				timer: 2000,
+			});
+			return false;
+		}
+		
+		
+		
 		var iTd = iThat.parent();
 		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
 			$(".staff_update #staff_update_role_id option[value='3']").prop({
 				"selected": true,
 				"disabled": false
 			}).parent().attr("readonly", "readonly").prop("disabled", true);
+			//$("#staff_update_user_name,#staff_update_sex,#staff_update_telephone,#staff_update_email").attr("readonly", "readonly").prop("disabled", true);
 			//$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
 		}else{
 			$(".staff_update #staff_update_role_id option[value='请选择用户角色']").prop({
 				"selected": true
 			}).parent().removeAttr("readonly").prop("disabled", false);
+			//$("#staff_update_user_name,#staff_update_sex,#staff_update_telephone,#staff_update_email").removeAttr("readonly").prop("disabled", false);
 			$(".staff_update #staff_update_role_id option[value='3']").prop("disabled", true);
 			//$(".staff_update_r_foot>.btn-primary").prop("disabled", false);
 		}
-		
 		$(".staff_update_r_bodyin #staff_update_user_name").attr("userId",iTd.parent().find(".not_search").eq(0).find("input").data("ivalue"));
 		
 		$("[id^='staff_update_']").each(function(){
@@ -501,7 +516,7 @@ $(function(){
 				adminState.staffUpdateUser = iVal.toString();
 			}
 		});
-		
+		$(".staff_update_r_bodyin .container-fluid>.row .glyphicon").remove();
 		$(".futureDT2_bg_cover, .staff_update").slideDown(250);
 		$(".staff_update_l, .staff_update_r").height($(".staff_update").height());
 		
@@ -611,7 +626,7 @@ $(".isRequired").on("input propertychange change", function(){
 	}else{
 		if($(this).is("#staff_"+iclassify+"_password2")){
 			if($("#staff_"+iclassify+"_password").val() != $("#staff_"+iclassify+"_password2").val()){
-				str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 两次输入不一致';
+				str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"<span>两次输入不一致</span>></span> ';
 				$(".staff_"+iclassify+"_r_foot>.btn-primary").prop("disabled", true);
 			}else{
 				str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
@@ -683,7 +698,7 @@ $("#staff_addition_user_name").on("blur", function(){
 	var newUser = $("#staff_addition_user_name").val().trim();
 	var str;
 	if(newUser == ""){
-		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"><span>用户名不能为空</span></span>';
 		$(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
 		$(this).parent().next().empty().append(str);
 		return false;
@@ -696,12 +711,13 @@ $("#staff_addition_user_name").on("blur", function(){
        },
        dataType: 'json', 
        success: function (data) {
-    	   if(data == ""){
+    	   console.log("data",data);
+    	   if(!data){
     		   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
     		   staffSubmitBtn($(this), "addition");
     	   }
     	   else{
-    		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
+    		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"><span>用户名已存在</span></span>';
     		   $(".staff_addition_r_foot>.btn-primary").prop("disabled", true);
     	   }
     	   $("#staff_addition_user_name").parent().next().empty().append(str);
@@ -718,48 +734,10 @@ $("#staff_addition_user_name").on("blur", function(){
    });  
 });
 
-$("#staff_update_user_name").on("blur", function(){
-	var str;
-	var newUser = $(this).val().trim();
-	if(newUser == ""){
-		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
-		$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
-		$(this).parent().next().empty().append(str);
-		return false;
-	}
-	$.ajax({
-	       url: 'UserNameQuery', 
-	       type: 'get',
-	       data: {
-	    	   userName : newUser ,
-	       },
-	       dataType: 'json', 
-	       success: function (data) {
-	    	   console.log("data",data);
-	    	   if(data == ""){
-	    		   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
-	    		   staffSubmitBtn($(this), "update");
-	    	   }
-	    	   else{
-	    		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">用户名已存在</span>';
-	    		   $(".staff_update_r_foot>.btn-primary").prop("disabled", true);
-	    	   }
-	    	   $("#staff_update_user_name").parent().next().empty().append(str);
-	       },
-	       error: function (data, status, e) {
-	    	   adminSwalMixin({
-	   				title: '异常',
-	   				text: "服务器繁忙！",
-	   				type: 'error',
-	   				showConfirmButton: false,
-	   				timer: 2000,
-	   			});
-	       }
-	   });  
-	
-});
+
 
 $(".row .has-feedback .form-control-feedback").click(function(){
+	console.log("nini")
 	if($(this).is(".glyphicon-eye-open")){
 		$(this).prev().attr("type", "text");
 	}else if($(this).is(".glyphicon-eye-close")){

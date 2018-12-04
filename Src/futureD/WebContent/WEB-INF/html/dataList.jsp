@@ -179,7 +179,7 @@
 								<div class="container-fluid">
 									<div class="row row_extra3">
 										<div class="col-sm-12 col-md-6 col-lg-6">
-											<div class="well">
+											<div class="well" id="dropFileCon">
 												<!-- accept="application/x-zip-compressed,aplication/zip,application/octet-stream,application/x-rar-compressed" -->
 												<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><input type="file" id="add_file_Upload" accept="aplication/zip, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .zip, .rar"><br>
 												点击/拖拽文件到这里上传<br>

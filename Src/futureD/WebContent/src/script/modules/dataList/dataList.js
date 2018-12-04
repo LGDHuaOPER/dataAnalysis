@@ -61,6 +61,7 @@ dataListStore.state.bar = {
 	},
 	Bar: null
 };
+dataListStore.state.uploadClassify = null;
 /*添加修改*/
 dataListStore.addition = Object.create(null);
 dataListStore.addition.file = {
@@ -271,6 +272,133 @@ function barDestroy(){
 	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-ok, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
 }
 
+/*选择文件后的处理*/
+function showBarAndOther(obj){
+	var fileObj = obj.fileObj;
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").show();
+	$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").hide();
+	$(".upload_l_tit").text(fileObj.name);
+	$(".upload_l_body").text("大小："+eouluGlobal.S_getFileSize(fileObj.size));
+	if(!dataListStore.state.bar.flag){
+		dataListStore.state.bar.Bar = new ProgressBar.Circle("#upload_container", dataListStore.state.bar.option);
+		dataListStore.state.bar.flag = true;
+	}
+	dataListStore.state.bar.Bar.text.style.fontFamily = '"microsoft yahei", "Arial", sans-serif';
+	dataListStore.state.bar.Bar.text.style.fontSize = '2rem';
+	dataListStore.addition.file.value = fileObj;
+	dataListStore.addition.fileName.value = null;
+	dataListStore.addition.filePath.value = null;
+	/*dataListState.Bar.animate(0.4, {
+	    duration: 800
+	}, function() {
+	    console.log('Animation has finished');
+	});*/
+	/*set(progress)*/
+}
+
+/*上传文件的ajax*/
+function dataListFileUpload(obj){
+	var formData = obj.formData,
+	successOther = obj.successOther,
+	errorOther = obj.errorOther;
+    $.ajax({
+        type: "POST",
+        async: true,  //这里要设置异步上传，才能成功调用myXhr.upload.addEventListener('progress',function(e){}),progress的回掉函数
+        // accept: 'text/html;charset=UTF-8',
+        accept: 'application/json; charset=utf-8',
+        data: formData,
+        // contentType:"multipart/form-data",
+        url: "UploadFile",
+        processData: false, // 告诉jQuery不要去处理发送的数据
+        contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+        cache: false,
+        dataType: "json",
+        xhr: function(){                        
+            myXhr = $.ajaxSettings.xhr();
+            if(myXhr.upload){ // check if upload property exists
+                myXhr.upload.addEventListener('progress',function(e){ 
+                	if(e.lengthComputable){
+                		var loaded = e.loaded;                  //已经上传大小情况 
+                		var total = e.total;                      //附件总大小 
+                		var floatPer = Math.floor(100*loaded/total)/100;
+                		var percent = (Math.floor(1000*loaded/total)/10)+"%";     //已经上传的百分比  
+                		// console.log("已经上传了："+percent);
+                		// Number from 0.0 to 1.0
+                		dataListStore.state.bar.Bar.animate(floatPer, {
+                			duration: 1
+                		}, function(){
+                			if(floatPer == 1 || floatPer == 1.0){
+                				dataListSwalMixin({
+                					title: "上传完成！",
+                					text: "服务器已经接收完 "+dataListStore.addition.file.value.name+"，请记得提交",
+                					type: "success",
+                					timer: 2000,
+                					callback: null
+                				});
+                			}
+                		});
+                	}                         
+                }, false); // for handling the progress of the upload
+            }
+            return myXhr;
+        },
+		/*xhr: function() {
+			var xhr = new window.XMLHttpRequest();
+			//Upload progress, request sending to server
+			xhr.upload.addEventListener("progress", function(evt) {
+				console.log("in Upload progress");
+				console.log("Upload Done");
+			}, false);
+			//Download progress, waiting for response from server
+			xhr.addEventListener("progress", function(e) {
+				console.log("in Download progress");
+				if (e.lengthComputable) {
+					//percentComplete = (e.loaded / e.total) * 100;
+					percentComplete = parseInt((e.loaded / e.total * 100), 10);
+					console.log(percentComplete);
+					$('#bulk-action-progbar').data("aria-valuenow", percentComplete);
+					$('#bulk-action-progbar').css("width", percentComplete + '%');
+
+				} else {
+					console.log("Length not computable.");
+				}
+			}, false);
+			return xhr;
+		},*/
+        success: function(data){
+        	if(!_.isNil(data) && !_.isEmpty(data)){
+        		_.forOwn(data, function(v, k){
+        			dataListStore.addition.fileName.value = k;
+        			dataListStore.addition.filePath.value = v;
+        		});
+        		$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").show();
+        		$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
+        	}else{
+        		dataListSwalMixin({
+        			title: "处理失败！",
+        			text: dataListStore.addition.file.value.name+" 已经上传至服务器，但是处理失败",
+        			type: "error",
+        			timer: 2000,
+        			callback: null
+        		});
+        		barDestroy();
+        		dataListStore.addition.file.value = null;
+        	}
+        	successOther && _.isFunction(successOther) && successOther(data);
+        },
+        error: function(){
+        	errorOther && _.isFunction(errorOther) && errorOther(data);
+        },
+		beforeSend: function(XMLHttpRequest){
+			eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "正在上传...");
+        },
+		complete: function(XMLHttpRequest, textStatus){
+		    if(textStatus=="success"){
+		    }
+		    eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
+		}
+    });
+}
 /*page preload*/
 
 /*page onload*/
@@ -426,10 +554,11 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 	var iparent = $(this).parents("[data-iparent]").data("iparent");
 	if(_.isEqual(iparent, "addition")){
 		var lastModified;
-		if($("#add_file_Upload").get(0).files.length == 0){
+		if(_.isNil(dataListStore.addition.file.value)){
 			lastModified = null;
 		}else{
-			lastModified = _.toString($("#add_file_Upload").get(0).files[0].lastModified);
+			lastModified = _.toString(dataListStore.addition.file.value.lastModified);
+			// lastModified = _.toString($("#add_file_Upload").get(0).files[0].lastModified);
 		}
 		injectStoreValue({
 			obj: dataListStore.addition,
@@ -896,128 +1025,28 @@ $("#add_file_Upload").on("change", function(){
 		});
 		return false;
 	}
-	$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").show();
-	$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").hide();
-	var size = $(this)[0].files[0].size;
-	var name = $(this)[0].files[0].name;
-	$(".upload_l_tit").text($(this)[0].files[0].name);
-	$(".upload_l_body").text("大小："+eouluGlobal.S_getFileSize(size));
-	if(!dataListStore.state.bar.flag){
-		dataListStore.state.bar.Bar = new ProgressBar.Circle("#upload_container", dataListStore.state.bar.option);
-		dataListStore.state.bar.flag = true;
-	}
-	dataListStore.state.bar.Bar.text.style.fontFamily = '"microsoft yahei", "Arial", sans-serif';
-	dataListStore.state.bar.Bar.text.style.fontSize = '2rem';
-	dataListStore.addition.file.value = $(this)[0].files[0];
-	dataListStore.addition.fileName.value = null;
-	dataListStore.addition.filePath.value = null;
-	/*dataListState.Bar.animate(0.4, {
-	    duration: 800
-	}, function() {
-	    console.log('Animation has finished');
-	});*/
-	/*set(progress)*/
+	var fileObj = $(this)[0].files[0];
+	showBarAndOther({
+		fileObj: fileObj
+	});
+	dataListStore.state.uploadClassify = "select";
 });
 /*上传文件*/
 $(".row_extra3>div:nth-child(2)>span.glyphicon-open").click(function(){
 	if(_.isNil(dataListStore.addition.file.value)) return false;
     var formData = new FormData();
     formData.enctype="multipart/form-data";
-    // formData.append("ID",ID);
     formData.append("file", dataListStore.addition.file.value);
     //formData.append("file",$("#serFinRepUpload")[0].files[0]);//append()里面的第一个参数file对应permission/upload里面的参数file         
-    // formData.append("Operate","upload");
-    $.ajax({
-        type: "POST",
-        async: true,  //这里要设置异步上传，才能成功调用myXhr.upload.addEventListener('progress',function(e){}),progress的回掉函数
-        // accept: 'text/html;charset=UTF-8',
-        accept: 'application/json; charset=utf-8',
-        data: formData,
-        // contentType:"multipart/form-data",
-        url: "UploadFile",
-        processData: false, // 告诉jQuery不要去处理发送的数据
-        contentType: false, // 告诉jQuery不要去设置Content-Type请求头
-        cache: false,
-        dataType: "json",
-        xhr: function(){                        
-            myXhr = $.ajaxSettings.xhr();
-            if(myXhr.upload){ // check if upload property exists
-                myXhr.upload.addEventListener('progress',function(e){                           
-                    var loaded = e.loaded;                  //已经上传大小情况 
-                    var total = e.total;                      //附件总大小 
-                    var floatPer = Math.floor(100*loaded/total)/100;
-                    var percent = (Math.floor(1000*loaded/total)/10)+"%";     //已经上传的百分比  
-                    // console.log("已经上传了："+percent);
-                    // Number from 0.0 to 1.0
-                    dataListStore.state.bar.Bar.animate(floatPer, {
-                    	duration: 1
-                    }, function(){
-                    	if(floatPer == 1 || floatPer == 1.0){
-                    		dataListSwalMixin({
-                    			title: "上传成功！",
-                    			text: name+" 已经上传至服务器，请记得提交",
-                    			type: "success",
-                    			timer: 2000,
-                    			callback: null
-                    		});
-                    	}
-                    });
-                }, false); // for handling the progress of the upload
-            }
-            return myXhr;
-        },
-		/*xhr: function() {
-			var xhr = new window.XMLHttpRequest();
-			//Upload progress, request sending to server
-			xhr.upload.addEventListener("progress", function(evt) {
-				console.log("in Upload progress");
-				console.log("Upload Done");
-			}, false);
-			//Download progress, waiting for response from server
-			xhr.addEventListener("progress", function(e) {
-				console.log("in Download progress");
-				if (e.lengthComputable) {
-					//percentComplete = (e.loaded / e.total) * 100;
-					percentComplete = parseInt((e.loaded / e.total * 100), 10);
-					console.log(percentComplete);
-					$('#bulk-action-progbar').data("aria-valuenow", percentComplete);
-					$('#bulk-action-progbar').css("width", percentComplete + '%');
-
-				} else {
-					console.log("Length not computable.");
-				}
-			}, false);
-			return xhr;
-		},*/
-        success: function(data){
-        	if(!_.isNil(data) && !_.isEmpty(data)){
-        		_.forOwn(data, function(v, k){
-        			dataListStore.addition.fileName.value = k;
-        			dataListStore.addition.filePath.value = v;
-        		});
-        		$(".row_extra3>div:nth-child(2)>span.glyphicon-ok").show();
-        		$(".row_extra3>div:nth-child(2)>span.glyphicon-remove, .row_extra3>div:nth-child(2)>span.glyphicon-open").hide();
-        	}
-        },
-        error: function(){
-        	eouluGlobal.C_server500Message({
-        		callback: null
-        	});
-        },
-		beforeSend: function(XMLHttpRequest){
-			eouluGlobal.C_btnDisabled($(".futureDT2_addition_r_foot .btn-primary"), true, "正在上传...");
-        },
-		complete: function(XMLHttpRequest, textStatus){
-		    if(textStatus=="success"){
-		    }
-		    eouluGlobal.C_btnAbled($(".futureDT2_addition_r_foot .btn-primary"), true, "提交");
-		}
-    }); 
+    dataListFileUpload({
+    	formData: formData
+    });
 });
 /*删除选中*/
 $(".row_extra3>div:nth-child(2)>span.glyphicon-remove").click(function(){
 	barDestroy();
 	dataListStore.addition.file.value = null;
+	dataListStore.state.uploadClassify = null;
 });
 
 /*验证*/
@@ -1055,3 +1084,73 @@ $(document).on("click", ".operate_othertd [data-iicon='glyphicon-eye-open']", fu
 $(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-trash']").click(function(){
 	eouluGlobal.S_settingURLParam({}, false, false, false, "RecycleBin");
 });
+
+/*2018-12-4 增加拖拽上传*/
+var dropFileCon = document.getElementById("dropFileCon");
+dropFileCon.ondragover = function(e) {
+	e.preventDefault();
+	this.style.backgroundColor = "#ddd";
+	this.getElementsByTagName("small")[0].innerText = "释放鼠标，立即上传！";
+	return false;
+};
+
+dropFileCon.ondragenter = function(e) {
+	e.preventDefault();
+	this.style.backgroundColor = "#ddd";
+	this.getElementsByTagName("small")[0].innerText = "释放鼠标，立即上传！";
+	return false;
+};
+
+dropFileCon.ondragleave = function(e) {
+	e.preventDefault();
+	this.style.backgroundColor = "#f5f5f5";
+	this.getElementsByTagName("small")[0].innerText = "支持Excel、TXT、zip、rar格式";
+	return false;
+};
+
+dropFileCon.ondrop = function(e) {
+	e.preventDefault();
+	var files = e.dataTransfer.files,
+	iflag = false;
+	console.table(files)
+	// 如果没有文件
+	if(files.length < 1){
+		iflag = true;
+	}else if(files.length > 1){
+		dataListSwalMixin({
+			title: "拖拽上传提示",
+			text: "一次只能选择一个文件",
+			type: "info",
+			timer: 1600,
+			callback: null
+		});
+		iflag = true;
+	}
+	if(iflag) {
+		dropFileCon.style.backgroundColor = "#f5f5f5";
+		dropFileCon.getElementsByTagName("small")[0].innerText = "支持Excel、TXT、zip、rar格式";
+		return false;
+	}
+	var fileObj = files[0]; // 获取当前的文件对象
+	var formData = new FormData();
+	dataListStore.addition.file.value = fileObj;
+	dataListStore.state.uploadClassify = "drop";
+    formData.enctype="multipart/form-data";
+    formData.append("file", fileObj);
+    //formData.append("file",$("#serFinRepUpload")[0].files[0]);//append()里面的第一个参数file对应permission/upload里面的参数file  
+    showBarAndOther({
+		fileObj: fileObj
+	});  
+    dataListFileUpload({
+    	formData: formData,
+    	successOther: function(){
+    		dropFileCon.style.backgroundColor = "#f5f5f5";
+    		dropFileCon.getElementsByTagName("small")[0].innerText = "支持Excel、TXT、zip、rar格式";
+    	},
+    	errorOther: function(){
+    		dropFileCon.style.backgroundColor = "#f5f5f5";
+    		dropFileCon.getElementsByTagName("small")[0].innerText = "支持Excel、TXT、zip、rar格式";
+    	}
+    });
+	return false;
+};

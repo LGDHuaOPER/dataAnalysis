@@ -39,7 +39,7 @@ public class WaferDao{
 				+ "where delete_status="+deleteStatus;
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += "  and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like ? or description like ? ) ";
+			sql += "  and ( device_number like binary ? or lot_number like binary ? or wafer_number like binary ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like binary ? or description like binary ? ) ";
 			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		}
 		sql += "  order by gmt_modified desc limit ?,? ";
@@ -58,7 +58,7 @@ public class WaferDao{
 		Object[] param = null;
 		if(!"".equals(keyword)){
 			if(!"".equals(keyword)){
-				sql += "  and ( device_number like ? or lot_number like ? or wafer_number like ? or qualified_rate=? or test_end_date=? or dm_user.user_name like ? or description like ? ) ";
+				sql += "  and ( device_number like binary ? or lot_number like binary ? or wafer_number like binary ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like binary ? or description like binary ? ) ";
 				param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%"};
 			}
 		}
@@ -94,8 +94,8 @@ public class WaferDao{
 	 */
 	public String insert(Connection conn,WaferDO wafer){
 		String sql = "insert into dm_wafer (wafer_number,die_type,device_number,lot_number,product_category,wafer_file_name,qualified_rate,"
-				+ "test_start_date,test_end_date,test_operator,archive_user,description,total_test_quantity,data_format,gmt_create,gmt_modified,delete_status,file_last_modified) "
-				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?)";
+				+ "test_start_date,test_end_date,test_operator,archive_user,description,total_test_quantity,data_format,gmt_create,gmt_modified,delete_status) "
+				+ "value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)";
 		Object[] param = new Object[16];
 		param[0] = wafer.getWaferNumber();
 		param[1] = wafer.getDieType();
@@ -113,7 +113,7 @@ public class WaferDao{
 		param[13] = wafer.getDataFormat();
 		param[14] = wafer.getGmtCreate();
 		param[15] = wafer.getGmtModified();
-		param[16] = wafer.getLastModified();
+//		param[16] = wafer.getLastModified();
 		String flag = DataBaseUtil.getInstance().operate(conn, sql, param)?"success":"晶圆添加失败！";
 		return flag;
 	}

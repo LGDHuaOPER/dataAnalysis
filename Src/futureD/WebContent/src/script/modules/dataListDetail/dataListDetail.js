@@ -470,7 +470,7 @@ function judgeVectorCurveChart(obj) {
 				}],
 				xcategories: _.map(curveData.curve[0], function(v){
 					var iflag = true;
-					if(Math.abs(v)>0) iflag = false;
+					if(Math.abs(v)>1) iflag = false;
 					return eouluGlobal.S_ComSCMRound(v, 2, iflag);
 				}),
 				callback: callback
@@ -833,6 +833,29 @@ function getIDByCoordANDRequ(obj){
 	}
 }
 
+/*矢量坐标图大小*/
+function calcCoordImgWH(){
+	if($(window).width()>1366){
+		$(".positionFlag_div").css({
+			"width": "108px",
+			"height": "108px"
+		});
+		$(".positionFlag_div>img").attr({
+			"width": "108",
+			"height": "108"
+		});
+	}else{
+		$(".positionFlag_div").css({
+			"width": "100px",
+			"height": "100px"
+		});
+		$(".positionFlag_div>img").attr({
+			"width": "100",
+			"height": "100"
+		});
+	}
+}
+
 /*参数分布统计*/
 /*寻找参数上下限*/
 function findParamUpLow(param){
@@ -862,14 +885,16 @@ function buildParameterChartContainer(obj){
 	var str = '<div class="container-fluid">';
 	var returnIDArr = [];
 	if(["good_rate"].indexOf(classify) > -1){
-		var eclipse = '';
-		if(paramsArr.length > 5) eclipse = "&...";
-		var iparam = _.join(_.slice(paramsArr, 0, 5), ", ")+eclipse;
+		// var eclipse = '';
+		// if(paramsArr.length > 5) eclipse = "&...";
+		// var iparam = _.join(_.slice(paramsArr, 0, 5), ", ")+eclipse;
+		var itext = "良品率（"+paramsArr.length+"个参数）",
+		iparam = _.join(paramsArr, ", ");
 		str+='<div class="row">';
 			str+='<div class="col-sm-12 col-md-12 col-lg-12">';
 			str+='<div class="panel panel-info">'+
 				  	'<div class="panel-heading">'+
-				    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+iparam+
+				    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+itext+
 				  	'</div>'+
 				  	'<div class="panel-body">'+
 				    	'<div class="container-fluid">'+
@@ -964,7 +989,6 @@ function buildParameterChartContainer(obj){
 
 /*参数分布统计 Map良率绘制*/
 function draw_map_good_rate(obj){
-	console.log("draw_map_good_rate",obj);
 	var data = obj.data;
 	var waferNO = obj.waferNO;
 	if(_.isNil(waferNO)) return false;
@@ -1042,7 +1066,6 @@ function draw_map_good_rate(obj){
 
 /*map色阶分布图绘制*/
 function draw_map_color_order_distribution(obj){
-	console.log("draw_map_color_order_distribution",obj);
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
@@ -1095,10 +1118,12 @@ function draw_map_color_order_distribution(obj){
 			}
 			if(!_.isNil(minusMat)){
 				/*小于下限*/
-				addNum = 0;
+				addNum = -1;
 			}
 		}
-		iNo = iNo+(addNum);
+		if(addNum > 0){
+			iNo = iNo+(addNum);
+		}
 		ibin = binV;
 
 		/*判断位置*/
@@ -1110,21 +1135,48 @@ function draw_map_color_order_distribution(obj){
 			item[k] = {bin: -1, color: "-1:"};
 		}else{
 			var iiNo = _.round(iNo);
-			if(iNo<theMin){
-				iNo = theMin;
-				item[k] = {bin: ibin, color: "1:"+iiNo};
-			}else if(theMin<=iNo && iNo<lowwer){
-				item[k] = {bin: ibin, color: "2:"+iiNo};
-			}else if(lowwer<=iNo && iNo<midder){
-				item[k] = {bin: ibin, color: "3:"+iiNo};
-			}else if(midder<=iNo && iNo<=upper){
-				item[k] = {bin: ibin, color: "4:"+iiNo};
-			}else if(upper<iNo && iNo<theMax){
-				item[k] = {bin: ibin, color: "5:"+iiNo};
-			}else if(theMax<=iNo){
-				iNo = theMax;
-				item[k] = {bin: ibin, color: "6:"+iiNo};
+			if(_.isNil(addMat) && _.isNil(minusMat)){
+				/*合格数据*/
+				if(lowwer<=iNo && iNo<midder){
+					item[k] = {bin: ibin, color: "3:"+iiNo};
+				}else if(midder<=iNo && iNo<=upper){
+					item[k] = {bin: ibin, color: "4:"+iiNo};
+				}
+			}else{
+				if(!_.isNil(addMat)){
+					/*大于上限*/
+					if(upper<=iNo && iNo<theMax){
+						item[k] = {bin: ibin, color: "5:"+iiNo};
+					}else if(theMax<=iNo){
+						iNo = theMax;
+						item[k] = {bin: ibin, color: "6:"+iiNo};
+					}
+				}
+				if(!_.isNil(minusMat)){
+					/*小于下限*/
+					if(iNo<=theMin){
+						iNo = theMin;
+						item[k] = {bin: ibin, color: "1:"+iiNo};
+					}else if(theMin<iNo && iNo<=lowwer){
+						item[k] = {bin: ibin, color: "2:"+iiNo};
+					}
+				}
 			}
+			// if(iNo<theMin){
+			// 	iNo = theMin;
+			// 	item[k] = {bin: ibin, color: "1:"+iiNo};
+			// }else if(theMin<=iNo && iNo<lowwer){
+			// 	item[k] = {bin: ibin, color: "2:"+iiNo};
+			// }else if(lowwer<=iNo && iNo<midder){
+			// 	item[k] = {bin: ibin, color: "3:"+iiNo};
+			// }else if(midder<=iNo && iNo<=upper){
+			// 	item[k] = {bin: ibin, color: "4:"+iiNo};
+			// }else if(upper<iNo && iNo<theMax){
+			// 	item[k] = {bin: ibin, color: "5:"+iiNo};
+			// }else if(theMax<=iNo){
+			// 	iNo = theMax;
+			// 	item[k] = {bin: ibin, color: "6:"+iiNo};
+			// }
 		}
 		/*判断位置end*/
 		dieData.push(item);
@@ -1169,6 +1221,27 @@ function draw_map_color_order_distribution(obj){
 		dieData.push(item);
 	});*/
 	console.table(dieData);
+	//
+	var ArrMap = {
+		"1": [],
+		"2": [],
+		"3": [],
+		"4": [],
+		"5": [],
+		"6": []
+	};
+	_.forEach(dieData, function(v, i){
+		var nu = _.values(v)[0].color.split(":")[0];
+		var ik = _.keys(v)[0];
+		var item = {};
+		item.old = _.find(currentDieItem.currentDieList, function(vv, kk){
+			return kk == ik;
+		});
+		item.new = v;
+		ArrMap[nu].push(item);
+	});
+	window.ArrMap = ArrMap;
+	//
 	/*预处理数据end*/
 
 	var inH = that.innerWidth();
@@ -1274,7 +1347,6 @@ function draw_map_color_order_distribution(obj){
 
 /*参数分布统计 其他图表绘制*/
 function draw_other_chart(obj){
-	console.log("draw_other_chart",obj);
 	/*参数获取*/
 	var chartType = obj.chartType;
 	var classify = obj.classify;
@@ -1474,7 +1546,7 @@ function draw_other_chart(obj){
 			});
 			iiitem.data = _.map(iiidata, function(v, i){
 				var iflag = true;
-				if(Math.abs(parseFloat(v))>0) iflag = false;
+				if(Math.abs(parseFloat(v))>1) iflag = false;
 				return _.toNumber(eouluGlobal.S_ComSCMRound(parseFloat(v), 2, iflag));
 			});
 
@@ -1500,7 +1572,7 @@ function draw_other_chart(obj){
 			xAxis = [{
 				categories: _.map(iiiindata.groupX, function(v){
 					var iflag = true;
-					if(Math.abs(v)>0) iflag = false;
+					if(Math.abs(v)>1) iflag = false;
 					return eouluGlobal.S_ComSCMRound(v, 2, iflag);
 				}),
 				crosshair: true,
@@ -1566,7 +1638,7 @@ function draw_other_chart(obj){
 				$trs.find("td:nth-child(2)").each(function(i, el){
 					if(i == 4) return true;
 					var iflag = true;
-					if(Math.abs(parseFloat($(this).data("ivalue")))>0) iflag = false;
+					if(Math.abs(parseFloat($(this).data("ivalue")))>1) iflag = false;
 					var roundV = eouluGlobal.S_ComSCMRound(parseFloat($(this).data("ivalue")), 2, iflag);
 					$(this).attr("title", $(this).data("ivalue")).text(roundV);
 				});
@@ -1574,9 +1646,10 @@ function draw_other_chart(obj){
 		break;
 		/*良品率图*/
 		default:
-			title_text = "良品率图-"+iparam;
+			title_text = "良品率图";
 			var iiiiitem = {};
-			iiiiitem.name = iparam;
+			// iiiiitem.name = iparam;
+			iiiiitem.name = "良品率";
 			iiiiitem.data = [];
 			_.forOwn(data, function(v, k){
 				iiiiitem.data[_.findIndex(paramsArr, function(o){ return _.toString(o) == _.toString(k); })] = parseFloat(_.values(v)[0]);
@@ -1786,7 +1859,7 @@ function ajax_all_chart(obj){
 }
 /*参数分布统计end*/
 /*page preload*/
-$(".tab-content div[role='tabpanel']").innerWidth($(".tab-co	ntent").innerWidth()).innerHeight($(".tab-content").innerHeight());
+$(".tab-content div[role='tabpanel']").innerWidth($(".tab-content").innerWidth()).innerHeight($(".tab-content").innerHeight());
 $(".vectorMap_l, .vectorMap_r").innerHeight($("#vectorMap").innerHeight());
 eouluGlobal.S_getSwalMixin()({
 	title: "加载提示",
@@ -1874,6 +1947,7 @@ $(function(){
 		_.forEach(_.compact([webParamArr[3]]), function(v, i){
 			$("#DieTypeSel").append('<option value="'+v+'">'+v+'</option>');
 		});
+		calcCoordImgWH();
 		/*矢量数据分页end*/
 	}
 });
@@ -1885,6 +1959,7 @@ $(window).on("resize", _.debounce(function(){
 	_.forEach(dataListDetailStore.state.vectorMap.smithObjArr, function(v, i, arr){
 		arr[i].onresize();
 	});
+	calcCoordImgWH();
 }, 150));
 
 $(".allDetail_body .table_body").on("scroll", _.debounce(function(){

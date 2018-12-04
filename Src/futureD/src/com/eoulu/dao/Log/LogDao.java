@@ -39,7 +39,7 @@ public class LogDao {
 				+ " from dm_log ";
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += " where user_name like ? or  page like ? or description like ? or location like ? or gmt_create like binary ?";
+			sql += " where user_name like binary ? or  page like binary ? or description like binary ? or location like binary ? or gmt_create like binary ?";
 			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%",(page.getCurrentPage()-1)*page.getRow(),page.getCurrentPage()*page.getRow()};
 		}
 		sql += "  order by gmt_create desc limit ?,?";
@@ -54,7 +54,7 @@ public class LogDao {
 		String sql = "select count(*) from dm_log";
 		Object[] param = null;
 		if(!"".equals(keyword)){
-			sql += " where user_name like ? or  page like ? or description like ? or location like ?  or gmt_create like binary ?";
+			sql += " where user_name like binary ? or  page like binary ? or description like binary ? or location like binary ? or gmt_create like binary ?";
 			param = new Object[]{"%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%","%"+keyword+"%"};
 		}
 		Object result = db.queryResult(sql, param);

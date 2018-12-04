@@ -56,7 +56,7 @@
 	    						    				<button type="button" class="btn btn-info" data-env="offline">访客登录</button>
 	    				</div> -->
 	    				<div class="copy_div">
-	    					<span>版本号：V1.0.0.181126</span>
+	    					<span>版本号：V1.0.0.181203</span>
 	    				</div>
 	    			</div><!-- container-fluid end -->
 	    		</fieldset>

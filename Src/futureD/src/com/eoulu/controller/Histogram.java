@@ -68,7 +68,6 @@ public class Histogram extends HttpServlet {
 //		System.out.println(new Gson().toJson(rangeList));
 		Map<String,Object> result = new HashMap<>(),map = new HashMap<>();
 		List<String> sectionX = null;
-		result.put("", sectionX);
 		Map<String,Object> percentList = null;
 		for(int i=0,size=paramList.size();i<size;i++){
 			left = "".equals(parameter)?rangeList.get(paramList.get(i)).get(0):left;
@@ -92,7 +91,7 @@ public class Histogram extends HttpServlet {
 	}
 
 	public static void main(String[] args) {
-		String waferIdStr = "347",parameter="";
+		String waferIdStr = "429",parameter="";
 		double left = 5500.2,right=6500;
 		int equal = 8;
 		HistogramService service = new HistogramServiceImpl();

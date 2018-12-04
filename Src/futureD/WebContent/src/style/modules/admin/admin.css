@@ -298,6 +298,7 @@ body {
 
 span.glyphicon {
 	cursor: pointer;
+    pointer-events: auto;
 }
 
 .g_info_r>.glyphicon-user {
@@ -394,12 +395,15 @@ span.glyphicon {
 
 .staff_addition_r_bodyin div.row>div:nth-child(3)>.glyphicon-info-sign {
 	color: red;
-	font-size: 18px;
+	font-size: 15px;
 }
-
+.staff_addition_r_bodyin div.row>div:nth-child(3)>.glyphicon span{
+	vertical-align: bottom;
+	font-size: 15px;
+}
 .staff_addition_r_bodyin div.row>div:nth-child(3)>.glyphicon-ok-sign {
 	color: green;
-	font-size: 18px;
+	font-size: 15px;
 }
 
 .staff_addition_r_foot {
@@ -491,14 +495,17 @@ span.glyphicon {
 
 .staff_update_r_bodyin div.row>div:nth-child(3)>.glyphicon-info-sign {
 	color: red;
-	font-size: 18px;
+	font-size: 15px;
 }
 
 .staff_update_r_bodyin div.row>div:nth-child(3)>.glyphicon-ok-sign {
 	color: green;
-	font-size: 18px;
+	font-size: 15px;
 }
-
+.staff_update_r_bodyin div.row>div:nth-child(3)>.glyphicon span{
+	vertical-align: bottom;
+	font-size: 15px;
+}
 .staff_update_r_foot {
 	padding-left: 5px;
 	padding-top: 10px;

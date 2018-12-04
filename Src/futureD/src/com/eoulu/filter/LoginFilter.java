@@ -35,6 +35,8 @@ public class LoginFilter implements Filter{
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
 		// 获取根目录所对应的绝对路径
 		String currentURL = request.getRequestURI();
 //		System.out.println("currentURL:"+currentURL);
@@ -45,7 +47,7 @@ public class LoginFilter implements Filter{
 			}else
 			if (session == null || session.getAttribute("userName") == null) {
 				// 如果session为空表示用户没有登陆就重定向到login.jsp页面
-//				System.out.println("request.getContextPath()=" + request.getContextPath());
+				System.out.println("request.getContextPath()=" + request.getContextPath());
 //				response.sendRedirect(request.getContextPath() + "/Login/login.jsp");
 				request.getRequestDispatcher("/IndexInterface").forward(request, response);
 				return;  
@@ -53,7 +55,7 @@ public class LoginFilter implements Filter{
 				String[] result = currentURL.split("/"); 
 				String authority = result[result.length-1];
 				if(FilterResource.isController(authority)){
-//					System.out.println(222);
+					System.out.println(222);
 					if(FilterResource.isAuthority(authority, request)){
 						chain.doFilter(request, response);
 					}else{
@@ -61,7 +63,7 @@ public class LoginFilter implements Filter{
 					}
 				} else
 				if(FilterResource.isAjax(authority)){
-//					System.out.println(333);
+					System.out.println(333);
 					chain.doFilter(request, response);
 				}
 			}

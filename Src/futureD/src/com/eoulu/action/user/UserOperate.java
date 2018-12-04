@@ -1,6 +1,8 @@
 package com.eoulu.action.user;
 
 import java.io.IOException;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -8,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eoulu.entity.UserDO;
+import com.eoulu.filter.FilterResource;
 import com.eoulu.service.UserService;
 import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.UserServiceImpl;
@@ -64,6 +67,16 @@ public class UserOperate extends HttpServlet {
 		user.setTelephone(telephone);
 		user.setEmail(email);
 		user.setRoleId(roleId);
+		if(roleId == 0){
+			response.getWriter().write(new Gson().toJson("角色不能为空！"));
+			return;
+		}else
+		if(roleId == 3 || roleId ==2){
+			user.setAuthority(service.getAuthorityId());
+			System.out.println("getAuthority:"+user.getAuthority());
+		}else{
+			user.setAuthority("");
+		}
 		
 		if( userId == 0 ){
 			result = service.saveUser(user);
