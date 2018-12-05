@@ -6,7 +6,7 @@ $(function(){
 	futureD_bootstro_start();
 });
 
-$(".g_info .glyphicon-question-sign").click(function(){
+$(".g_info img[data-iicon='glyphicon-question-sign']").click(function(){
 	$("div.bootstro-backdrop").remove();
 	futureD_bootstro_start();
 });

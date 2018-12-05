@@ -27,7 +27,7 @@
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r bootstro" data-bootstro-title="详细信息引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="详细信息引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><img src="assets/img/common/admin_32px.svg" data-iicon="glyphicon-user" alt="管理员"><img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引"><img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出"><!-- <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span> --></div>
 	</div>
 	<div class="g_menu bootstro" data-bootstro-title="详细信息引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>分页区域</h4><p>在这里您可以选择不同的分页查看操作，切换分页是无刷新的哟</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="0">
 		<!-- Nav tabs -->
@@ -40,7 +40,7 @@
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit bootstro" data-bootstro-title="详细信息引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，或者跳转数据列表页面。</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 				<div class="g_bodyin_tit_r">
 					<div class="container-fluid">
 						<div class="row">

@@ -375,6 +375,12 @@ public class WaferDao{
 		return yield;
 	}
 	
+	public double getYield(Connection conn,int waferId){
+		String sql = "select qualified_rate from dm_wafer where wafer_id="+waferId;
+		Object result = DataBaseUtil.getInstance().queryResult(conn, sql, null);
+		return result==null?0:Double.parseDouble(result.toString());
+	}
+	
 	public List<Map<String,Object>> getSecondary(Connection conn,int waferId){
 		String sql = "select ifnull(wafer_file_name,'') wafer_file_name,ifnull(computer_name,'')computer_name,ifnull(tester,'')tester,"
 				+ "ifnull(test_start_date,'')test_start_date,ifnull(test_end_date,'')test_end_date, ifnull(total_test_time,'')total_test_time,"

@@ -44,7 +44,7 @@ public class GaussianDistribution extends HttpServlet {
 				right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
 		int equal = request.getParameter("equal")==null?8:Integer.parseInt(request.getParameter("equal")),
 				waferId = request.getParameter("waferIdStr")==null?0:Integer.parseInt(request.getParameter("waferIdStr"));
-		Map<String,Object> result = new HashMap<>(),map = null;
+		Map<String,Object> result = new HashMap<>(),map = null,paramMap=null;
 		List<String> paramList = null;
 		GaussianService service = new GaussianServiceImpl();
 		if(!"".equals(parameter)){
@@ -71,9 +71,10 @@ public class GaussianDistribution extends HttpServlet {
 			map.put("right", right);
 			map.put("param", paramList.get(j));
 //			System.out.println(service.getGaussian(map));
-			result.put(paramList.get(j), service.getGaussian(map));
+			paramMap = service.getGaussian(map);
+			result.put(paramList.get(j), paramMap);
 		}
-//		System.out.println(new Gson().toJson(result));
+		System.out.println(new Gson().toJson(result));
 		response.getWriter().write(new Gson().toJson(result));
 	
 	}
@@ -90,7 +91,7 @@ public class GaussianDistribution extends HttpServlet {
 		double left = 0,
 				right= 0.000006;
 		int equal = 8,
-				waferId = 346;
+				waferId = 437;
 		Map<String,Object> result = new HashMap<>(),map = null;
 		List<String> paramList = null;
 		GaussianService service = new GaussianServiceImpl();
@@ -109,9 +110,7 @@ public class GaussianDistribution extends HttpServlet {
 		Map<String, List<Double>> rangeList = service.getRangList(paramList, waferId+"");
 		List<Double> ls = null;
 		for (int j=0,size=paramList.size();j<size;j++) {
-//			if(!paramList.get(j).equals("Demo1.Result")){
-//				continue;
-//			}
+			System.out.println(paramList.get(j));
 			ls = rangeList.get(paramList.get(j));
 			left = "".equals(parameter)?ls.get(0):left;
 			right = "".equals(parameter)?ls.get(1):right;
@@ -120,8 +119,12 @@ public class GaussianDistribution extends HttpServlet {
 			map.put("left", left);
 			map.put("right", right);
 			map.put("param", paramList.get(j));
-			System.out.println(service.getGaussian(map));
 			result.put(paramList.get(j), service.getGaussian(map));
+//			if(service.getGaussian(map).containsKey("status")){
+////				System.out.println(new Gson().toJson(result));
+//				break;
+//			}
+//			result.put(paramList.get(j), service.getGaussian(map));
 		}
 	System.out.println(new Gson().toJson(result));
 	}

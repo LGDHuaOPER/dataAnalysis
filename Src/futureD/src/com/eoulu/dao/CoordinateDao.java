@@ -317,7 +317,7 @@ public class CoordinateDao {
 	
 	public WaferMapDTO getAllParameter(Connection conn,int waferId) {
 		WaferMapDTO wafer = new WaferMapDTO();
-		wafer.setParameter("All");
+		wafer.setParameter("Total Yield");
 		String sql = "select x_coordinate,y_coordinate,bin from dm_wafer_coordinate_data where wafer_id=?";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -416,12 +416,12 @@ public class CoordinateDao {
 		double interval = Math.abs(upper-lower),multipleMax = upper+interval,multipleMin = lower-interval;
 		String sql  = "select x_coordinate,y_coordinate,bin,"+column+","
 				+ "(case when "+column+">"+multipleMax+" then '+100%' "
-				+ "when "+column+" between "+upper+" and "+multipleMax+" then concat('+',round(abs("+condition+"-abs("+upper+"))/"+interval+"*100,2),'%') "
+				+ "when "+column+" > "+upper+" and "+column+" <= "+multipleMax+" then concat('+',round(abs("+condition+"-abs("+upper+"))/"+interval+"*100,2),'%') "
 				+ "when "+column+" between "+lower+" and "+upper+" then concat(round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'','%') "
-				+ "when "+column+" between "+multipleMin+" and "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'%')  "
+				+ "when "+column+" > "+multipleMin+" and "+column+" <= "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'%')  "
 				+ "else '-100%' end ) percent "
 				+ " from dm_wafer_coordinate_data where wafer_id=? order by "+column+" desc";
-//		System.out.println("sql:"+sql);
+		System.out.println("sql:"+sql);
 		Map<String,Object> result = new HashMap<>();
 		Map<String,Object> colorMap = new HashMap<>();
 		PreparedStatement ps;

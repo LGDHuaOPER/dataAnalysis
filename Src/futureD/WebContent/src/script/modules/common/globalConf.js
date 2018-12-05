@@ -1,24 +1,28 @@
 ;(function(){
 	var futureDURL = new URL(window.location.href);
 	var ProjectName = futureDURL.pathname.split("/")[1];
+	var futureDT2LoginPage = eouluGlobal.S_getLoginHref();
 	if(_.isNil(ProjectName) || _.isEmpty(ProjectName)){
-		window.location.assign(eouluGlobal.S_getLoginHref());
+		window.location.assign(futureDT2LoginPage);
 	}else{
 		eouluGlobal.C_setProjectName(ProjectName);
 	}
 
 	/*全局判断userName不存在*/
-	if(!_.isEqual(eouluGlobal.S_getCurPageHref(), eouluGlobal.S_getLoginHref())){
+	var futureDT2CurrPage = eouluGlobal.S_getCurPageHref();
+	if(!_.isEqual(futureDT2CurrPage, futureDT2LoginPage)){
 		if(_.isNil($("body").data("curusername")) || _.isEmpty($("body").data("curusername"))){
-			eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
+			eouluGlobal.S_settingURLParam({}, false, false, false, futureDT2LoginPage);
 			return false;
 		}
 
 		/*判断权限*/
 		var userAuthorityStr = $("body").data("userauthority");
 		if(_.isNil(userAuthorityStr) || _.isEmpty(userAuthorityStr) || _.isEqual(userAuthorityStr, "[]")){
-			eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
-			return false;
+			if(_.indexOf(eouluGlobal.S_getExcludeJudgeAuthorityPage(), futureDT2CurrPage) == -1){
+				eouluGlobal.S_settingURLParam({}, false, false, false, futureDT2LoginPage);
+				return false;
+			}
 		}else{
 			var userAuthorityStrArr = userAuthorityStr.replace(/^\[/,"").replace(/\]$/,"").split(", ");
 			if(userAuthorityStrArr.length == 3){
@@ -34,7 +38,7 @@
 					userAuthorityObj.push(item);
 				});
 				var page;
-				if(_.indexOf(eouluGlobal.S_getAllAuthorityPage(), eouluGlobal.S_getCurPageHref()) > -1){
+				if(_.indexOf(eouluGlobal.S_getAllAuthorityPage(), futureDT2CurrPage) > -1){
 					page = "ALL";
 				}else{
 					page = null;
@@ -74,7 +78,7 @@
 		console.warn("document上的ajaxSend");
 	});
 
-	$(document).on("click", ".g_info_r .glyphicon-off", function(){
+	$(document).on("click", ".g_info_r img[data-iicon='glyphicon-off']", function(){
 	  	eouluGlobal.S_getSwalMixin()({
 		 	title: "确定退出吗？",
 		 	text: "此操作为安全退出",
@@ -99,7 +103,7 @@
 							showConfirmButton: false,
 							timer: 1000
 						}).then(function(){
-							eouluGlobal.S_settingURLParam({}, false, false, false, eouluGlobal.S_getLoginHref());
+							eouluGlobal.S_settingURLParam({}, false, false, false, futureDT2LoginPage);
 						});
 					}else{
 						eouluGlobal.S_getSwalMixin()({
@@ -116,7 +120,7 @@
 			}
 		});
 	});
-	$(document).on("click", ".g_info_r .glyphicon-user", function(){
+	$(document).on("click", ".g_info_r img[data-iicon='glyphicon-user']", function(){
 		eouluGlobal.S_settingURLParam({}, false, false, false, "UserInstall");
 	});
 

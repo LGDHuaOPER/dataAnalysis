@@ -16,7 +16,7 @@ dataListStore.state.pageObj = {
 	searchVal: ""
 };
 dataListStore.state.authorityJQDomMap = {
-	"管理员": [$(".g_info_r .glyphicon-user")],
+	"管理员": [$(".g_info_r img[data-iicon='glyphicon-user']")],
 	"上传": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove-circle']")],
 	"删除": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove']"), $(".operate_othertd [data-iicon='glyphicon-remove']")],
 	"回收站": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-trash']")],

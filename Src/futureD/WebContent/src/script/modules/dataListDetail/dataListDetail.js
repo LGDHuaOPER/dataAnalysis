@@ -74,7 +74,7 @@ dataListDetailStore.state = {
 		"gaussiandistribution": "高斯分布图",
 	},
 	authorityJQDomMap: {
-		"管理员": [$(".g_info_r .glyphicon-user")],
+		"管理员": [$(".g_info_r img[data-iicon='glyphicon-user']")],
 		// "详细数据": [$(".g_menu li[role='presentation'][data-iclassify='allDetail']")],
 		"导出": [$("div.webParam button")],
 		"矢量数据": [$(".g_menu li[role='presentation'][data-iclassify='vectorMap']")],
@@ -487,7 +487,7 @@ function judgeVectorCurveChart(obj) {
 				xcategories = _.slice(curveData.curve[1], start, start+v);
 				seriesData.push(item);
 			});
-			console.table(seriesData);
+			// console.table(seriesData);
 			drawCommonCurve({
 				curveType: curveType,
 				container: container,
@@ -892,7 +892,7 @@ function buildParameterChartContainer(obj){
 		iparam = _.join(paramsArr, ", ");
 		str+='<div class="row">';
 			str+='<div class="col-sm-12 col-md-12 col-lg-12">';
-			str+='<div class="panel panel-info">'+
+			str+='<div class="panel panel-info" data-contextualparam="'+itext+'">'+
 				  	'<div class="panel-heading">'+
 				    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+itext+
 				  	'</div>'+
@@ -958,7 +958,7 @@ function buildParameterChartContainer(obj){
 				str+='<div class="row">';
 			}
 				str+='<div class="col-sm-12 col-md-6 col-lg-6">';
-				str+='<div class="panel panel-info">'+
+				str+='<div class="panel panel-info" data-contextualparam="'+v+'">'+
 					  	'<div class="panel-heading">'+
 					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+v+
 					  	'</div>'+
@@ -1220,9 +1220,9 @@ function draw_map_color_order_distribution(obj){
 		// 判断位置end
 		dieData.push(item);
 	});*/
-	console.table(dieData);
+	// console.table(dieData);
 	//
-	var ArrMap = {
+	var ArraMap = {
 		"1": [],
 		"2": [],
 		"3": [],
@@ -1234,13 +1234,13 @@ function draw_map_color_order_distribution(obj){
 		var nu = _.values(v)[0].color.split(":")[0];
 		var ik = _.keys(v)[0];
 		var item = {};
-		item.old = _.find(currentDieItem.currentDieList, function(vv, kk){
+		item.old1 = _.find(currentDieItem.currentDieList, function(vv, kk){
 			return kk == ik;
 		});
-		item.new = v;
-		ArrMap[nu].push(item);
+		item.new1 = v;
+		ArraMap[nu].push(item);
 	});
-	window.ArrMap = ArrMap;
+	window.ArraMap = ArraMap;
 	//
 	/*预处理数据end*/
 
@@ -1390,6 +1390,27 @@ function draw_other_chart(obj){
 					});
 				}else{
 					errorArrItem.errorParamArr.push(iparam);
+				}
+				return errorArr;
+			}
+		break;
+		case "gaussiandistribution":
+			var curParamData = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
+			});
+			if(_.indexOf(_.keys(curParamData), "status") > -1){
+				var errorArrItem2 = _.find(errorArr, function(v, i){
+					return v.chartCNName == "高斯分布图";
+				});
+				if(_.isNil(errorArrItem2)){
+					errorArr.push({
+						chartCNName: "高斯分布图",
+						errorParamArr: [iparam],
+						classify: classify,
+						message: curParamData.status
+					});
+				}else{
+					errorArrItem2.errorParamArr.push(iparam);
 				}
 				return errorArr;
 			}
@@ -1803,7 +1824,7 @@ function ajax_all_chart(obj){
 				text: "数据请求完成",
 				type: "info",
 				showConfirmButton: false,
-				timer: 1200
+				timer: 900
 			}).then(function(){
 				if(_.isEmpty(errorArr)){
 					eouluGlobal.S_getSwalMixin()({
@@ -1825,10 +1846,19 @@ function ajax_all_chart(obj){
 									'<td style="vertical-align: top;font-size:14px;width: 80px;">'+v.chartCNName+'</td><td style="vertical-align: top;font-size:14px;">';
 						if(_.isEmpty(v.errorParamArr)){
 							iiistr+=v.message;
+							setTimeout(function(){
+								$("div.panel.panel_"+v.classify).data("icontextual", "danger").removeClass("panel-info panel-success panel-warning").addClass("panel-danger").children(".panel-heading").children("span.glyphicon").trigger("click");
+							}, 20);
 						}else{
+							var $curClassify = $("div.panel.panel_"+v.classify);
+							$curClassify.data("icontextual", "warning").removeClass("panel-info panel-success panel-danger").addClass("panel-warning");
 							_.forEach(v.errorParamArr, function(vv){
-								iiistr+=vv+":"+v.message+"<br/>";
+								iiistr+=vv+"："+v.message+"<br/>";
+								$curClassify.find(".panel-body div.panel[data-contextualparam='"+vv+"']").data("icontextual", "warning").children(".panel-heading").children("span.glyphicon").trigger("click");
 							});
+							if($curClassify.find(".panel-body div.panel[data-contextualparam]").length == v.errorParamArr.length){
+								$curClassify.children(".panel-heading").children("span.glyphicon").trigger("click");
+							}
 						}
 						iiistr+='</td></tr>';
 					});
@@ -1852,6 +1882,8 @@ function ajax_all_chart(obj){
 			type: "error",
 			showConfirmButton: false,
 			timer: 1800
+		}).then(function(){
+			$("body").data("iglobalerror", "unallow");
 		});
 	}).always(function(){
 		/*(times == alltimes) && (dataListDetailStore.state.parameterMap.hasRender = true);*/
@@ -2026,11 +2058,20 @@ $(document).on("click", "div.webParam button", function(){
 
 /*点击收起*/
 $(document).on("click", ".vectorMap_l div.panel-heading>span.glyphicon:not(.glyphicon-ok), #parameterMap div.panel-heading>span.glyphicon:not(.glyphicon-ok)", function(){
-	$(this).toggleClass("glyphicon-menu-down glyphicon-menu-right").parent().parent().toggleClass("panel-info panel-success");
+	$(this).toggleClass("glyphicon-menu-down glyphicon-menu-right");
+	var iParent = $(this).parent().parent();
 	if($(this).hasClass("glyphicon-menu-right")){
 		$(this).parent().next().slideUp(200);
+		iParent.removeClass("panel-warning panel-danger panel-info");
+		var icontextual = iParent.data("icontextual");
+		if(_.isNil(icontextual) || _.isEmpty(icontextual)){
+			iParent.addClass("panel-success");
+		}else{
+			iParent.addClass("panel-"+icontextual);
+		}
 	}else{
 		$(this).parent().next().slideDown(200);
+		iParent.removeClass("panel-warning panel-danger panel-success").addClass("panel-info");
 	}
 });
 

@@ -52,10 +52,8 @@ body {
 	text-align: right;
 }
 
-.g_info_r .glyphicon {
+.g_info_r img[data-iicon] {
 	margin-right: 20px;
-	font-size: 22px;
-	vertical-align: middle;
 }
 
 .g_bodyin {
@@ -131,7 +129,7 @@ body {
 }
 /* 分页组件结束 */
 
-span.glyphicon {
+span.glyphicon, img[data-iicon] {
 	cursor: pointer;
 }
 

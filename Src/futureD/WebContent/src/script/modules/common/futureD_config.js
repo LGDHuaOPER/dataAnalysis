@@ -28,6 +28,7 @@
         versionNO: "1536897675562",
         loginHref: "IndexInterface",
         allAuthorityPage: ["HomeInterface"],
+        excludeJudgeAuthorityPage: ["HomeInterface"],
         curPageJudgedAuthority: null,
         pageAllConfig: {
             "futureDT2": {
@@ -87,10 +88,6 @@
                 "value": 14,
                 "url": "DataCompare"
             }, {
-                "name": "晶圆数据",
-                "value": 43,
-                "url": "DataListAjax"
-            }, {
                 "name": "良率晶圆",
                 "value": 44,
                 "url": "WaferMap"
@@ -114,6 +111,10 @@
                 "name": "CPK图",
                 "value": 49,
                 "url": "CPKServlet"
+            }, {
+                "name": "相关性",
+                "value": 50,
+                "url": "Correlation"
             }]
         }, {
             "pageName": "回收站",
@@ -214,10 +215,6 @@
                 "value": 14,
                 "url": "DataCompare"
             }, {
-                "name": "晶圆数据",
-                "value": 43,
-                "url": "DataListAjax"
-            }, {
                 "name": "良率晶圆",
                 "value": 44,
                 "url": "WaferMap"
@@ -245,6 +242,10 @@
                 "name": "管理员",
                 "value": 17,
                 "url": "UserInstall"
+            }, {
+                "name": "相关性",
+                "value": 50,
+                "url": "Correlation"
             }]
         }, {
             "pageName": "回收站",
@@ -406,8 +407,11 @@
         // 页面权限普通处理
         C_pageAuthorityCommonHandler: function(obj){
             var authorityJQDomMap = obj.authorityJQDomMap,
-            callback = obj.callback;
-            var userAuthObj = eouluGlobal.S_getCurPageJudgedAuthority();
+            callback = obj.callback,
+            disappear = obj.disappear || "remove";
+            var userAuthObj = eouluGlobal.S_getCurPageJudgedAuthority(),
+            disappearFun;
+            disappearFun = disappear == "hide" ? jQuery().hide : disappear == "remove" ? jQuery().remove : jQuery().detach;
             if(!_.isNil(userAuthObj) && !_.isEmpty(userAuthObj)){
                 if(userAuthObj.isAll === true){
                     _.forOwn(authorityJQDomMap, function(v, k){
@@ -417,10 +421,12 @@
                         if(_.isNil(findDOMFlag)){
                             if(_.isArray(v)){
                                 _.forEach(v, function(vv, ii){
-                                    vv.hide();
+                                    // vv.hide();
+                                    disappearFun.call(vv);
                                 });
                             }else{
-                                v.hide();
+                                // v.hide();
+                                if(!_.isNil(v)) disappearFun.call(v);
                             }
                         }
                     });
@@ -430,13 +436,28 @@
                         var hideObj = authorityJQDomMap[name];
                         if(_.isArray(hideObj)){
                             _.forEach(hideObj, function(vv, ii){
-                                vv.hide();
+                                // vv.hide();
+                                disappearFun.call(vv);
                             });
                         }else{
-                            hideObj.hide();
+                            // hideObj.hide();
+                            if(!_.isNil(hideObj)) disappearFun.call(hideObj);
                         }
                     });
                 }
+            }else{
+                // 返回null
+                _.forOwn(authorityJQDomMap, function(v, k){
+                    if(_.isArray(v)){
+                        _.forEach(v, function(vv, ii){
+                            // vv.hide();
+                            disappearFun.call(vv);
+                        });
+                    }else{
+                        // v.hide();
+                        disappearFun.call(v);
+                    }
+                });
             }
             callback && _.isFunction(callback) && callback(userAuthObj);
         },
@@ -581,6 +602,9 @@
         },
         S_getCurPageJudgedAuthority: function(){
             return _DefaultParam.curPageJudgedAuthority;
+        },
+        S_getExcludeJudgeAuthorityPage: function(){
+            return _DefaultParam.excludeJudgeAuthorityPage;
         },
         S_getBaseUrl: function(){
             return (window.location.href.split(_DefaultParam.projectName)[0]+_DefaultParam.projectName);

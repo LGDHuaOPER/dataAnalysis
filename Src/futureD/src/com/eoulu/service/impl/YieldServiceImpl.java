@@ -37,7 +37,19 @@ public class YieldServiceImpl implements YieldService{
 		double left = 0,right=0,yield=0;
 		String column = "",parameter="",waferNO="";
 		int waferId = 0;
-		Map<String, Object> result = new LinkedHashMap<>(),map = null;
+		Map<String, Object> result = new LinkedHashMap<>(),map  = new LinkedHashMap<>();
+		for(int j=0,length=att.length;j<length;j++){
+			waferId = Integer.parseInt(att[j]);
+			if(left == Double.NaN || right == Double.NaN){
+				yield = 1;
+				System.out.println("总么会");
+			}else{
+				yield = wafer.getYield(conn, waferId);
+			}
+//			waferNO = yieldDao.getWaferNO(conn, waferId);
+			map.put(att[j], yield+"%");
+		}
+		result.put("Total Yield", map);
 		for(int i=0,size=paramList.size();i<size;i++){
 			parameter = paramList.get(i);
 			map = new LinkedHashMap<>();
@@ -54,7 +66,7 @@ public class YieldServiceImpl implements YieldService{
 					column = dao.getParameterColumn(conn, waferId, parameter);
 					yield = wafer.getYieldPerParameter(conn, waferId, right+"", left+"", column);
 				}
-				waferNO = yieldDao.getWaferNO(conn, waferId);
+//				waferNO = yieldDao.getWaferNO(conn, waferId);
 				map.put(att[j], yield*100+"%");
 			}
 			result.put(parameter, map);

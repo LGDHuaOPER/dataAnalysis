@@ -26,13 +26,13 @@
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l bootstro" data-bootstro-title="系统主页面引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>欢迎来到futureD系统</h4><p>接下来我将带你熟悉整个系统。</p><p>点击下一步或者键盘方向键可以控制页面引导</p><p>点击页面右上角问号可以重新查看</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">futureD数据管理与分析</div>
-		<div class="g_info_r bootstro" data-bootstro-title="系统主页面引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>这里是操作工具栏</h4><p>分别是1、管理员页面（如果有权限）2、页面引导3、安全退出</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="3"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="系统主页面引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>这里是操作工具栏</h4><p>分别是1、管理员页面（如果有权限）2、页面引导3、安全退出</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="3"><img src="assets/img/common/admin_32px.svg" data-iicon="glyphicon-user" alt="管理员"><img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引"><img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出"><!-- <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span> --></div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li class="active">系统主页面</li>

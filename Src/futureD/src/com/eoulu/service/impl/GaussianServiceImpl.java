@@ -35,6 +35,7 @@ public class GaussianServiceImpl implements GaussianService{
 		if(waferId==0 || "".equals(param)){
 			return null;
 		}
+		Map<String,Object> result = new HashMap<>();
 		CoordinateDao coordinate = new CoordinateDao();
 		GaussianDao dao = new GaussianDao();
 		Connection conn = new DataBaseUtil().getConnection();
@@ -57,6 +58,7 @@ public class GaussianServiceImpl implements GaussianService{
 				columnCount = map.get("equal")==null?Math.sqrt(total)+1:Double.parseDouble(map.get("equal").toString()),
 						interval = section/(columnCount-1),expectation=0,x=0,rate=0,y=0;
 							String	median = coordinate.getMedian(conn, waferId, min, max,column);
+							System.out.println("standard:"+standard +"-----variance:"+variance);
 		length = (int) Math.floor(columnCount);
 		for(int i=0 ;i < length; i ++){
 			if(i==0){
@@ -69,7 +71,11 @@ public class GaussianServiceImpl implements GaussianService{
 			rate = frequency/total;
 			expectation += frequency*rate;
 			y = FunctionUtil.getNormality(x, standard, average);
-//			System.out.println("y:"+y);
+			System.out.println("y:"+y);
+			if(Double.isNaN(y)){
+				result.put("status", "数据太少无法绘制！");
+				return result;
+			}
 //			groups.add(new BigDecimal(x).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			groups.add(x);
 			frequencyList.add(frequency);
@@ -80,7 +86,7 @@ public class GaussianServiceImpl implements GaussianService{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		Map<String,Object> result = new HashMap<>();
+		
 		
 		result.put("median", "".equals(median)?median:Double.parseDouble(median));
 		result.put("average", average);
