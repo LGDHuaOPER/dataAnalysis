@@ -1,19 +1,14 @@
 body {
-	display: -ms-grid;
 	display: grid;
-	-ms-grid-rows: 40px 1fr;
 	grid-template-rows: 40px 1fr;
-	-ms-grid-columns: 40px 1fr;
 	grid-template-columns: 40px 1fr;
-	    grid-template-areas: "g_logo  g_info"
+	grid-template-areas: "g_logo  g_info"
 						"g_menu  g_body";
 	min-height: 100vh;
 	min-width: 900px;
 }
 
 .g_logo {
-	-ms-grid-row: 1;
-	-ms-grid-column: 1;
 	grid-area: g_logo;
 	height: 40px;
 	line-height: 40px;
@@ -23,23 +18,17 @@ body {
 }
 
 .g_info {
-	-ms-grid-row: 1;
-	-ms-grid-column: 2;
 	grid-area: g_info;
 	height: 40px;
 	line-height: 40px;
 }
 
 .g_menu {
-	-ms-grid-row: 2;
-	-ms-grid-column: 1;
 	grid-area: g_menu;
 	background-color: rgb(25, 28, 43);
 }
 
 .g_body {
-	-ms-grid-row: 2;
-	-ms-grid-column: 2;
 	grid-area: g_body;
 	padding: 20px;
 	background-color: rgb(245, 245, 245);
@@ -176,8 +165,7 @@ span.glyphicon, img[data-iicon] {
 	width: 130px;
 	font-size: 15px;
 	overflow: hidden;
-    -o-text-overflow: ellipsis;
-       text-overflow: ellipsis;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
@@ -199,23 +187,17 @@ div#in ul {
 }
 
 .vectorMap_in {
-	display: -ms-grid;
 	display: grid;
-	-ms-grid-columns: 590px 1fr;
 	grid-template-columns: 590px 1fr;
-	    grid-template-areas: "vectorMap_l  vectorMap_r";
+	grid-template-areas: "vectorMap_l  vectorMap_r";
 }
 
 .vectorMap_l {
-	-ms-grid-row: 1;
-	-ms-grid-column: 1;
 	grid-area: vectorMap_l;
 	overflow: auto;
 }
 
 .vectorMap_r {
-	-ms-grid-row: 1;
-	-ms-grid-column: 2;
 	grid-area: vectorMap_r;
 	position: relative;
 	height: 100%;
@@ -235,8 +217,8 @@ div#in ul {
 div.positionFlag_div {
 	display: inline-block;
 	position: absolute;
-	top: -8px;
-	right: 3px;
+	top: -13px;
+	left: -3px;
 	z-index: 9;
 	width: 100px;
 	height: 100px;
@@ -375,8 +357,7 @@ div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot table {
 div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {
 	text-align: center;
 	overflow: hidden;
-	-o-text-overflow: ellipsis;
-	   text-overflow: ellipsis;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 14px;
 }
@@ -411,7 +392,6 @@ div.webParam button {
 
 @media screen and (max-width: 1199px) {
     .vectorMap_in {
-    	-ms-grid-columns: 350px 1fr;
     	grid-template-columns: 350px 1fr;
     }
     div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot th, div.panel[data-iallstatistics="gaussiandistribution"] .chart_foot td {

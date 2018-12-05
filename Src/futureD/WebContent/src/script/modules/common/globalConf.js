@@ -1,6 +1,35 @@
 ;(function(){
-	var futureDURL = new URL(window.location.href);
-	var ProjectName = futureDURL.pathname.split("/")[1];
+	/*浏览器polyfill*/
+	var futureDT2Browser = eouluGlobal.S_getBrowserType(),
+	futureDURL,
+	ProjectName;
+	eouluGlobal.C_setBrowser(_.cloneDeep(futureDT2Browser));
+	if(_.isEqual(_.toUpper(futureDT2Browser[0]), "IE")){
+		// IE环境
+		if(futureDT2Browser[1]<9){
+		  	eouluGlobal.S_getSwalMixin()({
+			 	title: "IE版本过低",
+			 	text: "请下载高版本",
+			 	/*html: '',*/
+			 	type: "warning",
+			 	showCancelButton: false,
+			 	timer: 3000
+			}).then(function(){
+				window.location.href = "https://support.microsoft.com/zh-cn/help/17621";
+			});
+			return false;
+		}
+		futureDURL = eouluGlobal.S_URLParser({
+			iurl: window.location.href
+		});
+	}else{
+		futureDURL = new URL(window.location.href);
+	}
+	if(/^\//.test(futureDURL.pathname)){
+		ProjectName = futureDURL.pathname.split("/")[1];
+	}else{
+		ProjectName = futureDURL.pathname.split("/")[0];
+	}
 	var futureDT2LoginPage = eouluGlobal.S_getLoginHref();
 	if(_.isNil(ProjectName) || _.isEmpty(ProjectName)){
 		window.location.assign(futureDT2LoginPage);

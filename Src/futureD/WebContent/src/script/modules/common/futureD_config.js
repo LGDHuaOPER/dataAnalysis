@@ -26,6 +26,7 @@
         environment: "product",
         projectName: "futureD",
         versionNO: "1536897675562",
+        browser: null,
         loginHref: "IndexInterface",
         allAuthorityPage: ["HomeInterface"],
         excludeJudgeAuthorityPage: ["HomeInterface"],
@@ -334,12 +335,16 @@
         // },
         C_setProjectName: function(str){
             _DefaultParam.projectName = str;
-            return this; //返回当前方法，即 eouluGlobal对象
+            return this;
+        },
+        C_setBrowser: function(o){
+            _DefaultParam.browser = o;
+            return this;
         },
         // 设置判断后的权限对象
         C_setCurPageJudgedAuthority: function(o){
             _DefaultParam.curPageJudgedAuthority = o;
-            return this; //返回当前方法，即 eouluGlobal对象
+            return this;
         },
         /* @ 系统页面特殊处理类*/
         // 按钮不可点击
@@ -596,6 +601,9 @@
         },
         S_getProjectName: function(){
             return _DefaultParam.projectName;
+        },
+        S_getBrowser: function(){
+            return _DefaultParam.browser;
         },
         S_getLoginHref: function(){
             return _DefaultParam.loginHref;
@@ -960,6 +968,40 @@
                 _rs[name] = value;
             }
             return _rs;
+        },
+        // 解析URL
+        S_URLParser: function(obj) {
+            var iurl = obj.iurl || "",
+            classify = obj.classify || "REG";
+            var returnUrlObj;
+            if(_.isEqual(_.toUpper(classify), "A")){
+                var a = document.createElement('a');
+                a.href = iurl;
+                returnUrlObj = {
+                    protocol: a.protocol,
+                    username: a.username, // IE
+                    password: a.password, // IE
+                    hostname: a.hostname, // host 可能包括 port, hostname 不包括
+                    port: a.port,
+                    pathname: a.pathname,
+                    search: a.search,
+                    hash: a.hash,
+                };
+            }else if(_.isEqual(_.toUpper(classify), "REG")){
+                var pattern = RegExp("^(?:([^/?#]+))?//(?:([^:]*)(?::?(.*))@)?(?:([^/?#:]*):?([0-9]+)?)?([^?#]*)(\\?(?:[^#]*))?(#(?:.*))?");
+                var matches = iurl.match(pattern) || [];
+                returnUrlObj = {
+                    protocol: matches[1],
+                    username: matches[2],
+                    password: matches[3],
+                    hostname: matches[4],
+                    port: matches[5],
+                    pathname: matches[6],
+                    search: matches[7],
+                    hash: matches[8]
+                };
+            }
+            return returnUrlObj;
         },
         
         S_getLastStr: function(str, num){

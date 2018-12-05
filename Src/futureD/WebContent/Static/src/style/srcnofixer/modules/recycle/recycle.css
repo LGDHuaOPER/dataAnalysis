@@ -1,19 +1,14 @@
 body {
-	display: -ms-grid;
 	display: grid;
-	-ms-grid-rows: 40px 1fr;
 	grid-template-rows: 40px 1fr;
-	-ms-grid-columns: 40px 1fr;
 	grid-template-columns: 40px 1fr;
-	    grid-template-areas: "g_logo  g_info"
+	grid-template-areas: "g_logo  g_info"
 						"g_menu  g_body";
 	min-height: 100vh;
 	min-width: 1000px;
 }
 
 .g_logo {
-	-ms-grid-row: 1;
-	-ms-grid-column: 1;
 	grid-area: g_logo;
 	height: 40px;
 	line-height: 40px;
@@ -23,23 +18,17 @@ body {
 }
 
 .g_info {
-	-ms-grid-row: 1;
-	-ms-grid-column: 2;
 	grid-area: g_info;
 	height: 40px;
 	line-height: 40px;
 }
 
 .g_menu {
-	-ms-grid-row: 2;
-	-ms-grid-column: 1;
 	grid-area: g_menu;
 	background-color: rgb(25, 28, 43);
 }
 
 .g_body {
-	-ms-grid-row: 2;
-	-ms-grid-column: 2;
 	grid-area: g_body;
 	padding: 20px;
 	background-color: rgb(245, 245, 245);

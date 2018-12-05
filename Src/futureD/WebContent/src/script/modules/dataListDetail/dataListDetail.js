@@ -410,7 +410,7 @@ function renderChartByCoord(obj){
 	$(".row.all_charts_rows").find("div[data-highcharts-chart]").each(function(i, el){
 		$(el).highcharts().destroy();
 	});
-	console.table(Highcharts.charts);
+	console.table && console.table(Highcharts.charts);
 	$.ajax({
 		type: "GET",
 		url: "VectorCurve",
@@ -1807,7 +1807,7 @@ function ajax_all_chart(obj){
 				}
 			});
 		}
-		console.table(errorArr)
+		console.table && console.table(errorArr)
 		times++;
 		if(times != alltimes){
 			setTimeout(function(){

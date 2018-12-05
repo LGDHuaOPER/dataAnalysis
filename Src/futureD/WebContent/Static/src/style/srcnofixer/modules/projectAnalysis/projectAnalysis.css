@@ -1,19 +1,14 @@
 body {
-	display: -ms-grid;
 	display: grid;
-	-ms-grid-rows: 40px 1fr;
 	grid-template-rows: 40px 1fr;
-	-ms-grid-columns: 40px 1fr;
 	grid-template-columns: 40px 1fr;
-	    grid-template-areas: "g_logo  g_info"
+	grid-template-areas: "g_logo  g_info"
 						"g_menu  g_body";
 	min-height: 100vh;
 	min-width: 900px;
 }
 
 .g_logo {
-	-ms-grid-row: 1;
-	-ms-grid-column: 1;
 	grid-area: g_logo;
 	height: 40px;
 	line-height: 40px;
@@ -23,21 +18,15 @@ body {
 }
 
 .g_info {
-	-ms-grid-row: 1;
-	-ms-grid-column: 2;
-	display: -ms-grid;
 	display: grid;
-	-ms-grid-columns: 220px 1fr 185px;
 	grid-template-columns: 220px 1fr 185px;
-	    grid-template-areas: "g_info_l g_info_m g_info_r";
+	grid-template-areas: "g_info_l g_info_m g_info_r";
 	grid-area: g_info;
 	height: 40px;
 	line-height: 40px;
 }
 
 .g_info_l {
-  -ms-grid-row: 1;
-  -ms-grid-column: 1;
   grid-area: g_info_l;
   letter-spacing: 1px;
   color: #358cf5;
@@ -45,8 +34,6 @@ body {
   text-align: center;
 }
 .g_info_m {
-  -ms-grid-row: 1;
-  -ms-grid-column: 2;
   grid-area: g_info_m;
   text-align: center;
   line-height: 35px;
@@ -64,8 +51,6 @@ body {
   pointer-events: auto;
 }
 .g_info_r {
-  -ms-grid-row: 1;
-  -ms-grid-column: 3;
   grid-area: g_info_r;
   text-align: right;
   line-height: 35px;
@@ -77,34 +62,24 @@ body {
 }
 
 .g_menu {
-	-ms-grid-row: 2;
-	-ms-grid-column: 1;
 	grid-area: g_menu;
 	background-color: rgb(25, 28, 43);
 }
 
 .g_body {
-	-ms-grid-row: 2;
-	-ms-grid-column: 2;
-	display: -ms-grid;
 	display: grid;
 	grid-area: g_body;
 	padding: 15px;
 	background-color: rgb(245, 245, 245);
-	-ms-grid-columns: 1fr 210px;
 	grid-template-columns: 1fr 210px;
-	    grid-template-areas: "g_body_ll  g_body_rr";
+	grid-template-areas: "g_body_ll  g_body_rr";
 }
 
 .g_body_ll {
-	-ms-grid-row: 1;
-	-ms-grid-column: 1;
 	grid-area: g_body_ll;
 }
 
 .g_body_rr {
-	-ms-grid-row: 1;
-	-ms-grid-column: 2;
 	grid-area: g_body_rr;
 	padding-left: 5px;
 	padding-right: 5px;
