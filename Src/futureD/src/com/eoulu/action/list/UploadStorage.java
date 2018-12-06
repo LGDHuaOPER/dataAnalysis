@@ -149,8 +149,8 @@ public class UploadStorage extends HttpServlet {
 	
 	
 	public static void main(String[] args) {
-		String filePath = "C:\\Users\\zuo\\Desktop\\厦门三安\\测试文件\\1.rar";
-		String fileName = "1.rar";
+		String filePath = "C:\\Users\\zuo\\Desktop\\测试文件\\20181207.zip";
+		String fileName = "20181207.zip";
 		String temp = "E:/test";
 		File file = new File(temp);
 		if(!file.exists()){

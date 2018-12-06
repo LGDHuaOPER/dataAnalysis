@@ -148,6 +148,12 @@ public interface WaferService {
 		boolean getWafer(String fileName,String editTime);
 		
 		boolean getCompareFile(String fileName,String lastModified);
+		/**
+		 * 判断当前器件类型对应的晶圆是否含有被测试的Die，有则绘图，没有则进行提示不予绘图
+		 * @param waferId
+		 * @return
+		 */
+		boolean getMapFlag(int waferId);
 		
 }
 

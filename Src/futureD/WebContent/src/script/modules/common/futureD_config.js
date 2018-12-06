@@ -28,6 +28,7 @@
         versionNO: "1536897675562",
         browser: null,
         loginHref: "IndexInterface",
+        curUserName: null,
         allAuthorityPage: ["HomeInterface"],
         excludeJudgeAuthorityPage: ["HomeInterface"],
         curPageJudgedAuthority: null,
@@ -337,6 +338,10 @@
             _DefaultParam.projectName = str;
             return this;
         },
+        C_setCurUserName: function(str){
+            _DefaultParam.curUserName = str;
+            return this;
+        },
         C_setBrowser: function(o){
             _DefaultParam.browser = o;
             return this;
@@ -601,6 +606,9 @@
         },
         S_getProjectName: function(){
             return _DefaultParam.projectName;
+        },
+        S_getCurUserName: function(){
+            return _DefaultParam.curUserName;
         },
         S_getBrowser: function(){
             return _DefaultParam.browser;
@@ -1224,13 +1232,18 @@
             var Sys = {};
             var ua = navigator.userAgent.toLowerCase();
             var s;
+            (s = ua.match(/edge\/([\d.]+)/)) ? Sys.edge = s[1] :
             (s = ua.match(/msie ([\d.]+)/)) ? Sys.ie = s[1] :
             (s = ua.match(/firefox\/([\d.]+)/)) ? Sys.firefox = s[1] :
             (s = ua.match(/chrome\/([\d.]+)/)) ? Sys.chrome = s[1] :
             (s = ua.match(/opera.([\d.]+)/)) ? Sys.opera = s[1] :
-            (s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1] : 0;
+            (s = ua.match(/version\/([\d.]+).*safari/)) ? Sys.safari = s[1] : 
+            (s = ua.match(/rv\:?([\d.]+)/)) ? Sys.ie11 = s[1] : 0;
             var returnArr = [];
-            if (Sys.ie){
+            if (Sys.edge){
+                returnArr[0] = "Edge";
+                returnArr[1] = Sys.edge;
+            }else if (Sys.ie){
                 returnArr[0] = "IE";
                 returnArr[1] = Sys.ie;
             }else if (Sys.firefox){
@@ -1245,6 +1258,9 @@
             }else if (Sys.safari){
                 returnArr[0] = "Safari";
                 returnArr[1] = Sys.safari;
+            }else if (Sys.ie11){
+                returnArr[0] = "IE11";
+                returnArr[1] = Sys.ie11;
             }else{
                 returnArr[0] = "other";
                 returnArr[1] = "0";

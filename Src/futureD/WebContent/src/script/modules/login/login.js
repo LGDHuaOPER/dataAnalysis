@@ -88,6 +88,7 @@ $(".button_div>button").click(function(){
 				  			type: "info"
 				  		});
 				  	}
+				  	store.set("futureDOnline__curUserName", userName);
 				  	eouluGlobal.C_btnDisabled(iThat, true, "正在跳转...");
 					window.location.assign("HomeInterface");
 				}

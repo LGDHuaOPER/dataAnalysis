@@ -43,7 +43,6 @@ adminState.hasRequestData = false;
 adminState.operateChunkArr = [];
 adminState.authorityRender = false;
 
-
 function staffSubmitBtn(That, classify){
 	if($(".staff_"+classify+"_r_bodyin div.row>div:nth-child(3)>.glyphicon-info-sign").length == 0){
 		$(".staff_"+classify+"_r_foot>.btn-primary").prop("disabled", false);
@@ -98,10 +97,14 @@ function adminRender(cur, signalDelete){
 	    					'<td class="td__role_id" data-ivalue="'+iRole+'" title="'+v.role_name+'" data-itext="'+v.role_name+'">'+v.role_name+'</td>'+
 	    					/*'<td class="td__password not_search" data-ivalue="'+v.password+'">'+v.password+'</td>'+
 	    					'<td class="td__authority not_search" data-ivalue="'+v.authority+'"></td>'+*/
-	    					'<td class="td__operate not_search"><span class="glyphicon glyphicon-edit" aria-hidden="true" title="修改" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'"></span><span class="glyphicon glyphicon-user" aria-hidden="true" title="授权" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'"></span><span class="glyphicon glyphicon-trash" aria-hidden="true" title="删除" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'"></span></td>'+
+	    					'<td class="td__operate not_search">'+
+	    						'<img src="assets/img/common/update_24px.svg"  data-iicon="glyphicon-edit" alt="修改" title="修改" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'">'+
+    				    	    '<img src="assets/img/common/admin_32px.svg"  data-iicon="glyphicon-user" alt="授权" title="授权" style="margin-left: 5px;width: 24px;" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'">'+
+	    				    	'<img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" style="margin-left: 5px;" data-ivalue="'+v.user_id+'" data-iname="'+v.user_name+'">'+
+	    						'</td>'+
 	    				'</tr>';
 	    		});
-
+	    	   
 	    		$(".staffManage_body tbody").empty().append(str);
 	    		
 	    		if(isserch != ""){
@@ -206,6 +209,7 @@ function operateRendaer(cur){
 
 /*page onload*/
 $(function(){
+	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	
 	adminRender(1, false);
@@ -282,7 +286,7 @@ $(function(){
 	
 
 	/*批量删除*/
-	$(".staffManage_tit_l .glyphicon-trash").click(function(){
+	$(".staffManage_tit_l img[data-iicon='glyphicon-remove']").click(function(){
 		console.log("adminState",adminState);
 		if(adminState.staffSellectObj.selectItem.length == 0){
 			swal({
@@ -370,7 +374,7 @@ $(function(){
 		});
 	});
 
-	$(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-trash", function(e){
+	$(document).on("click", ".staffManage_body tbody td.not_search img[data-iicon='glyphicon-remove']", function(e){
 		e.stopPropagation();
 		 console.log("pageOption",adminState.staffPageObj);
 		var iThat = $(this);
@@ -467,10 +471,9 @@ $(function(){
 	});
 
 	/*修改*/
-	$(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-edit", function(e){
+	$(document).on("click", ".staffManage_body tbody td.not_search img[data-iicon='glyphicon-edit']", function(e){
 		e.stopPropagation();
 		var iThat = $(this);
-		
 		if(iThat.parent().siblings(".td__role_id").data("ivalue") > adminState.adminRoleMap[$("body").attr("currentrole")]){
 			adminSwalMixin({
 				title: '提示',
@@ -481,9 +484,6 @@ $(function(){
 			});
 			return false;
 		}
-		
-		
-		
 		var iTd = iThat.parent();
 		if(iThat.parent().siblings(".td__role_id").data("ivalue") == 3){
 			$(".staff_update #staff_update_role_id option[value='3']").prop({
@@ -516,6 +516,7 @@ $(function(){
 				adminState.staffUpdateUser = iVal.toString();
 			}
 		});
+		$(".staff_update").prop("user_name",iThat.parent().siblings(".td__user_name").data("itext"));
 		$(".staff_update_r_bodyin .container-fluid>.row .glyphicon").remove();
 		$(".futureDT2_bg_cover, .staff_update").slideDown(250);
 		$(".staff_update_l, .staff_update_r").height($(".staff_update").height());
@@ -602,7 +603,13 @@ $("#search_input").on("input propertychange change", function(){
 /*搜索组件结束*/
 
 /*添加用户*/
-$(".staffManage_tit_l>.glyphicon-remove-circle").click(function(){
+$(".staffManage_tit_l>img[data-iicon='glyphicon-remove-circle']").click(function(){
+	$("#staff_addition_user_name,#staff_addition_password,#staff_addition_password2,#staff_addition_telephone,#staff_addition_email").val("");
+	$("#staff_addition_sex,#staff_addition_role_id").prop("selected",false);
+	$("#staff_addition_sex option:first,#staff_addition_role_id option:first").prop("selected", 'selected'); 
+	$(".staff_addition_r_bodyin	.refresh .glyphicon").remove();
+	$(".staff_addition_r_bodyin	.row  .glyphicon").removeClass("glyphicon-ok-sign").addClass('glyphicon-info-sign');
+	
 	$(".futureDT2_bg_cover, .staff_addition").slideDown(250);
 	$(".staff_addition_l, .staff_addition_r").height($(".staff_addition").height());
 });
@@ -734,6 +741,54 @@ $("#staff_addition_user_name").on("blur", function(){
    });  
 });
 
+//gaixia
+$("#staff_update_user_name").on("blur", function(){
+	var newUser = $("#staff_update_user_name").val().trim();
+	var str;
+	if(newUser == ""){
+		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"><span>用户名不能为空</span></span>';
+		$(".staff_update_r_foot>.btn-primary").prop("disabled", true);
+		$(this).parent().next().empty().append(str);
+		return false;
+	}
+	var oldname = $(".staff_update").prop("user_name");
+	if(oldname != newUser){
+		$.ajax({
+		       url: 'UserNameQuery', 
+		       type: 'get',
+		       data: {
+		    	   userName : newUser,
+		       },
+		       dataType: 'json', 
+		       success: function (data) {
+		    	   console.log("data",data);
+		    	   if(!data){
+		    		   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+		    		   staffSubmitBtn($(this), "update");
+		    	   }
+		    	   else{
+		    		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"><span>用户名已存在</span></span>';
+		    		   $(".staff_update_r_foot>.btn-primary").prop("disabled", true);
+		    	   }
+		    	   $("#staff_update_user_name").parent().next().empty().append(str);
+		       },
+		       error: function (data, status, e) {
+		    	   adminSwalMixin({
+		   				title: '异常',
+		   				text: "服务器繁忙！",
+		   				type: 'error',
+		   				showConfirmButton: false,
+		   				timer: 2000,
+		   			});
+		       }
+		  }); 
+	}
+	else{
+	   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+	   staffSubmitBtn($(this), "update");
+	   $("#staff_update_user_name").parent().next().empty().append(str);
+	}
+});
 
 
 $(".row .has-feedback .form-control-feedback").click(function(){
@@ -750,6 +805,7 @@ $(".staff_addition_r_foot>.btn-primary").click(function(){
 	//添加提交交互
 	var userName = $("#staff_addition_user_name").val().trim();
 	var sex = $("#staff_addition_sex").val().trim();
+	var password = $("#staff_addition_password2").val().trim();
 	var telephone = $("#staff_addition_telephone").val().trim();
 	var email = $("#staff_addition_email").val().trim();
 	var roleId =$("#staff_addition_role_id").val();
@@ -759,6 +815,7 @@ $(".staff_addition_r_foot>.btn-primary").click(function(){
 	       dataType: 'json', 
 	       data: {
 	    	   userName : userName ,
+	    	   password : password ,
 	    	   sex : sex ,
 	    	   telephone : telephone ,
 	    	   email : email ,
@@ -1030,7 +1087,7 @@ $("#checkAll2").on({
 });
 
 /*权限*/
-$(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphicon-user", function(e){
+$(document).on("click", ".staffManage_body tbody td.not_search img[data-iicon='glyphicon-user']", function(e){
 	e.stopPropagation();
 	var iThat = $(this);
 	if(iThat.parent().siblings(".td__role_id").data("ivalue") > adminState.adminRoleMap[$("body").attr("currentrole")]){
@@ -1075,22 +1132,26 @@ $(document).on("click", ".staffManage_body tbody td.not_search .glyphicon.glyphi
 			    		   if(data[key].authority.indexOf(",") > -1){
 			    			   for(var i = 0 ; i < data[key].authority.split(",").length ; i++){
 			    				   if(data[key].authorityName.split(",")[i] == key){
-				    				   continue;
+			    					   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority.split(",")[i]+'">访问'+data[key].authorityName.split(",")[i]+'</span>';
 				    			   }
-			    				   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority.split(",")[i]+'">'+data[key].authorityName.split(",")[i]+'</span>';
+			    				   else{
+			    					   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority.split(",")[i]+'">'+data[key].authorityName.split(",")[i]+'</span>';
+			    				   }
 			    			   }
 			    		   }
 			    		   else{
 			    			   if(data[key].authorityName == key){
-			    				   continue;
+			    				   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority+'">访问'+data[key].authorityName+'</span>';
 			    			   }
-			    			   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority+'">'+data[key].authorityName+'</span>';
+			    			   else{
+			    				   str+='<span><input type="checkbox" data-ivalue="'+data[key].authority+'">'+data[key].authorityName+'</span>';
+			    			   }
 			    		   }
 		    		   }
 		    	   }
 		    	    $(".staff_authority_r_bodyin tbody").empty().append(str);
 			    	$(".staff_authority_r_bodyin tbody span>input").each(function(){
-			    			$(this).prop("checked", false);
+			    		$(this).prop("checked", false);
 			    	});
 		    	   //加载选中权限
 		    	  if(data.userAuthority != ""){

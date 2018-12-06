@@ -71,7 +71,9 @@ dataCompareState.stateObj = {
 	canClickParam: false,
 	curParam: null,
 	curChartContainerNum: 0,
-	searchShow: true
+	searchShow: true,
+	allChoose : false,
+	curWaferChange : false
 };
 dataCompareState.chartTypeMap = {
 	"good_rate": "spline",
@@ -131,81 +133,306 @@ dataListDetailStore.state = {
 	},
 };
 
-
-/*图形绘制*/
-function buildParameterChartContainer(obj){
+/*参数分布统计 其他图表绘制*/
+function draw_other_chart(obj){
+	//console.log("draw_other_chart",obj);
+	/*参数获取*/
+	var chartType = obj.chartType;
 	var classify = obj.classify;
+	var IDParamObj = obj.IDParamObj;
 	var paramsArr = obj.paramsArr;
-	var str = '<div class="container-fluid">';
-	var returnIDArr = [];
-	if(["good_rate"].indexOf(classify) > -1){
-		var eclipse = '';
-		if(paramsArr.length > 5) eclipse = "&...";
-		var iparam = _.join(_.slice(paramsArr, 0, 5), ", ")+eclipse;
-		str+='<div class="row">';
-			str+='<div class="col-sm-12 col-md-12 col-lg-12">';
-			str+='<div class="panel panel-info">'+
-				  	'<div class="panel-heading">'+
-				    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+iparam+
-				  	'</div>'+
-				  	'<div class="panel-body">'+
-				    	'<div class="container-fluid">'+
-				    		'<div class="chart_title"></div>'+
-				    		'<div class="chart_body"><div id="'+(classify+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+iparam+'"></div></div>'+
-				    		'<div class="chart_foot"></div>'+
-				    	'</div>'+
-				  	'</div>'+
-				'</div>';
-			str+='</div>';
-		str+='</div>';
-		returnIDArr.push({
-			id: (classify+dataListDetailStore.state.parameterMap.curChartContainerNum),
-			param: iparam,
-			isAll: true
-		});
-		dataListDetailStore.state.parameterMap.curChartContainerNum++;
-	}else if(["histogram", "boxlinediagram", "CPK", "map_good_rate_distribution", "map_color_order_distribution"].indexOf(classify) > -1){
-		if(["histogram"].indexOf(classify) > -1) paramsArr = _.pull(paramsArr, "sectionX");
-		var inStr = '';
-		_.forEach(paramsArr, function(v, i, arr){
-			if(i%2 == 0){
-				str+='<div class="row">';
-			}
-				str+='<div class="col-sm-12 col-md-6 col-lg-6">';
-				str+='<div class="panel panel-info">'+
-					  	'<div class="panel-heading">'+
-					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+v+
-					  	'</div>'+
-					  	'<div class="panel-body">'+
-					    	'<div class="container-fluid">'+
-					    		'<div class="chart_title"></div>'+
-					    		'<div class="chart_body"><div id="'+(classify+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+v+'"></div></div>'+
-					    		'<div class="chart_foot">'+inStr+'</div>'+
-					    	'</div>'+
-					  	'</div>'+
-					'</div>';
-				str+='</div>';
-			if(i%2 == 1 || (i%2 == 0 && i == arr.length-1)){
-				str+='</div>';
-			}
-			returnIDArr.push({
-				id: (classify+dataListDetailStore.state.parameterMap.curChartContainerNum),
-				param: v,
-				isAll: false
+	var data = obj.data;
+	var errorArr = obj.errorArr;
+	var curWaferId = obj.curWaferId;
+	var curWaferName = obj.curWaferName;
+	var container = IDParamObj.id,
+	iparam = IDParamObj.param,
+	isAll = IDParamObj.isAll,
+	title_text,
+	subtitle_text = null,
+	xAxis,
+	yAxis,
+	series,
+	callback = null;
+
+	switch(classify){
+		case "histogram":
+			/*处理数据*/
+			var ndata = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
 			});
-			dataListDetailStore.state.parameterMap.curChartContainerNum++;
-		});
+			title_text = "直方图-"+iparam;
+			xAxis = {
+				categories: _.map(ndata.sectionX, function(v, i){
+					var vArr = v.split("~");
+					_.forEach(vArr, function(vv, ii, arr){
+						var vArrIt;
+						if(vv.indexOf("∞")>-1){
+							vArrIt = vv;
+						}else{
+							if(vv.length>8){
+								vArrIt = numeral(vv).format('0.0000e+0');
+							}else{
+								vArrIt = vv;
+							}
+						}
+						arr[ii] = vArrIt;
+					});
+					return _.join(vArr, "~");
+				}),
+				type: 'linear',
+				labels: {
+					rotation: -45  // 设置轴标签旋转角度
+				},
+				plotLines: [{
+					color: '#FF0000',
+					width: 2,
+					value: 0.5
+				},{
+					color: '#FF0000',
+					width: 2,
+					value: ndata.sectionX.length-1.5
+				}]
+			};
+			yAxis = {
+				title: {
+					text: '百分数'
+				}
+			};
+			var iserise = [];var ndataItem;
+			for(var _id in ndata.percentList){
+				ndataItem = ndata.percentList[_id] ;
+				iserise.push({
+					name: curWaferName[_id],
+					type: "column",
+					data: _.map(ndataItem.percent, function(v){
+						return parseFloat(v);
+					})
+				});
+			}
+			/*iserise.push({
+				name: iparam+"频率累加",
+				type: "line",
+				data: _.map(ndataItem.proportion, function(v){
+					return parseFloat(v);
+				})
+			});*/
+			series = iserise;
+		break;
+
+		case "boxlinediagram":
+			var categories = [];
+			for(var b_i = 0 ; b_i< curWaferId.length ; b_i++){
+				categories.push(curWaferName[curWaferId[b_i]])
+			}
+			
+			title_text = "箱线图-"+iparam;
+			xAxis = {
+						categories: categories,
+					};
+			yAxis = {
+						title: {
+							text: '值'
+						},
+					};
+		
+			var ndata = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
+			});
+			var series = [];
+			var data_eigenValue =[] ,data_extreme =[] ,data_soft =[] ;
+			for(var _id in ndata){
+				data_eigenValue.push(ndata[_id].eigenValue);
+				data_extreme = ndata[_id].extreme;
+				data_soft= ndata[_id].soft;
+			}
+			/*暂时处理*/
+			series = [{
+					name: '观测值',
+					data: data_eigenValue,
+					tooltip: {
+						headerFormat: '<em>参数： {point.key}</em><br/>'
+					}
+				}, {
+					name: '极端异常值',
+					color: Highcharts.getOptions().colors[0],
+					type: 'scatter',
+					// x, y positions where 0 is the first category
+					data: data_extreme,
+					marker: {
+						fillColor: 'white',
+						lineWidth: 1,
+						lineColor: Highcharts.getOptions().colors[0]
+					},
+					tooltip: {
+						pointFormat: '极端异常值: {point.y}'
+					}
+				}, {
+					name: '温和异常值',
+					color: Highcharts.getOptions().colors[1],
+					type: 'scatter',
+					data: data_soft,
+					marker: {
+						fillColor: '#ccc',
+						lineWidth: 1,
+						lineColor: Highcharts.getOptions().colors[1]
+					},
+					tooltip: {
+						pointFormat: '温和异常值: {point.y}'
+					}
+				}];
+		break;
+		case "CPK":
+			var CPK_data = [];
+			var ndata = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
+			});
+			for(var wafernum = 0 ; wafernum < obj.curWaferId.length ; wafernum++ ){
+				var curDataItem = _.find(ndata, function(vv, kk){
+					return _.toString(kk) == _.toString(obj.curWaferId[wafernum]);
+				});
+				if(curDataItem.length<20){
+					var errorArrItem = _.find(errorArr, function(v, i){
+						return v.chartCNName == "CPK图";
+					});
+					if(_.isNil(errorArrItem)){
+						errorArr.push({
+							chartCNName: "CPK图",
+							errorParamArr: [iparam],
+							classify: classify,
+							message: "参数数据不足"
+						});
+					}else{
+						errorArrItem.errorParamArr.push(iparam);
+					}
+				}
+				else{
+					var iiitem = {};
+					iiitem.name = curWaferName[obj.curWaferId[wafernum]];
+					iiitem.data  = ndata[obj.curWaferId[wafernum]];
+					CPK_data.push(iiitem);
+				}
+			}
+		
+			title_text = "CPK-"+iparam;
+			xAxis = {
+				categories:["一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"]
+			};
+			yAxis = {
+				title: {
+					text: 'values'
+				}
+			};
+			series = CPK_data;
+			
+		break;
+		case "correlationgraph":
+			title_text = "相关性图-"+iparam;
+			var _iparam ;  // waferid
+			for(var _i in curWaferName){
+				if(iparam === curWaferName[_i]){
+					_iparam = _i;
+					break;
+				}
+			}
+			var ndata = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(_iparam);
+			});
+			xAxis = {
+				title: {
+					enabled: true,
+					text: $(".right_div .list-group-item-info").eq(0).data("iparam"),
+					style:{"fontSize":"16px","fontFamily":"arial","float":"top"}
+				},
+				lineWidth:1,
+				startOnTick: true,
+				endOnTick: true,
+				showLastLabel: true,
+				labels: {
+            	useHTML: true,
+                formatter: function () {
+                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
+            	}
+            },
+			};
+			yAxis = {
+				title: {
+					text: $(".right_div .list-group-item-info").eq(1).data("iparam")
+				}
+			};
+    		var item = {};
+			item.name = iparam;
+			var seriesData = [];
+			for(var c_num = 0 ; c_num < ndata.X.length ; c_num++){
+				var seriesData_XY= [];
+    			seriesData_XY.push(parseFloat(ndata.X[c_num]));  //插入X轴数据
+    			seriesData_XY.push(parseFloat(ndata.Y[c_num]));  //插入Y轴数据
+    			seriesData.push(seriesData_XY);
+			}
+			
+			item.data = seriesData;
+			series = [item];
+		break;
+		/*良品率图*/
+		default:
+			title_text = "良品率图";
+			var item = {};
+			item.name = iparam;
+			item.data = [];
+			var iiiiicategories = [];
+			var ndata = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
+			});
+			for(var _id in ndata){
+				iiiiicategories.push(curWaferName[_id]);
+				var y_data = parseFloat(ndata[_id])
+				item.data.push( y_data);
+			}
+			xAxis = {
+				categories: iiiiicategories
+			};
+			yAxis = {
+				title: {
+					text: "比率(%)"
+				},
+				min:0,
+		        max:100,
+		        tickInterval: 10,
+		        labels: {
+		            formatter: function () {
+		                return this.value;
+		            }
+		        },
+			};
+			series = [item];
 	}
-	str+='</div>';
-	$("#parameterMap>div.panel[data-iallstatistics='"+classify+"']").children(".panel-body").append(str);
-	return returnIDArr;
+	/*画图*/
+	dataCompareRenderChart({
+		container: container,
+		chart: {
+			zoomType: 'x',
+			type: chartType,
+		},
+		title: {
+			text: title_text
+		},
+		subtitle: {
+			text: subtitle_text
+		},
+		xAxis: xAxis,
+		yAxis: yAxis,
+		series: _.cloneDeep(series),
+		chartClassify: classify,
+		callback: callback
+	});
+	return errorArr;
 }
 
 /*参数分布统计 Map良率绘制*/
 function draw_map_good_rate(obj){
-	console.log("draw_map_good_rate",obj);
+	//console.log("draw_map_good_rate",obj);
 	var data = obj.data;
-	var waferNO = obj.waferNO;
+	var waferNO = obj.IDParamObj.wafer;
 	if(_.isNil(waferNO)) return false;
 	var IDParamObj = obj.IDParamObj;
 	var that = $("#"+IDParamObj.id);
@@ -219,59 +446,67 @@ function draw_map_good_rate(obj){
 	var waferData = _.find(data, function(v, k){
 		return _.toString(k) == _.toString(waferNO);
 	});
-	var dieData = [];
-	var currentDieItem = _.find(waferData.waferList, function(v, k){
-		return _.toString(v.parameter) == _.toString(IDParamObj.param);
-	});
-	_.forOwn(currentDieItem.currentDieList, function(v, k){
-		var item = {};
-		item[k] = v;
-		dieData.push(item);
-	});
-	_.forOwn(waferData.otherDieType, function(v, k){
-		var item = {};
-		item[k] = v;
-		dieData.push(item);
-	});
-	/*预处理数据end*/
-	buildColorGradation({
-		width: inH,
-		height: inH*0.8,
-		container: canvasID,
-		bgFillColor: "#314067",
-		waferData: waferData,
-		spacePercent: {
-			x: 0.1,
-			y: 0
-		},
-		m_DieDataListNew: dieData,
-		colorGradation: {
-			limitColor: "#FF0000",
-			floorColor: "#00FF00",
-			nums: 256
-		},
-		callback: function(positionFlag, newRenderWaferMap){
-			var str = '<div class="container-fluid">'+
-						'<table class="table table-striped table-bordered table-hover table-condensed">'+
-							'<thead>'+
-								'<tr>'+
-									'<th>合格数</th>'+
-									'<th>不合格数</th>'+
-									'<th>良率</th>'+
-								'</tr>'+
-							'</thead>'+
-							'<tbody>'+
-								'<tr>'+
-									'<td>'+currentDieItem.qualify+'</td>'+
-									'<td>'+currentDieItem.unqulify+'</td>'+
-									'<td>'+currentDieItem.yield+'</td>'+
-								'</tr>'+
-							'</tbody>'+
-						'</table>'+
-					'</div>';
-			that.parent().next().append(str);
-		}
-	});
+		var dieData = [];
+		var currentDieItem = _.find(waferData.waferList, function(v, k){
+			return _.toString(v.parameter) == _.toString(IDParamObj.param);
+		});
+		//console.log("map_currentDieItem=====",currentDieItem);
+		_.forOwn(currentDieItem.currentDieList, function(v, k){
+			var item = {};
+			item[k] = v;
+			dieData.push(item);
+		});
+		_.forOwn(waferData.otherDieType, function(v, k){
+			var item = {};
+			item[k] = v;
+			dieData.push(item);
+		});
+	
+		/*预处理数据end*/
+	
+		buildColorGradation({
+			width: inH,
+			height: inH*0.8,
+			container: canvasID,
+			bgFillColor: "#314067",
+			waferData: waferData,
+			spacePercent: {
+				x: 0.1,
+				y: 0
+			},
+			m_DieDataListNew: dieData,
+			colorGradation: {
+				limitColor: "#FF0000",
+				floorColor: "#00FF00",
+				nums: 256
+			},
+			callback: function(positionFlag, newRenderWaferMap){
+				/*var uplow = findParamUpLow(IDParamObj.param[p_num]);
+				var str = '<div class="container-fluid">'+
+							'<table class="table table-striped table-bordered table-hover table-condensed">'+
+								'<thead>'+
+									'<tr>'+
+										'<th>合格数</th>'+
+										'<th>不合格数</th>'+
+										'<th>良率</th>'+
+										'<th>下限</th>'+
+										'<th>上限</th>'+
+									'</tr>'+
+								'</thead>'+
+								'<tbody>'+
+									'<tr>'+
+										'<td>'+currentDieItem.qualify+'</td>'+
+										'<td>'+currentDieItem.unqulify+'</td>'+
+										'<td>'+currentDieItem.yield+'</td>'+
+										'<td>'+uplow.low+'</td>'+
+										'<td>'+uplow.up+'</td>'+
+									'</tr>'+
+								'</tbody>'+
+							'</table>'+
+						'</div>';
+				that.parent().next().append(str);*/
+			}
+		});
 }
 
 /*map色阶分布图绘制*/
@@ -280,7 +515,7 @@ function draw_map_color_order_distribution(obj){
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
-	var waferNO = obj.waferNO;
+	var waferNO = IDParamObj.wafer;
 	/*预处理数据*/
 	var that = $("#"+IDParamObj.id),
 	waferData = _.find(data, function(v, k){
@@ -290,8 +525,8 @@ function draw_map_color_order_distribution(obj){
 	currentDieItem = _.find(waferData.waferList, function(v, k){
 		return _.toString(v.parameter) == _.toString(IDParamObj.param);
 	}),
-	theMax = 1000, 
-	theMin = -1000, 
+	theMax = 200, 
+	theMin = -100, 
 	lowwer = theMin+_.floor((theMax-theMin)/3), 
 	upper = theMin+_.floor((theMax-theMin)/3)*2, 
 	midder = _.floor((theMax+theMin)/2),
@@ -300,18 +535,41 @@ function draw_map_color_order_distribution(obj){
 	threeDiff = midder - lowwer,
 	fourDiff = upper - midder,
 	fiveDiff = theMax - upper,
-	precision = 1;
+	precision = 0;
 	_.forOwn(currentDieItem.currentDieList, function(v, k){
 		var item = {},
 		iNo,
-		ibin;
+		ibin,
+		addNum,
+		percentV,
+		binV;
 		if(_.isObject(v)){
-			iNo = parseFloat(v.percent)*Math.pow(10,precision);
-			ibin = v.bin;
+			percentV = v.percent;
+			binV = v.bin;
 		}else{
-			iNo = v*Math.pow(10,precision);
-			ibin = v;
+			percentV = v;
+			binV = v;
 		}
+
+		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
+		var addMat = percentV.match(/^\+/);
+		var minusMat = percentV.match(/^\-/);
+		if(_.isNil(addMat) && _.isNil(minusMat)){
+			/*合格数据*/
+			addNum = 0;
+		}else{
+			if(!_.isNil(addMat)){
+				/*大于上限*/
+				addNum = 100;
+			}
+			if(!_.isNil(minusMat)){
+				/*小于下限*/
+				addNum = 0;
+			}
+		}
+		iNo = iNo+(addNum);
+		ibin = binV;
+
 		/*判断位置*/
 		if(ibin == 12){
 			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
@@ -328,46 +586,7 @@ function draw_map_color_order_distribution(obj){
 				item[k] = {bin: ibin, color: "2:"+iiNo};
 			}else if(lowwer<=iNo && iNo<midder){
 				item[k] = {bin: ibin, color: "3:"+iiNo};
-			}else if(midder<=iNo && iNo<upper){
-				item[k] = {bin: ibin, color: "4:"+iiNo};
-			}else if(upper<=iNo && iNo<theMax){
-				item[k] = {bin: ibin, color: "5:"+iiNo};
-			}else if(theMax<=iNo){
-				iNo = theMax;
-				item[k] = {bin: ibin, color: "6:"+iiNo};
-			}
-		}
-		/*判断位置end*/
-		dieData.push(item);
-	});
-	_.forOwn(waferData.otherDieType, function(v, k){
-		var item = {},
-		iNo,
-		ibin;
-		if(_.isObject(v)){
-			iNo = parseFloat(v.percent);
-			ibin = v.bin;
-		}else{
-			iNo = v;
-			ibin = v;
-		}
-		/*判断位置*/
-		if(ibin == 12){
-			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-			item[k] = {bin: 12, color: "12:"};
-		}else if(ibin == -1){
-			if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-			item[k] = {bin: -1, color: "-1:"};
-		}else{
-			var iiNo = _.round(iNo, precision);
-			if(iNo<=theMin){
-				iNo = theMin;
-				item[k] = {bin: ibin, color: "1:"+iiNo};
-			}else if(theMin<iNo && iNo<=lowwer){
-				item[k] = {bin: ibin, color: "2:"+iiNo};
-			}else if(lowwer<iNo && iNo<=midder){
-				item[k] = {bin: ibin, color: "3:"+iiNo};
-			}else if(midder<iNo && iNo<=upper){
+			}else if(midder<=iNo && iNo<=upper){
 				item[k] = {bin: ibin, color: "4:"+iiNo};
 			}else if(upper<iNo && iNo<theMax){
 				item[k] = {bin: ibin, color: "5:"+iiNo};
@@ -379,7 +598,8 @@ function draw_map_color_order_distribution(obj){
 		/*判断位置end*/
 		dieData.push(item);
 	});
-	console.log(dieData);
+	
+	//console.table(dieData);
 	/*预处理数据end*/
 
 	var inH = that.innerWidth();
@@ -423,8 +643,10 @@ function draw_map_color_order_distribution(obj){
 	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
 	var itemHeight = colorGradientDom.height();
 	var itemWidth = colorGradientDom.width() / (all*1.2);
-	var multip = 2;
-	if($("body").innerWidth()<1366) multip = 3;
+	var multip = _.floor((theMax-theMin)/200);
+	if($("body").innerWidth()<1920) multip = multip+0.5;
+	if($("body").innerWidth()<1366) multip = multip+0.5;
+	//console.log("multip", multip);
 	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(twoDiff, function(ii){
@@ -475,286 +697,182 @@ function draw_map_color_order_distribution(obj){
 	});
 	$tableO.find("th").each(function(i){
 		if($(this).text().trim() == "") {
-			$(this).text(i+"区间");
+			$(this).text((i+1)+"区间");
 			$tableO.find("td").eq(i).text("0个");
 		}
 	});
 }
 
-/*参数分布统计 其他图表绘制*/
-function draw_other_chart(obj){
-	console.log("draw_other_chart",obj);
-	/*参数获取*/
-	var chartType = obj.chartType;
+/*参数分布统计*/
+/*寻找参数上下限*/
+function findParamUpLow(param){
+	var UpLow = {};
+	if(param.toLocaleUpperCase() == "ALL"){
+		UpLow.up = "无";
+		UpLow.low = "无";
+	}else{
+		var data = $("body").data("result").paramLimit;
+		var iindex = _.findIndex(data.paramList, function(v, i){
+			return v.replace(/\([\s\S]*\)$/, "") == param;
+		});
+		if(iindex == -1){
+			UpLow.up = "无";
+			UpLow.low = "无";
+		}else{
+			UpLow.up = data.upperList[iindex];
+			UpLow.low = data.lowerList[iindex];
+		}
+	}
+	return _.cloneDeep(UpLow);
+}
+function buildParameterChartContainer(obj){
+	console.log("obj",obj);
 	var classify = obj.classify;
-	var IDParamObj = obj.IDParamObj;
 	var paramsArr = obj.paramsArr;
-	var data = obj.data;
-	var curWaferId = obj.curWaferId;
-	var errorArr = obj.errorArr;
-	var waferNO = obj.waferNO;
-	/*chartCNName: whenArrItem.chartCNName,
-	errorParamArr: [],
-	classify*/
-	var container = IDParamObj.id,
-	iparam = IDParamObj.param,
-	isAll = IDParamObj.isAll,
-	title_text,
-	subtitle_text = null,
-	xAxis,
-	yAxis,
-	series,
-	callback = null;
-
-	/*错误数组增加*/
-	switch(classify) {
-		case "CPK":
-			var curDataItem = _.find(_.find(data, function(v, k){
-				return _.toString(k) == _.toString(iparam);
-			}), function(vv, kk){
-				return _.toString(kk) == _.toString(waferNO);
-			});
-			if(curDataItem.length<20){
-				var errorArrItem = _.find(errorArr, function(v, i){
-					return v.chartCNName == "CPK图";
-				});
-				if(_.isNil(errorArrItem)){
-					errorArr.push({
-						chartCNName: "CPK图",
-						errorParamArr: [iparam],
-						classify: classify,
-						message: "参数数据不足"
-					});
-				}else{
-					errorArrItem.errorParamArr.push(iparam);
-				}
-				return errorArr;
+	var str = '<div class="container-fluid">';
+	var returnIDArr = [];
+	var inStr = '';
+	 if(["good_rate","histogram", "boxlinediagram", "CPK","correlationgraph"].indexOf(classify) > -1){
+		if(["histogram"].indexOf(classify) > -1) paramsArr = _.pull(paramsArr, "sectionX");
+		_.forEach(paramsArr, function(v, i, arr){
+			if(i%2 == 0){
+				str+='<div class="row">';
 			}
-		break;
+				str+='<div class="col-sm-12 col-md-6 col-lg-6">';
+				str+='<div class="panel panel-info">'+
+					  	'<div class="panel-heading">'+
+					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+v+
+					  	'</div>'+
+					  	'<div class="panel-body">'+
+					    	'<div class="container-fluid">'+
+					    		'<div class="chart_title"></div>'+
+					    		'<div class="chart_body"><div id="'+(classify+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+v+'"></div></div>'+
+					    		'<div class="chart_foot">'+inStr+'</div>'+
+					    	'</div>'+
+					  	'</div>'+
+					'</div>';
+				str+='</div>';
+			if(i%2 == 1 || (i%2 == 0 && i == arr.length-1)){
+				str+='</div>';
+			}
+			returnIDArr.push({
+				id: (classify+dataListDetailStore.state.parameterMap.curChartContainerNum),
+				param: v,
+				isAll: false
+			});
+			dataListDetailStore.state.parameterMap.curChartContainerNum++;
+		});
+		str+='</div>';
 	}
-	/*错误数组增加end*/
-
-	switch(classify){
-		case "histogram":
-			/*处理数据*/
-			var ndata = _.find(data, function(v, k){
-				return _.toString(k) == _.toString(iparam);
-			});
-			title_text = "直方图-"+iparam;
-			xAxis = {
-				categories: ndata.sectionX,
-				type: 'linear',
-				labels: {
-					rotation: -45  // 设置轴标签旋转角度
-				},
-				plotLines: [{
-					color: '#FF0000',
-					width: 2,
-					value: 0.5
-				},{
-					color: '#FF0000',
-					width: 2,
-					value: ndata.sectionX.length-1.5
-				}]
-			};
-			yAxis = {
-				title: {
-					text: '百分数'
+	 else if(["map_good_rate_distribution", "map_color_order_distribution"].indexOf(classify) > -1){
+		//for(var num = 0 ; num < obj.waferArr.length ; num++){
+		for(var num = 0 ; num < paramsArr.length ; num++){
+			str += '<div class="panel panel-info">'+
+					  	'<div class="panel-heading">'+
+					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+paramsArr[num]+
+					  	'</div>'+
+					  	'<div class="panel-body">'+
+					  		'<div class="container-fluid">';
+			for(var p = 0 ; p < obj.waferArr.length ; p++){
+				if(p%2 == 0){
+					str+='<div class="row">';
 				}
-			};
-			var iserise = [],
-			ndataItem = _.find(ndata.percentList, function(v, k){
-				return _.toString(k) == curWaferId;
-			});
-			iserise.push({
-				name: iparam+"频率分布",
-				type: "column",
-				data: _.map(ndataItem.percent, function(v){
-					return parseFloat(v);
-				})
-			});
-			iserise.push({
-				name: iparam+"频率累加",
-				type: "line",
-				data: _.map(ndataItem.proportion, function(v){
-					return parseFloat(v);
-				})
-			});
-			series = iserise;
-		break;
-
-		case "boxlinediagram":
-			title_text = "箱线图-"+iparam;
-			xAxis = {
-						categories: [iparam],
-						title: {
-							text: "参数"
-						}
-					};
-			yAxis = {
-						title: {
-							text: '值'
-						},
-						/*plotLines: [{
-							value: 932,
-							color: 'red',
-							width: 1,
-							label: {
-								text: '理论模型: 932',
-								align: 'center',
-								style: {
-									color: 'gray'
-								}
-							}
-						}]*/
-					};
-			var iindata = _.find(_.find(data, function(v, k){
-				return _.toString(k) == _.toString(iparam);
-			}), function(vv, kk){
-				return _.toString(kk) == _.toString(curWaferId);
-			});
-			/*暂时处理*/
-			series = [{
-					name: '观测值',
-					data: [iindata.eigenValue],
-					tooltip: {
-						headerFormat: '<em>参数： {point.key}</em><br/>'
-					}
-				}, {
-					name: '极端异常值',
-					color: Highcharts.getOptions().colors[0],
-					type: 'scatter',
-					// x, y positions where 0 is the first category
-					data: iindata.extreme,
-					marker: {
-						fillColor: 'white',
-						lineWidth: 1,
-						lineColor: Highcharts.getOptions().colors[0]
-					},
-					tooltip: {
-						pointFormat: '极端异常值: {point.y}'
-					}
-				}, {
-					name: '温和异常值',
-					color: Highcharts.getOptions().colors[1],
-					type: 'scatter',
-					data: iindata.soft,
-					marker: {
-						fillColor: '#ccc',
-						lineWidth: 1,
-						lineColor: Highcharts.getOptions().colors[1]
-					},
-					tooltip: {
-						pointFormat: '温和异常值: {point.y}'
-					}
-				}];
-		break;
-
-		case "CPK":
-			title_text = "CPK-"+iparam;
-			/*var dataLength = 12;
-			var iiicategories = _.range(1, dataLength + 1);
-			_.forEach(iiicategories, function(v, i, arr){
-				arr[i] = eouluGlobal.S_numToChineseSm(v);
-			});*/
-			/*num.toLocaleString()*/
-			var iiitem = {};
-			iiitem.name = iparam;
-			var iiidata = _.find(_.find(data, function(v, k){
-				return _.toString(k) == _.toString(iparam);
-			}), function(vv, kk){
-				return _.toString(kk) == _.toString(waferNO);
-			});
-			iiitem.data = _.map(iiidata, function(v, i){
-				var iflag = true;
-				if(Math.abs(parseFloat(v))>0) iflag = false;
-				return _.toNumber(eouluGlobal.S_ComSCMRound(parseFloat(v), 2, iflag));
-			});
-
-			xAxis = {
-				categories: _.reduce(iiidata, function(result, v, i, ar){
-					result.push(eouluGlobal.S_numToChineseSm(i+1));
-					return result;
-				}, [])
-			};
-			yAxis = {
-				title: {
-					text: 'values'
+					str+='<div class="col-sm-12 col-md-6 col-lg-6">';
+					str+='<div class="panel panel-info">'+
+						  	'<div class="panel-heading">'+
+						    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+obj.curWaferName[obj.waferArr[p]]+
+						  	'</div>'+
+						  	'<div class="panel-body">'+
+						    	'<div class="container-fluid">'+
+						    		'<div class="chart_title"></div>'+
+						    		'<div class="chart_body"><div id="'+(classify+dataListDetailStore.state.parameterMap.curChartContainerNum)+'" data-iparam="'+paramsArr[num][p]+'"></div></div>'+
+						    		'<div class="chart_foot">'+inStr+'</div>'+
+						    	'</div>'+
+						  	'</div>'+
+						'</div>';
+					str+='</div>';
+					
+				if(p%2 == 1 || (p%2 == 0 && p ==  obj.waferArr.length-1)){
+					str+='</div>';
 				}
-			};
-			series = [iiitem];
-		break;
-		/*良品率图*/
-		default:
-			title_text = "良品率图-"+iparam;
-			var iiiiitem = {};
-			iiiiitem.name = iparam;
-			iiiiitem.data = [];
-			_.forOwn(data, function(v, k){
-				iiiiitem.data[_.findIndex(paramsArr, function(o){ return _.toString(o) == _.toString(k); })] = parseFloat(_.values(v)[0]);
-			});
-			var iiiiicategories = paramsArr;
-			xAxis = {
-				categories: iiiiicategories
-			};
-			yAxis = {
-				title: {
-					text: "%"
-				},
-				min: 0,
-				max: 110,
-				tickInterval: 10,
-				labels: {
-					formatter: function() {
-						return this.value;
-					}
-				}
-			};
-			series = [iiiiitem];
-	}
-	/*画图*/
-	dataCompareRenderChart({
-		container: container,
-		chart: {
-			type: chartType
-		},
-		title: {
-			text: title_text
-		},
-		subtitle: {
-			text: subtitle_text
-		},
-		xAxis: xAxis,
-		yAxis: yAxis,
-		series: _.cloneDeep(series),
-		chartClassify: classify,
-		callback: callback
-	});
-	return errorArr;
+				returnIDArr.push({
+					id: (classify+dataListDetailStore.state.parameterMap.curChartContainerNum),
+					param: paramsArr[num],
+					isAll: false,
+					wafer :  obj.waferArr[p]
+				});
+				dataListDetailStore.state.parameterMap.curChartContainerNum++;
+			}
+			
+			str+='</div></div></div>';
+		} 
+		
+		str+='</div>';
+		
+	 }
+	 if(obj.controls == "all_statistics"){
+		 //console.log("classify",classify);
+		 $("#all_statistics .panel_"+classify+">.panel-body").append(str);
+	 }
+	 else{
+		 $("#"+classify+" .single_div_in").append(str);
+	 }
+	
+	return returnIDArr;
 }
 
-function ajax_single_chart(obj){
-	/*chartType: obj.chartType,
-	chartAjaxUrl: obj.chartAjaxUrl,
-	chartCNName: obj.chartCNName,
-	classify: iicontrols*/
-	var whenArrItem = obj;
 
+
+
+function ajax_all_chart(obj){
+	//console.log("obj",obj);
+	var times = obj.times;
+	var alltimes = obj.alltimes;
+	var whenArr = obj.whenArr;
+	var errorArr = obj.errorArr || [];
+	var curWaferName = obj.curWaferName;
+	var whenArrItem = whenArr[times];
+	var curWaferID = [];var curParam=[];var curParam_nototal=[];
+	for(var _i = 0 ; _i < $(".home_dataCompare_bottom table tbody tr").length ; _i++){
+		curWaferID.push( $(".home_dataCompare_bottom table tbody  tr").eq(_i).find("input[type='checkbox']").data("ivalue"));
+	}
+	for(var _i = 0 ; _i < $(".home_dataCompare_bottom .right_div  li").length ; _i++){
+		if($(".home_dataCompare_bottom .right_div  li").eq(_i).hasClass("list-group-item-info")){
+			if(_i != 0){
+				curParam_nototal.push($(".home_dataCompare_bottom .right_div  li").eq(_i).data("iparam"));
+			}
+			curParam.push($(".home_dataCompare_bottom .right_div  li").eq(_i).data("iparam"));
+		}
+	}
+	if(whenArrItem.classify === "correlationgraph"){
+		var ajax_data = {
+			waferIdStr: curWaferID.join(","),
+			paramX : $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(0).data("iparam") ,
+			paramY : $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(1).data("iparam"),
+			minX :  $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(0).data("min"),
+			minY :  $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(1).data("min") ,
+			maxX : $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(0).data("max") ,
+			maxY : $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(1).data("max") ,
+		}
+	}
+	else{
+		var ajax_data = {
+			waferIdStr: curWaferID.join(","),
+			paramAtt : curParam_nototal
+		}
+	}
 	$.ajax({
 		type: "GET",
 		url: whenArrItem.chartAjaxUrl,
-		data: {
-			waferIdStr: whenArrItem.curWaferId.join(","),
-			paramAtt : whenArrItem.curParam
-		},
+		data: ajax_data,
 		dataType: "json",
 		beforeSend: function(){
-			//$("body").data("iglobalerror", "allow");
+			$("body").data("iglobalerror", "allow");
 			/*提示框修改text*/
-			//$("#swal2-content").text("正在请求"+whenArrItem.chartCNName+"数据，绘图进度 "+(times+1)+"/"+alltimes);
+			$("#swal2-content").text("正在请求"+whenArrItem.chartCNName+"数据，绘图进度 "+(times+1)+"/"+alltimes);
 		}
 	}).then(function(data){
-		console.log("data",data);
+		//console.log("ajaxdata",data);
 		/*console.log(whenArrItem.chartAjaxUrl, data); // GaussianDistribution {}*/
 		if(_.isEmpty(data) || _.isNil(data)) {
 			errorArr.push({
@@ -764,59 +882,63 @@ function ajax_single_chart(obj){
 				message: "数据为空"
 			});
 		}else{
-			/*显示当前图表父容器*/
-			$("#parameterMap>div.panel[data-iallstatistics='"+whenArrItem.classify+"']").fadeIn(100);
 			/*提示框修改text*/
-			var paramsArr,
-			webParam = $("body").data("webparam"),
-			waferNO;
+			//$("#swal2-content").text("正在绘制"+whenArrItem.chartCNName+"，绘图进度 "+(times+1)+"/"+alltimes);
+			var paramsArr;
 			if(["map_good_rate_distribution", "map_color_order_distribution"].indexOf(whenArrItem.classify) > -1){
-				if(!_.isNil(webParam)){
-					waferNO = webParam.split("futureDT2OnlineDataListSplitor")[2];
-					var waferList = _.find(data, function(v, k){
-						return _.toString(k) == _.toString(waferNO);
-					}).waferList;
-					paramsArr = _.reduce(waferList, function(result, value, i) {
-					  result.push(value.parameter);
-					  return result;
-					}, []);
-				}else{
-					paramsArr = [];
+				var waferArr = [];paramsArr = curParam;
+				for(var i in data){
+					waferArr.push(i);
 				}
-			}else{
-				//renderPanel(TotalYield, other, controls);
-				paramsArr = _.keys(data);
-				paramsArr = _.sortBy(paramsArr, function(vv, ii){
-					var returnV;
-					if(_.isNil(vv.match(/\d+/))) {
-						returnV = 0;
-					}else{
-						returnV = _.toNumber(vv.match(/\d+/)[0]);
-					}
-					return returnV;
-				});
 			}
+			else if(["good_rate"].indexOf(whenArrItem.classify) > -1){
+				paramsArr = curParam;
+			}
+			else{
+				if(["correlationgraph"].indexOf(whenArrItem.classify) > -1){
+					delete data.status;
+					paramsArr = [];
+					for(var waferid in curWaferName){
+						paramsArr.push(curWaferName[waferid]);
+					}
+				}
+				else{
+					paramsArr = _.keys(data);
+					paramsArr = _.sortBy(paramsArr, function(vv, ii){
+						var returnV;
+						if(_.isNil(vv.match(/\d+/))) {
+							returnV = 0;
+						}else{
+							returnV = _.toNumber(vv.match(/\d+/)[0]);
+						}
+						return returnV;
+					});
+				}
+			}	
 			var IDParamObjArr = buildParameterChartContainer({
 				classify: whenArrItem.classify,
-				paramsArr: _.cloneDeep(paramsArr)
+				paramsArr: _.cloneDeep(paramsArr),
+				waferArr: _.cloneDeep(waferArr),
+				curWaferName : curWaferName,
+				controls : obj.controls
 			});
-			console.log("IDParamObjArr",IDParamObjArr);
-			
-			
+			//console.log("IDParamObjArr===",IDParamObjArr);
 			/*画图*/
 			_.forEach(IDParamObjArr, function(v, i){
 				if(whenArrItem.classify == "map_good_rate_distribution"){
 					draw_map_good_rate({
 						IDParamObj: v,
 						data: _.cloneDeep(data),
-						waferNO: waferNO
+						curWaferName : curWaferName,
+						paramsArr : paramsArr
 					});
 				}else if(whenArrItem.classify == "map_color_order_distribution"){
 					/*map色阶分布图绘制*/
 					draw_map_color_order_distribution({
 						data: _.cloneDeep(data),
 						IDParamObj: v,
-						waferNO: waferNO
+						curWaferName : curWaferName,
+						paramsArr : paramsArr
 					});
 				}else{
 					errorArr = draw_other_chart({
@@ -825,15 +947,28 @@ function ajax_single_chart(obj){
 						IDParamObj: v,
 						paramsArr: paramsArr,
 						data: _.cloneDeep(data),
-						curWaferId:  whenArrItem.curWaferId.join(","),
-						//errorArr: errorArr,
-						errorArr: [],
-						waferNO: waferNO
+						curWaferId: curWaferID,
+						errorArr: errorArr,
+						curWaferName : curWaferName
+						//waferNO: waferNO
 					});
 				}
 			});
 		}
-		console.table(errorArr)
+		//console.table(errorArr)
+		times++;
+		if(times != alltimes){
+			setTimeout(function(){
+				ajax_all_chart({
+					times: times,
+					alltimes: alltimes,
+					whenArr: whenArr,
+					curWaferName : curWaferName,
+					errorArr: errorArr,
+					controls : obj.controls
+				});
+			}, 50);
+		}else{
 			eouluGlobal.S_getSwalMixin()({
 				title: "加载提示",
 				text: "数据请求完成",
@@ -879,6 +1014,7 @@ function ajax_single_chart(obj){
 				$("body").data("iglobalerror", "unallow");
 				dataListDetailStore.state.parameterMap.hasRender = true;
 			});
+		}
 	}, function(){
 		// errorArr.push(whenArrItem.chartCNName);
 		eouluGlobal.S_getSwalMixin()({
@@ -894,14 +1030,15 @@ function ajax_single_chart(obj){
 }
 
 
-
-
 $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"]', function (e) {
-  /*e.target // newly activated tab
-  e.relatedTarget // previous active tab*/
-	var curWaferID = [];
+	if($(this).parent().attr("ischange") == "true") return true;
+	$(this).parent().attr("ischange", "true");
+	
+	
+	var curWaferID = [];var curWaferName = {};
 	for(var _i = 0 ; _i < $(".home_dataCompare_bottom table tbody tr").length ; _i++){
 		curWaferID.push( $(".home_dataCompare_bottom table tbody  tr").eq(_i).find("input[type='checkbox']").data("ivalue"));
+		curWaferName[$(".home_dataCompare_bottom table tbody  tr").eq(_i).find("input[type='checkbox']").data("ivalue")] =$(".home_dataCompare_bottom table tbody  tr").eq(_i).find(".wafer_number").text();
 	}
   	var curParam = dataCompareState.stateObj.curParam;
   	var controls = $(e.target).attr("aria-controls");
@@ -909,283 +1046,96 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   	if(controls == "home_dataCompare"){
   		$(".g_info_m, .g_info .glyphicon-question-sign").show();
   		if(dataCompareState.stateObj.searchShow) $(".g_info_r .glyphicon-search").show();
-  	}else if(controls == "all_statistics"){
-  		dataCompareSwalMixin({
-			title: '加载数据',
-			text: "正在绘图中......",
-			type: 'info',
-			showConfirmButton: false,
-			showCancelButton: false,
-			timer: 1000
-		}).then(function(){
-			dataCompareSwalMixin({
-				title: '加载数据',
-				text: "正在绘图中......",
-				type: 'info',
-				showConfirmButton: false,
-				showCancelButton: false,
-			});
-	  		$("#all_statistics>div.panel>.panel-body").empty();
-	  		$(".g_bodyin_bodyin_top_wrap ul>li[role='presentation']>a:not([aria-controls='home_dataCompare']):not([aria-controls='all_statistics'])").each(function(i, el){
-	  			renderPanel(curParam.TotalYield, curParam.other, $(el).attr("aria-controls"), true, function(str){
-	  				$("#all_statistics>div.panel.panel_"+$(el).attr("aria-controls")+">.panel-body").append(str);
-	  			});
-	  		});
-	  		$("#all_statistics>div.panel").each(function(inde, el){
-	  			var iicontrols = $(el).data("iallstatistics");
-	  			if(iicontrols == "map_good_rate_distribution"){
-	  				/*Map良率分布*/
-	  				$(el).children(".panel-body").find(".chart_map_body>div").each(function(ii, ele){
-	  					var that = $(this);
-	  					draw_map_good_rate_distribution(that, ii);
-	  				});
-	  			}else if(iicontrols == "map_color_order_distribution"){
-	  				/*Map色阶分布*/
-	  				/*1区域，theMin #0000FF，2区域，lowwer #00FFFF，3区域，midder #00FF00，4区域，upper #FFFF00，5区域，theMax #FF0000，6区域*/
-	  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[_.random(0, 1, false)]);
-	  				var otherColor = {};
-	  				var theMin = 100;
-	  				var lowwer = 200;
-	  				var midder = 250;
-	  				var upper = 300;
-	  				var theMax = 400;
-	  				var maxSlide = Math.max(Math.abs(copyData.maxX), Math.abs(copyData.minX));
-	  				var maxR = Math.sqrt(2)*maxSlide;
-	  				/*暂时性数据*/
-	  				var minmin = _.round(theMin*0.8);
-	  				var maxmax = _.round(theMax*1.2);
-	  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
-	  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
-	  						_.forOwn(arra[ii], function(vvv, k, obj){
-	  							/*虚假数据开始*/
-	  							var iNo = _.random(minmin, maxmax, false);
-	  							// k 1:1
-	  							var k1 = Number(k.toString().split(":")[0]);
-	  							var k2 = Number(k.toString().split(":")[1]);
-								var powR = Math.pow(k1 ,2)+Math.pow(k2 ,2);
-								var lowmid_mean = _.round(_.mean([lowwer, midder]));
-								var midup_mean = _.round(_.mean([midder, upper]));
-								var minlow_mean = _.round(_.mean([theMin, lowwer]));
-								var upmax_mean = _.round(_.mean([upper, theMax]));
-								if(Math.pow(3.2, 2)*powR < Math.pow(maxR ,2)){
-									/*在5/16内，预设3区域中间到4区域中间*/
-									iNo = _.random(lowmid_mean, midup_mean, false);
-								}else if(4*powR < Math.pow(maxR ,2)){
-									/*在二分之一内，预设蓝色至天蓝到黄色*/
-									if(Math.pow(2.67, 2)*powR < Math.pow(maxR ,2)){
-										/*半径3/8以内*/
-										iNo = _.random(lowwer, lowmid_mean, false);
-									}else{
-										iNo = _.random(midup_mean, upper, false);
-									}
-								}else if(Math.pow(1.33, 2)*powR < Math.pow(maxR ,2)){
-									if(Math.pow(1.6, 2)*powR < Math.pow(maxR ,2)){
-										/*半径5/8以内*/
-										iNo = _.random(minlow_mean, lowwer, false);
-									}else{
-										iNo = _.random(upper, upmax_mean, false);
-									}
-								}else if(powR <= Math.pow(maxR ,2)){
-									if((Math.abs(k1)+Math.abs(k2))%2 == 0){
-										iNo = _.random(minmin, minlow_mean, false);
-									}else{
-										iNo = _.random(upmax_mean, maxmax, false);
-									}
-								}
-								/*虚假数据结束*/
-								/*构造数据*/
-	  							if(iNo<theMin){
-	  								iNo = theMin;
-	  								obj[k] = {bin: vvv, color: "1:"+iNo};
-	  							}else if(theMin<=iNo && iNo<lowwer){
-	  								obj[k] = {bin: vvv, color: "2:"+iNo};
-	  							}else if(lowwer<=iNo && iNo<midder){
-	  								obj[k] = {bin: vvv, color: "3:"+iNo};
-	  							}else if(midder<=iNo && iNo<upper){
-	  								obj[k] = {bin: vvv, color: "4:"+iNo};
-	  							}else if(upper<=iNo && iNo<theMax){
-	  								obj[k] = {bin: vvv, color: "5:"+iNo};
-	  							}else if(theMax<=iNo){
-	  								iNo = theMax;
-	  								obj[k] = {bin: vvv, color: "6:"+iNo};
-	  							}
-	  							if(vvv == 12){
-	  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-	  								obj[k] = {bin: 12, color: "12:"};
-	  							}else if(vvv == -1){
-	  								if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-	  								obj[k] = {bin: -1, color: "-1:"};
-	  							}
-	  						});
-	  					});
-	  				});
-	  				var twoDiff = lowwer - theMin;
-	  				var threeDiff = midder - lowwer;
-	  				var fourDiff = upper - midder;
-	  				var fiveDiff = theMax - upper;
-	  				/*画图*/
-	  				$(el).children(".panel-body").find(".chart_map_body>div").each(function(i, ele){
-	  					var that = $(this);
-						draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor);
-	  				});
-	  			}else{
-	  				var chartType = _.find(dataCompareState.chartTypeMap, function(o, k){
-	  					return k == iicontrols;
-	  				});
-	  				$(el).children(".panel-body").find(".chart_otherSingle_body>div").each(function(){
-	  					var that = $(this);
-	  					draw_other_chart(that, iicontrols, chartType);
-	  				});
-	  			}
-	  		});
-			swal.clickCancel();
-		});
-  	}else{
-  		
-  		if(!_.isNil(curParam) && !_.isEmpty(curParam)){
-  			var TotalYield = curParam.TotalYield;
-  			var other = curParam.other;
-  			/*chartType: obj.chartType,
-  			chartAjaxUrl: obj.chartAjaxUrl,
-  			chartCNName: obj.chartCNName,
-  			classify: iicontrols*/
-  			var curobj = {
-				chartType : dataListDetailStore.state.chartTypeMap[controls],
-				chartAjaxUrl :  dataListDetailStore.state.chartAjaxUrlMap[controls],
-				chartCNName :  dataListDetailStore.state.chartCNNameMap[controls],
-				classify : controls ,
-				curParam : other.join(","),
-				curWaferId : curWaferID
-  			};
-  			ajax_single_chart(curobj);
-  			
-  			if(controls == "map_good_rate_distribution"){
-  				/*Map良率分布*/
-  				$("#map_good_rate_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
-  					var that = $(this);
-  					draw_map_good_rate_distribution(that, i);
-  				});
-  				/*Map良率分布end*/
-  			}else if(controls == "map_color_order_distribution"){
-  				dataCompareSwalMixin({
-  					title: '加载数据',
-  					text: "正在绘图中......",
-  					type: 'info',
-  					showConfirmButton: false,
-  					showCancelButton: false,
-  					timer: 1000
-  				}).then(function(){
-  						dataCompareSwalMixin({
-  							title: '加载数据',
-  							text: "正在绘图中......",
-  							type: 'info',
-  							showConfirmButton: false,
-  							showCancelButton: false,
-  						});
-		  				var copyData = _.cloneDeep(futuredGlobal.S_getMockWaferData()[_.random(0, 1, false)]);
-		  				var otherColor = {};
-		  				var theMin = 100;
-		  				var lowwer = 200;
-		  				var midder = 250;
-		  				var upper = 300;
-		  				var theMax = 400;
-		  				var maxSlide = Math.max(Math.abs(copyData.maxX), Math.abs(copyData.minX));
-		  				var maxR = Math.sqrt(2)*maxSlide;
-		  				/*暂时性数据*/
-		  				var minmin = _.round(theMin*0.8);
-		  				var maxmax = _.round(theMax*1.2);
-		  				_.forEach(copyData.waferMapDataList, function(v, i, arr){
-		  					_.forEach(arr[i].m_DieDataListNew, function(vv, ii, arra){
-		  						_.forOwn(arra[ii], function(vvv, k, obj){
-		  							/*虚假数据开始*/
-		  							var iNo = _.random(minmin, maxmax, false);
-		  							// k 1:1
-		  							var k1 = Number(k.toString().split(":")[0]);
-		  							var k2 = Number(k.toString().split(":")[1]);
-									var powR = Math.pow(k1 ,2)+Math.pow(k2 ,2);
-									var lowmid_mean = _.round(_.mean([lowwer, midder]));
-									var midup_mean = _.round(_.mean([midder, upper]));
-									var minlow_mean = _.round(_.mean([theMin, lowwer]));
-									var upmax_mean = _.round(_.mean([upper, theMax]));
-									if(Math.pow(3.2, 2)*powR < Math.pow(maxR ,2)){
-										/*在5/16内，预设3区域中间到4区域中间*/
-										iNo = _.random(lowmid_mean, midup_mean, false);
-									}else if(4*powR < Math.pow(maxR ,2)){
-										/*在二分之一内，预设蓝色至天蓝到黄色*/
-										if(Math.pow(2.67, 2)*powR < Math.pow(maxR ,2)){
-											/*半径3/8以内*/
-											iNo = _.random(lowwer, lowmid_mean, false);
-										}else{
-											iNo = _.random(midup_mean, upper, false);
-										}
-									}else if(Math.pow(1.33, 2)*powR < Math.pow(maxR ,2)){
-										if(Math.pow(1.6, 2)*powR < Math.pow(maxR ,2)){
-											/*半径5/8以内*/
-											iNo = _.random(minlow_mean, lowwer, false);
-										}else{
-											iNo = _.random(upper, upmax_mean, false);
-										}
-									}else if(powR <= Math.pow(maxR ,2)){
-										if((Math.abs(k1)+Math.abs(k2))%2 == 0){
-											iNo = _.random(minmin, minlow_mean, false);
-										}else{
-											iNo = _.random(upmax_mean, maxmax, false);
-										}
-									}
-									/*虚假数据结束*/
-
-		  							if(iNo<theMin){
-		  								iNo = theMin;
-		  								obj[k] = {bin: vvv, color: "1:"+iNo};
-		  							}else if(theMin<=iNo && iNo<lowwer){
-		  								obj[k] = {bin: vvv, color: "2:"+iNo};
-		  							}else if(lowwer<=iNo && iNo<midder){
-		  								obj[k] = {bin: vvv, color: "3:"+iNo};
-		  							}else if(midder<=iNo && iNo<upper){
-		  								obj[k] = {bin: vvv, color: "4:"+iNo};
-		  							}else if(upper<=iNo && iNo<theMax){
-		  								obj[k] = {bin: vvv, color: "5:"+iNo};
-		  							}else if(theMax<=iNo){
-		  								iNo = theMax;
-		  								obj[k] = {bin: vvv, color: "6:"+iNo};
-		  							}
-		  							if(vvv == 12){
-		  								if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-		  								obj[k] = {bin: 12, color: "12:"};
-		  							}else if(vvv == -1){
-		  								if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-		  								obj[k] = {bin: -1, color: "-1:"};
-		  							}
-		  						});
-		  					});
-		  				});
-		  				var twoDiff = lowwer - theMin;
-		  				var threeDiff = midder - lowwer;
-		  				var fourDiff = upper - midder;
-		  				var fiveDiff = theMax - upper;
-		  				/*画图*/
-		  				$("#map_color_order_distribution>.single_div_in .chart_map_body>div").each(function(i, el){
-		  					var that = $(this);
-		  					draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor);
-		  				});
-		  				swal.clickCancel();
-  				});
-  			}else{
-  				var chartType = _.find(dataCompareState.chartTypeMap, function(o, k){
-  					return k == controls;
-  				});
-  				$("#"+controls+" .single_div_in .chart_otherSingle_body>div").each(function(){
-  					var that = $(this);
-  					draw_other_chart(that, controls, chartType);
-  				});
+  	}
+  	else{
+  		if(controls == "all_statistics"){
+  			eouluGlobal.S_getSwalMixin()({
+  				title: '加载数据',
+  				text: "数据加载绘制图形中...",
+  				type: 'info',
+  				showConfirmButton: false,
+  				showCancelButton: false,
+  			});
+  			//根据导航栏个数展示对应图形
+  			$("#all_statistics>.panel").hide();
+  			for(var li_num = 1 ; li_num < $(".g_bodyin_bodyin_top_wrap>ul li").length-1 ; li_num++){
+  				var curcontrols = $(".g_bodyin_bodyin_top_wrap>ul li").eq(li_num).find("a").data("controls");
+  				$("#all_statistics .panel_"+curcontrols).show();
   			}
+  			$("#all_statistics>.panel>.panel-body").empty();
+  			setTimeout(function(){
+  				/*绘制参数图*/
+  				var whenArr = [];
+  				$("#all_statistics>div.panel").each(function(i, el){
+  					if($(this).css("display") == "none") return true;
+  					var iicontrols = $(el).data("iallstatistics");
+					var chartType = _.find(dataListDetailStore.state.chartTypeMap, function(o, k){
+  						return k == iicontrols;
+  					});
+  					var chartAjaxUrl = _.find(dataListDetailStore.state.chartAjaxUrlMap, function(o, k){
+  						return k == iicontrols;
+  					});
+  					var chartCNName = _.find(dataListDetailStore.state.chartCNNameMap, function(o, k){
+  						return k == iicontrols;
+  					});
+  					whenArr.push({
+  						chartType: chartType,
+  						chartAjaxUrl: chartAjaxUrl,
+  						chartCNName: chartCNName,
+  						classify: iicontrols,
+  					});
+  				});
+  				ajax_all_chart({
+  					times: 0,
+  					alltimes: whenArr.length,
+  					whenArr: _.cloneDeep(whenArr),
+  					curWaferName : curWaferName,
+  					controls : "all_statistics"
+  				});
+  			}, 50);
+  		}
+  		else{
+  			eouluGlobal.S_getSwalMixin()({
+  				title: '加载数据',
+  				text: "数据加载绘制图形中...",
+  				type: 'info',
+  				showConfirmButton: false,
+  				showCancelButton: false,
+  			});
+  			setTimeout(function(){
+	  			$("#"+controls+" .single_div_in").empty();
+	  			var chartType = _.find(dataListDetailStore.state.chartTypeMap, function(o, k){
+					return k == controls;
+				});
+				var chartAjaxUrl = _.find(dataListDetailStore.state.chartAjaxUrlMap, function(o, k){
+					return k == controls;
+				});
+				var chartCNName = _.find(dataListDetailStore.state.chartCNNameMap, function(o, k){
+					return k == controls;
+				});
+				var whenArr = [];
+				whenArr.push({
+					chartType: chartType,
+					chartAjaxUrl: chartAjaxUrl,
+					chartCNName: chartCNName,
+					classify: controls
+				});
+				ajax_all_chart({
+					times: 0,
+					alltimes: whenArr.length,
+					whenArr: _.cloneDeep(whenArr),
+					curWaferName : curWaferName,
+					controls : "single_statistics"
+				});
+  			}, 50);
   		}
   	}
+  	if($(this).attr("aria-controls") == "all_statistics"){
+  		var tog_span = $("#all_statistics>.panel>.panel-heading>span");
+  		tog_span.removeClass("glyphicon-menu-right").addClass("glyphicon-menu-down").parent().parent().removeClass("panel-success").addClass("panel-info");
+		tog_span.parent().next().slideDown(200);
+  	}
 });
-
-
-
-
 
 
 
@@ -1204,10 +1154,11 @@ function dataCompareRenderData(currentPage){
 	       dataType: 'json',
 	       async : false ,
 	       success: function (data) {
-	    	   console.log("data",data);
+	    	  //console.log("data",data);
 	    	   var str = "";
 	    	   data.waferInfo.map(function(v, i, arr){
 		   			var ii = v.wafer_id;
+		   			if(!v.test_operator){var test_operator = ""}else{var test_operator = v.test_operator};
 		   			str+='<tr>'+
 		   					'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
 		   					'<td class="product_category" data-itext="'+v.product_category+'">'+v.product_category+'</td>'+
@@ -1216,9 +1167,10 @@ function dataCompareRenderData(currentPage){
 		   					'<td class="wafer_number" data-itext="'+v.wafer_number+'">'+v.wafer_number+'</td>'+
 		   					'<td class="qualified_rate" data-itext="'+v.qualified_rate+'">'+v.qualified_rate+'</td>'+
 		   					'<td class="test_end_date" data-itext="'+v.test_end_date+'">'+v.test_end_date+'</td>'+
-		   					'<td class="test_operator" data-itext="'+v.test_operator+'">'+v.test_operator+'</td>'+
+		   					'<td class="test_operator" data-itext="'+test_operator+'">'+test_operator+'</td>'+
 		   					'<td class="description" data-itext="'+v.description+'">'+v.description+'</td>'+
 		   					'<td class="data_format" data-itext="'+v.data_format+'" style="display:none;">'+v.data_format+'</td>'+
+		   					'<td class="data_trash not_search"><img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" ></td>'+
 		   				'</tr>';
 		   		});
 		   		$(".home_dataCompare_top tbody").empty().append(str);
@@ -1227,23 +1179,24 @@ function dataCompareRenderData(currentPage){
 				dataCompareState.pageObj.itemLength = data.totalCount;
 				dataCompareState.pageObj.data =data.waferInfo;
 				
+				//console.log("dataCompareState.searchObj.hasSearch",dataCompareState.searchObj.hasSearch);
 				//修改为全选当前页
 				if(dataCompareState.searchObj.hasSearch){
 					dataCompareState.searchObj.searchVal = searchVal;
-					console.log("selectSearchItem",dataCompareState.sellectObj.selectSearchItem)	
+					//console.log("selectSearchItem",dataCompareState.sellectObj.selectItem)	
 					$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
-						if(_.indexOf(dataCompareState.sellectObj.selectSearchItem, $(this).data("ivalue").toString()) > -1){
+						if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
 							$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
 						}
 					});
-					console.log("searchVal",dataCompareState.searchObj.searchVal)	
 					$(".home_dataCompare_top tbody td:not(.not_search)").each(function(){
 						var iText = $(this).text();
 						var ireplace = "<b style='color:red'>"+dataCompareState.searchObj.searchVal+"</b>";
 						var iHtml = iText.replace(new RegExp(dataCompareState.searchObj.searchVal, 'g'), ireplace);
 						$(this).empty().html(iHtml);
 					});
-					$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectSearchItem.length);
+					//console.log("searchVal",dataCompareState.pageSearchObj)	
+					$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 				}else{
 					$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
 						if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
@@ -1300,44 +1253,57 @@ function judgeNav(obj){
 		var mapArr = [];
 		var mapArr1 = [{
 					href: "map_good_rate_distribution",
-					text: "Map良率分布"
+					text: "Map良率分布",
+					value : 44
 				},{
 					href: "map_color_order_distribution",
-					text: "Map色阶分布"
+					text: "Map色阶分布",
+					value : 45
 				},{
 					href: "good_rate",
-					text: "良品率图"
+					text: "良品率图",
+					value : 46
 				},{
 					href: "histogram",
-					text: "直方图"
+					text: "直方图",
+					value : 47
 				},{
 					href: "boxlinediagram",
-					text: "箱线图"
+					text: "箱线图",
+					value : 48
 				},{
 					href: "CPK",
-					text: "CPK图"
+					text: "CPK图",
+					value : 49
 				}];
 		var mapArr2 = [{
 					href: "map_good_rate_distribution",
-					text: "Map良率分布"
+					text: "Map良率分布",
+					value : 44
 				},{
 					href: "map_color_order_distribution",
-					text: "Map色阶分布"
+					text: "Map色阶分布",
+					value : 45
 				},{
 					href: "good_rate",
-					text: "良品率图"
+					text: "良品率图",
+					value : 46
 				},{
 					href: "histogram",
-					text: "直方图"
+					text: "直方图",
+					value : 47
 				},{
 					href: "boxlinediagram",
-					text: "箱线图"
+					text: "箱线图",
+					value : 48
 				},{
 					href: "CPK",
-					text: "CPK图"
+					text: "CPK图",
+					value : 49
 				},{
 					href: "correlationgraph",
-					text: "相关性图"
+					text: "相关性图",
+					value : 50
 				}];
 		dataCompareState.stateObj.curParam = _.cloneDeep(obj.param);
 		if(obj.param.TotalYield == 0){
@@ -1353,46 +1319,47 @@ function judgeNav(obj){
 				mapArr = _.cloneDeep(mapArr1);
 			}
 		}else{
-			if(obj.param.other.length == 0){
-				mapArr = [{
-					href: "map_good_rate_distribution",
-					text: "Map良率分布"
-				},{
-					href: "good_rate",
-					text: "良品率图"
-				}];
-			}else if(obj.param.other.length == 2){
-				mapArr = _.cloneDeep(mapArr2);
-			}else if(obj.param.other.length != 2){
-				mapArr = _.cloneDeep(mapArr1);
-			}
+			mapArr = [{
+				href: "map_good_rate_distribution",
+				text: "Map良率分布",
+				value : 44
+			},{
+				href: "good_rate",
+				text: "良品率图",
+				value : 46
+			}];
 		}
 		return mapArr;
 	}
 }
 
 function renderNav(mapArr){
+	//console.log("mapArr",mapArr);
 	if(mapArr !== false){
-		var str = '<li role="presentation" class="active"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>';
+		var str = '<li role="presentation" class="active" ischange ="false"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>';
+		var a_diff = eouluGlobal.S_getCurPageJudgedAuthority().diff;
+		var all_statistics_flag = false;
 		mapArr.map(function(v, i, arr){
-			str+='<li role="presentation"><a href="#'+v.href+'" aria-controls="'+v.href+'" role="tab" data-toggle="tab">'+v.text+'</a></li>';
+			if(_.find(a_diff, function(v1,k){return v1[0].value==v.value}))  return true;
+			str+='<li role="presentation" ischange ="false"><a href="#'+v.href+'" aria-controls="'+v.href+'" data-controls="'+v.href+'" role="tab" data-toggle="tab">'+v.text+'</a></li>';
+			all_statistics_flag = true;
 		});
-		if(!_.isEmpty(mapArr)){
-			str+='<li role="presentation"><a href="#all_statistics" aria-controls="all_statistics" role="tab" data-toggle="tab">所有统计</a></li>';
-		}
+		if(!_.isEmpty(mapArr) && all_statistics_flag){
+			str+='<li role="presentation" ischange ="false"><a href="#all_statistics" aria-controls="all_statistics" role="tab" data-toggle="tab">所有统计</a></li>';
+		} 
 		$(".g_bodyin_bodyin_top_wrap>ul").empty().append(str);
 	}
 }
 
 function groupJudgeRenderNav(classify){
 	var iAr = [];
-	$("#home_param_ul>li.list-group-item-info:not([data-iparam='TotalYield'])").each(function(){
+	$("#home_param_ul>li.list-group-item-info:not([data-iparam='Total Yield'])").each(function(){
 		iAr.push($(this).data("iparam"));
 	});
 	var mapArr = judgeNav({
 		classify: classify,
 		param: {
-			TotalYield: $("#home_param_ul>li.list-group-item-info[data-iparam='TotalYield']").length,
+			TotalYield: $("#home_param_ul>li.list-group-item-info[data-iparam='Total Yield']").length,
 			other: _.cloneDeep(iAr)
 		}
 	});
@@ -1410,15 +1377,19 @@ function renderCommonParameter(){
 		       },
 		       dataType: 'json',
 		       success: function (data) {
-		    	   console.log("data",data);
+		    	   //console.log("data",data);
 		    	   var str = "";
 		    	   if(data.paramList.length != 0){
-		    		   str = '<li class="list-group-item" data-iparam="TotalYield"><span class="badge">选中</span>Total Yield</li>';
+		    		   str = '<li class="list-group-item" data-iparam="Total Yield"><span class="badge">选中</span>Total Yield</li>';
 		    		   for(var _i = 0 ; _i < data.paramList.length ; _i++){
-		    			  str += '<li class="list-group-item" data-iparam="'+data.paramList[_i]+'" data-min="'+data.rangeList[_i][0]+'" data-max="'+data.rangeList[_i][1]+'"><span class="badge">选中</span>'+data.paramList[_i]+'</li>';
+		    			   str += '<li class="list-group-item" data-iparam="'+data.paramList[_i]+'" data-min="'+data.rangeList[data.paramList[_i]][0]+'" data-max="'+data.rangeList[data.paramList[_i]][1]+'"><span class="badge">选中</span>'+data.paramList[_i]+'</li>';
 		    		   }
 		    	   }
+		    	   else{
+		    		   str = '<li class="list-group-item" data-iparam="Total Yield"><span class="badge">选中</span>Total Yield</li>';
+		    	   }
 		    	   $("#home_param_ul").empty().append(str); 
+		    	   $(".home_dataCompare_bottom .right_div .allchoose").text("全选").prop("ischoose",false);
 		       },
 		       error: function (data, status, e) {
 		    	   dataCompareSwalMixin({
@@ -1594,362 +1565,6 @@ function buildMapContainer(obj){
 	}
 	return str;
 }
-/*
-
-map良率分布图绘制
-function draw_map_good_rate_distribution(that, i){
-	var inH = that.innerWidth();
-	that.innerHeight(inH);
-	var canvasID = "canvas_" + that.attr("id");
-	that.append("<canvas id='"+canvasID+"'></canvas>");
-	that.after("<div class='criterion_"+canvasID+"'></div>");
-	buildColorGradation({
-		width: inH,
-		height: inH,
-		container: canvasID,
-		bgFillColor: "#314067",
-		waferData: futuredGlobal.S_getMockWaferData()[0],
-		spacePercent: {
-			x: 0.05,
-			y: 0.05
-		},
-		m_DieDataListNew: futuredGlobal.S_getMockWaferData()[0].waferMapDataList[i%5].m_DieDataListNew,
-		colorGradation: {
-			limitColor: "#FF0000",
-			floorColor: "#00FF00",
-			nums: 256
-		}
-	});
-}
-
-map色阶分布图绘制
-function draw_map_color_order_distribution(that, i, copyData, theMax, theMin, lowwer, upper, midder, twoDiff, threeDiff, fourDiff, fiveDiff, otherColor){
-	var inH = that.innerWidth();
-	that.innerHeight(inH);
-	var canvasID = "canvas_" + that.attr("id");
-	that.append("<canvas id='"+canvasID+"'></canvas>");
-	that.after("<div class='criterion_"+canvasID+"'><div class='colorGradient'></div></div>");
-	buildColorGradation({
-		width: inH,
-		height: inH,
-		container: canvasID,
-		bgFillColor: "#314067",
-		waferData: copyData,
-		spacePercent: {
-			x: 0.05,
-			y: 0.05
-		},
-		m_DieDataListNew: copyData.waferMapDataList[i%5].m_DieDataListNew,
-		colorGradation: {
-			theMinColor: "#0000FF",
-			lowwerColor: "#00FFFF",
-			midderColor: "#00FF00",
-			upperColor: "#FFFF00",
-			theMaxColor: "#FF0000",
-			twoDiff: twoDiff,
-			threeDiff: threeDiff,
-			fourDiff: fourDiff,
-			fiveDiff: fiveDiff,
-		},
-		colorOrder: true,
-		theMin: theMin,
-		lowwer: lowwer,
-		midder: midder,
-		upper: upper,
-		theMax: theMax,
-		otherColor: otherColor
-	});
-	色阶标尺
-	var colorGradientDom = that.next().find("div.colorGradient");
-	colorGradientDom.width(that.next().width() - 60).height(that.next().height() - 30);
-	var all = twoDiff+threeDiff+fourDiff+fiveDiff;
-	var itemHeight = colorGradientDom.height();
-	var itemWidth = colorGradientDom.width() / (all*1.2);
-	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
-	_.times(twoDiff, function(ii){
-	    var color = getGradientColor ('#00FFFF', '#0000FF', twoDiff, twoDiff-ii);
-		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
-	});
-	colorGradientDom.append("<span class='colorGradientSpan twoSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
-	_.times(threeDiff, function(ii){
-	    var color = getGradientColor ('#00FF00', '#00FFFF', threeDiff, threeDiff-ii);
-		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
-	});
-	colorGradientDom.append("<span class='colorGradientSpan threeSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
-	_.times(fourDiff, function(ii){
-	    var color = getGradientColor ('#FFFF00', '#00FF00', fourDiff, fourDiff-ii);
-		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
-	});
-	colorGradientDom.append("<span class='colorGradientSpan fourSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
-	_.times(fiveDiff, function(ii){
-	    var color = getGradientColor ('#FF0000', '#FFFF00', fiveDiff, fiveDiff-ii);
-		colorGradientDom.append("<span class='colorGradientSpan' data-icolor='"+color+"' style='background: "+color+"; height: "+itemHeight+"px; width: "+itemWidth+"px'></span>");
-	});
-	colorGradientDom.append("<span class='colorGradientSpan fiveSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth+"px;'></span>");
-	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	
-	var countObj = _.countBy(copyData.waferMapDataList[i%5].m_DieDataListNew, function(v, i){
-		var retur;
-		_.forOwn(v, function(vv, k){
-			retur = vv.color.split(":")[0];
-		});
-		return retur;
-	});
-	var tableStr = '<table class="table table-striped table-bordered table-condensed"><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>';
-	$(tableStr).appendTo(that.parent().next());
-	console.log(countObj);
-	_.forOwn(countObj, function(v, k){
-		if(k == -1 || k == 12) return true;
-		that.parent().next().find("th").eq(k-1).text(k+"区间");
-		that.parent().next().find("td").eq(k-1).text(v+"个");
-	});
-	that.parent().next().find("th").each(function(i){
-		if(_.isEmpty($(this).text())){
-			$(this).text((i+1)+"区间");
-			that.parent().next().find("td").eq(i).text("0个");
-		}
-	});
-}
-
-其他图表绘制
-function draw_other_chart(that, controls, chartType){
-	var container = that.attr("id"),
-	title_text,
-	subtitle_text = null,
-	xAxis,
-	yAxis,
-	series;
-	var iparam = that.data("iparam");
-	switch(controls){
-		case "histogram":
-			title_text = "直方图-"+iparam;
-			var icategories = [["-∞", 0.00000423], [0.00000423, 0.00000448], [0.00000448, 0.0000047300000000000005], [0.0000047300000000000005, 0.00000498], [0.00000498, 0.00000523], [0.00000523, 0.00000548], [0.00000548, 0.000005729999999999999], [0.000005729999999999999, 0.0000059799999999999995], [0.0000059799999999999995, 0.00000623], [0.00000623, "+∞"]];
-			var histogram_limits_min = 0.00000423;
-			var histogram_limits_max = 0.00000623;
-			xAxis = {
-				categories: icategories,
-				type: 'linear',
-				labels: {
-					rotation: -45  // 设置轴标签旋转角度
-				},
-				plotLines: [{
-				color: '#FF0000',
-				width: 2,
-				value: 0.5
-			},{
-				color: '#FF0000',
-				width: 2,
-				value: 8.5
-			}]
-			};
-			yAxis = {
-				title: {
-					text: '百分数'
-				}
-			};
-			var iserise = [];
-			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
-				var item = {};
-				item.name = "wafer"+v;
-				item.type = "column";
-				item.data = [
-					2, 8, 10, 5, 15, 20, 3, 7, 10, 20
-				];
-				iserise.push(item);
-			});
-			series = iserise;
-		break;
-
-		case "boxlinediagram":
-			title_text = "箱线图-"+iparam;
-			xAxis = {
-						categories: _.forEach(_.cloneDeep(dataCompareState.sellectObj.selectItem), function(v, i, arr){
-							arr[i] = "wafer"+v;
-						}),
-						title: {
-							text: "晶圆"
-						}
-					};
-			yAxis = {
-						title: {
-							text: '值'
-						},
-						plotLines: [{
-							value: 932,
-							color: 'red',
-							width: 1,
-							label: {
-								text: '理论模型: 932',
-								align: 'center',
-								style: {
-									color: 'gray'
-								}
-							}
-						}]
-					};
-			var iidata = dataCompareState.mock.boxlinediagram_data;
-			var iidata1 = [];
-			var iidata2 = [];
-			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
-				var item = [];
-				var ii = i % 3 + 1;
-				item.push(iidata["param"+ii].lowerOfInner);
-				item.push(iidata["param"+ii].Q1);
-				item.push(iidata["param"+ii].Median);
-				item.push(iidata["param"+ii].Q3);
-				item.push(iidata["param"+ii].UpperOfInner);
-				iidata1.push(item);
-				var item2 = [];
-				item2.push("wafer"+v);
-				i % 2 == 0 ? item2.push(iidata["param"+ii].lowerOfInner - 0.000001) : item2.push(iidata["param"+ii].UpperOfInner + 0.000002);
-				iidata2.push(item2);
-			});
-			series = [{
-					name: '观测值',
-					data: iidata1,
-					tooltip: {
-						headerFormat: '<em>晶圆： {point.key}</em><br/>'
-					}
-				}, {
-					name: '异常值',
-					color: Highcharts.getOptions().colors[0],
-					type: 'scatter',
-					data: iidata2,
-					marker: {
-						fillColor: 'white',
-						lineWidth: 1,
-						lineColor: Highcharts.getOptions().colors[0]
-					},
-					tooltip: {
-						pointFormat: 'Observation: {point.y}'
-					}
-				}];
-		break;
-
-		case "CPK":
-			title_text = "CPK-"+iparam;
-			var dataLength = 12;
-			var iiicategories = _.range(1, dataLength + 1);
-			_.forEach(iiicategories, function(v, i, arr){
-				arr[i] = eouluGlobal.S_numToChineseSm(v);
-			});
-			xAxis = {
-				categories: iiicategories
-			};
-			yAxis = {
-				title: {
-					text: 'values'
-				}
-			};
-			var iiiseries = [];
-			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i){
-				var item = {};
-				item.name = "wafer"+v;
-				var idata = [];
-				_.times(12, function(){
-					idata.push(_.round(_.random(1, 30, true), 2));
-				});
-				item.data = idata;
-				iiiseries.push(item);
-			});
-			series = iiiseries;
-		break;
-
-		case "correlationgraph":
-			title_text = "相关性图-"+iparam;
-			xAxis = {
-				title: {
-					enabled: true,
-					text: dataCompareState.stateObj.curParam.other[0],
-					style:{"fontSize":"16px","fontFamily":"arial","float":"top"}
-				},
-				startOnTick: true,
-				endOnTick: true,
-				showLastLabel: true,
-				labels: {
-            	useHTML: true,
-                formatter: function () {
-                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
-            	}
-            },
-			};
-			yAxis = {
-				title: {
-					text: dataCompareState.stateObj.curParam.other[1]
-				}
-			};
-			var iiiidata = dataCompareState.mock.dataCompare.correlationgraph;
-			var iiiiseries = [];
-			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
-				var item = {};
-				item.name = "wafer"+v;
-				item.data = [];
-				_.forOwn(iiiidata.dataMap, function(vv, k){
-					var kk = i%3 + 1;
-					if(k == "wafer"+kk){
-						if(vv.X.length > 0){
-		    			  _.forEach(vv.X, function(vvv, iii){
-		    			  	item.data.push([vvv, vv.Y[iii]]);
-		    			  });
-		    		  }
-					}
-				});
-				iiiiseries.push(item);
-			});
-			series = iiiiseries;
-		break;
-		良品率图
-		default:
-			title_text = "良品率图-"+iparam;
-			var item = {};
-			item.name = iparam;
-			item.data = [];
-			var iiiiicategories = [];
-			_.forEach(dataCompareState.sellectObj.selectItem, function(v, i, arr){
-				item.data.push(_.round(_.random(0, 1, true), 4));
-				iiiiicategories.push("wafer"+v);
-			});
-			xAxis = {
-				categories: iiiiicategories
-			};
-			yAxis = {
-				title: {
-					text: "比率"
-				},
-				min:0,
-	        max:1,
-	        tickInterval: 0.1,
-	        labels: {
-	            formatter: function () {
-	                return this.value;
-	            }
-	        }
-			};
-			series = [item];
-	}
-	画图
-	dataCompareRenderChart({
-		container: container,
-		chart: {
-			type: chartType
-		},
-		title: {
-			text: title_text
-		},
-		subtitle: {
-			text: subtitle_text
-		},
-		xAxis: xAxis,
-		yAxis: yAxis,
-		series: _.cloneDeep(series),
-		chartClassify: controls
-	});
-}*/
 
 /*page preload*/
 $(".g_info_m_in").hide();
@@ -1960,6 +1575,28 @@ $(window).on("resize", function(){
 
 /*page onload*/
 $(function(){
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: _.cloneDeep({
+			"管理员": [$('.g_info_r  .AdminOperat')],
+		}),
+		/*callback: function(){
+			$(".g_bodyin_bodyin_tit_l>img:visible").each(function(i, el){
+				if(i>0) $(el).css("margin-left", "15px");
+				if($(el).is("[data-iicon='glyphicon-trash']")) $(el).css("margin-left", "12px");
+			});
+			$(".g_bodyin_bodyin_body tbody>tr").each(function(i, el){
+				$(el).find("td.operate_othertd img:visible").each(function(ii, ele){
+					if(ii>0) $(ele).css("margin-left", "5px");
+				});
+			});
+		}*/
+	});
+	/*判断权限end*/
+	
+	
+	
+	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	/*判断是否有选中*/
 	//var dataArr = getdataCompareData(null);
@@ -1993,6 +1630,7 @@ $(function(){
 			    if (!obj.isFirst) {
 			      // do something
 			      	dataCompareRenderData(obj.curr);
+			      	$("#checkAll").prop("checked", $(".home_dataCompare_top tbody tr.warning").length == $(".home_dataCompare_top tbody tr").length);
 			    }
 		  	}
 		};
@@ -2053,11 +1691,12 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 	}
 	dataCompareState.sellectObj.selectItem = _.uniq(dataCompareState.sellectObj.selectItem);
 	dataCompareState.sellectObj.selectSearchItem = _.uniq(dataCompareState.sellectObj.selectSearchItem);
-	if(dataCompareState.searchObj.hasSearch){
-		$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectItem.length);
-	}else{
-		$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
-	}
+//	if(dataCompareState.searchObj.hasSearch){
+//		$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectItem.length);
+//	}else{
+//		$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
+//	}
+	$("#checkAll").prop("checked", $(".home_dataCompare_top tbody tr.warning").length == $(".home_dataCompare_top tbody tr").length);
 	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
 	renderCommonParameter();
 	groupJudgeRenderNav("wafer");
@@ -2090,6 +1729,7 @@ $("#checkAll").on({
 						'<td data-itext="'+select_tr.eq(i).find(".test_operator").text()+'">'+select_tr.eq(i).find(".test_operator").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".description").text()+'">'+select_tr.eq(i).find(".description").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".data_format").text()+'" style="display:none;">'+select_tr.eq(i).find(".data_format").text()+'</td>'+
+						'<td class="data_trash"><img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" ></td>'+
 					'</tr>';
 					if($(".home_dataCompare_bottom tbody>tr").length){
 						$(".home_dataCompare_bottom tbody>tr:first").before(str);
@@ -2099,11 +1739,11 @@ $("#checkAll").on({
 				}
 			}
 		}else{
-			console.log("selectItem2",dataCompareState.sellectObj.selectItem);
+			//console.log("selectItem2",dataCompareState.sellectObj.selectItem);
 			for(var i = 0 ; i < select_tr.length ; i++){
 				if(_.indexOf(dataCompareState.sellectObj.selectItem, select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()) > -1){
 					dataCompareState.sellectObj.selectItem.splice(dataCompareState.sellectObj.selectItem.indexOf(select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()), 1);
-					console.log("selectItem2",dataCompareState.sellectObj.selectItem);
+					//console.log("selectItem2",dataCompareState.sellectObj.selectItem);
 					$(".home_dataCompare_bottom tbody>tr  input[data-ivalue ='"+select_tr.eq(i).find("input[type='checkbox']").data("ivalue")+"']").parent().parent().remove();
 				}
 			}
@@ -2112,6 +1752,30 @@ $("#checkAll").on({
 		groupJudgeRenderNav("wafer");
 	}
 });
+
+/*删除选中*/
+$(document).on("click",".home_dataCompare_bottom .data_trash",function(){
+	var ID = $(this).parent().find("input[type='checkbox']").data("ivalue").toString();
+	$(".home_dataCompare_top tr input[type='checkbox'][data-ivalue='"+ID+"']").prop("checked",false).parent().parent().removeClass("warning");
+	_.remove(dataCompareState.sellectObj.selectItem, function(n) { return n  == ID ;});
+	//console.log("dataCompareState.sellectObj.selectItem",dataCompareState.sellectObj.selectItem);
+	$("#checkAll").prop("checked",false);
+	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
+	renderCommonParameter();
+	groupJudgeRenderNav("wafer");
+	$(this).parent().remove();
+})
+/*删除全部*/
+$(document).on("dblclick",".home_dataCompare_bottom .home_dataCompare_bottom_del_all",function(){
+	$(".home_dataCompare_top .warning").removeClass("warning").find("input[type='checkbox']").prop("checked",false);
+	dataCompareState.sellectObj.selectItem = [];
+	$("#checkAll").prop("checked",false);
+	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
+	renderCommonParameter();
+	groupJudgeRenderNav("wafer");
+	$(".home_dataCompare_bottom tbody").empty();
+})
+
 
 /*搜索*/
 $(".g_info_m_in .form-control-feedback").click(function(){
@@ -2185,7 +1849,7 @@ $("#jumpPage").on("click", function(){
 				dataCompareState.paginationObj.search.goPage(iText);
 				dataCompareState.paginationObj.search.renderPages();
 				dataCompareState.paginationObj.search.options.curr = iText;
-				console.log(dataCompareState.paginationObj.search);
+				//console.log(dataCompareState.paginationObj.search);
 	          	dataCompareState.paginationObj.search.options.callback && dataCompareState.paginationObj.search.options.callback({
 	            	curr: dataCompareState.paginationObj.search.pageNumber,
 	            	/*limit: dataCompareState.paginationObj.search.options.limit,*/
@@ -2196,7 +1860,7 @@ $("#jumpPage").on("click", function(){
 				dataCompareState.paginationObj.normal.goPage(iText);
 				dataCompareState.paginationObj.normal.renderPages();
 				dataCompareState.paginationObj.normal.options.curr = iText;
-				console.log(dataCompareState.paginationObj.normal);
+				//console.log(dataCompareState.paginationObj.normal);
 	          	dataCompareState.paginationObj.normal.options.callback && dataCompareState.paginationObj.normal.options.callback({
 	            	curr: dataCompareState.paginationObj.normal.pageNumber,
 	            	isFirst: false
@@ -2227,9 +1891,22 @@ $(document).on("click", ".home_dataCompare_bottom .panel-body li", function(){
 	if(!dataCompareState.stateObj.canClickParam) return false;
 	$(this).toggleClass("list-group-item-info").children("span").text(["选中", "取消选中"][Number($(this).hasClass("list-group-item-info"))]);
 	groupJudgeRenderNav("param");
+	//dataCompareState.stateObj.curWaferChange = false;
 });
-
-
+//共有参数全选与全不选
+$(document).on("click", ".home_dataCompare_bottom .right_div .allchoose", function(){
+	if($(".right_div>.panel>.panel-body ul li").length == 0) return false;
+	if(!$(this).prop("ischoose")){
+		$(this).text("取消全选").prop("ischoose",true);
+		$(".right_div>.panel>.panel-body ul li").addClass("list-group-item-info").children("span").text("取消选中");
+	}
+	else{
+		$(this).text("全选").prop("ischoose",false);
+		$(".right_div>.panel>.panel-body ul li").removeClass("list-group-item-info").children("span").text("选中");
+	}
+	groupJudgeRenderNav("param");
+});
+//allChoose
 
 /*点击收起*/
 $(document).on("click", ".g_bodyin_bodyin_bottom div.panel-heading>span.glyphicon", function(){
@@ -2240,3 +1917,4 @@ $(document).on("click", ".g_bodyin_bodyin_bottom div.panel-heading>span.glyphico
 		$(this).parent().next().slideDown(200);
 	}
 });
+

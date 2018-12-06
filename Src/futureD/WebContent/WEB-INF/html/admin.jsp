@@ -11,6 +11,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="assets/img/common/futureDT2.ico"/>
+	<link rel="bookmark" href="assets/img/common/futureDT2.ico"/>
 	<title>futureD管理员</title>
 	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
@@ -25,7 +27,7 @@
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r"><img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引"><img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出"></div>
 	</div>
 	<div class="g_menu">
 		<!-- Nav tabs -->
@@ -37,7 +39,7 @@
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit bootstro" data-bootstro-title="管理员页面引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="">系统主页面</a></li>
@@ -51,7 +53,12 @@
 					<div class="tab-content">
 					    <div role="tabpanel" class="tab-pane fade in active" id="staffManage">
 					    	<div class="staffManage_tit">
-					    		<div class="staffManage_tit_l bootstro" data-bootstro-title="管理员页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加用户，删除用户，</p><p>还可以重新生成Mock数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div>
+					    		<div class="staffManage_tit_l bootstro" data-bootstro-title="管理员页面引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>操作区域</h4><p>在这里您可以添加用户，删除用户，</p><p>还可以重新生成Mock数据</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="4">
+					    			<img src="assets/img/common/addition_28px.svg" data-iicon="glyphicon-remove-circle" alt="添加" title="添加新用户">
+					    			<img src="assets/img/common/del_32px.svg" data-iicon="glyphicon-remove" alt="删除选中" title="删除选中" style="margin-left: 15px;">
+					    			<!-- <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+					    			<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> -->
+					    		</div>
 					    		<div class="staffManage_tit_r bootstro" data-bootstro-title="管理员页面引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>搜索区域</h4><p>在这里您可以搜索关键词</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 					    			<div class="staffManage_tit_r_in">
 					    				<!-- <div class="input-group">
@@ -172,17 +179,17 @@
 			<div class="staff_addition_r_body">
 				<div class="staff_addition_r_bodyin">
 					<div class="container-fluid">
-						<div class="row">
+						<div class="row refresh">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6"><input type="text" class="form-control" placeholder="请输入用户名" id="staff_addition_user_name"></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
 						</div>
-						<div class="row">
+						<div class="row refresh">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="password" class="form-control isRequired" placeholder="请输入密码" id="staff_addition_password"><span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
 						</div>
-						<div class="row">
+						<div class="row refresh">
 						  	<div class="col-sm-1 col-md-1 col-lg-1">*</div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6 has-feedback"><input type="password" class="form-control isRequired" placeholder="请再次输入密码" id="staff_addition_password2"><span class="glyphicon glyphicon-eye-open form-control-feedback" aria-hidden="true"></span></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
@@ -196,12 +203,12 @@
 						  	</select></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></div>
 						</div>
-						<div class="row">
+						<div class="row refresh">
 						  	<div class="col-sm-1 col-md-1 col-lg-1"></div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6"><input type="tel" class="form-control" placeholder="请输入联系方式" id="staff_addition_telephone"></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>
 						</div>
-						<div class="row">
+						<div class="row refresh">
 						  	<div class="col-sm-1 col-md-1 col-lg-1"></div>
 						  	<div class="col-sm-6 col-md-6 col-lg-6"><input type="email" class="form-control" placeholder="请输入电子邮箱" id="staff_addition_email"></div>
 						  	<div class="col-sm-5 col-md-5 col-lg-5"></div>

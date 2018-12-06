@@ -74,7 +74,7 @@ dataListDetailStore.state = {
 		"gaussiandistribution": "高斯分布图",
 	},
 	authorityJQDomMap: {
-		"管理员": [$(".g_info_r img[data-iicon='glyphicon-user']")],
+		"管理员": [$('.g_info_r .AdminOperat')],
 		// "详细数据": [$(".g_menu li[role='presentation'][data-iclassify='allDetail']")],
 		"导出": [$("div.webParam button")],
 		"矢量数据": [$(".g_menu li[role='presentation'][data-iclassify='vectorMap']")],
@@ -1106,8 +1106,8 @@ function draw_map_color_order_distribution(obj){
 		}
 
 		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
-		var addMat = percentV.match(/^\+/);
-		var minusMat = percentV.match(/^\-/);
+		var addMat = _.toString(percentV).match(/^\+/);
+		var minusMat = _.toString(percentV).match(/^\-/);
 		if(_.isNil(addMat) && _.isNil(minusMat)){
 			/*合格数据*/
 			addNum = 0;
@@ -1181,18 +1181,43 @@ function draw_map_color_order_distribution(obj){
 		/*判断位置end*/
 		dieData.push(item);
 	});
-	/*_.forOwn(waferData.otherDieType, function(v, k){
+	_.forOwn(waferData.otherDieType, function(v, k){
 		var item = {},
 		iNo,
-		ibin;
+		ibin,
+		addNum,
+		percentV,
+		binV;
 		if(_.isObject(v)){
-			iNo = parseFloat(v.percent);
-			ibin = v.bin;
+			percentV = v.percent;
+			binV = v.bin;
 		}else{
-			iNo = v;
-			ibin = v;
+			percentV = v;
+			binV = v;
 		}
-		// 判断位置
+
+		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
+		var addMat = _.toString(percentV).match(/^\+/);
+		var minusMat = _.toString(percentV).match(/^\-/);
+		if(_.isNil(addMat) && _.isNil(minusMat)){
+			/*合格数据*/
+			addNum = 0;
+		}else{
+			if(!_.isNil(addMat)){
+				/*大于上限*/
+				addNum = 100;
+			}
+			if(!_.isNil(minusMat)){
+				/*小于下限*/
+				addNum = -1;
+			}
+		}
+		if(addNum > 0){
+			iNo = iNo+(addNum);
+		}
+		ibin = binV;
+
+		/*判断位置*/
 		if(ibin == 12){
 			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
 			item[k] = {bin: 12, color: "12:"};
@@ -1200,26 +1225,54 @@ function draw_map_color_order_distribution(obj){
 			if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
 			item[k] = {bin: -1, color: "-1:"};
 		}else{
-			var iiNo = _.round(iNo, precision);
-			if(iNo<=theMin){
-				iNo = theMin;
-				item[k] = {bin: ibin, color: "1:"+iiNo};
-			}else if(theMin<iNo && iNo<=lowwer){
-				item[k] = {bin: ibin, color: "2:"+iiNo};
-			}else if(lowwer<iNo && iNo<=midder){
-				item[k] = {bin: ibin, color: "3:"+iiNo};
-			}else if(midder<iNo && iNo<=upper){
-				item[k] = {bin: ibin, color: "4:"+iiNo};
-			}else if(upper<iNo && iNo<theMax){
-				item[k] = {bin: ibin, color: "5:"+iiNo};
-			}else if(theMax<=iNo){
-				iNo = theMax;
-				item[k] = {bin: ibin, color: "6:"+iiNo};
+			var iiNo = _.round(iNo);
+			if(_.isNil(addMat) && _.isNil(minusMat)){
+				/*合格数据*/
+				if(lowwer<=iNo && iNo<midder){
+					item[k] = {bin: ibin, color: "3:"+iiNo};
+				}else if(midder<=iNo && iNo<=upper){
+					item[k] = {bin: ibin, color: "4:"+iiNo};
+				}
+			}else{
+				if(!_.isNil(addMat)){
+					/*大于上限*/
+					if(upper<=iNo && iNo<theMax){
+						item[k] = {bin: ibin, color: "5:"+iiNo};
+					}else if(theMax<=iNo){
+						iNo = theMax;
+						item[k] = {bin: ibin, color: "6:"+iiNo};
+					}
+				}
+				if(!_.isNil(minusMat)){
+					/*小于下限*/
+					if(iNo<=theMin){
+						iNo = theMin;
+						item[k] = {bin: ibin, color: "1:"+iiNo};
+					}else if(theMin<iNo && iNo<=lowwer){
+						item[k] = {bin: ibin, color: "2:"+iiNo};
+					}
+				}
 			}
+			// if(iNo<theMin){
+			// 	iNo = theMin;
+			// 	item[k] = {bin: ibin, color: "1:"+iiNo};
+			// }else if(theMin<=iNo && iNo<lowwer){
+			// 	item[k] = {bin: ibin, color: "2:"+iiNo};
+			// }else if(lowwer<=iNo && iNo<midder){
+			// 	item[k] = {bin: ibin, color: "3:"+iiNo};
+			// }else if(midder<=iNo && iNo<=upper){
+			// 	item[k] = {bin: ibin, color: "4:"+iiNo};
+			// }else if(upper<iNo && iNo<theMax){
+			// 	item[k] = {bin: ibin, color: "5:"+iiNo};
+			// }else if(theMax<=iNo){
+			// 	iNo = theMax;
+			// 	item[k] = {bin: ibin, color: "6:"+iiNo};
+			// }
 		}
-		// 判断位置end
+		/*判断位置end*/
 		dieData.push(item);
-	});*/
+	});
+
 	// console.table(dieData);
 	//
 	var ArraMap = {
@@ -1228,7 +1281,9 @@ function draw_map_color_order_distribution(obj){
 		"3": [],
 		"4": [],
 		"5": [],
-		"6": []
+		"6": [],
+		"12": [],
+		"-1": []
 	};
 	_.forEach(dieData, function(v, i){
 		var nu = _.values(v)[0].color.split(":")[0];
@@ -2218,7 +2273,7 @@ $(document).on("click", "#filterMap", function(e){
 
 /*右键切换开始*/
 $.contextMenu({
-	selector: '[id^="SP2_charts_"]>[data-dbcurveandsmith]>.panel-body',
+	selector: "div.vectorMap_l div.panel[data-dbcurveandsmith]>.panel-body",
 	callback: function(key, options) {
 		alert(key+"图功能正在开发");
 		// window.console && console.log(m) || alert(m);

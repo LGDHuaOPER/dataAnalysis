@@ -22,13 +22,9 @@ import com.maxmind.geoip2.record.Subdivision;
 
 public class iPLocation {
 
-	private final static String Key = "WURBZ-4R6WD-Z4J4B-HIBX6-PC5LV-7MBBE";
-	private final static String ReqUrl = "http://apis.map.qq.com/ws/location/v1/ip";
+	private final static String ReqUrl = "https://api.map.baidu.com/location/ip";//此地址次数有限，不可应用于其他项目
+	private final static String ak = "bKjC2wyvKT8AwhHIAKnTGm3EiItUvlA2";
 
-	public static String getUrl(String ip) {
-
-		return ReqUrl + "?ip=" + ip + "&key=" + Key + "&output=json";
-	}
 
 	public static JSONObject getResult(String url) {
 		String result = new URLUtil().getHttp(url);
@@ -84,108 +80,44 @@ public class iPLocation {
 	  public void getIPAndCity(HttpServletRequest request){
 			iPLocation util = new iPLocation();
 			String ip = util.getIpAddress(request);
-			
-//			IpLocationService ipLocationService = new IpLocationService();
-//			IpLocationResult ipLocationResult = ipLocationService.getIpLocationResult(util.getIpAddress(request));
-//			String city =  ipLocationResult.getCity()==null?"本地":ipLocationResult.getCity();
-			String city = "";
-			try {
-//				city = getAddress("ip="+ip, "utf-8");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}finally{
+				String city = getIPLocation(ip);
 				request.getSession().setAttribute("IP",ip);
 				request.getSession().setAttribute("city", city);
-			}
-			
 	  }
 	  
-	  public static String getAddress(String params, String encoding) throws Exception{  
-          
-	        String path = "http://ip.taobao.com/service/getIpInfo.php";  
-	          
-	        String returnStr = new URLUtil().getRs(path, params, encoding);
-	        JSONObject json=null;  
-	          
-	        if(returnStr != null){  
-	              
-	            json = new JSONObject().parseObject(returnStr);  
-	            JSONObject obj =  (JSONObject) json.get("data");
-//	            System.out.println("test:"+obj.get("country"));
-	            if("0".equals(json.get("code").toString())){  
-	                  
-//	                StringBuffer buffer = new StringBuffer();  
-//	                  
-//	                //buffer.append(decodeUnicode(json.optJSONObject("data").getString("country")));//国家  
-//	                  
-//	                //buffer.append(decodeUnicode(json.optJSONObject("data").getString("area")));//地区  
-//	                  
-//	                buffer.append(decodeUnicode(json.optJSONObject("data").getString("region")));//省份  
-//	                  
-//	                buffer.append(decodeUnicode(json.optJSONObject("data").getString("city")));//市区  
-//	                  
-//	                buffer.append(decodeUnicode(json.optJSONObject("data").getString("county")));//地区  
-//	                  
-//	                buffer.append(decodeUnicode(json.optJSONObject("data").getString("isp")));//ISP公司  
-//	                  
-//	                System.out.println(buffer.toString());  
-//	                  
-//	                return buffer.toString();  
-	                  return obj.get("city").toString();
-	            }else{  
-	                  
-	                return "获取地址失败?";  
-	                  
-	            }  
-	        }  
-	          
-	        return returnStr;  
-	          
-	    }  
+	  public static String getIPLocation(String ip){
+		  String url = ReqUrl+"?ip="+ip+"&ak="+ak;
+		  JSONObject obj = getHttpResult(url);
+		  String status = obj.getString("status");
+		  if("0".equals(status)){
+			 return getCity(obj);
+		  }else
+		  if("2".equals(status)){
+			  url = ReqUrl+"?ak="+ak;
+			  obj = getHttpResult(url);
+			  return getCity(obj);
+		  }
+		  return "";
+	  }
 	  
-	public static void main(String[] args) throws IOException, GeoIp2Exception {
-		//GeoIP2-City 数据库文件
-		File database = new File("/zip/GeoLiteCity.dat");
-
-		// 创建 DatabaseReader对象
-		DatabaseReader reader = new DatabaseReader.Builder(database).build();
-
-		InetAddress ipAddress = InetAddress.getByName("128.101.101.101");
-
-		CityResponse response = reader.city(ipAddress);
-
-		Country country = response.getCountry();
-		System.out.println(country.getIsoCode());            // 'US'
-		System.out.println(country.getName());               // 'United States'
-		System.out.println(country.getNames().get("zh-CN")); // '美国'
-
-		Subdivision subdivision = response.getMostSpecificSubdivision();
-		System.out.println(subdivision.getName());    // 'Minnesota'
-		System.out.println(subdivision.getIsoCode()); // 'MN'
-
-		City city = response.getCity();
-		System.out.println(city.getName()); // 'Minneapolis'
-
-		Postal postal = response.getPostal();
-		System.out.println(postal.getCode()); // '55455'
-
-		Location location = response.getLocation();
-		System.out.println(location.getLatitude());  // 44.9733
-		System.out.println(location.getLongitude()); // -93.2323
-
-//		IpLocationService ipLocationService = new IpLocationService();
-//		IpLocationResult ipLocationResult = ipLocationService.getIpLocationResult("183.175.12.160");
-//		System.out.println(ipLocationResult.getCountry() + " -----" + ipLocationResult.getProvince() + "--"
-//				+ ipLocationResult.getCity());
-//		System.out.println(getAddress("ip=192.168.3.7", "utf-8"));
-		try {
-			System.out.println(getAddress("ip=183.175.12.160","utf-8"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-//		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-//		String date = df.format(new Date());
-//		System.out.println(date);
+	  public static JSONObject getHttpResult(String url){
+		  String returnStr = new URLUtil().getResponse(url);
+		  JSONObject obj = JSONObject.parseObject(returnStr);
+		  return obj;
+	  }
+	  
+	  public static String getCity(JSONObject obj){
+		  String content = obj.getString("content");
+		  obj = JSONObject.parseObject(content);
+		  String address = obj.getString("address_detail");
+		  obj = JSONObject.parseObject(address);
+		  String city = obj.getString("city");
+		  return city;
+	  }
+	  
+	  public static void main(String[] args) {
+		System.out.println(getIPLocation("192.168.3.8"));
+		System.out.println(getIPLocation("119.248.161.65"));
 	}
+	  
 }

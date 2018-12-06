@@ -55,7 +55,7 @@ public class LoginFilter implements Filter{
 				String[] result = currentURL.split("/"); 
 				String authority = result[result.length-1];
 				if(FilterResource.isController(authority)){
-					System.out.println(222);
+//					System.out.println(222);
 					if(FilterResource.isAuthority(authority, request)){
 						chain.doFilter(request, response);
 					}else{
@@ -63,7 +63,7 @@ public class LoginFilter implements Filter{
 					}
 				} else
 				if(FilterResource.isAjax(authority)){
-					System.out.println(333);
+//					System.out.println(333);
 					chain.doFilter(request, response);
 				}
 			}

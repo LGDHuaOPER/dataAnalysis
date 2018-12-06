@@ -67,7 +67,7 @@ public class Login extends HttpServlet {
 			session.setAttribute("loginStatus", loginStatus);
 			List<String> userAuthority =  service.getAuthority(userName);
 			session.setAttribute("userAuthority", userAuthority);
-//			new iPLocation().getIPAndCity(request);
+			new iPLocation().getIPAndCity(request);
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			service.updateLoginDate(userName, df.format(new Date()));
 		}else{

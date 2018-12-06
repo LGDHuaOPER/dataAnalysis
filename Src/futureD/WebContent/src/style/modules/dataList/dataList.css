@@ -63,6 +63,29 @@ body {
 	margin-right: 20px;
 }
 
+/* 管理员按钮 */
+.user_dropdown{
+    display: inline-block;
+    margin-right: 20px;
+}
+.user_dropdown>button{
+    border: none;
+    padding:0;
+    background-color:#fff;
+    outline:none;
+}
+.user_dropdown .curusername{
+	text-indent:20px;
+}
+.user_dropdown .divider{
+	margin:0!important;
+}
+.user_dropdown .Information>a,.user_dropdown .AdminOperat>a{
+    height: 35px;
+    line-height: 35px;
+}
+/* 管理员按钮end */
+
 .g_bodyin {
 	height: 100%;
 }

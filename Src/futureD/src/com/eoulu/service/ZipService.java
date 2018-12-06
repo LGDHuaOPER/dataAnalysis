@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,7 @@ public class ZipService {
 		return status;
 	}
 
+	
 	/**
 	 * 存储Die坐标数据
 	 * @param conn
@@ -95,20 +97,29 @@ public class ZipService {
 	 * @return
 	 */
 	public String saveCoordinateData(Connection conn, List<String> filelist, int datanum,
-			Map<Integer, Object> dietypeName, List<String> mapparameters, String waferNumber,List<String> invalidationList) {
+			Map<Integer, Object> dietypeName, List<String> mapparameters, String waferNumber,Map<String,Object> dieMap) {
+		List<String> invalidationList = (List<String>) dieMap.get("invalidation");
+		Map<String,String> validList = (Map<String, String>) dieMap.get("validation");
+		System.out.println(invalidationList.size()+"===validList"+validList.size());
+		String key = "",value = "";
+		for(int m = datanum;m < filelist.size();m++){
+			String data[] = filelist.get(m).split(",");
+			key = data[0]+","+data[1];
+			if(validList.containsKey(key)){
+				value = validList.get(key);
+				validList.remove(key);
+			}
+		}
+		for(String diexy:validList.keySet()){
+			value = validList.get(diexy);
+			filelist.add(value);
+		}
 		for(String str:invalidationList){
 			filelist.add(str);
 		}
-		String status = null;
-		String diepos;// 字母坐标
-		String TestTime;
-		String dieType;
-		String temp = ""; // 临时变量，用于比较dieType
-		int paramLength = 0;
-		int waferId = 0;
-		int index = 0; // die编号
-		String column = "";
-		String columnStr = "";
+		String status = null, diepos, TestTime,dieType,temp = ""; // 临时变量，用于比较dieType
+		int paramLength = 0, waferId = 0;
+		String column = "", columnStr = "";
 		Object[] obj = null;
 		List<Map<String, Double>> upperAndLowerLimit = null;// 参数上下限
 		List<Object[]> list = new ArrayList<>();
@@ -119,7 +130,6 @@ public class ZipService {
 		Object[] subdieInfo = null;
 		try {
 			for (int m = datanum; m < filelist.size(); m++) {
-//				index++;
 				String data[] = filelist.get(m).split(",");
 				if (m == datanum) {
 					paramLength = data.length;
@@ -138,6 +148,7 @@ public class ZipService {
 					return status;
 				} else if (!dietypeName.containsKey(Integer.parseInt(data[3]))) {
 					dieType = "DefaultType";
+					System.out.println("dieType");
 				} else {
 					dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
 				}
@@ -182,7 +193,6 @@ public class ZipService {
 				obj[1] = diepos;
 				obj[2] = data[0];
 				obj[3] = data[1];
-//				obj[4] = index;
 				obj[4] = data[4];
 				obj[6] = TestTime;
 				boolean bin = true;
@@ -194,8 +204,12 @@ public class ZipService {
 									&& Double.parseDouble(data[j]) <= upperAndLowerLimit.get(j - 7).get("upper")));
 					str += "," + bin;
 				}
+				if(data.length<8){
+					obj[5] = data[4];
+				}else{
+					obj[5] = str.contains("false") ? "255" : "1";
+				}
 				
-				obj[5] = str.contains("false") ? "255" : "1";
 				if (Integer.parseInt(data[4]) == -1) {
 					obj[5] = "-1";
 				}else{
@@ -209,6 +223,7 @@ public class ZipService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println("长度:"+list.size());
 		System.out.println("waferId:"+waferId);
 		status = coordinate.insertCoordinate(conn, list, column, columnStr);
 
@@ -351,14 +366,22 @@ public class ZipService {
 	}
 	
 	public static void main(String[] args) {
-		String name = "1-0_Voltate_CPD.CSV";
-		String[] fileName = null;
-		if (!name.contains("_") || (name.indexOf("-")<name.indexOf("_"))) {
-			fileName = name.substring(0,name.indexOf(".")).split("-");
-		} else {
-			fileName = name.substring(0,name.indexOf(".")).split("_");
+//		String name = "1-0_Voltate_CPD.CSV";
+//		String[] fileName = null;
+//		if (!name.contains("_") || (name.indexOf("-")<name.indexOf("_"))) {
+//			fileName = name.substring(0,name.indexOf(".")).split("-");
+//		} else {
+//			fileName = name.substring(0,name.indexOf(".")).split("_");
+//		}
+//		System.out.println(Arrays.toString(fileName));
+		Map<String,String> map = new HashMap<>();
+		map.put("13", "qwe");
+		map.put("12", "12");
+		if(map.containsKey("2")){
+			map.remove("12");
+			
 		}
-		System.out.println(Arrays.toString(fileName));
+		System.out.println(map);
 	}
 
 	/**

@@ -248,7 +248,7 @@ public class ZipFileParser {
 				dataFormat = map.get("dataFormat").toString(),
 						sessionId = map.get("sessionId").toString(),
 						fileName = map.get("fileName").toString(),
-								lastModified = map.get("lastModified").toString();
+								lastModified = map.get("lastModified")==null?"":map.get("lastModified").toString();
 		int interval = Integer.parseInt(map.get("interval").toString());
 		
 		if (filternum == 1) {
@@ -822,6 +822,7 @@ public class ZipFileParser {
 			String Min[] = null;
 			for(int i=Limitnum,j=0;i<TesterWaferSerialIDnum-1;i=i+2,j++){
 				Min=filelist.get(i).split(",");
+				System.out.println("Min:"+Arrays.toString(Min));
 				resultmap.put(j, Min[5]);
 			}
 			return resultmap;
@@ -834,9 +835,10 @@ public class ZipFileParser {
 		 * @throws Exception
 		 */
 		public static Map<String, Object> getMapFile(Connection conn,ParameterDao parameterDao,String file){
-			Map<String, Object> MapFileResult=new HashMap<String, Object>();
+			Map<String, Object> MapFileResult=new HashMap<String, Object>(),map = new HashMap<>();
+			Map<String,String> validation = new HashMap<>();
 			//存放所有文件
-			List<String> filelist1=new ArrayList<String>(),filelist=new ArrayList<String>(),invalidationList = new ArrayList<String>();//存放8个参数
+			List<String> filelist1=new ArrayList<String>(),filelist=new ArrayList<String>(),removedList = new ArrayList<String>();
 			FileInputStream fis = null;
 			String status="success";//map文件标志信息
 			String waferNO="",fileEncode = FileCode.getEncode(file);
@@ -876,7 +878,6 @@ public class ZipFileParser {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			invalidationList.clear();
 			String s,dieno,diexy,str = "";
 			String[] diexdiey;
 			int indexFlag = 0;
@@ -912,15 +913,16 @@ public class ZipFileParser {
 					break;
 				}
 				if(indexFlag>0){
-					// 存无效die
+					dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
+					diexdiey = s.split(",");
+					diexy = diexdiey[1] + "," + diexdiey[2];
 					if (s.contains("ToBeProbed") || s.contains("ToInked")) {
-						
+						str = diexy+","+dieno+",0,12,"+diexdiey[5];
+						validation .put(diexy, str);
 					} else{
-						dieno = s.substring(s.indexOf("=") + 1, s.indexOf(","));
-						diexdiey = s.split(",");
-						diexy = diexdiey[1] + "," + diexdiey[2];
+						//存无效die
 						str = diexy +","+dieno + ",0,-1,0" ;
-						invalidationList.add(str);
+						removedList.add(str);
 					}
 				}
 			}
@@ -993,6 +995,8 @@ public class ZipFileParser {
 				}
 				
 				}
+				map.put("validation", validation);
+				map.put("invalidation", removedList);
 				if("success".equals(status)){
 					MapParameterDO mapDO = new MapParameterDO();
 					mapDO.setDiameter(diameter);
@@ -1016,7 +1020,8 @@ public class ZipFileParser {
 				}
 				MapFileResult.put("status", status);
 				MapFileResult.put("waferNO", waferNO);
-				mapfilelist.put(waferNO, invalidationList);
+				mapfilelist.put(waferNO, map);
+				mapfilelist.put(waferNO+"file", file);
 				return MapFileResult;
 			}
 		}
@@ -1062,12 +1067,11 @@ public class ZipFileParser {
 		    Map<String, List<Object[]>> parametermap=new HashMap<String , List<Object[]>>();
 			dealparam = datanum>0? filelist.get(datanum-1).split(","):null;
 			int length= datanum>0? dealparam.length-6:0;//参数个数长度+1
-			System.out.println("length:"+length);
 			String parameterNameUnit="";
 			String Max[] = null;
 			String Min[] = null;
 			List<Object[]> list = null;
-			for(int num=1;num<=typeCount;num++){
+			for(int num=0;num<typeCount;num++){
 				list = new ArrayList<>();
 				if(limitnum+2+num*2>testerWaferSerialIDnum){
 					Min=filelist.get(limitnum).split(",");
@@ -1076,8 +1080,6 @@ public class ZipFileParser {
 					Min=filelist.get(limitnum+num*2).split(",");
 					Max=filelist.get(limitnum+1+num*2).split(",");
 				}
-				System.out.println(Arrays.toString(Min));
-				System.out.println(Arrays.toString(Max));
 				String column = "";
 				Object[] obj = null;
 				String min="";
@@ -1113,7 +1115,7 @@ public class ZipFileParser {
 					list.add(obj);
 					
 					}
-				parametermap.put(dieType.get(num-1), list);
+				parametermap.put(dieType.get(num), list);
 			}
 			
 			

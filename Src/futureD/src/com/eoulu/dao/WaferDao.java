@@ -322,13 +322,13 @@ public class WaferDao{
 	}
 	
 	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType){
-		String sql = "select "+("".equals(dieType)?"":"concat('"+dieType+"','') die_type,")+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number+0";
+		String sql = "select "+("".equals(dieType)?"":"concat('"+dieType+"','') die_type,")+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by die_number+0";
 		System.out.println("sql:"+sql);
 		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	
 	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column){
-		String sql = "select alphabetic_coordinate location"+column+",bin from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 order by die_number";
+		String sql = "select alphabetic_coordinate location"+column+",bin from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by die_number";
 		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	
@@ -350,7 +350,7 @@ public class WaferDao{
 	 */
 	public double getYieldPerParameter(Connection conn,int waferId,String upper,String lower,String column){
 		System.out.println("column:"+column);
-		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
 		double yield = 0;
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -393,11 +393,25 @@ public class WaferDao{
 	
 	
 	public List<Map<String,Object>> getYieldById(Connection conn,int waferId) {
-		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield,count(*) quantity from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield,count(*) quantity from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
 		return DataBaseUtil.getInstance().queryToList(conn,sql, new Object[]{waferId,waferId});
 
 	}
 	
+	/**
+	 * 判断该条晶圆是否是含有被测试的Die，含有则能够绘图
+	 * @param waferId
+	 * @return
+	 */
+	public boolean getMapFlag(int waferId){
+		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
+		Object result = DataBaseUtil.getInstance().queryResult(sql, new Object[]{waferId});
+		int count = result == null?0:Integer.parseInt(result.toString());
+		if(count == 0){
+			return false;
+		}
+		return true;
+	}
 	
 	
 }

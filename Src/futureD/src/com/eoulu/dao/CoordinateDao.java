@@ -326,7 +326,7 @@ public class CoordinateDao {
 			int num=0,qualified=0;
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
-				if(rs.getInt(3)!=-1) {
+				if(rs.getInt(3)!=-1 && rs.getInt(3)!=12) {
 					num++;
 					if(rs.getInt(3)==1) {
 						qualified++;
@@ -347,7 +347,7 @@ public class CoordinateDao {
 	
 	
 	public Map<String,Object> getOtherDie(Connection conn,int waferId,String waferNO){
-		String sql = "select x_coordinate,y_coordinate from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status=0) ";
+		String sql = "select x_coordinate,y_coordinate,bin from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status=0) ";
 		Map<String,Object> result = new HashMap<>();
 		PreparedStatement ps;
 		try {
@@ -356,7 +356,12 @@ public class CoordinateDao {
 			ps.setInt(2, waferId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
-				result.put(rs.getInt(1)+":"+rs.getInt(2), 12);
+				if(rs.getInt(3) == -1){
+					result.put(rs.getInt(1)+":"+rs.getInt(2), rs.getInt(3));
+				}else{
+					result.put(rs.getInt(1)+":"+rs.getInt(2), 12);
+				}
+				
 			}
 			
 		} catch (SQLException e) {
@@ -379,8 +384,8 @@ public class CoordinateDao {
 			ResultSet rs = ps.executeQuery();
 			int num=0,qualified=0;
 			while(rs.next()){
-				int bin = -1;//
-				if(rs.getInt(3)!=-1) {
+				int bin = rs.getInt(3);//
+				if(rs.getInt(3)!=-1 && rs.getInt(3)!=12) {
 					num++;
 					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=uppper){
 						bin=1;
@@ -404,7 +409,7 @@ public class CoordinateDao {
 	}
 	
 	public double getYield(Connection conn,int waferId){
-		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+		String sql = "select (select count(*) from dm_wafer_coordinate_data where wafer_id=? and bin=1)/count(*) yield from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
 		Object result = db.queryResult(conn, sql, new Object[]{waferId,waferId});
 		return result==null?0:Double.parseDouble(result.toString());
 	}
@@ -420,8 +425,7 @@ public class CoordinateDao {
 				+ "when "+column+" between "+lower+" and "+upper+" then concat(round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'','%') "
 				+ "when "+column+" > "+multipleMin+" and "+column+" <= "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'%')  "
 				+ "else '-100%' end ) percent "
-				+ " from dm_wafer_coordinate_data where wafer_id=? order by "+column+" desc";
-		System.out.println("sql:"+sql);
+				+ " from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by "+column+" desc";
 		Map<String,Object> result = new HashMap<>();
 		Map<String,Object> colorMap = new HashMap<>();
 		PreparedStatement ps;
@@ -432,10 +436,10 @@ public class CoordinateDao {
 			int num=0,qualified=0;
 			
 			while(rs.next()){
-				int bin = -1;//
+				int bin = rs.getInt(3);//
 				percent = rs.getString(5);
 				colorMap = new HashMap<>();
-				if(rs.getInt(3)!=-1) {
+				if(rs.getInt(3)!=-1 && rs.getInt(3)!=12) {
 					num++;
 					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=upper){
 						bin=1;

@@ -109,7 +109,7 @@ public class GaussianDistribution extends HttpServlet {
 		paramList =  histogram.getWaferParameter(waferId+"");	
 		Map<String, List<Double>> rangeList = service.getRangList(paramList, waferId+"");
 		List<Double> ls = null;
-		for (int j=0,size=paramList.size();j<size;j++) {
+		for (int j=1,size=paramList.size();j<2;j++) {
 			System.out.println(paramList.get(j));
 			ls = rangeList.get(paramList.get(j));
 			left = "".equals(parameter)?ls.get(0):left;

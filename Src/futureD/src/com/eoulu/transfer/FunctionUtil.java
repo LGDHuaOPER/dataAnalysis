@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+
 /**
  * @author mengdi
  *
@@ -95,11 +96,17 @@ public class FunctionUtil {
 	public static double getNormality(double x, double standard, double average) {
 		double power = 0-Math.pow((x - average), 2) / (2 * Math.pow(standard, 2));
 		double index = Math.pow(Math.E, power);
+		System.out.println("index:"+index);
 		double result = index / (Math.sqrt(2 * Math.PI) * standard) ;
 		return result;
 
 	}
 	
+	public static void main(String[] args) {
+		double x = 2.34427E-06,mean = 4.82791E-06,standard= 2.40637E-06;
+		double y = getNormality(x, standard, mean);
+		System.out.println("y="+y);
+	}
 	
 	
 	public static List<String> getRangeOrderAsc(double A,double B,int n){

@@ -11,6 +11,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="assets/img/common/futureDT2.ico"/>
+	<link rel="bookmark" href="assets/img/common/futureDT2.ico"/>
 	<title>futureD数据对比</title>
 	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
@@ -38,13 +40,29 @@
 				</div>
 			</div>
 		</div>
-		<div class="g_info_r bootstro" data-bootstro-title="数据对比引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<!-- 管理员 -->
+		<div class="g_info_r bootstro" data-bootstro-title="数据对比引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+			<div class="dropdown user_dropdown">
+			  <button id="userLabel"  type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			      <img src="assets/img/common/admin_32px.svg" >
+			  </button>
+			  <ul id="menu1" class="dropdown-menu" aria-labelledby="userLabel">
+		          <li class="curusername"></li>
+		          <li role="separator" class="divider"></li>
+		          <li class="Information"><a href="#">资料与账号</a></li>
+		          <li class="AdminOperat"><a href="#">管理员操作</a></li>
+		       </ul>
+		    </div>
+			<!-- <img src="assets/img/common/admin_32px.svg" data-iicon="glyphicon-user" alt="管理员"> -->
+			<img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引">
+			<img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出">
+		</div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit bootstro" data-bootstro-title="数据对比引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="index.html">系统主页面</a></li>
@@ -119,7 +137,8 @@
 						    			<div class="right_div bootstro" data-bootstro-title="数据对比引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>共有参数列表</h4><p>被选中的数据的共有参数将会放在这里，选择不同的参数将会有不同的规则来分析数据</p></div>" data-bootstro-placement="top" data-bootstro-html="true" data-bootstro-step="4">
 						    				<div class="panel panel-info">
 						    				  	<div class="panel-heading">
-						    				    	<h3 class="panel-title">共有参数</h3>
+						    				    	<h3 class="panel-title">共有参数  <span class="badge allchoose"  ischoose="false">全选</span></h3>
+						    				    	
 						    				  	</div>
 						    				  <div class="panel-body">
 						    				   		<!-- List group -->
@@ -277,7 +296,7 @@
 	<script src="assets/script/libs/drawWaferMap.js"></script>
 	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<script src="src/script/modules/dataCompare/dataCompare2.js"></script>
+	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
 </body>
 </html>

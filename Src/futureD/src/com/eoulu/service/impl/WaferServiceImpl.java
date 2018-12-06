@@ -37,6 +37,7 @@ import com.eoulu.transfer.PageDTO;
 import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.DataBaseUtil;
 import com.eoulu.util.Md5Util;
+import com.google.gson.Gson;
 
 
 
@@ -98,8 +99,8 @@ public class WaferServiceImpl implements WaferService {
 		ZipFileParser util = new ZipFileParser();
 		CoordinateDao coordinate = new CoordinateDao();
 		ZipService zipUtil = new ZipService(dao, parameterDao, util, coordinate);
-		List<String> filelist = util.getFile(file),invalidationList = new ArrayList<>();
-		Map<String, Object> messageMap = util.getMessage(filelist, productCategory);
+		List<String> filelist = util.getFile(file);
+		Map<String, Object> messageMap = util.getMessage(filelist, productCategory),dieMap = null;
 		String status = (String) messageMap.get("status");
 		String testStarTime = "";
 		String testStopTime = "";
@@ -118,7 +119,7 @@ public class WaferServiceImpl implements WaferService {
 			return status;
 		} else {
 			waferID = (String) messageMap.get("WaferID");
-			if(mapFileList.get(waferID)==null){
+			if(mapFileList.get(waferID+"file")==null){
 				return  "上传失败，导入目标文件前没有导入对应的map文件！";
 			}
 			testStarTime = (String) messageMap.get("TestStarTime");
@@ -134,12 +135,12 @@ public class WaferServiceImpl implements WaferService {
 			limitnum = (int) messageMap.get("Limitnum");
 			dieTypeList = (List<String>) messageMap.get("dieTypeList");
 			totalTestTime = messageMap.get("totalTestTime").toString();
+			dieMap = (Map<String, Object>) mapFileList.get(waferID);
 		}
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {	
 		// 判断文件是否上传
 			Map<Integer, Object> dietypeName = util.getDieTypeName(filelist, testerWaferSerialIDnum, limitnum);
-			
 			String tester = operator;
 			UserDao userDao = new UserDao();
 			operator = operator.trim();
@@ -183,6 +184,7 @@ public class WaferServiceImpl implements WaferService {
 			wafer.setLastModified(lastModified);
 			Map<String, List<Object[]>> parameterList = util.getParameter(filelist, datanum, testerWaferSerialIDnum,
 					limitnum, dieTypeList);
+			System.out.println(new Gson().toJson(parameterList));
 			status = zipUtil.saveWaferInfo(conn,  wafer, parameterList,tester,totalTestTime);
 			if (!"success".equals(status)) {
 				conn.rollback();
@@ -203,7 +205,7 @@ public class WaferServiceImpl implements WaferService {
 			
 			System.out.println("ciyao:"+status);
 			List<String> mapparameters = parameterDao.getEightParameter(conn, waferID);
-			status = zipUtil.saveCoordinateData(conn, filelist, datanum, dietypeName, mapparameters, waferID,invalidationList);
+			status = zipUtil.saveCoordinateData(conn, filelist, datanum, dietypeName, mapparameters, waferID,dieMap);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
@@ -750,6 +752,11 @@ public class WaferServiceImpl implements WaferService {
 		}
 		
 		return flag;
+	}
+
+	@Override
+	public boolean getMapFlag(int waferId) {
+		return new WaferDao().getMapFlag(waferId);
 	}
 	
 	

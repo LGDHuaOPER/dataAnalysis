@@ -12,7 +12,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import com.eoulu.service.LogService;
 import com.eoulu.service.WaferService;
+import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
 
 /**
@@ -42,10 +44,12 @@ public class DataManager implements ServletContextListener {
     public void contextInitialized(ServletContextEvent arg0)  { 
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     	WaferService waferService = new WaferServiceImpl();
+    	LogService logService = new LogServiceImpl();
     	 Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
 				waferService.deleteJunkData();
+				logService.delete();
 			}
     		 
     	 };

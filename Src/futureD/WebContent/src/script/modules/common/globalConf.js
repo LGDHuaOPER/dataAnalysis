@@ -2,9 +2,10 @@
 	/*浏览器polyfill*/
 	var futureDT2Browser = eouluGlobal.S_getBrowserType(),
 	futureDURL,
-	ProjectName;
+	ProjectName,
+	upperBrowser = _.toUpper(futureDT2Browser[0]);
 	eouluGlobal.C_setBrowser(_.cloneDeep(futureDT2Browser));
-	if(_.isEqual(_.toUpper(futureDT2Browser[0]), "IE")){
+	if(_.isEqual(upperBrowser, "IE") || _.isEqual(upperBrowser, "IE11")){
 		// IE环境
 		if(futureDT2Browser[1]<9){
 		  	eouluGlobal.S_getSwalMixin()({
@@ -38,11 +39,15 @@
 	}
 
 	/*全局判断userName不存在*/
-	var futureDT2CurrPage = eouluGlobal.S_getCurPageHref();
+	var futureDT2CurrPage = eouluGlobal.S_getCurPageHref(),
+	storeCurUserName = store.get("futureDOnline__curUserName");
 	if(!_.isEqual(futureDT2CurrPage, futureDT2LoginPage)){
 		if(_.isNil($("body").data("curusername")) || _.isEmpty($("body").data("curusername"))){
 			eouluGlobal.S_settingURLParam({}, false, false, false, futureDT2LoginPage);
 			return false;
+		}
+		if(!_.isNil(storeCurUserName) && !_.isEmpty(storeCurUserName)){
+			eouluGlobal.C_setCurUserName(storeCurUserName);
 		}
 
 		/*判断权限*/
@@ -132,6 +137,7 @@
 							showConfirmButton: false,
 							timer: 1000
 						}).then(function(){
+							store.remove("futureDOnline__curUserName");
 							eouluGlobal.S_settingURLParam({}, false, false, false, futureDT2LoginPage);
 						});
 					}else{
@@ -149,8 +155,19 @@
 			}
 		});
 	});
-	$(document).on("click", ".g_info_r img[data-iicon='glyphicon-user']", function(){
+	$(document).on("click", ".g_info_r .Information", function(){
+		eouluGlobal.S_getSwalMixin()({
+			title: "提示",
+			text: "功能暂未添加，敬请期待！",
+			type: "info",
+			showConfirmButton: false,
+			timer: 2000
+		});
+	});
+	
+	$(document).on("click", ".g_info_r .AdminOperat", function(){
 		eouluGlobal.S_settingURLParam({}, false, false, false, "UserInstall");
 	});
-
+	$(".g_info_r .curusername").text($("body").data("curusername"));
+	
 })();

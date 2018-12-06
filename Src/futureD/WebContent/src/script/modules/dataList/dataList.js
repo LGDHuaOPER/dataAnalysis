@@ -16,7 +16,7 @@ dataListStore.state.pageObj = {
 	searchVal: ""
 };
 dataListStore.state.authorityJQDomMap = {
-	"管理员": [$(".g_info_r img[data-iicon='glyphicon-user']")],
+	"管理员": [$('.g_info_r .AdminOperat')],
 	"上传": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove-circle']")],
 	"删除": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-remove']"), $(".operate_othertd [data-iicon='glyphicon-remove']")],
 	"回收站": [$(".g_bodyin_bodyin_tit_l>[data-iicon='glyphicon-trash']")],
@@ -558,6 +558,9 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 			lastModified = null;
 		}else{
 			lastModified = _.toString(dataListStore.addition.file.value.lastModified);
+			if(_.isNil(lastModified) || _.isEmpty(lastModified)){
+				lastModified = _.toString(dataListStore.addition.file.value.lastModifiedDate.getTime());
+			}
 			// lastModified = _.toString($("#add_file_Upload").get(0).files[0].lastModified);
 		}
 		injectStoreValue({
@@ -1070,14 +1073,42 @@ $(".isRequired").on("input propertychange change", function(){
 /*跳转详细数据页面*/
 $(document).on("click", ".operate_othertd [data-iicon='glyphicon-eye-open']", function(e){
 	e.stopPropagation();
-	var waferId = $(this).data("iid");
-	var dataFormat = $(this).parent().siblings(".data_format_td").data("ivalue");
-	var webParam = $(this).parent().siblings(".device_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".lot_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".wafer_number_td").data("ivalue")+"futureDT2OnlineDataListSplitor"+ $(this).parent().siblings(".die_type_td").data("ivalue");
-	eouluGlobal.S_settingURLParam({
-		waferId: waferId,
-		dataFormat: dataFormat,
-		webParam: webParam
-	}, false, false, false, "WaferData");
+	var iThat = $(this),
+	waferId = iThat.data("iid");
+	$.ajax({
+		type: "GET",
+		url: "Examine",
+		data: {
+			waferId: waferId
+		},
+		dataType: "json"
+	}).then(function(data){
+		if(data === true){
+			var dataFormat = iThat.parent().siblings(".data_format_td").data("ivalue");
+			var webParam = iThat.parent().siblings(".device_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ iThat.parent().siblings(".lot_number_td").data("ivalue") +"futureDT2OnlineDataListSplitor"+ iThat.parent().siblings(".wafer_number_td").data("ivalue")+"futureDT2OnlineDataListSplitor"+ iThat.parent().siblings(".die_type_td").data("ivalue");
+			eouluGlobal.S_settingURLParam({
+				waferId: waferId,
+				dataFormat: dataFormat,
+				webParam: webParam
+			}, false, false, false, "WaferData");
+		}else if(data === false){
+			dataListSwalMixin({
+				title: "查看详细信息提示",
+				text: "无数据，不能访问",
+				type: "warning",
+				timer: 2000,
+				callback: null
+			});
+		}else{
+			dataListSwalMixin({
+				title: "查看详细信息提示",
+				text: data.replace(/^"/, "").replace(/"$/, ""),
+				type: "warning",
+				timer: 2000,
+				callback: null
+			});
+		}
+	});
 });
 
 /*跳转至回收站*/
@@ -1112,7 +1143,7 @@ dropFileCon.ondrop = function(e) {
 	e.preventDefault();
 	var files = e.dataTransfer.files,
 	iflag = false;
-	console.table(files)
+	console.table && console.table(files);
 	// 如果没有文件
 	if(files.length < 1){
 		iflag = true;

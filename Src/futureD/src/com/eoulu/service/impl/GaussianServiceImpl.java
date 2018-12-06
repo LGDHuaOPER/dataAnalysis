@@ -58,7 +58,7 @@ public class GaussianServiceImpl implements GaussianService{
 				columnCount = map.get("equal")==null?Math.sqrt(total)+1:Double.parseDouble(map.get("equal").toString()),
 						interval = section/(columnCount-1),expectation=0,x=0,rate=0,y=0;
 							String	median = coordinate.getMedian(conn, waferId, min, max,column);
-							System.out.println("standard:"+standard +"-----variance:"+variance);
+							System.out.println("标准差:"+standard +"-----方差:"+variance+"柱数:"+columnCount);
 		length = (int) Math.floor(columnCount);
 		for(int i=0 ;i < length; i ++){
 			if(i==0){
@@ -72,10 +72,10 @@ public class GaussianServiceImpl implements GaussianService{
 			expectation += frequency*rate;
 			y = FunctionUtil.getNormality(x, standard, average);
 			System.out.println("y:"+y);
-			if(Double.isNaN(y)){
-				result.put("status", "数据太少无法绘制！");
-				return result;
-			}
+//			if(Double.isNaN(y)){
+//				result.put("status", "数据太少无法绘制！");
+//				return result;
+//			}
 //			groups.add(new BigDecimal(x).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			groups.add(x);
 			frequencyList.add(frequency);
