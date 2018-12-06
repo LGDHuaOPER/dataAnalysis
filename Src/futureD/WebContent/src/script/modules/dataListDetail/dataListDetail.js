@@ -1384,6 +1384,7 @@ function draw_map_color_order_distribution(obj){
 		'<tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="qualify_tt" data-ipara="qualify">0</td><td class="unqulify_tt" data-ipara="unqulify">0</td><td class="yield_tt" data-ipara="yield">0%</td></tr></tbody></table>';
 	$(tableStr).appendTo(that.parent().next());
 	_.forOwn(countObj, function(v, k){
+		if(k==-1 || k == 12) return true;
 		that.parent().next().find("th").eq(k-1).text(k+"区间");
 		that.parent().next().find("td").eq(k-1).text(v+"个");
 	});
