@@ -23,7 +23,8 @@
 	<link rel="stylesheet" href="assets/style/libs/awesomplete_all.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/common/futureDT2AddUpdate.css" type="text/css">
 	<!-- 变 -->
-	<link rel="stylesheet" href="src/style/modules/recycle/recycle.css" type="text/css">
+	<link rel="stylesheet" href="dist/style/modules/recycle/recycle.css" type="text/css">
+	<!-- <link rel="stylesheet" href="src/style/modules/recycle/recycle.css" type="text/css"> -->
 </head>
 <body data-curpage="recycle" data-curusername="${userName}" data-waferlist="${waferList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -138,8 +139,11 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
+	<script src="dist/script/modules/recycle/recycle.js"></script>
+	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
-	<script src="src/script/modules/recycle/recycle.js"></script>
+	<script src="src/script/modules/recycle/recycle.js"></script> -->
 </body>
 </html>

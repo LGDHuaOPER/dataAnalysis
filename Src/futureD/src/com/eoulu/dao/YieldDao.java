@@ -25,7 +25,7 @@ public class YieldDao {
 	
 	
 	public Double getYieldPerParam(Connection conn,int waferId,String column,double left,double right){
-		String sql = "select format(count(*)/(select count(*) from dm_wafer_coordinate_data where wafer_id=?),2) yield from dm_wafer_coordinate_data where wafer_id=? and bin<>-1 and "+column+" between ? and ?";
+		String sql = "select format(count(*)/(select count(*) from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)),2) yield from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) and "+column+" between ? and ?";
 		Object result = db.queryResult(conn, sql, new Object[]{waferId,waferId,left,right});
 		
 		return result==null?Double.NaN:Double.parseDouble(result.toString());

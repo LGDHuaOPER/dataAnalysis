@@ -58,4 +58,9 @@ public class RoleDao {
 		return result==null?"":result.toString();
 	}
 	
+	public int getRoleId(int userId){
+		String sql =  "select role_id from dm_user where user_id="+userId;
+		Object result = db.queryResult(sql, null);
+		return result==null?0:Integer.parseInt(result.toString());
+	}
 }

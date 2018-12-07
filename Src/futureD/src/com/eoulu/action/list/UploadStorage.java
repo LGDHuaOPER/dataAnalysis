@@ -87,8 +87,8 @@ public class UploadStorage extends HttpServlet {
 		map.put("interval", 5);
 		WaferService service = new WaferServiceImpl();
 		ZipFileParser zipUtil = new ZipFileParser();
-		System.out.println("lastModified:"+lastModified);
-		System.out.println("filePath:"+filePath);
+//		System.out.println("lastModified:"+lastModified);
+//		System.out.println("filePath:"+filePath);
 		ProgressSingleton.put(sessionId, 5);
 		boolean flag = false;
 		switch (dataFormat) {
@@ -158,7 +158,7 @@ public class UploadStorage extends HttpServlet {
 		}
 		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
 		String productCatagory="1";
-		String description="TEST：wafer3";
+		String description="20181207.zip";
 		String currentUser="TEST";
 		String dataFormat = "0";
 		Map<String,Object> result = null,map=new HashMap<String, Object>();

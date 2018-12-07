@@ -78,7 +78,7 @@ public class LogServiceImpl implements LogService{
 			for(int j=0,size2=map.size()+1;j<size2;j++){
 				XSSFCell cell = row.createCell(j);
 				if(j==0){
-					cell.setCellValue(j+1);
+					cell.setCellValue(i+1);
 				}
 				if(j==1){
 					cell.setCellValue(map.get("user_name").toString());

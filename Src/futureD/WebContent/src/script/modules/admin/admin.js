@@ -120,8 +120,9 @@ function adminRender(cur, signalDelete){
 	    				}
 	    			}
 	    		}
-	    		adminState.staffPageObj.pageCount = data.userList.length;
+	    		adminState.staffPageObj.pageCount = data.totalPage;
 	    		adminState.staffPageObj.itemLength = data.totalCount;
+	    		
 	       },
 	       error: function (data, status, e) {
 				
@@ -138,6 +139,7 @@ function adminRender(cur, signalDelete){
 }
 
 function operateRendaer(cur){
+	console.log("cur",cur);
 	var keyword = $("#search_input2").val().trim();
 	if(keyword == ""){
 		var ajax_data = { currentPage : cur }
@@ -168,7 +170,7 @@ function operateRendaer(cur){
   						'<td data-itext="'+((cur-1)*10+i+1)+'">'+((cur-1)*10+i+1)+'</td>'+
   						'<td title="'+v.user_name+'" data-itext="'+v.user_name+'" class="showField td_user_name">'+v.user_name+'</td>'+
   						'<td title="'+v.page+'" data-itext="'+v.page+'"  class="showField">'+v.page+'</td>'+
-  						'<td title="'+v.description+'" data-itext="'+v.description+'" class="showField">'+v.description+'</td>'+
+  						'<td title="'+v.description+'" data-itext="'+v.description+'" class="showField log_description">'+v.description+'</td>'+
   						'<td title="'+v.operate_date+" "+v.operate_time+'" data-itext="'+v.operate_date+" "+v.operate_time+'" class="showField">'+v.operate_date+" "+v.operate_time+'</td>'+
   						'<td title="'+v.ip_address+'" data-itext="'+v.ip_address+'"  >'+v.ip_address+'</td>'+
   						'<td title="'+v.location+'" data-itext="'+v.location+'"  class="showField">'+v.location+'</td>'+
@@ -189,8 +191,8 @@ function operateRendaer(cur){
 	    				}
 	    			}
 	    		}
-	  			adminState.operatePageObj.pageCount = data.logList.length;
-	    		adminState.operatePageObj.itemLength = data.totalCount;
+	  			adminState.operatePageObj.pageCount =data.totalPage;
+	    		adminState.operatePageObj.itemLength = data.totalCount ;
 	    		
 	       },
 	       error: function (data, status, e) {
@@ -208,6 +210,7 @@ function operateRendaer(cur){
 }
 
 /*page onload*/
+var Pagination,Pagination1 ;
 $(function(){
 	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
@@ -262,7 +265,7 @@ $(function(){
 	  }
 	};
 	// 初始化分页器
-	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	Pagination1 = new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
 
 	$("#jumpText").on("input propertychange", function(){
 		$(this).val($(this).val().replace(/[^\d]/g,''));
@@ -277,7 +280,9 @@ $(function(){
 		    return;
 		}else{
 		    adminState.staffPageObj.pageOption.curr = iText;
-		    new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+		    //new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+		    Pagination1.goPage(iText);
+		    Pagination1.renderPages();
 		    adminRender(iText, false);
 		    adminState.staffHasSearch && ($("#search_button").trigger("click"));
 		}
@@ -333,7 +338,9 @@ $(function(){
 				   		  	adminState.staffHasSearch && ($("#search_button").trigger("click"));
 				   		  	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
 				   		  	adminState.staffPageObj.pageOption.curr = iText;
-				   		  	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+				   		  	//new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+				   		  	Pagination1.goPage(iText);
+						    Pagination1.renderPages();
 				   		  	adminState.staffSellectObj.selectItem = [];
 				   		  	if(adminState.staffSellectObj.selectAll){
 				   		  		$("#checkAll").prop("checked", false);
@@ -432,7 +439,9 @@ $(function(){
 				   		  	adminState.staffHasSearch && ($("#search_button").trigger("click"));
 				   		  	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
 				   		  	adminState.staffPageObj.pageOption.curr = iText;
-				   		  	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+				   		  	//new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+				   		  	Pagination1.goPage(iText);
+						    Pagination1.renderPages();
 				   		  	_.pull(adminState.staffSellectObj.selectItem, ID);
 				   		  	
 				   		    adminSwalMixin({
@@ -440,7 +449,9 @@ $(function(){
 				   		    	text: "被选中的记录已经删除",
 				   		    	type: 'success',
 				   		    	showConfirmButton: false,
-				   		    	timer: 1800,
+				   		    	timer: 1800
+				   		    }).then(function() {
+				   		    	window.location.reload();
 				   		    });
 			    	   }
 			       },
@@ -581,9 +592,12 @@ $(".staffManage_tit_r_in .form-control-feedback").click(function(){
 $("#search_button").on("click", function(){
 	adminRender(1, false);
 	adminState.staffPageObj.pageOption.count = adminState.staffPageObj.itemLength;
-	new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	//new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	Pagination1.pageCount = adminState.staffPageObj.pageCount;
+    Pagination1.dataCount = adminState.staffPageObj.itemLength;
+	Pagination1.goPage(1);
+    Pagination1.renderPages();
 });
-
 
 
 
@@ -607,7 +621,7 @@ $(".staffManage_tit_l>img[data-iicon='glyphicon-remove-circle']").click(function
 	$("#staff_addition_user_name,#staff_addition_password,#staff_addition_password2,#staff_addition_telephone,#staff_addition_email").val("");
 	$("#staff_addition_sex,#staff_addition_role_id").prop("selected",false);
 	$("#staff_addition_sex option:first,#staff_addition_role_id option:first").prop("selected", 'selected'); 
-	$(".staff_addition_r_bodyin	.refresh .glyphicon").remove();
+	$(".staff_addition_r_bodyin	.refresh  .glyphicon:not(.has-feedback .form-control-feedback)").remove();
 	$(".staff_addition_r_bodyin	.row  .glyphicon").removeClass("glyphicon-ok-sign").addClass('glyphicon-info-sign');
 	
 	$(".futureDT2_bg_cover, .staff_addition").slideDown(250);
@@ -633,7 +647,7 @@ $(".isRequired").on("input propertychange change", function(){
 	}else{
 		if($(this).is("#staff_"+iclassify+"_password2")){
 			if($("#staff_"+iclassify+"_password").val() != $("#staff_"+iclassify+"_password2").val()){
-				str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"<span>两次输入不一致</span>></span> ';
+				str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"> <span>两次输入不一致</span></span> ';
 				$(".staff_"+iclassify+"_r_foot>.btn-primary").prop("disabled", true);
 			}else{
 				str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
@@ -646,7 +660,7 @@ $(".isRequired").on("input propertychange change", function(){
 	}
 	$(this).parent().next().empty().append(str);
 });
-
+/*
 $("#staff_addition_telephone, #staff_update_telephone").on("input propertychange change", function(){
 	var iclassify;
 	if($(this).parents(".staff_addition").length){
@@ -696,10 +710,11 @@ $("#staff_addition_email, #staff_update_email").on("input propertychange change"
 	}else{
 		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
 		$(".staff_"+iclassify+"_r_foot>.btn-primary").prop("disabled", true);
+		
 	}
 	$(this).parent().next().empty().append(str);
 });
-
+*/
 // gaixia
 $("#staff_addition_user_name").on("blur", function(){
 	var newUser = $("#staff_addition_user_name").val().trim();
@@ -824,7 +839,9 @@ $(".staff_addition_r_foot>.btn-primary").click(function(){
 	       success: function (data) {
 	       		if(data == "添加成功！"){
 	    		    adminRender( adminState.staffPageObj.currentPage, false);
-	    		    new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	    		    //new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	    		    Pagination1.goPage(Number( adminState.staffPageObj.currentPage));
+	    		    Pagination1.renderPages();
 	    		    adminState.staffHasSearch && ($("#search_button").trigger("click"));
 	    		    $(".futureDT2_bg_cover, .staff_addition").slideUp(250);
 	    		    adminSwalMixin({
@@ -833,7 +850,9 @@ $(".staff_addition_r_foot>.btn-primary").click(function(){
 	    				type: 'success',
 	    				showConfirmButton: false,
 	    				timer: 2000,
-	    			});
+	    			}).then(function() {
+		   		    	window.location.reload();
+		   		    });
 	       		}
 	       },
 	       error: function (data, status, e) {
@@ -874,7 +893,9 @@ $(".staff_update_r_foot>.btn-primary").click(function(){
 	       success: function (data) {
 	       		if(data == "修改成功！"){
 	    		    adminRender( adminState.staffPageObj.currentPage, false);
-	    		    new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	    		   // new Pagination(adminState.staffPageObj.selector, adminState.staffPageObj.pageOption);
+	    		    Pagination1.goPage(Number( adminState.staffPageObj.currentPage));
+	    		    Pagination1.renderPages();
 	    		    adminState.staffHasSearch && ($("#search_button").trigger("click"));
 	    		    $(".futureDT2_bg_cover, .staff_update").slideUp(250);
 	    		    adminSwalMixin({
@@ -883,7 +904,9 @@ $(".staff_update_r_foot>.btn-primary").click(function(){
 	    				type: 'success',
 	    				showConfirmButton: false,
 	    				timer: 2000,
-	    			});
+	    			}).then(function() {
+		   		    	window.location.reload();
+		   		    });
 	       		}
 	       },
 	       error: function (data, status, e) {
@@ -897,14 +920,13 @@ $(".staff_update_r_foot>.btn-primary").click(function(){
 	       }
 	   }); 
 });
-
 /*操作日志*/
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   	/*e.target // newly activated tab
   	e.relatedTarget // previous active tab*/
-  	$(".g_info .glyphicon-question-sign").show();
+  	$(".g_info img[data-iicon='glyphicon-question-sign']").show();
   	if($(e.target).parent().data("iclassify") == "operaDailyLog"){
-  		$(".g_info .glyphicon-question-sign").hide();
+  		$(".g_info img[data-iicon='glyphicon-question-sign']").hide();
   		if(!adminState.hasRequestData){
   			
   			var cur = 1 ;
@@ -934,6 +956,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   			    // obj.isFirst：是否首次加载页面，一般用于初始加载的判断
   			    adminState.operatePageObj.currentPage = obj.curr;
   			    // 首次不执行
+  			    console.log("obj",obj);
   			    if (!obj.isFirst) {
   			      // do something
   			      	operateRendaer(obj.curr);
@@ -956,7 +979,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   			  }
   			};
   			// 初始化分页器
-  			new Pagination(adminState.operatePageObj.selector, adminState.operatePageObj.pageOption);
+  			Pagination =  new Pagination(adminState.operatePageObj.selector, adminState.operatePageObj.pageOption);
   			adminState.hasRequestData = true;
   		}
   	}
@@ -968,6 +991,7 @@ $("#jumpText2").on("input propertychange", function(){
 
 $("#jumpPage2").on("click", function(){
 	var iText = Number($("#jumpText2").val());
+	//console.log("operatePageObj",adminState.operatePageObj.pageOption);
 	var currentPage = Number(adminState.operatePageObj.currentPage);
 	var pageCounts = Number(adminState.operatePageObj.pageCount);
 	if(currentPage == iText || iText <= 0 || iText>pageCounts){
@@ -975,7 +999,8 @@ $("#jumpPage2").on("click", function(){
 	    return;
 	}else{
 	    adminState.operatePageObj.pageOption.curr = iText;
-	    new Pagination(adminState.operatePageObj.selector, adminState.operatePageObj.pageOption);
+	    Pagination.goPage(iText);
+	    Pagination.renderPages();
 	    operateRendaer(iText);
 	    adminState.operateHasSearch && ($("#search_button2").trigger("click"));
 	}
@@ -984,7 +1009,12 @@ $("#jumpPage2").on("click", function(){
 $("#search_button2").on("click", function(){
 	 operateRendaer(1);
 	 adminState.operatePageObj.pageOption.count = adminState.operatePageObj.itemLength;
-	 new Pagination(adminState.operatePageObj.selector, adminState.operatePageObj.pageOption);
+	// new Pagination(adminState.operatePageObj.selector, adminState.operatePageObj.pageOption);
+	 Pagination.pageCount = adminState.operatePageObj.pageCount;
+	 Pagination.dataCount = adminState.operatePageObj.itemLength;
+	 
+	 Pagination.goPage(1);
+     Pagination.renderPages();
 });
 
 $(".operaDailyLog_tit_r .form-control-feedback").click(function(){

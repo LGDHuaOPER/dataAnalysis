@@ -287,10 +287,13 @@ function draw_other_chart(obj){
 			var ndata = _.find(data, function(v, k){
 				return _.toString(k) == _.toString(iparam);
 			});
+		
 			for(var wafernum = 0 ; wafernum < obj.curWaferId.length ; wafernum++ ){
 				var curDataItem = _.find(ndata, function(vv, kk){
 					return _.toString(kk) == _.toString(obj.curWaferId[wafernum]);
 				});
+				var errorWaferName = obj.curWaferName[obj.curWaferId[wafernum]];
+				
 				if(curDataItem.length<20){
 					var errorArrItem = _.find(errorArr, function(v, i){
 						return v.chartCNName == "CPK图";
@@ -298,12 +301,12 @@ function draw_other_chart(obj){
 					if(_.isNil(errorArrItem)){
 						errorArr.push({
 							chartCNName: "CPK图",
-							errorParamArr: [iparam],
+							errorParamArr: [errorWaferName+":"+iparam],
 							classify: classify,
 							message: "参数数据不足"
 						});
 					}else{
-						errorArrItem.errorParamArr.push(iparam);
+						errorArrItem.errorParamArr.push(errorWaferName+":"+iparam);
 					}
 				}
 				else{
@@ -313,7 +316,6 @@ function draw_other_chart(obj){
 					CPK_data.push(iiitem);
 				}
 			}
-		
 			title_text = "CPK-"+iparam;
 			xAxis = {
 				categories:["一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"]
@@ -536,68 +538,122 @@ function draw_map_color_order_distribution(obj){
 	fourDiff = upper - midder,
 	fiveDiff = theMax - upper,
 	precision = 0;
-	_.forOwn(currentDieItem.currentDieList, function(v, k){
-		var item = {},
-		iNo,
-		ibin,
-		addNum,
-		percentV,
-		binV;
-		if(_.isObject(v)){
-			percentV = v.percent;
-			binV = v.bin;
-		}else{
-			percentV = v;
-			binV = v;
-		}
+	/*合并有效die和其他器件die*/
+	_.forEach([currentDieItem.currentDieList, waferData.otherDieType], function(val, ind){
+		_.forOwn(val, function(v, k){
+			var item = {},
+			iNo,
+			ibin,
+			addNum,
+			percentV,
+			binV;
+			if(_.isObject(v)){
+				percentV = v.percent;
+				binV = v.bin;
+			}else{
+				percentV = v;
+				binV = v;
+			}
 
-		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
-		var addMat = percentV.match(/^\+/);
-		var minusMat = percentV.match(/^\-/);
-		if(_.isNil(addMat) && _.isNil(minusMat)){
-			/*合格数据*/
-			addNum = 0;
-		}else{
-			if(!_.isNil(addMat)){
-				/*大于上限*/
-				addNum = 100;
+			iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
+			var addMat = _.toString(percentV).match(/^\+/);
+			var minusMat = _.toString(percentV).match(/^\-/);
+			if(_.isObject(v)){
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*合格数据*/
+					addNum = 1;
+				}else{
+					if(!_.isNil(addMat)){
+						/*大于上限*/
+						addNum = 100;
+					}
+					if(!_.isNil(minusMat)){
+						/*小于下限*/
+						addNum = -100;
+					}
+				}
+			}else{
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*bin为非负数*/
+					addNum = 0;
+				}else{
+					if(!_.isNil(addMat)){
+						/*bin为正数，+号*/
+						addNum = 2;
+					}
+					if(!_.isNil(minusMat)){
+						/*bin为负数，-号*/
+						addNum = -2;
+					}
+				}
 			}
-			if(!_.isNil(minusMat)){
-				/*小于下限*/
-				addNum = 0;
+			
+			if(addNum > 2){
+				iNo = iNo+(addNum);
 			}
-		}
-		iNo = iNo+(addNum);
-		ibin = binV;
+			ibin = binV;
 
-		/*判断位置*/
-		if(ibin == 12){
-			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-			item[k] = {bin: 12, color: "12:"};
-		}else if(ibin == -1){
-			if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-			item[k] = {bin: -1, color: "-1:"};
-		}else{
-			var iiNo = _.round(iNo);
-			if(iNo<theMin){
-				iNo = theMin;
-				item[k] = {bin: ibin, color: "1:"+iiNo};
-			}else if(theMin<=iNo && iNo<lowwer){
-				item[k] = {bin: ibin, color: "2:"+iiNo};
-			}else if(lowwer<=iNo && iNo<midder){
-				item[k] = {bin: ibin, color: "3:"+iiNo};
-			}else if(midder<=iNo && iNo<=upper){
-				item[k] = {bin: ibin, color: "4:"+iiNo};
-			}else if(upper<iNo && iNo<theMax){
-				item[k] = {bin: ibin, color: "5:"+iiNo};
-			}else if(theMax<=iNo){
-				iNo = theMax;
-				item[k] = {bin: ibin, color: "6:"+iiNo};
+			/*判断位置*/
+			/*bin 5000 表示未被测试的die  ，bin 5001 表示其他期间类型的die 未被测试的die依然可以显示曲线*/
+			if(ibin == 5000){
+				if(!("5000:" in otherColor)) otherColor["5000:"] = "#FDFDFD";
+				item[k] = {bin: 5000, color: "5000:"};
+			}else if(ibin == 5001){
+				if(!("5001:" in otherColor)) otherColor["5001:"] = "#fff";
+				item[k] = {bin: 5001, color: "5001:"};
+			}else if(ibin == -1){
+				if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+				item[k] = {bin: -1, color: "-1:"};
+			}else{
+				var iiNo = _.round(iNo);
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*合格数据*/
+					if(lowwer<=iNo && iNo<midder){
+						item[k] = {bin: ibin, color: "3:"+iiNo};
+					}else if(midder<=iNo && iNo<=upper){
+						item[k] = {bin: ibin, color: "4:"+iiNo};
+					}
+				}else{
+					if(!_.isNil(addMat)){
+						/*大于上限*/
+						if(upper<=iNo && iNo<theMax){
+							item[k] = {bin: ibin, color: "5:"+iiNo};
+						}else if(theMax<=iNo){
+							iNo = theMax;
+							item[k] = {bin: ibin, color: "6:"+iiNo};
+						}
+					}
+					if(!_.isNil(minusMat)){
+						/*小于下限*/
+						if(iNo<=theMin){
+							iNo = theMin;
+							item[k] = {bin: ibin, color: "1:"+iiNo};
+						}else if(theMin<iNo && iNo<=lowwer){
+							item[k] = {bin: ibin, color: "2:"+iiNo};
+						}
+					}
+				}
+				// if(iNo<theMin){
+				// 	iNo = theMin;
+				// 	item[k] = {bin: ibin, color: "1:"+iiNo};
+				// }else if(theMin<=iNo && iNo<lowwer){
+				// 	item[k] = {bin: ibin, color: "2:"+iiNo};
+				// }else if(lowwer<=iNo && iNo<midder){
+				// 	item[k] = {bin: ibin, color: "3:"+iiNo};
+				// }else if(midder<=iNo && iNo<=upper){
+				// 	item[k] = {bin: ibin, color: "4:"+iiNo};
+				// }else if(upper<iNo && iNo<theMax){
+				// 	item[k] = {bin: ibin, color: "5:"+iiNo};
+				// }else if(theMax<=iNo){
+				// 	iNo = theMax;
+				// 	item[k] = {bin: ibin, color: "6:"+iiNo};
+				// }
 			}
-		}
-		/*判断位置end*/
-		dieData.push(item);
+			/*判断位置end*/
+			dieData.push(item);
+		});
 	});
+
 	
 	//console.table(dieData);
 	/*预处理数据end*/
@@ -687,6 +743,7 @@ function draw_map_color_order_distribution(obj){
 		'<tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="qualify_tt" data-ipara="qualify">0</td><td class="unqulify_tt" data-ipara="unqulify">0</td><td class="yield_tt" data-ipara="yield">0%</td></tr></tbody></table>';
 	$(tableStr).appendTo(that.parent().next());
 	_.forOwn(countObj, function(v, k){
+		if(_.indexOf(["1", "2", "3", "4", "5", "6"], k) == -1) return true;
 		that.parent().next().find("th").eq(k-1).text(k+"区间");
 		that.parent().next().find("td").eq(k-1).text(v+"个");
 	});
@@ -1154,7 +1211,7 @@ function dataCompareRenderData(currentPage){
 	       dataType: 'json',
 	       async : false ,
 	       success: function (data) {
-	    	  //console.log("data",data);
+	    	  console.log("data",data);
 	    	   var str = "";
 	    	   data.waferInfo.map(function(v, i, arr){
 		   			var ii = v.wafer_id;
@@ -1165,6 +1222,7 @@ function dataCompareRenderData(currentPage){
 		   					'<td class="device_number" data-itext="'+v.device_number+'">'+v.device_number+'</td>'+
 		   					'<td class="lot_number" data-itext="'+v.lot_number+'">'+v.lot_number+'</td>'+
 		   					'<td class="wafer_number" data-itext="'+v.wafer_number+'">'+v.wafer_number+'</td>'+
+		   					'<td class="die_type" data-itext="'+v.die_type+'">'+v.die_type+'</td>'+
 		   					'<td class="qualified_rate" data-itext="'+v.qualified_rate+'">'+v.qualified_rate+'</td>'+
 		   					'<td class="test_end_date" data-itext="'+v.test_end_date+'">'+v.test_end_date+'</td>'+
 		   					'<td class="test_operator" data-itext="'+test_operator+'">'+test_operator+'</td>'+
@@ -1575,22 +1633,17 @@ $(window).on("resize", function(){
 
 /*page onload*/
 $(function(){
+	//兼容IE下样式
+	if(_.isEqual(_.toUpper(eouluGlobal.S_getBrowserType()[0]), "IE") || _.isEqual(_.toUpper(eouluGlobal.S_getBrowserType()[0]), "IE11")){
+		var wrap_width = $(".g_body").width();
+		$(".g_bodyin_bodyin_top,.g_bodyin_bodyin_top_wrap,.g_bodyin_bodyin_bottom,.body_div,.home_dataCompare").width(wrap_width);
+	}
+	
 	/*判断权限*/
 	eouluGlobal.C_pageAuthorityCommonHandler({
 		authorityJQDomMap: _.cloneDeep({
 			"管理员": [$('.g_info_r  .AdminOperat')],
 		}),
-		/*callback: function(){
-			$(".g_bodyin_bodyin_tit_l>img:visible").each(function(i, el){
-				if(i>0) $(el).css("margin-left", "15px");
-				if($(el).is("[data-iicon='glyphicon-trash']")) $(el).css("margin-left", "12px");
-			});
-			$(".g_bodyin_bodyin_body tbody>tr").each(function(i, el){
-				$(el).find("td.operate_othertd img:visible").each(function(ii, ele){
-					if(ii>0) $(ele).css("margin-left", "5px");
-				});
-			});
-		}*/
 	});
 	/*判断权限end*/
 	
@@ -1672,13 +1725,80 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 }).on("mouseout", ".home_dataCompare_top td", function(){
 	$(this).removeClass("warning").parent().removeClass("info");
 }).on("click", ".home_dataCompare_top td", function(){
-	$(this).parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !$(this).parent().find("[type='checkbox']").prop("checked")).change();
+	var that = $(this);
+	var ID = that.parent().find("input[type='checkbox']").data("ivalue").toString();
+	$.ajax({
+	       url: 'Examine', 
+	       type: 'GET',
+	       data: {
+	    	   waferId : ID ,
+	       },
+	       dataType: 'json',
+	       success: function (data) {
+	    	   if(!data){
+	     		   dataCompareSwalMixin({
+	    	    			title: '提示',
+	    	    			text: "无数据，不能访问",
+	    	    			type: 'warning',
+	    	    			showConfirmButton: false,
+	    	    			timer: 2000,
+	    	    		});
+	     		   return false;
+	     	   }
+	    	   else{
+	    		   that.parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !that.parent().find("[type='checkbox']").prop("checked")).change();
+	    	   }
+	       },
+	       error: function (data, status, e) {
+	    	   dataCompareSwalMixin({
+	    			title: '异常',
+	    			text: "服务器繁忙！",
+	    			type: 'error',
+	    			showConfirmButton: false,
+	    			timer: 2000,
+	    		})
+	       }
+	  });
 }).on("click", ".home_dataCompare_top tbody [type='checkbox']", function(e){
 	e.stopPropagation();
 	$(this).parent().parent().toggleClass("warning info");
 }).on("change", ".home_dataCompare_top tbody [type='checkbox']", function(){
 	var ID = $(this).data("ivalue").toString();
+	var curDataExamine = true;
+	console.log('$(this).prop("checked")',$(this).prop("checked"));
 	if($(this).prop("checked")){
+		$.ajax({
+		       url: 'Examine', 
+		       type: 'GET',
+		       data: {
+		    	   waferId : ID ,
+		       },
+		       dataType: 'json',
+		       async : false ,
+		       success: function (data) {
+		    	   curDataExamine = data;
+		       },
+		       error: function (data, status, e) {
+		    	   dataCompareSwalMixin({
+		    			title: '异常',
+		    			text: "服务器繁忙！",
+		    			type: 'error',
+		    			showConfirmButton: false,
+		    			timer: 2000,
+		    		})
+		       }
+		  });
+		 if(!curDataExamine){
+			$(this).prop("checked",false);
+   		    dataCompareSwalMixin({
+  	    			title: '提示',
+  	    			text: "无数据，不能访问",
+  	    			type: 'warning',
+  	    			showConfirmButton: false,
+  	    			timer: 2000,
+  	    		});
+   		    return false;
+   	    }
 		dataCompareState.sellectObj.selectItem.push(ID);
 		if(dataCompareState.searchObj.hasSearch) dataCompareState.sellectObj.selectSearchItem.push(ID);
 		$(".home_dataCompare_bottom tbody>tr [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
@@ -1724,6 +1844,7 @@ $("#checkAll").on({
 						'<td data-itext="'+select_tr.eq(i).find(".device_number").text()+'">'+select_tr.eq(i).find(".device_number").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".lot_number").text()+'">'+select_tr.eq(i).find(".lot_number").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".wafer_number").text()+'">'+select_tr.eq(i).find(".wafer_number").text()+'</td>'+
+						'<td data-itext="'+select_tr.eq(i).find(".die_type").text()+'">'+select_tr.eq(i).find(".die_type").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".qualified_rate").text()+'">'+select_tr.eq(i).find(".qualified_rate").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".test_end_date").text()+'">'+select_tr.eq(i).find(".test_end_date").text()+'</td>'+
 						'<td data-itext="'+select_tr.eq(i).find(".test_operator").text()+'">'+select_tr.eq(i).find(".test_operator").text()+'</td>'+

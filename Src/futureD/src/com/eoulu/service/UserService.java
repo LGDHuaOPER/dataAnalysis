@@ -130,5 +130,8 @@ public interface UserService {
 	 boolean updatePassword(String password,String userName);
 	 
 	 String getAuthorityId();
+	 
+	  int getRoleId(int userId);
+	   boolean updateAuthority(int userId);
 
 }

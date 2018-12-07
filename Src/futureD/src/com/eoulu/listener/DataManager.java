@@ -16,6 +16,7 @@ import com.eoulu.service.LogService;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
+import com.eoulu.util.DataBaseUtil;
 
 /**
  * Application Lifecycle Listener implementation class DataManager
@@ -35,6 +36,7 @@ public class DataManager implements ServletContextListener {
      * @see ServletContextListener#contextDestroyed(ServletContextEvent)
      */
     public void contextDestroyed(ServletContextEvent arg0)  { 
+//    	 new  DataBaseUtil().close();
     	
     }
 

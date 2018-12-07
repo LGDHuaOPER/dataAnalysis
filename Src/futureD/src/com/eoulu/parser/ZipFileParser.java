@@ -90,7 +90,7 @@ public class ZipFileParser {
 		if(filePath.endsWith(".rar")){
 			file1 = FileUtil.unRar(filePath, temp + "\\" + filename2);
 		}
-		System.out.println(file1.getName());
+//		System.out.println(file1.getName());
 //		if ("0".equals(dataFormat)) {
 //			resultMap.put("flag", false);
 //			
@@ -348,7 +348,7 @@ public class ZipFileParser {
 	// 判断问题CSV
 	public static String getReturn(String filename, String status) {
 		String name = "";
-		System.out.println("status:"+status);
+//		System.out.println("status:"+status);
 		switch (status) {
 		case "上传失败，目标文件内容有误！":
 			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(内容有误)";
@@ -446,7 +446,7 @@ public class ZipFileParser {
 			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(FlatLength为空)";
 			break;
 		default:
-			if(status.contains("曲线")){
+			if(status.contains("文件夹")){
 				name = status;
 			}else{
 				name = filename+status;
@@ -822,7 +822,7 @@ public class ZipFileParser {
 			String Min[] = null;
 			for(int i=Limitnum,j=0;i<TesterWaferSerialIDnum-1;i=i+2,j++){
 				Min=filelist.get(i).split(",");
-				System.out.println("Min:"+Arrays.toString(Min));
+//				System.out.println("Min:"+Arrays.toString(Min));
 				resultmap.put(j, Min[5]);
 			}
 			return resultmap;
@@ -917,11 +917,12 @@ public class ZipFileParser {
 					diexdiey = s.split(",");
 					diexy = diexdiey[1] + "," + diexdiey[2];
 					if (s.contains("ToBeProbed") || s.contains("ToInked")) {
-						str = diexy+","+dieno+",0,12,"+diexdiey[5];
+						str = diexy+",5000,"+diexdiey[5]+","+dieno+",0,0";
 						validation .put(diexy, str);
 					} else{
 						//存无效die
-						str = diexy +","+dieno + ",0,-1,0" ;
+//						str = diexy +","+dieno + ",0,-1,0" ;
+						str = diexy+",-1,"+diexdiey[5]+","+dieno+",0,0";
 						removedList.add(str);
 					}
 				}

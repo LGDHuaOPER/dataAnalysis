@@ -191,6 +191,22 @@ public class UserServiceImpl implements UserService{
 		}
 		return authority;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.eoulu.service.UserService#getRoleId(int)
+	 */
+	@Override
+	public int getRoleId(int userId) {
+		return new RoleDao().getRoleId(userId);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.eoulu.service.UserService#updateAuthority(int)
+	 */
+	@Override
+	public boolean updateAuthority(int userId) {
+		return dao.updateAuthority(userId);
+	}
 	
 	
 

@@ -245,7 +245,14 @@ span.glyphicon, img[data-iicon] {
 .operaDailyLog_body {
 	height: calc(100 - 48px);
 }
-
+.log_description{
+	width:456px;
+	min-width:100px;
+	max-width:456px;
+	overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap
+} 
 /* 表格一般樣式開始 */
 .operaDailyLog_body table {
 	margin-top: 10px;

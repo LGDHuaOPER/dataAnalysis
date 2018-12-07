@@ -67,6 +67,7 @@ public class UserOperate extends HttpServlet {
 		user.setTelephone(telephone);
 		user.setEmail(email);
 		user.setRoleId(roleId);
+		System.out.println();
 		if(roleId == 0){
 			response.getWriter().write(new Gson().toJson("角色不能为空！"));
 			return;
@@ -84,15 +85,33 @@ public class UserOperate extends HttpServlet {
 		}else{
 			result = service.updateUser(user)?"修改成功！":"修改失败！";
 		}
-		String description = "";
+		String description = "",currentUser = request.getSession().getAttribute("userName").toString();
 		if("添加成功！".equals(result)){
 			description = "创建用户"+userName;
 		}
 		if("修改成功！".equals(result)){
 			description = "修改用户"+userName+"的信息";
+			
+			
+			if(roleId == 1){
+				service.updateAuthority(userId);
+			}
+			if(userName.equals(currentUser)){//管理员给自己降等
+//				String currId = service.getUserId(currentUser);
+//				int curRole = service.getRoleId("".equals(currId)?0:Integer.parseInt(currId));
+//				System.out.println("currId:"+currId);
+//				if(curRole ==2 && curRole != roleId){
+//					service.updateAuthority("".equals(currId)?0:Integer.parseInt(currId));
+//					System.out.println("currId:"+currId);
+//				}
+				List<String> userAuthority = service.getAuthority(userName);
+				request.getSession().setAttribute("userAuthority", userAuthority);
+				
+			}
 		}
 		
 		new LogServiceImpl().insertLog(request.getSession().getAttribute("userName").toString(), "管理员", description, request.getSession());
+		
 		response.getWriter().write(new Gson().toJson(result));
 		
 	}

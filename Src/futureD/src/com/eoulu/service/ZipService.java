@@ -100,20 +100,28 @@ public class ZipService {
 			Map<Integer, Object> dietypeName, List<String> mapparameters, String waferNumber,Map<String,Object> dieMap) {
 		List<String> invalidationList = (List<String>) dieMap.get("invalidation");
 		Map<String,String> validList = (Map<String, String>) dieMap.get("validation");
-		System.out.println(invalidationList.size()+"===validList"+validList.size());
+//		System.out.println(invalidationList.size()+"===validList"+validList.size());
 		String key = "",value = "";
+		String attCsv[] = null,attMap[] = null;
 		for(int m = datanum;m < filelist.size();m++){
-			String data[] = filelist.get(m).split(",");
-			key = data[0]+","+data[1];
+			attCsv = filelist.get(m).split(",");
+			key = attCsv[0]+","+attCsv[1];
 			if(validList.containsKey(key)){
 				value = validList.get(key);
+				attMap = value.split(",");
+				if("-1".equals(attCsv[2])){
+					attCsv[2] = attMap[2];
+				}
+				filelist.set(m, String.join(",", attCsv));
 				validList.remove(key);
 			}
+			
 		}
 		for(String diexy:validList.keySet()){
 			value = validList.get(diexy);
 			filelist.add(value);
 		}
+//		System.out.println("value:"+value);
 		for(String str:invalidationList){
 			filelist.add(str);
 		}
@@ -130,15 +138,16 @@ public class ZipService {
 		Object[] subdieInfo = null;
 		try {
 			for (int m = datanum; m < filelist.size(); m++) {
-				String data[] = filelist.get(m).split(",");
+				String data[] = filelist.get(m).split(",");//x,y,bin,dieType,dieNO,subdieNo,testTime
 				if (m == datanum) {
 					paramLength = data.length;
 					for (int j = 7; j < data.length; j++) {
 					column += ",C" + (j - 6);
 					columnStr += ",?";
 					}
-					System.out.println("data:"+Arrays.toString(data));
+					
 				}
+//				System.out.println("data:"+Arrays.toString(data));
 				obj = new Object[paramLength];
 				if (data.length == 0)
 					continue;
@@ -204,8 +213,8 @@ public class ZipService {
 									&& Double.parseDouble(data[j]) <= upperAndLowerLimit.get(j - 7).get("upper")));
 					str += "," + bin;
 				}
-				if(data.length<8){
-					obj[5] = data[4];
+				if(data.length == 7){
+					obj[5] = data[2];
 				}else{
 					obj[5] = str.contains("false") ? "255" : "1";
 				}
@@ -226,7 +235,7 @@ public class ZipService {
 		System.out.println("长度:"+list.size());
 		System.out.println("waferId:"+waferId);
 		status = coordinate.insertCoordinate(conn, list, column, columnStr);
-
+		
 		return status;
 	}
 
@@ -249,7 +258,7 @@ public class ZipService {
 			table = null;
 		}
 		table = new Hashtable<>();
-		System.out.println("subdie.size():"+Arrays.toString(subdie.get(0)));
+//		System.out.println("subdie.size():"+Arrays.toString(subdie.get(0)));
 		for (int i = 0, size = subdie.size(); i < size; i++) {
 			subdieInfo = subdie.get(i);
 			dieNO = subdieInfo[0].toString();
@@ -287,7 +296,7 @@ public class ZipService {
 	 */
 
 	public String insertCurve(Connection conn, String file,DataBaseUtil db) {
-		System.out.println("读到了么：" + file);
+//		System.out.println("读到了么：" + file);
 		long time0 = System.currentTimeMillis();
 		// 曲线文件夹名字与CSV文件名字相同
 		file = file.substring(0, file.lastIndexOf("."));
@@ -320,7 +329,7 @@ public class ZipService {
 						fileName = name.substring(0, curve.getName().indexOf(".")).split("_");
 					}
 					if (fileName.length < 3 || fileName[0].contains("_") || fileName[0].contains("-") || fileName[1].contains("_") || fileName[1].contains("-")) {
-						System.out.println("curveType:"+curveType+"----"+name);
+//						System.out.println("curveType:"+curveType+"----"+name);
 						status = curveType+"文件夹下的"+name+"文件名格式有误！";
 						return status;
 					}
@@ -382,6 +391,21 @@ public class ZipService {
 			
 		}
 		System.out.println(map);
+		
+		List<String> ls = new ArrayList<>();
+		ls.add("12");
+		ls.add("wer");
+		for(int i=0,size=ls.size();i<size;i++){
+			
+		}
+		ls.set(1, "agshflk");
+		System.out.println(ls);
+		
+		String att[] = new String[]{"12","asd","78"};
+		att[2] = "vb";
+		System.out.println(Arrays.toString(att));
+		System.out.println(String.join(",", att));
+		
 	}
 
 	/**

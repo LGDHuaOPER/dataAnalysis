@@ -185,7 +185,7 @@ function dataListSwalMixin(obj){
   	eouluGlobal.S_getSwalMixin()({
 	 	title: obj.title,
 	 	text: obj.text,
-	 	/*html: '',*/
+	 	html: obj.html,
 	 	type: obj.type || "info",
 	 	showConfirmButton: obj.showConfirmButton || false,
 		timer: obj.timer,
@@ -622,10 +622,19 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 				data = _.toString(data).replace(/^"/, "").replace(/"$/, "");
 				console.log(data)
 				console.log(typeof data)
+				var imess_text,
+				imess_html;
+				if(data.indexOf("文件夹") > -1){
+					imess_html = '<div class="container-fluid">'+data+'<div><img src="assets/img/modules/dataList/fileSuffix.png" /></div></div>';
+					imess_text = void(0);
+				}else{
+					imess_text = data;
+					imess_html = void(0);
+				}
 				dataListSwalMixin({
 					title: "添加提示",
-					// html: data,
-					text: data,
+					html: imess_html,
+					text: imess_text,
 					timer: 10000,
 					showConfirmButton: true,
 					callback: function(){
@@ -1094,7 +1103,7 @@ $(document).on("click", ".operate_othertd [data-iicon='glyphicon-eye-open']", fu
 		}else if(data === false){
 			dataListSwalMixin({
 				title: "查看详细信息提示",
-				text: "无数据，不能访问",
+				text: "无被测Die数据，不能访问",
 				type: "warning",
 				timer: 2000,
 				callback: null

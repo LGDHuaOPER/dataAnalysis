@@ -20,7 +20,10 @@
 	<link rel="stylesheet" href="assets/style/libs/pagination.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="src/style/modules/admin/admin.css" type="text/css">
+	
+	<!--压缩  -->
+	<!-- <link rel="stylesheet" href="src/style/modules/admin/admin.css" type="text/css">  -->
+	<link rel="stylesheet" href="dist/style/modules/admin/admin.css" type="text/css"> 
 	
 </head>
 <body data-curpage="admin" data-curusername="${userName}" data-userauthority="${userAuthority}">
@@ -339,6 +342,9 @@
 	<script src="src/script/modules/common/futureD_config.js"></script>
 	<!-- <script src="assets/script/common/mock.js"></script> -->
 	<script src="src/script/modules/common/globalConf.js"></script>
-	<script src="src/script/modules/admin/admin.js"></script>
+	
+	<!--压缩  -->
+	 <!-- <script src="src/script/modules/admin/admin.js"></script>  -->
+	 <script src="dist/script/modules/admin/admin.js"></script> 
 </body>
 </html>

@@ -42,7 +42,7 @@ public class YieldServiceImpl implements YieldService{
 			waferId = Integer.parseInt(att[j]);
 			if(left == Double.NaN || right == Double.NaN){
 				yield = 1;
-				System.out.println("总么会");
+//				System.out.println("总么会");
 			}else{
 				yield = wafer.getYield(conn, waferId);
 			}
@@ -56,12 +56,12 @@ public class YieldServiceImpl implements YieldService{
 			for(int j=0,length=att.length;j<length;j++){
 				waferId = Integer.parseInt(att[j]);
 				ls = yieldDao.getUpperAndLowerLimit(waferId, parameter, conn);
-				System.out.println("ls:"+ls);
+//				System.out.println("ls:"+ls);
 				right = ls.get(1);
 				left = ls.get(0);
-				if(left == Double.NaN || right == Double.NaN){
+				if(Double.isNaN(left) || Double.isNaN(right)){
 					yield = 1;
-					System.out.println("总么会");
+//					System.out.println("总么会");
 				}else{
 					column = dao.getParameterColumn(conn, waferId, parameter);
 					yield = wafer.getYieldPerParameter(conn, waferId, right+"", left+"", column);
@@ -94,7 +94,7 @@ public class YieldServiceImpl implements YieldService{
 			for (int i = 0, length = waferAtt.length; i < length; i++) {
 				waferId = Integer.parseInt(waferAtt[i]);
 				limit = yieldDao.getUpperAndLowerLimit(waferId, paramList.get(j), conn);
-				if(limit.get(1) == Double.NaN || limit.get(0) == Double.NaN){
+				if( Double.isNaN(limit.get(1)) ||  Double.isNaN(limit.get(0))){
 					column = dao.getParameterColumn(conn, waferId, paramList.get(j));
 					list = dao.getRangeByColumn(conn, waferId, column);
 					right = list.get(0)>right?list.get(0):right;

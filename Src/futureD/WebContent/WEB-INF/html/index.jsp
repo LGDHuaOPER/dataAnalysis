@@ -20,7 +20,8 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<!-- 变 -->
-	<link rel="stylesheet" href="src/style/modules/index/index.css" type="text/css">
+	<link rel="stylesheet" href="dist/style/modules/index/index.css" type="text/css">
+	<!-- <link rel="stylesheet" href="src/style/modules/index/index.css" type="text/css"> -->
 </head>
 <body data-curpage="index" data-curusername="${userName}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -56,7 +57,7 @@
 					<div class="g_bodyin_bodyin_tit bootstro" data-bootstro-title="系统主页面引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>欢迎词</h4><p>这里显示您的用户名和欢迎词</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1">${userName}，您好！欢迎使用futureD数据管理与分析系统</div>
 					<div class="g_bodyin_bodyin_body">
 						<div class="container-fluid">
-							<div class="row bootstro" data-bootstro-title="系统主页面引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>各功能模块入口</h4><p>这里是各功能模块的入口，点击可以进入各模块</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
+							<div class="row bootstro" data-bootstro-title="系统主页面引导：第三步" data-bootstro-content="<div class='well well-sm'><h4>各功能模块入口</h4><p>这里是各功能模块的入口，点击可以进入各模块（如果有权限）</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="2">
 								<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 									<div class="section_in">
 										<div class="thumbnail" data-ipage="DataList">
@@ -107,8 +108,11 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
+	<script src="dist/script/modules/index/index.js"></script>
+	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
-	<script src="src/script/modules/index/index.js"></script>
+	<script src="src/script/modules/index/index.js"></script> -->
 </body>
 </html>

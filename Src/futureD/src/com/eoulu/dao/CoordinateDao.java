@@ -326,7 +326,7 @@ public class CoordinateDao {
 			int num=0,qualified=0;
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
-				if(rs.getInt(3)!=-1 && rs.getInt(3)!=12) {
+				if(rs.getInt(3)!=-1 && rs.getInt(3)!=5000) {
 					num++;
 					if(rs.getInt(3)==1) {
 						qualified++;
@@ -338,7 +338,12 @@ public class CoordinateDao {
 			wafer.setCurrentDieList(map);
 			wafer.setQualify(qualified);
 			wafer.setUnqulify(num-qualified);
-			wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			if(num == 0 || qualified == 0){
+				wafer.setYield("0.0%");
+			}else{
+				wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -359,7 +364,7 @@ public class CoordinateDao {
 				if(rs.getInt(3) == -1){
 					result.put(rs.getInt(1)+":"+rs.getInt(2), rs.getInt(3));
 				}else{
-					result.put(rs.getInt(1)+":"+rs.getInt(2), 12);
+					result.put(rs.getInt(1)+":"+rs.getInt(2), 5001);
 				}
 				
 			}
@@ -385,7 +390,7 @@ public class CoordinateDao {
 			int num=0,qualified=0;
 			while(rs.next()){
 				int bin = rs.getInt(3);//
-				if(rs.getInt(3)!=-1 && rs.getInt(3)!=12) {
+				if(rs.getInt(3)!=-1 && rs.getInt(3)!=5000) {
 					num++;
 					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=uppper){
 						bin=1;
@@ -399,7 +404,12 @@ public class CoordinateDao {
 			wafer.setCurrentDieList(result);
 			wafer.setQualify(qualified);
 			wafer.setUnqulify(num-qualified);
-			wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			if(num == 0 || qualified == 0){
+				wafer.setYield("0.0%");
+			}else{
+				wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -425,7 +435,7 @@ public class CoordinateDao {
 				+ "when "+column+" between "+lower+" and "+upper+" then concat(round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'','%') "
 				+ "when "+column+" > "+multipleMin+" and "+column+" <= "+lower+" then concat('-',round(abs("+condition+"-abs("+lower+"))/"+interval+"*100,2),'%')  "
 				+ "else '-100%' end ) percent "
-				+ " from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by "+column+" desc";
+				+ " from dm_wafer_coordinate_data where wafer_id=?  order by "+column+" desc";
 		Map<String,Object> result = new HashMap<>();
 		Map<String,Object> colorMap = new HashMap<>();
 		PreparedStatement ps;
@@ -439,7 +449,7 @@ public class CoordinateDao {
 				int bin = rs.getInt(3);//
 				percent = rs.getString(5);
 				colorMap = new HashMap<>();
-				if(rs.getInt(3)!=-1 && rs.getInt(3)!=12) {
+				if(rs.getInt(3)!=-1 && rs.getInt(3)!=5000) {
 					num++;
 					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=upper){
 						bin=1;
@@ -447,16 +457,20 @@ public class CoordinateDao {
 					}else {
 						bin=255;
 					}
-					
+					colorMap.put("percent", percent);
 				}
 				colorMap.put("bin", bin);
-				colorMap.put("percent", percent);
 				result.put(rs.getInt(1)+":"+rs.getInt(2), colorMap);
 			}
 			wafer.setCurrentDieList(result);
 			wafer.setQualify(qualified);
-			wafer.setUnqulify(num-qualified);;
-			wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			wafer.setUnqulify(num-qualified);
+			if(num == 0 || qualified == 0){
+				wafer.setYield("0.0%");
+			}else{
+				wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -530,7 +544,12 @@ public class CoordinateDao {
 			wafer.setCurrentDieList(map);
 			wafer.setQualify(qualified);
 			wafer.setUnqulify(num-qualified);
-			wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			if(num == 0 || qualified == 0){
+				wafer.setYield("0.0%");
+			}else{
+				wafer.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

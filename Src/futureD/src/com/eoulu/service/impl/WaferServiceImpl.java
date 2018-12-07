@@ -98,6 +98,8 @@ public class WaferServiceImpl implements WaferService {
 		ParameterDao parameterDao = new ParameterDao();
 		ZipFileParser util = new ZipFileParser();
 		CoordinateDao coordinate = new CoordinateDao();
+		ExcelParser excel = new ExcelParser();
+		ExcelService excelUtil = new ExcelService(dao, parameterDao, excel, coordinate);
 		ZipService zipUtil = new ZipService(dao, parameterDao, util, coordinate);
 		List<String> filelist = util.getFile(file);
 		Map<String, Object> messageMap = util.getMessage(filelist, productCategory),dieMap = null;
@@ -184,7 +186,7 @@ public class WaferServiceImpl implements WaferService {
 			wafer.setLastModified(lastModified);
 			Map<String, List<Object[]>> parameterList = util.getParameter(filelist, datanum, testerWaferSerialIDnum,
 					limitnum, dieTypeList);
-			System.out.println(new Gson().toJson(parameterList));
+//			System.out.println(new Gson().toJson(parameterList));
 			status = zipUtil.saveWaferInfo(conn,  wafer, parameterList,tester,totalTestTime);
 			if (!"success".equals(status)) {
 				conn.rollback();
@@ -211,11 +213,13 @@ public class WaferServiceImpl implements WaferService {
 				return status;
 			}
 			System.out.println("die:"+status);
+			status = excelUtil.updateYield(conn, dieTypeList, waferID);
 			status = zipUtil.saveSubdie(conn, waferID);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;
 			}
+			
 			System.out.println("subdie:"+status);
 			status = zipUtil.insertCurve(conn, file,db);
 			if (!"success".equals(status)) {
@@ -241,7 +245,7 @@ public class WaferServiceImpl implements WaferService {
 				e1.printStackTrace();
 			}
 		}
-		System.out.println("end==="+status);
+//		System.out.println("end==="+status);
 		return status;
 	}
 
@@ -255,7 +259,7 @@ public class WaferServiceImpl implements WaferService {
 		WaferDao dao = new WaferDao();
 		ExcelService excelUtil = new ExcelService(dao, parameterDao, excel, coordinate);
 		String status = "";
-		System.out.println("operator:"+map.get("operator"));
+//		System.out.println("operator:"+map.get("operator"));
 		String operator = map.get("operator") == null ? "" : map.get("operator").toString(), tester = operator,
 				currentUser = map.get("currentUser") == null ? "" : map.get("currentUser").toString(),
 				computerName = map.get("computerName") == null ? "" : map.get("computerName").toString(),
@@ -272,7 +276,7 @@ public class WaferServiceImpl implements WaferService {
 		try {
 			UserDao userDao = new UserDao();
 			operator = userDao.getUserId(conn, operator);
-			System.out.println("operator:"+operator);
+//			System.out.println("operator:"+operator);
 			if ("".equals(operator)) {
 				UserDO user = new UserDO();
 				user.setUserName(tester);
@@ -287,7 +291,7 @@ public class WaferServiceImpl implements WaferService {
 					operator = userDao.getUserId(conn, operator);
 				}
 			}
-			System.out.println("operator:"+operator);
+//			System.out.println("operator:"+operator);
 			if (currentUser.equals(operator)) {
 				currentUser = operator;
 			} else {

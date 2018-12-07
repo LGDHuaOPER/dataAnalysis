@@ -135,6 +135,20 @@ public class ExcelService {
 		return "success";
 	}
 	
+	public String updateYield(Connection conn,List<String> typeList,String waferNO){
+		int waferId=0;
+		double yield = 0;
+		for(int i=0,size=typeList.size();i<size;i++){
+			waferId = dao.getWaferID(conn, waferNO, typeList.get(i));
+			yield = coordinate.getYield(conn, waferId)*100;
+			if(!dao.updateYield(conn, yield, waferId)){
+				return "良率计算失败！";
+			}
+//			System.out.println("id:"+waferId+"---yield:"+yield);
+		}
+		return "success";
+	}
+	
 	public int getBin(StringBuilder paramvalue,int waferId,Connection conn){
 		//按逗号分割paramvalue，获取参数结果
 		String[] paramvalues = paramvalue.toString().split(",");

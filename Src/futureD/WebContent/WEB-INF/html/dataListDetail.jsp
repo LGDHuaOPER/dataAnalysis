@@ -21,7 +21,8 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 	<!-- 变 -->
-	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
+	<link rel="stylesheet" href="dist/style/modules/dataListDetail/dataListDetail.css" type="text/css">
+	<!-- <link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css"> -->
 </head>
 <body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -56,14 +57,14 @@
 				<div class="g_bodyin_tit_r">
 					<div class="container-fluid">
 						<div class="row">
-							<div class="col-sm-12 col-md-7 col-lg-7">
+							<div class="col-sm-12 col-md-6 col-lg-6">
 								<ol class="breadcrumb">
 								  	<li><a href="HomeInterface">系统主页面</a></li>
 								  	<li><a href="DataList">数据列表</a></li>
 								  	<li class="active">详细信息</li>
 								</ol>
 							</div>
-							<div class="col-sm-12 col-md-5 col-lg-5 webParam">
+							<div class="col-sm-12 col-md-6 col-lg-6 webParam">
 							</div>
 						</div>
 					</div>
@@ -329,9 +330,13 @@
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
+	<script src="dist/script/modules/dataCompare/dataCompareRenderChart.js"></script>
+	<script src="dist/script/modules/dataListDetail/dataListDetail.js"></script>
+	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<script src="src/script/modules/dataListDetail/dataListDetail.js"></script>
+	<script src="src/script/modules/dataListDetail/dataListDetail.js"></script> -->
 </body>
 </html>

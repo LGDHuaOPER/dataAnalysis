@@ -42,7 +42,7 @@ public class BoxPlotDao {
 					column = rs.getString(1);
 				}
 				if(!"".equals(column)){
-					sql2 = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and bin<>-1";
+					sql2 = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and  (bin=1 or bin=255)";
 					ps2 = conn.prepareStatement(sql2);
 					ps2.setInt(1,Integer.parseInt(waferIdStr[i]));
 					rs2 = ps2.executeQuery();

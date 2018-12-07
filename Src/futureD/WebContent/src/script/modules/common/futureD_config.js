@@ -34,7 +34,8 @@
         curPageJudgedAuthority: null,
         pageAllConfig: {
             "futureDT2": {
-                canUseAjax: false
+                canUseAjax: false,
+                scrollBarWidth: 7
             }
         },
         RegExpList: {
@@ -336,6 +337,18 @@
         // },
         C_setProjectName: function(str){
             _DefaultParam.projectName = str;
+            return this;
+        },
+        C_setPageAllConfig: function(obj){
+            var classify = obj.classify || "signal",
+            value = _.isNil(obj.value) ? null : obj.value,
+            path = _.isNil(obj.path) ? "other" : obj.path;
+            if(!_.isEqual(classify, "signal")){
+                _DefaultParam.pageAllConfig = value;
+            }else{
+                if(_.isNil(_DefaultParam.pageAllConfig)) _DefaultParam.pageAllConfig = {};
+                _.set(_DefaultParam.pageAllConfig, path, value);
+            }
             return this;
         },
         C_setCurUserName: function(str){

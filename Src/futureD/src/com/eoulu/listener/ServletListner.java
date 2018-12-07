@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 import com.eoulu.action.version.LoadVersion;
 import com.eoulu.action.version.Version;
@@ -19,6 +20,7 @@ import com.eoulu.action.version.VersionRecord;
  *
  * 
  */
+@WebListener
 public class ServletListner implements ServletContextListener{
 
 	/* (non-Javadoc)

@@ -42,12 +42,12 @@ public class LoginFilter implements Filter{
 //		System.out.println("currentURL:"+currentURL);
 		HttpSession session = request.getSession(false);
 			if(FilterResource.isExist(request)){
-				System.out.println(111);
+//				System.out.println(111);
 				chain.doFilter(request, response);
 			}else
 			if (session == null || session.getAttribute("userName") == null) {
 				// 如果session为空表示用户没有登陆就重定向到login.jsp页面
-				System.out.println("request.getContextPath()=" + request.getContextPath());
+//				System.out.println("request.getContextPath()=" + request.getContextPath());
 //				response.sendRedirect(request.getContextPath() + "/Login/login.jsp");
 				request.getRequestDispatcher("/IndexInterface").forward(request, response);
 				return;  

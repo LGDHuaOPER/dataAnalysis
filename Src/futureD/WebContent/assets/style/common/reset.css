@@ -90,3 +90,7 @@ textarea {
 table tbody>tr.warning td {
 	background-color: #ebf3fd !important;
 }
+
+.g_info_r .Information,.g_info_r .AdminOperat{
+	cursor:pointer;
+}

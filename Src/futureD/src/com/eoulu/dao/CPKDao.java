@@ -36,7 +36,7 @@ public class CPKDao {
 		try {
 			for (int i = 0; i < size; i++) {
 				Map<String, Object> map = new HashMap<String,Object>();
-				String sql1 = "select avg(" + column + ") from dm_wafer_coordinate_data where wafer_id=? and " + column
+				String sql1 = "select avg(" + column + ") from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) and " + column
 						+ " is not null and " + column + " < 9E30 and bin <>-1 limit ?,?";
 				PreparedStatement ps1;
 				ps1 = conn.prepareStatement(sql1);
@@ -47,7 +47,7 @@ public class CPKDao {
 				while (rs1.next()) {
 					map.put("avg", rs1.getDouble(1));
 				}
-				String sql2 = "select " + column + " from dm_wafer_coordinate_data where wafer_id=? and " + column
+				String sql2 = "select " + column + " from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)  and " + column
 						+ " is not null and " + column + " < 9E30 and bin <>-1 limit ?,?";
 				PreparedStatement ps2 = conn.prepareStatement(sql2);
 				ps2.setInt(1, waferId);

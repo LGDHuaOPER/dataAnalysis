@@ -179,7 +179,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			}
 			param = new Object[]{waferId};
 			String column = paramDao.getMaxColumn(conn,param);
-			System.out.println("column:"+column);
+//			System.out.println("column:"+column);
 			column = "C"+(Integer.parseInt(column.substring(1))+1);
 			param = new Object[]{waferId,parameter,column};
 			flag = paramDao.insertCustomParameter(conn,param);
@@ -221,7 +221,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					return flag;
 				}
 			}
-			System.out.println(flag);
+//			System.out.println(flag);
 			param = new Object[]{waferId};
 			String column = paramDao.getColumnByName(conn, oldParam, waferId);
 			if(!oldParam.equals(customParam)){

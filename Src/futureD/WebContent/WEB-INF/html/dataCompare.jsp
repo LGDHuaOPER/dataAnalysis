@@ -20,7 +20,11 @@
 	<link rel="stylesheet" href="assets/style/libs/pagination.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
+	
+	<!--压缩文件  -->
+	<!-- <link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css"> -->
+	<link rel="stylesheet" href="dist/style/modules/dataCompare/dataCompare.css" type="text/css">
+	
 </head>
 <body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" >
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -103,6 +107,7 @@
 						    							<th>设备/产品类型</th>
 						    							<th>批次编号</th>
 						    							<th>晶圆编号</th>
+						    							<th>器件类型</th>
 						    							<th>合格率</th>
 						    							<th>测试时间</th>
 						    							<th>上传者</th>
@@ -128,6 +133,7 @@
 						    						<th>设备/产品类型</th>
 						    						<th>批次编号</th>
 						    						<th>晶圆编号</th>
+						    						<th>器件类型</th>
 						    						<th>合格率</th>
 						    						<th title="双击全部删除" class="home_dataCompare_bottom_del_all">删除选中</th>
 						    					</thead>
@@ -285,7 +291,7 @@
 	<script src="assets/script/libs/moment-with-locales.min.js"></script>
 	<script src="assets/script/libs/sweetalert2.min.js"></script>
 	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="assets/script/libs/pagination.min.js"></script>
+	<script src="assets/script/libs/pagination.min.js"></script> 
 	<script src="assets/script/libs/newhighcharts.js"></script>	
 	<script src="assets/script/libs/highcharts-axis-arrow.js"></script>
 	<script src="assets/script/libs/highcharts-more.js"></script>
@@ -294,9 +300,16 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	<script src="assets/script/libs/drawWaferMap.js"></script>
-	<script src="src/script/modules/common/futureD_config.js"></script>
+	
+	<!--压缩文件  -->
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/dataCompare/dataCompareRenderChart.js"></script>
+	<script src="dist/script/modules/dataCompare/dataCompare.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
+	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
-	<script src="src/script/modules/common/globalConf.js"></script>
+	<script src="src/script/modules/common/globalConf.js"></script> -->
+	<!-- <script src="src/script/modules/dataCompare/dataCompare.js"></script> -->
 </body>
 </html>

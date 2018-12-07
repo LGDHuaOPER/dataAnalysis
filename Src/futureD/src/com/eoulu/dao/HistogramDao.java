@@ -69,7 +69,7 @@ public class HistogramDao {
 	
 	
 	public int getQuantity(Connection conn,int waferId,String condition){
-		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=?  " + condition;
+		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) " + condition;
 		Object result = db.queryResult(conn, sql, new Object[]{waferId});
 		return result == null?0:Integer.parseInt(result.toString());
 	}

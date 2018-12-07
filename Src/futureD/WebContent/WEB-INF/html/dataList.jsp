@@ -23,7 +23,8 @@
 	<link rel="stylesheet" href="assets/style/libs/awesomplete_all.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/common/futureDT2AddUpdate.css" type="text/css">
 	<!-- 变 -->
-	<link rel="stylesheet" href="src/style/modules/dataList/dataList.css" type="text/css">
+	<link rel="stylesheet" href="dist/style/modules/dataList/dataList.css" type="text/css">
+	<!-- <link rel="stylesheet" href="src/style/modules/dataList/dataList.css" type="text/css"> -->
 </head>
 <body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -88,6 +89,7 @@
 									<th>产品名称</th>
 									<th>批次编号</th>
 									<th>晶圆编号</th>
+									<th>器件类型</th>
 									<th>良品率</th>
 									<th>测试完成时间</th>
 									<th>测试员</th>
@@ -95,7 +97,6 @@
 									<th>操作</th>
 									<th class="hide">产品类别</th>
 									<th class="hide">数据格式</th>
-									<th class="hide">器件类型</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -107,6 +108,7 @@
 										<!-- 批次编号 -->
 										<td class="lot_number_td" data-ivalue="${waferListItem['lot_number']}" title="${waferListItem['lot_number']}">${waferListItem['lot_number']}</td>
 										<td class="wafer_number_td" data-ivalue="${waferListItem['wafer_number']}" title="${waferListItem['wafer_number']}">${waferListItem['wafer_number']}</td>
+										<td class="die_type_td" data-ivalue="${waferListItem['die_type']}">${waferListItem['die_type']}</td>
 										<td class="qualified_rate_td" data-ivalue="${waferListItem['qualified_rate']}" title="${waferListItem['qualified_rate']}">${waferListItem['qualified_rate']}</td>
 										<td class="test_end_date_td" data-ivalue="${waferListItem['test_end_date']}" title="${waferListItem['test_end_date']}">${waferListItem['test_end_date']}</td>
 										<td class="test_operator_td" data-ivalue="${waferListItem['test_operator']}" title="${waferListItem['test_operator']}">${waferListItem['test_operator']}</td>
@@ -114,7 +116,6 @@
 										<td class="not_search operate_othertd"><img src="assets/img/common/update_24px.svg" data-iid="${waferListItem['wafer_id']}" data-iicon="glyphicon-edit" alt="修改" title="修改"><img src="assets/img/common/detail_24px.svg" data-iid="${waferListItem['wafer_id']}" data-iicon="glyphicon-eye-open" alt="详细信息" title="详细信息"><img src="assets/img/common/del_24px.svg" data-iid="${waferListItem['wafer_id']}" data-iicon="glyphicon-remove" alt="删除" title="删除"></td>
 										<td class="not_search product_category_td hide" data-ivalue="${waferListItem['product_category']}"></td>
 										<td class="not_search data_format_td hide" data-ivalue="${waferListItem['data_format']}"></td>
-										<td class="not_search die_type_td hide" data-ivalue="${waferListItem['die_type']}"></td>
 									</tr>
 								</c:forEach>
 							</tbody>
@@ -293,8 +294,11 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
+	<script src="dist/script/modules/dataList/dataList.js"></script>
+	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
-	<script src="src/script/modules/dataList/dataList.js"></script>
+	<script src="src/script/modules/dataList/dataList.js"></script> -->
 </body>
 </html>

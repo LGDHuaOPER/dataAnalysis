@@ -23,8 +23,19 @@
 		futureDURL = eouluGlobal.S_URLParser({
 			iurl: window.location.href
 		});
+		/*page preload*/
+		var ieCH = document.documentElement.clientHeight < 600 ? 600 : document.documentElement.clientHeight;
+		$("body").css({
+			"-ms-grid-rows": "40px "+(ieCH-40)+"px"
+		});
+		eouluGlobal.C_setPageAllConfig({path: "futureDT2.scrollBarWidth",value:17});
 	}else{
 		futureDURL = new URL(window.location.href);
+		if(_.isEqual(_.toUpper(eouluGlobal.S_getBrowser()[0]), "CHROME")){
+			eouluGlobal.C_setPageAllConfig({path: "futureDT2.scrollBarWidth",value:7});
+		}else{
+			eouluGlobal.C_setPageAllConfig({path: "futureDT2.scrollBarWidth",value:17});
+		}
 	}
 	if(/^\//.test(futureDURL.pathname)){
 		ProjectName = futureDURL.pathname.split("/")[1];
@@ -89,6 +100,7 @@
 
 	/*全局ajax和xhr请求拦截处理*/
 	jQuery.ajaxSetup({
+		cache: false,
 		beforeSend: function(XMLHttpReq){
             // XMLHttpReq.abort();
             console.warn("ajaxSetup, 局部事件beforeSend")

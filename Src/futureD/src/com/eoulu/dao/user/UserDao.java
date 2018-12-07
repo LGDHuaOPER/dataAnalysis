@@ -116,6 +116,13 @@ public class UserDao {
 		return db.operate(sql, param);
 	}
 	
+	public boolean updateAuthority(int userId){
+		String sql = "update dm_user set authority=replace(authority,',17','') where user_id="+userId,
+				sql2="update dm_user set authority=replace(authority,'17','') where user_id="+userId;
+	boolean flag = db.operate(sql, null),flag2 = db.operate(sql2, null);
+	System.out.println(flag+"--"+flag2);
+		return flag || flag2;
+	}
 	
 	/**
 	 * 修改密码
@@ -239,5 +246,6 @@ public class UserDao {
 		String sql = "select user_id,user_name from dm_user";
 		return db.queryToList(sql, null);
 	}
+	
 
 }

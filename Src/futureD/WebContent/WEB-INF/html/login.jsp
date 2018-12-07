@@ -20,7 +20,8 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css" />
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css" />
 	<!-- 变 -->
-	<link rel="stylesheet" href="src/style/modules/login/login.css" type="text/css" />
+	<link rel="stylesheet" href="dist/style/modules/login/login.css" type="text/css" />
+	<!-- <link rel="stylesheet" href="src/style/modules/login/login.css" type="text/css" /> -->
 </head>
 <body>
 	<div class="container-fluid">
@@ -71,8 +72,11 @@
 	<script src="assets/script/libs/sweetalert2.min.js"></script>
 	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
+	<script src="dist/script/modules/login/login.js"></script>
+	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
-	<script src="src/script/modules/login/login.js"></script>
+	<script src="src/script/modules/login/login.js"></script> -->
 </body>
 </html>

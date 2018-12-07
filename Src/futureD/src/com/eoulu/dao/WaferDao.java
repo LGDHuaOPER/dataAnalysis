@@ -39,8 +39,8 @@ public class WaferDao{
 				+ "where delete_status="+deleteStatus;
 		Object[] param = new Object[]{(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		if(!"".equals(keyword)){
-			sql += "  and ( device_number like binary ? or lot_number like binary ? or wafer_number like binary ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like binary ? or description like binary ? ) ";
-			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
+			sql += "  and ( device_number like binary ? or lot_number like binary ? or wafer_number like binary ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like binary ? or description like binary ? or die_type like binary ? ) ";
+			param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",(page.getCurrentPage()-1)*page.getRow(),page.getRow()};
 		}
 		sql += "  order by gmt_modified desc limit ?,? ";
 		
@@ -58,8 +58,8 @@ public class WaferDao{
 		Object[] param = null;
 		if(!"".equals(keyword)){
 			if(!"".equals(keyword)){
-				sql += "  and ( device_number like binary ? or lot_number like binary ? or wafer_number like binary ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like binary ? or description like binary ? ) ";
-				param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%"};
+				sql += "  and ( device_number like binary ? or lot_number like binary ? or wafer_number like binary ? or qualified_rate like binary  ? or test_end_date like binary  ? or dm_user.user_name like binary ? or description like binary ? or die_type like binary ? ) ";
+				param = new Object[]{"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%",keyword,keyword,"%"+keyword +"%","%"+keyword +"%","%"+keyword +"%"};
 			}
 		}
 		Object result = DataBaseUtil.getInstance().queryResult(sql, param);
@@ -407,7 +407,10 @@ public class WaferDao{
 		String sql = "select count(*) from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
 		Object result = DataBaseUtil.getInstance().queryResult(sql, new Object[]{waferId});
 		int count = result == null?0:Integer.parseInt(result.toString());
-		if(count == 0){
+		String sql2 = "select count(*) from dm_curve_type where wafer_id=?";
+		result = DataBaseUtil.getInstance().queryResult(sql2, new Object[]{waferId});
+		int curve = result == null?0:Integer.parseInt(result.toString());
+		if(count == 0 && curve==0 ){
 			return false;
 		}
 		return true;

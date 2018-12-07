@@ -32,7 +32,7 @@ public class GaussianDao {
 	
 	public List<Double> getRangeByColumn(Connection conn,int waferId,String column){
 		List<Double> ls = null;
-		String sql = "select max("+column+"),min("+column+") from dm_wafer_coordinate_data where wafer_id=? and "+column+" is not null and "+column+"<= 9*power(10,30) and "+column+">= -9*power(10,30)";
+		String sql = "select max("+column+"),min("+column+") from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)  and "+column+" is not null and "+column+"<= 9*power(10,30) and "+column+">= -9*power(10,30)";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, waferId);
@@ -49,18 +49,18 @@ public class GaussianDao {
 	}
 	
 	public  List<Map<String,Object>> getFunctionData(Connection conn,int waferId ,String column){
-		String sql = "select STD("+column+") standard,avg("+column+") average,max("+column+") max,min("+column+")min,count(*) total  from dm_wafer_coordinate_data where wafer_id=?";
+		String sql = "select STD("+column+") standard,avg("+column+") average,max("+column+") max,min("+column+")min,count(*) total  from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
 		return db.queryToList(conn, sql, new Object[]{waferId});
 	}
 	
 	public int getCount(Connection conn,int waferId,String condition){
-		String sql = "select count(*) total  from dm_wafer_coordinate_data where wafer_id=? "+condition;
+		String sql = "select count(*) total  from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) "+condition;
 		Object result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferId});
 	return result==null?0:Integer.parseInt(result.toString());
 	}
 	
 	public List<String> getParamData(Connection conn,int waferId,String column){
-		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? order by "+column;
+		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by "+column;
 		return db.queryList(conn, sql, new Object[]{waferId});
 	}
 

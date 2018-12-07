@@ -80,9 +80,9 @@ dataListDetailStore.state = {
 		"矢量数据": [$(".g_menu li[role='presentation'][data-iclassify='vectorMap']")],
 		"参数分布": [$(".g_menu li[role='presentation'][data-iclassify='parameterMap']")]
 	},
-	authorityNull: false
+	authorityNull: false,
+	scrollBarWidth: _.get(eouluGlobal.S_getPageAllConfig(), "futureDT2.scrollBarWidth", 7)
 };
-
 
 /*绘制参数数据分页表格*/
 function renderTheadTbody(obj){
@@ -217,8 +217,8 @@ function getTableDataANDRender(){
 	});
 	$(".allDetail_body .table_body").innerHeight($(".allDetail_body").innerHeight() - $(".allDetail_body .table_head").innerHeight());
 	renderSignalTbodyData();
-	if($(".allDetail_body .table_body>table").innerHeight() > $(".allDetail_body .table_body").innerHeight()+7){
-		$(".allDetail_body .table_head").innerWidth($(".allDetail_body").innerWidth() - 7);
+	if($(".allDetail_body .table_body>table").innerHeight() > $(".allDetail_body .table_body").innerHeight()+dataListDetailStore.state.scrollBarWidth){
+		$(".allDetail_body .table_head").innerWidth($(".allDetail_body").innerWidth() - dataListDetailStore.state.scrollBarWidth);
 	}
 }
 
@@ -227,8 +227,8 @@ function commonCalcLayout(){
 	$(".vectorMap_l, .vectorMap_r").innerHeight($("#vectorMap").innerHeight());
 
 	$(".allDetail_body .table_body").innerHeight($(".allDetail_body").innerHeight() - $(".allDetail_body .table_head").innerHeight());
-	if($(".allDetail_body .table_body>table").innerHeight() > $(".allDetail_body .table_body").innerHeight()+7){
-		$(".allDetail_body .table_head").innerWidth($(".allDetail_body").innerWidth() - 7);
+	if($(".allDetail_body .table_body>table").innerHeight() > $(".allDetail_body .table_body").innerHeight()+dataListDetailStore.state.scrollBarWidth){
+		$(".allDetail_body .table_head").innerWidth($(".allDetail_body").innerWidth() - dataListDetailStore.state.scrollBarWidth);
 	}
 }
 
@@ -1090,187 +1090,120 @@ function draw_map_color_order_distribution(obj){
 	fourDiff = upper - midder,
 	fiveDiff = theMax - upper,
 	precision = 0;
-	_.forOwn(currentDieItem.currentDieList, function(v, k){
-		var item = {},
-		iNo,
-		ibin,
-		addNum,
-		percentV,
-		binV;
-		if(_.isObject(v)){
-			percentV = v.percent;
-			binV = v.bin;
-		}else{
-			percentV = v;
-			binV = v;
-		}
-
-		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
-		var addMat = _.toString(percentV).match(/^\+/);
-		var minusMat = _.toString(percentV).match(/^\-/);
-		if(_.isNil(addMat) && _.isNil(minusMat)){
-			/*合格数据*/
-			addNum = 0;
-		}else{
-			if(!_.isNil(addMat)){
-				/*大于上限*/
-				addNum = 100;
+	/*合并有效die和其他器件die*/
+	_.forEach([currentDieItem.currentDieList, waferData.otherDieType], function(val, ind){
+		_.forOwn(val, function(v, k){
+			var item = {},
+			iNo,
+			ibin,
+			addNum,
+			percentV,
+			binV;
+			if(_.isObject(v)){
+				percentV = v.percent;
+				binV = v.bin;
+			}else{
+				percentV = v;
+				binV = v;
 			}
-			if(!_.isNil(minusMat)){
-				/*小于下限*/
-				addNum = -1;
-			}
-		}
-		if(addNum > 0){
-			iNo = iNo+(addNum);
-		}
-		ibin = binV;
 
-		/*判断位置*/
-		if(ibin == 12){
-			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-			item[k] = {bin: 12, color: "12:"};
-		}else if(ibin == -1){
-			if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-			item[k] = {bin: -1, color: "-1:"};
-		}else{
-			var iiNo = _.round(iNo);
-			if(_.isNil(addMat) && _.isNil(minusMat)){
-				/*合格数据*/
-				if(lowwer<=iNo && iNo<midder){
-					item[k] = {bin: ibin, color: "3:"+iiNo};
-				}else if(midder<=iNo && iNo<=upper){
-					item[k] = {bin: ibin, color: "4:"+iiNo};
+			iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
+			var addMat = _.toString(percentV).match(/^\+/);
+			var minusMat = _.toString(percentV).match(/^\-/);
+			if(_.isObject(v)){
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*合格数据*/
+					addNum = 1;
+				}else{
+					if(!_.isNil(addMat)){
+						/*大于上限*/
+						addNum = 100;
+					}
+					if(!_.isNil(minusMat)){
+						/*小于下限*/
+						addNum = -100;
+					}
 				}
 			}else{
-				if(!_.isNil(addMat)){
-					/*大于上限*/
-					if(upper<=iNo && iNo<theMax){
-						item[k] = {bin: ibin, color: "5:"+iiNo};
-					}else if(theMax<=iNo){
-						iNo = theMax;
-						item[k] = {bin: ibin, color: "6:"+iiNo};
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*bin为非负数*/
+					addNum = 0;
+				}else{
+					if(!_.isNil(addMat)){
+						/*bin为正数，+号*/
+						addNum = 2;
 					}
-				}
-				if(!_.isNil(minusMat)){
-					/*小于下限*/
-					if(iNo<=theMin){
-						iNo = theMin;
-						item[k] = {bin: ibin, color: "1:"+iiNo};
-					}else if(theMin<iNo && iNo<=lowwer){
-						item[k] = {bin: ibin, color: "2:"+iiNo};
+					if(!_.isNil(minusMat)){
+						/*bin为负数，-号*/
+						addNum = -2;
 					}
 				}
 			}
-			// if(iNo<theMin){
-			// 	iNo = theMin;
-			// 	item[k] = {bin: ibin, color: "1:"+iiNo};
-			// }else if(theMin<=iNo && iNo<lowwer){
-			// 	item[k] = {bin: ibin, color: "2:"+iiNo};
-			// }else if(lowwer<=iNo && iNo<midder){
-			// 	item[k] = {bin: ibin, color: "3:"+iiNo};
-			// }else if(midder<=iNo && iNo<=upper){
-			// 	item[k] = {bin: ibin, color: "4:"+iiNo};
-			// }else if(upper<iNo && iNo<theMax){
-			// 	item[k] = {bin: ibin, color: "5:"+iiNo};
-			// }else if(theMax<=iNo){
-			// 	iNo = theMax;
-			// 	item[k] = {bin: ibin, color: "6:"+iiNo};
-			// }
-		}
-		/*判断位置end*/
-		dieData.push(item);
-	});
-	_.forOwn(waferData.otherDieType, function(v, k){
-		var item = {},
-		iNo,
-		ibin,
-		addNum,
-		percentV,
-		binV;
-		if(_.isObject(v)){
-			percentV = v.percent;
-			binV = v.bin;
-		}else{
-			percentV = v;
-			binV = v;
-		}
-
-		iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
-		var addMat = _.toString(percentV).match(/^\+/);
-		var minusMat = _.toString(percentV).match(/^\-/);
-		if(_.isNil(addMat) && _.isNil(minusMat)){
-			/*合格数据*/
-			addNum = 0;
-		}else{
-			if(!_.isNil(addMat)){
-				/*大于上限*/
-				addNum = 100;
+			
+			if(addNum > 2){
+				iNo = iNo+(addNum);
 			}
-			if(!_.isNil(minusMat)){
-				/*小于下限*/
-				addNum = -1;
-			}
-		}
-		if(addNum > 0){
-			iNo = iNo+(addNum);
-		}
-		ibin = binV;
+			ibin = binV;
 
-		/*判断位置*/
-		if(ibin == 12){
-			if(!("12:" in otherColor)) otherColor["12:"] = "#fff";
-			item[k] = {bin: 12, color: "12:"};
-		}else if(ibin == -1){
-			if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
-			item[k] = {bin: -1, color: "-1:"};
-		}else{
-			var iiNo = _.round(iNo);
-			if(_.isNil(addMat) && _.isNil(minusMat)){
-				/*合格数据*/
-				if(lowwer<=iNo && iNo<midder){
-					item[k] = {bin: ibin, color: "3:"+iiNo};
-				}else if(midder<=iNo && iNo<=upper){
-					item[k] = {bin: ibin, color: "4:"+iiNo};
-				}
+			/*判断位置*/
+			/*bin 5000 表示未被测试的die  ，bin 5001 表示其他期间类型的die 未被测试的die依然可以显示曲线*/
+			if(ibin == 5000){
+				if(!("5000:" in otherColor)) otherColor["5000:"] = "#FDFDFD";
+				item[k] = {bin: 5000, color: "5000:"};
+			}else if(ibin == 5001){
+				if(!("5001:" in otherColor)) otherColor["5001:"] = "#fff";
+				item[k] = {bin: 5001, color: "5001:"};
+			}else if(ibin == -1){
+				if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+				item[k] = {bin: -1, color: "-1:"};
 			}else{
-				if(!_.isNil(addMat)){
-					/*大于上限*/
-					if(upper<=iNo && iNo<theMax){
-						item[k] = {bin: ibin, color: "5:"+iiNo};
-					}else if(theMax<=iNo){
-						iNo = theMax;
-						item[k] = {bin: ibin, color: "6:"+iiNo};
+				var iiNo = _.round(iNo);
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*合格数据*/
+					if(lowwer<=iNo && iNo<midder){
+						item[k] = {bin: ibin, color: "3:"+iiNo};
+					}else if(midder<=iNo && iNo<=upper){
+						item[k] = {bin: ibin, color: "4:"+iiNo};
+					}
+				}else{
+					if(!_.isNil(addMat)){
+						/*大于上限*/
+						if(upper<=iNo && iNo<theMax){
+							item[k] = {bin: ibin, color: "5:"+iiNo};
+						}else if(theMax<=iNo){
+							iNo = theMax;
+							item[k] = {bin: ibin, color: "6:"+iiNo};
+						}
+					}
+					if(!_.isNil(minusMat)){
+						/*小于下限*/
+						if(iNo<=theMin){
+							iNo = theMin;
+							item[k] = {bin: ibin, color: "1:"+iiNo};
+						}else if(theMin<iNo && iNo<=lowwer){
+							item[k] = {bin: ibin, color: "2:"+iiNo};
+						}
 					}
 				}
-				if(!_.isNil(minusMat)){
-					/*小于下限*/
-					if(iNo<=theMin){
-						iNo = theMin;
-						item[k] = {bin: ibin, color: "1:"+iiNo};
-					}else if(theMin<iNo && iNo<=lowwer){
-						item[k] = {bin: ibin, color: "2:"+iiNo};
-					}
-				}
+				// if(iNo<theMin){
+				// 	iNo = theMin;
+				// 	item[k] = {bin: ibin, color: "1:"+iiNo};
+				// }else if(theMin<=iNo && iNo<lowwer){
+				// 	item[k] = {bin: ibin, color: "2:"+iiNo};
+				// }else if(lowwer<=iNo && iNo<midder){
+				// 	item[k] = {bin: ibin, color: "3:"+iiNo};
+				// }else if(midder<=iNo && iNo<=upper){
+				// 	item[k] = {bin: ibin, color: "4:"+iiNo};
+				// }else if(upper<iNo && iNo<theMax){
+				// 	item[k] = {bin: ibin, color: "5:"+iiNo};
+				// }else if(theMax<=iNo){
+				// 	iNo = theMax;
+				// 	item[k] = {bin: ibin, color: "6:"+iiNo};
+				// }
 			}
-			// if(iNo<theMin){
-			// 	iNo = theMin;
-			// 	item[k] = {bin: ibin, color: "1:"+iiNo};
-			// }else if(theMin<=iNo && iNo<lowwer){
-			// 	item[k] = {bin: ibin, color: "2:"+iiNo};
-			// }else if(lowwer<=iNo && iNo<midder){
-			// 	item[k] = {bin: ibin, color: "3:"+iiNo};
-			// }else if(midder<=iNo && iNo<=upper){
-			// 	item[k] = {bin: ibin, color: "4:"+iiNo};
-			// }else if(upper<iNo && iNo<theMax){
-			// 	item[k] = {bin: ibin, color: "5:"+iiNo};
-			// }else if(theMax<=iNo){
-			// 	iNo = theMax;
-			// 	item[k] = {bin: ibin, color: "6:"+iiNo};
-			// }
-		}
-		/*判断位置end*/
-		dieData.push(item);
+			/*判断位置end*/
+			dieData.push(item);
+		});
 	});
 
 	// console.table(dieData);
@@ -1282,8 +1215,10 @@ function draw_map_color_order_distribution(obj){
 		"4": [],
 		"5": [],
 		"6": [],
-		"12": [],
-		"-1": []
+		"5000": [],
+		"5001": [],
+		"-1": [],
+		"12": []
 	};
 	_.forEach(dieData, function(v, i){
 		var nu = _.values(v)[0].color.split(":")[0];
@@ -1384,7 +1319,7 @@ function draw_map_color_order_distribution(obj){
 		'<tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="qualify_tt" data-ipara="qualify">0</td><td class="unqulify_tt" data-ipara="unqulify">0</td><td class="yield_tt" data-ipara="yield">0%</td></tr></tbody></table>';
 	$(tableStr).appendTo(that.parent().next());
 	_.forOwn(countObj, function(v, k){
-		if(k==-1 || k == 12) return true;
+		if(_.indexOf(["1", "2", "3", "4", "5", "6"], k) == -1) return true;
 		that.parent().next().find("th").eq(k-1).text(k+"区间");
 		that.parent().next().find("td").eq(k-1).text(v+"个");
 	});
@@ -1997,14 +1932,16 @@ $(function(){
 		var webParamStr, webParamArr;
 		if(!_.isNil(webParam)){
 			webParamArr = webParam.split("futureDT2OnlineDataListSplitor");
-			webParamStr = '晶圆信息：'+webParamArr[0]+' / '+webParamArr[1]+' / '+webParamArr[2];
+			webParamStr = '晶圆信息：'+webParamArr[0]+' / '+webParamArr[1]+' / '+webParamArr[2]+' / '+webParamArr[3];
 		}else{
 			webParamStr = '晶圆信息获取失败!';
 		}
+		var titleStr = webParamStr;
+		if(webParamStr.length>80) webParamStr = webParamStr.substr(0, 80)+"...";
 		webParamStr+='<button type="button" class="btn btn-default" aria-label="Left Align">'+
 						  '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出'+
 						'</button>';
-		$("div.webParam").html(webParamStr);
+		$("div.webParam").html(webParamStr).attr("title", titleStr);
 		var waferId = eouluGlobal.S_getUrlPrmt().waferId;
 		var dataFormat = eouluGlobal.S_getUrlPrmt().dataFormat;
 		if(_.isNil(waferId) || _.isNil(dataFormat)){

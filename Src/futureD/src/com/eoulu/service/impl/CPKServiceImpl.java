@@ -65,7 +65,7 @@ public class CPKServiceImpl implements CPKService{
 				if(variance==0){
 					variance=Variance;
 				}
-				System.out.println("variance:"+variance);
+//				System.out.println("variance:"+variance);
 				 StandardDeviation = FunctionUtil.getStandardDeviation(variance);
 				 CPKu = (upper-avg>0?upper-avg:avg-upper)/(StandardDeviation*3);
 				 CPKI = (avg-lower>0?avg-lower:lower-avg)/(StandardDeviation*3);
