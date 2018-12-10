@@ -41,7 +41,6 @@ function getDataBuildS12S21(obj){
 	};
 	objec.showCheckbox = showCheckbox;
 	objec.callback = callback;
-	console.log(objec)
 	drawRealS12S21(objec);
 }
 
@@ -58,7 +57,6 @@ function getDataBuildS11S22(obj) {
 		msgInitFun: obj.msgInitFun,
 		GHzFlag: obj.GHzFlag
 	});
-	console.log(obj.data)
 	_.isFunction(obj.callback) && obj.callback(smith1);
 }
 
