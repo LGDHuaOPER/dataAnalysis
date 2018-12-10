@@ -108,11 +108,11 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<!-- 变 -->
-	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<!-- <script src="dist/script/modules/common/futureD_config.js"></script>
 	<script src="dist/script/modules/common/globalConf.js"></script>
-	<script src="dist/script/modules/index/index.js"></script>
-	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/index/index.js"></script> -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script>
-	<script src="src/script/modules/index/index.js"></script> -->
+	<script src="src/script/modules/index/index.js"></script>
 </body>
 </html>

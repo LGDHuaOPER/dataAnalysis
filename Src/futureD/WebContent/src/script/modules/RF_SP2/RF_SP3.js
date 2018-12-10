@@ -1,7 +1,6 @@
 /*variable defined*/
 /*_.find(Highcharts.charts, function(v){if(!_.isNil(v)) return v.renderTo == $("div#S12_chart_S")[0];});
 _.find(Highcharts.charts, function(v){if(!_.isNil(v)) return $(v.renderTo).is("div#S12_chart_S");});*/
-/*result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer*/
 var RF_SP2SwalMixin = swal.mixin({
   	confirmButtonClass: 'btn btn-success',
   	cancelButtonClass: 'btn btn-danger',
@@ -12,8 +11,8 @@ var RF_SP2SwalMixin = swal.mixin({
 
 var S_factorial = eouluGlobal.S_factorial;
 
-var RF_SP2Store = Object.create(null);
-RF_SP2Store.mock = {
+var RF_SP2State = new Object();
+RF_SP2State.mock = {
 	curveType: {
 		"DC": ["IL", "BW", "VSWR", "TCF", "CF"],
 		"RTP": ["VSWR", "TCF", "CF","IL", "BW", "VSWR"],
@@ -45,13 +44,13 @@ RF_SP2Store.mock = {
 	// RF_SP2_MagnitudeDB: futuredGlobal.S_getRF_SP2_MagnitudeDB(),
 	RF_SP2_render: []
 };
-RF_SP2Store.waferSelected = [];
-RF_SP2Store.waferTCFSelected = [];
-RF_SP2Store.contextObj = {
+RF_SP2State.waferSelected = [];
+RF_SP2State.waferTCFSelected = [];
+RF_SP2State.contextObj = {
 	classify: null,
 	flag: null
 };
-RF_SP2Store.stateObj = {
+RF_SP2State.stateObj = {
 	renderSelectCsvSub: false,
 	calcTableIndex: -1,
 	splineSelectedArr: [],
@@ -89,16 +88,9 @@ RF_SP2Store.stateObj = {
 		S22: [],
 	},
 	/*双击小图的标志*/
-	dblclickFlag: false,
-	// smith小图图表容器加载标志
-	smithSmallContainerFlag: {
-		S11: false,
-		S12: false,
-		S21: false,
-		S22: false
-	}
+	dblclickFlag: false
 };
-RF_SP2Store.MathMap = {
+RF_SP2State.MathMap = {
 	"sin": {
 		"replace": "Math.sin",
 		"reg": null,
@@ -171,166 +163,78 @@ RF_SP2Store.MathMap = {
 		"index": -1
 	}
 };
-RF_SP2Store.allowKeyCode = [8, 37, 38, 39, 40, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 77, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 109, 110, 111, 190];
-RF_SP2Store.search_markerObj = {
+RF_SP2State.allowKeyCode = [8, 37, 38, 39, 40, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 77, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 109, 110, 111, 190];
+RF_SP2State.search_markerObj = {
 	awesomplete: null,
 	list: null
 };
 
-RF_SP2Store.util = Object.create(null);
-RF_SP2Store.util.renderWaferFile = function(obj){
-	var data = obj.data || [],
-	waferFile = obj.waferFile;
-	var str = '<div class="panel panel-default slideUp">'+
-				  	'<div class="panel-heading" title="点击展开">'+waferFile+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>'+
-				  	'<ul class="list-group">';
-	_.forEach(data, function(v, i){
-		str+='<li class="list-group-item" data-waferfile="'+waferFile+'" data-curvefile="'+v[0]+'" data-curvetypeid="'+v[1]+'" data-dieid="'+v[2]+'">'+v[0]+'</li>';
-	});
-	str+='</ul></div>';
-	return str;
-};
-RF_SP2Store.util.eleResize = function(obj){
-	obj = obj || {};
-	var classify = obj.classify || 1;
-	if(classify === 1){
-		var winHeight = $(window).height();
-		if(winHeight<600){
-			winHeight = 600;
+function eleResize(){
+	var winHeight = $(window).height();
+	if(winHeight<600){
+		winHeight = 600;
+	}
+	$("body").height(winHeight);
+	$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 180);
+	$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 190);
+	$("div.picturetop").each(function(){
+		if($(this).is("#picture2top") || $(this).is("#picture3top")){
+			var radios = 1, minus = 0;
+			if(RF_SP2State.waferSelected.length > 3) {
+				radios = 2;
+				minus = 7;
+			}
+			$(this).innerHeight(~~($(this).parent().height()*radios)).innerWidth(~~($(this).parent().width()-minus));
+		}else{
+			$(this).innerHeight($(this).parent().height() - 50);
 		}
-		$("body").height(winHeight);
-		$(".g_bodyin_bodyin_bottom").innerHeight(winHeight - 180);
-		$(".g_bodyin_bodyin_bottom_l, .g_bodyin_bodyin_bottom_r").innerHeight(winHeight - 190);
-		$("div.picturetop").each(function(){
-			if($(this).is("#picture2top") || $(this).is("#picture3top")){
-				var radios = 1, minus = 0;
-				if(RF_SP2Store.waferSelected.length > 3) {
-					radios = 2;
-					minus = 7;
-				}
-				$(this).innerHeight(~~($(this).parent().height()*radios)).innerWidth(~~($(this).parent().width()-minus));
-			}else{
-				$(this).innerHeight($(this).parent().height() - 50);
+	});
+
+	$(".picturebottom_in_m ul>li").innerWidth($(".picturebottom_in_m").innerWidth());
+}
+
+function eleResize2(){
+	$(".g_bodyin_bodyin_bottom_lsub, .g_bodyin_bodyin_bottom_rsub").height($(".g_bodyin_bodyin_bottom").height());
+	$(".g_bodyin_bodyin_bottom_lsub_top, .g_bodyin_bodyin_bottom_lsub_bottom").innerHeight($(".g_bodyin_bodyin_bottom_lsub").innerHeight() / 2 - 1);
+}
+
+function renderSelectCsv(item, flag, insertDOM){
+	var str2 = '';
+	item.selectedItem.map(function(v, i){
+		var newItem = RF_SP2State.mock.selectedItem[i%RF_SP2State.mock.selectedItem.length];
+		var fileName, fileItem;
+		var from = newItem.from;
+		var times = newItem.times;
+		_.forOwn(newItem, function(vv, kk){
+			if(!_.isNumber(vv)){
+				fileName = kk.substring(0,7);
+				fileItem = vv[0];
+				return false;
 			}
 		});
-		$(".picturebottom_in_m ul>li").innerWidth($(".picturebottom_in_m").innerWidth());
-	}else if(classify === 2){
-		$(".g_bodyin_bodyin_bottom_lsub, .g_bodyin_bodyin_bottom_rsub").height($(".g_bodyin_bodyin_bottom").height());
-		$(".g_bodyin_bodyin_bottom_lsub_top, .g_bodyin_bodyin_bottom_lsub_bottom").innerHeight($(".g_bodyin_bodyin_bottom_lsub").innerHeight() / 2 - 1);
-	}
-};
-RF_SP2Store.util.smithHandler = function(obj){
-	var s = obj.s,
-	data = obj.data,
-	seriesName = obj.seriesName;
-	if(_.isEqual(s, "S11") || _.isEqual(s, "S22")){
-		setTimeout(function(){
-			if(RF_SP2Store.waferSelected.length > 3){
-				var oldHeight = ~~$("#picture_box2").innerHeight();
-				var oldWidth = ~~$("#picture_box2").innerWidth();
-				var radios = 2;
-				if(RF_SP2Store.waferSelected.length > 8){
-					radios = 3;
-				}
-				$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-7);
-				$("#picture2top").highcharts().setSize(oldWidth-7, oldHeight*radios);
-				$("#picture3top").highcharts().setSize(oldWidth-7, oldHeight*radios);
-			}
-
-			// 史密斯图
-			var lineColorArray = [],
-			smithData = [];
-
-			/*保存数据*/
-			var addColor = _.find($("#picture2top").highcharts().series, function(o){
-					return o.name == seriesName;
-				}).color;
-			RF_SP2Store.stateObj.S2PSmallChartSmithData[s].push({
-				name: seriesName,
-				data: _.cloneDeep(data),
-				color: addColor
-			});
-
-			_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData[s], function(v){
-				smithData.push(_.cloneDeep(v.data));
-				lineColorArray.push(v.color);
-			});
-			var sClassify;
-			if(_.isEqual(s, "S11")){
-				sClassify = "1";
-			}else{
-				sClassify = "4";
-			}
-			getDataBuildS11S22({
-				wrapDOM: document.getElementById("picture"+sClassify+"top"),
-				title: [''],
-				legendName: [s],
-				data: smithData,
-				classify: s,
-				msgDOM: document.getElementById("picture"+sClassify+"bottom"),
-				lineColorArray: lineColorArray,
-				msgInitFun: _.bind(msgInitFun, this, _, s, sClassify, seriesName),
-				msgFun: _.bind(imsgFun, this, _, _, s, sClassify),
-				GHzFlag: true,
-				callback: function(smith1){
-					if(RF_SP2Store.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2Store.stateObj.S2PSmallChartSmithArr.length = 0;
-					RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
-				}
-			});
-		}, 50);
-	}else if(_.isEqual(s, "S12") || _.isEqual(s, "S21")){
-		if(RF_SP2Store.stateObj.smithSmallContainerFlag[s] === false){
-			getDataBuildS12S21({
-				allData: [{
-					name: seriesName,
-					data: data
-				}],
-				renderData: true,
-				container: _.isEqual(s, "S12") ? "picture2top" : "picture3top",
-				zoomType: "None",
-				showCheckbox: false,
-				GHzFlag: true, 
-				callback: function(){
-					RF_SP2Store.stateObj.smithSmallContainerFlag[s] = true;
-				}
-			});
-		}else{
-			alert(1)
-		}
-	}
-};
-
-RF_SP2Store.ajax = Object.create(null);
-RF_SP2Store.ajax.AnalysisFile = function(obj){
-	$.ajax({
-		type: "GET",
-		url: "AnalysisFile",
-		data: {
-			wafer: obj.wafer
-		},
-		dataType: "json"
-	}).then(obj.done);
-};
-RF_SP2Store.ajax.AnalysisCurve = function(obj){
-	$.ajax({
-		type: "GET",
-		url: "AnalysisCurve",
-		data: {
-			curveTypeId: obj.curveTypeId,
-			legend: obj.legend || void(0),
-			graphStyle: obj.graphStyle || void(0),
-			sParameter: obj.sParameter || void(0)
-		},
-		dataType: "json"
-	}).then(obj.done);
-};
-
-
+		var ii = i+1;
+		ii = "00"+ii;
+		fileName = fileName+eouluGlobal.S_getLastStr(ii, 3)+'.csv';
+		RF_SP2State.mock.RF_SP2_render.push(fileName);
+		RF_SP2State.mock.RF_SP2_render = _.uniq(RF_SP2State.mock.RF_SP2_render);
+		str2+='<div class="g_bodyin_bodyin_bottom_l'+flag+'_item">'+
+					'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin">'+
+						'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_main">'+fileName+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>'+
+						'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_sub" data-parentfile="'+fileName.replace(".csv", "")+'">';
+		_.times(times, function(index){
+			var num = from+index;
+			var newfileItem = num+fileItem.substring(1);
+			str2+='<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_subin">'+newfileItem+'</div>';
+		});
+		str2+='</div></div></div>';
+	});
+	insertDOM.empty().append(str2);
+}
 
 function renderNavItem(obj){
 	var str = '';
 	var item = obj.item, type = obj.type, inde = obj.index;
-	/*var curveTypeArr = _.find(RF_SP2Store.mock.curveType, function(o, k){
+	/*var curveTypeArr = _.find(RF_SP2State.mock.curveType, function(o, k){
 		return k == item.curveType;
 	});*/
 	if(item.curveType == "RF-S2P"){
@@ -359,7 +263,7 @@ function renderNavItem(obj){
 
 /*MarkerReplace*/
 function markerJoinCalc(str){
-	_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(iv, ik){
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(iv, ik){
 		if(str.indexOf(iv.markerName) == -1) return true;
 		var delayArr = str.match(new RegExp(iv.markerName+"\\."+"X", "g"));
 		var delayArr2 = str.match(new RegExp(iv.markerName+"\\."+"Y", "g"));
@@ -373,7 +277,7 @@ function markerJoinCalc(str){
 	return str;
 }
 function markerMathCalc(str){
-	_.forOwn(RF_SP2Store.MathMap, function(v, k){
+	_.forOwn(RF_SP2State.MathMap, function(v, k){
 		if(str.indexOf(k) == -1) return true;
 		if(v.reg == null){
 			var ireg = new RegExp(k, "g");
@@ -441,14 +345,14 @@ function getDataBuildBigS12S21(obj){
 			default: 
 				var obje = {};
 				obje.xCategories = [];
-				_.forEach(RF_SP2Store.mock.RF_SP2_MagnitudeDB[0][iclassify], function(v, i){
+				_.forEach(RF_SP2State.mock.RF_SP2_MagnitudeDB[0][iclassify], function(v, i){
 					obje.xCategories.push(Math.floor(v[0] / 10000000)/100);
 				});
 				
 				/*真实数据*/
 				obje.series = [];
-				_.forEach(RF_SP2Store.waferSelected, function(v, i){
-					var copyData = _.cloneDeep(RF_SP2Store.mock.RF_SP2_MagnitudeDB[i%3][iclassify]);
+				_.forEach(RF_SP2State.waferSelected, function(v, i){
+					var copyData = _.cloneDeep(RF_SP2State.mock.RF_SP2_MagnitudeDB[i%3][iclassify]);
 					var item = {};
 					item.name = v;
 					item.data = [];
@@ -478,12 +382,12 @@ function getDataBuildBigS12S21(obj){
 		// 如果不是右键绘制
 		var objec = {};
 		objec.xCategories = [];
-		_.forEach(RF_SP2Store.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
+		_.forEach(RF_SP2State.mock.RF_SP2[0].curveinfos[2].smithAndCurve[iclassify], function(v, i){
 			objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
 		});
 		/*真实数据*/
 		objec.series = [];
-		_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify], function(v, i){
+		_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify], function(v, i){
 			var item = {};
 			item.name = v.name;
 			item.data = [];
@@ -494,8 +398,8 @@ function getDataBuildBigS12S21(obj){
 			objec.series.push(item);
 		});
 		_.times(objec.series.length, function(ii){
-			RF_SP2Store.stateObj.indicatrix_min_max[0] = _.min([RF_SP2Store.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
-			RF_SP2Store.stateObj.indicatrix_min_max[1] = _.max([RF_SP2Store.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
+			RF_SP2State.stateObj.indicatrix_min_max[0] = _.min([RF_SP2State.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
+			RF_SP2State.stateObj.indicatrix_min_max[1] = _.max([RF_SP2State.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
 		});
 		objec.container = itargetchart;
 		objec.legend_enabled = true;
@@ -512,7 +416,7 @@ function getDataBuildBigS12S21(obj){
 		objec.text = iclassify;
 		objec.showCheckbox = true;
 		objec.callback = obj.callback;
-		RF_SP2Store.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
+		RF_SP2State.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
 		drawRealS12S21(objec);
 	}
 }
@@ -522,7 +426,7 @@ function getDataBuildBigS11S22(obj){
 	var iclassify = obj.iclassify;
 	var itargetchart = obj.itargetchart;
 	var item = obj.item;
-	var reduceData = _.cloneDeep(RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify]);
+	var reduceData = _.cloneDeep(RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify]);
 	getDataBuildS11S22({
 		wrapDOM: document.getElementById(itargetchart),
 		title: [''],
@@ -549,7 +453,7 @@ function getDataBuildBigS11S22(obj){
 			$(".signalChart_div_foot_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
 		},
 		msgFun: function(messag, t, initMess){
-			var iparamter = RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify][t].name;
+			var iparamter = RF_SP2State.stateObj.S2PSmallChartSmithData[iclassify][t].name;
 			var curDOM = $(".signalChart_div_foot_in_m_in ul>li[data-iparamter='"+iparamter+"']");
 			curDOM.siblings().removeClass("active");
 			curDOM.addClass("active").next().addClass("active").find(".Smith_Msg2").text(initMess);
@@ -566,7 +470,7 @@ function getDataBuildBigS11S22(obj){
 /*Smith图例S11 S22构建*/
 function buildS11ANDS22Bottom(classify, bottomJQDOM, callback){
 	var str = '';
-	_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData[classify], function(v, i){
+	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData[classify], function(v, i){
 		var prevParam = v.name.split(" ")[1].replace(/\..*/, "");
 		str+='<li data-iparamter="'+v.name+'">'+
 				'<div class="pictureline">'+
@@ -584,7 +488,6 @@ function buildS11ANDS22Bottom(classify, bottomJQDOM, callback){
 
 /*S11 S22信息bottom显示逻辑*/
 function msgInitFun(inmessage, type, classify, item) {
-	console.log(this)
 	buildS11ANDS22Bottom(type, $("#picture"+classify+"bottom .picturebottom_in_m_in ul"), function(){
 		$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li").innerHeight($("#picture"+classify+"bottom .picturebottom_in_m").innerHeight()).innerWidth($("#picture"+classify+"bottom .picturebottom_in_m").innerWidth());
 		if(item === false){
@@ -596,8 +499,8 @@ function msgInitFun(inmessage, type, classify, item) {
 	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(inmessage);
 }
 function imsgFun(messag, tt, type, classify){
-	console.log(this)
-	var iparamter = RF_SP2Store.stateObj.S2PSmallChartSmithData[type][tt].name;
+	/*console.log(this)*/
+	var iparamter = RF_SP2State.stateObj.S2PSmallChartSmithData[type][tt].name;
 	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li[data-iparamter='"+iparamter+"']").addClass("active").siblings().removeClass("active");
 	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
 }
@@ -605,8 +508,8 @@ function imsgFun(messag, tt, type, classify){
 /*TCF获取数据并绘制图形*/
 function getTCFDataANDDrawChart(obj) {
 	var isComfirmKey = obj.isComfirmKey;
-	var oldData1 = _.cloneDeep(RF_SP2Store.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21);
-	var oldData2 = _.cloneDeep(RF_SP2Store.mock.RF_SP2[_.random(0, 1, false)].curveinfos[2].smithAndCurve.S21);
+	var oldData1 = _.cloneDeep(RF_SP2State.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21);
+	var oldData2 = _.cloneDeep(RF_SP2State.mock.RF_SP2[_.random(0, 1, false)].curveinfos[2].smithAndCurve.S21);
 	_.forEach(oldData1, function(v, i){
 		v[2] = v[2] - _.round(_.random(0.0004, 0.0009, true), 5);
 	});
@@ -630,25 +533,25 @@ function getTCFDataANDDrawChart(obj) {
 	});
 	/*构造新数据*/
 	var curComfirm_key;
-	if(!_.isEmpty(RF_SP2Store.stateObj.splineSelectedArr) && !_.isNil(RF_SP2Store.stateObj.splineSelectedArr)){
-		curComfirm_key = RF_SP2Store.stateObj.splineSelectedArr[0].key;
+	if(!_.isEmpty(RF_SP2State.stateObj.splineSelectedArr) && !_.isNil(RF_SP2State.stateObj.splineSelectedArr)){
+		curComfirm_key = RF_SP2State.stateObj.splineSelectedArr[0].key;
 	}
 
-	/*if(RF_SP2Store.waferTCFSelected.length == 2 && !isFirst){
-		var nameArr = _.reduce(RF_SP2Store.stateObj.splineSelectedArr, function(result, v, i){
+	/*if(RF_SP2State.waferTCFSelected.length == 2 && !isFirst){
+		var nameArr = _.reduce(RF_SP2State.stateObj.splineSelectedArr, function(result, v, i){
 			if(_.indexOf(result, v.name) == -1) result.push(v.name);return result;
 		}, []);
 
-		_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
-			v.name = RF_SP2Store.waferTCFSelected[_.indexOf(nameArr, v.name)];
+		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+			v.name = RF_SP2State.waferTCFSelected[_.indexOf(nameArr, v.name)];
 		});
 	}
 
-	_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v){
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
 		if(v.isNew){
 			ixData[0].splice(v.newIndex, 0, v.x);
-			iyData[_.indexOf(RF_SP2Store.waferTCFSelected, v.name)].splice(v.newIndex, 0, v.y);
-			iyData[Number(!_.indexOf(RF_SP2Store.waferTCFSelected, v.name))].splice(v.newIndex, 0, iyData[Number(!_.indexOf(RF_SP2Store.waferTCFSelected, v.name))][v.newIndex - 1]);
+			iyData[_.indexOf(RF_SP2State.waferTCFSelected, v.name)].splice(v.newIndex, 0, v.y);
+			iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))].splice(v.newIndex, 0, iyData[Number(!_.indexOf(RF_SP2State.waferTCFSelected, v.name))][v.newIndex - 1]);
 		}
 	});*/
 	
@@ -659,21 +562,21 @@ function getTCFDataANDDrawChart(obj) {
 			xData: ixData,
 			yData: iyData
 		},
-		name: _.cloneDeep(RF_SP2Store.waferTCFSelected),
+		name: _.cloneDeep(RF_SP2State.waferTCFSelected),
 		callback: function(chart){
-			/*_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
-				var ii = _.indexOf(RF_SP2Store.waferTCFSelected, v.name);
+			/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+				var ii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
 				chart.series[ii].data[_.indexOf(iyData[ii], v.y)].select(true, true);
 			});*/
 			if(!isComfirmKey) {
 				if(curComfirm_key == "y"){
-					RF_SP2Store.stateObj.key_y = false;
-					var yArr = _.reduce(RF_SP2Store.stateObj.splineSelectedArr, function(result, v, i){
+					RF_SP2State.stateObj.key_y = false;
+					var yArr = _.reduce(RF_SP2State.stateObj.splineSelectedArr, function(result, v, i){
 						if(_.indexOf(result, v.y) == -1) result.push(v.y);return result;
 					}, []);
 					var series0_y = chart.series[0].yData;
 					var series1_y = chart.series[1].yData;
-					RF_SP2Store.stateObj.splineSelectedArr.length = 0;
+					RF_SP2State.stateObj.splineSelectedArr.length = 0;
 					$(".buildMarker_body>div tbody").empty();
 					if(_.indexOf(series0_y, yArr[0]) > -1){
 						/*説明原本有點*/
@@ -755,24 +658,24 @@ function getTCFDataANDDrawChart(obj) {
 					/*console.log(chart.xAxis[0].categories);
 					console.log(chart.series[0].yData);*/
 				}else if(curComfirm_key == "x"){
-					var xArr = _.reduce(RF_SP2Store.stateObj.splineSelectedArr, function(result, v, i){
+					var xArr = _.reduce(RF_SP2State.stateObj.splineSelectedArr, function(result, v, i){
 						if(_.indexOf(result, v.x) == -1) result.push(v.x);return result;
 					}, []);
 					if(xArr.length == 1){
-						RF_SP2Store.stateObj.splineSelectedArr.length = 0;
+						RF_SP2State.stateObj.splineSelectedArr.length = 0;
 						$(".buildMarker_body>div tbody").empty();
 						chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, xArr[0])]);
 					}else if(xArr.length == 2){
-						RF_SP2Store.stateObj.splineSelectedArr.length = 0;
+						RF_SP2State.stateObj.splineSelectedArr.length = 0;
 						$(".buildMarker_body>div tbody").empty();
 						chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, xArr[0])]);
 						chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(chart.xAxis[0].categories, xArr[1])]);
 						/*chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);*/
 					}
 				}
-				/*_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
+				/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 					if(!_.isNil(v.isNew)){
-						var iii = _.indexOf(RF_SP2Store.waferTCFSelected, v.name);
+						var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
 						
 					}
 				});*/
@@ -786,58 +689,32 @@ $(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv, .g_bodyin_bodyi
 
 /*page onload*/
 $(function(){
-	var wafer = $("body").data("wafer");
-	if(_.isNil(wafer) || _.isEmpty(wafer)) {
-		eouluGlobal.S_getSwalMixin()({
-			showConfirmButton: false,
-			title: "参数验证",
-			text: "传参出错！请至工程分析页面重新选取",
-			timer: 1800,
-			type: "error"
-		}).then(function(){
-			eouluGlobal.S_settingURLParam({}, false, false, false, "ProjectAnalysis");
-		});
-	}else{
-		RF_SP2Store.ajax.AnalysisFile({
-			wafer: wafer,
-			done: function(data){
-				if(!_.isNil(data) && !_.isEmpty(data)){
-					var str = '';
-					_.forOwn(data, function(v, k){
-						str+=RF_SP2Store.util.renderWaferFile({
-							data: v,
-							waferFile: k
-						});
-					});
-					$(".g_bodyin_bodyin_bottom_l_intop").empty().append(str);
-				}
-				// 页面布局适应
-				RF_SP2Store.util.eleResize();
-				$(window).on("resize", function(){
-					RF_SP2Store.util.eleResize();
-					RF_SP2Store.util.eleResize({
-						classify: 2
-					});
-				});
-			}
-		});
-	}
-	
-	return false;
-
-
 	var item = store.get("futureDT2__projectAnalysis__selectedObj");
 	if(_.isEmpty(item) || _.isNil(item)){
-		
+		RF_SP2SwalMixin({
+			title: '未选中晶圆',
+			text: "请重新选择！",
+			type: 'info',
+			showConfirmButton: false,
+			timer: 2000,
+		}).then(function(result){
+			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+				window.location.assign("projectAnalysis.html");
+			}
+		});
 	}else{
-		
+		eleResize();
+		$(window).on("resize", function(){
+			eleResize();
+			eleResize2();
+		});
 		/*初始化图例*/
 		/*var x=[];
 		var y=[];
 		var CVZ= [];
 		var CVX=[];
 		var CVY=[];*/
-		var data00 = RF_SP2Store.mock.RF_SP2[0];
+		var data00 = RF_SP2State.mock.RF_SP2[0];
 		if(data00.curveinfos.length >= 1){
 			/*dimension == 0*/
 			var smithAndCurve = data00.curveinfos[2].smithAndCurve;
@@ -899,17 +776,17 @@ $(function(){
 		store.remove("futureD__RF_SP2__saveMarkerFlag");
 	}
 	/*回显marker*/
-	RF_SP2Store.stateObj.splineSelectedArr = store.get("futureD__RF_SP2__splineSelectedArr");
-	RF_SP2Store.stateObj.splineSelectedCopyArr = store.get("futureD__RF_SP2__splineSelectedArr");
-	if(_.isNil(RF_SP2Store.stateObj.splineSelectedArr)){
-		RF_SP2Store.stateObj.splineSelectedArr = [];
+	RF_SP2State.stateObj.splineSelectedArr = store.get("futureD__RF_SP2__splineSelectedArr");
+	RF_SP2State.stateObj.splineSelectedCopyArr = store.get("futureD__RF_SP2__splineSelectedArr");
+	if(_.isNil(RF_SP2State.stateObj.splineSelectedArr)){
+		RF_SP2State.stateObj.splineSelectedArr = [];
 	}else{
-		RF_SP2Store.stateObj.key_y = RF_SP2Store.stateObj.comfirm_key == "y" ? true : false;
+		RF_SP2State.stateObj.key_y = RF_SP2State.stateObj.comfirm_key == "y" ? true : false;
 		var iArra = [];
-		_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
+		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 			if(_.isNil(v.x)) v.x = NaN;
 		});
-		_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
+		_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 			/*str2+='<tr data-iflag="'+(v.name+v.x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+v.markerName+'">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';*/
 			iArra.push({
 				label: v.markerName+".X: "+v.x,
@@ -921,11 +798,11 @@ $(function(){
 			});
 		});
 		/*$(".buildMarker_body>.container-fluid tbody").empty().append(str2);*/
-		RF_SP2Store.search_markerObj.list = _.cloneDeep(iArra);
+		RF_SP2State.search_markerObj.list = _.cloneDeep(iArra);
 	}
 
-	if(!_.isNil(RF_SP2Store.stateObj.comfirm_key)){
-		$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
+	if(!_.isNil(RF_SP2State.stateObj.comfirm_key)){
+		$("#comfirm_key_sel").val(RF_SP2State.stateObj.comfirm_key);
 	}
 
 	/*计算参数回显*/
@@ -952,8 +829,8 @@ $(function(){
 	});
 
 	/*自动填充*/
-	RF_SP2Store.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
-		list: RF_SP2Store.search_markerObj.list,
+	RF_SP2State.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
+		list: RF_SP2State.search_markerObj.list,
 		minChars: 1,
 		maxItems: 10,
 		autoFirst: true,
@@ -995,63 +872,12 @@ $(function(){
 });
 
 /*event handler*/
-/*wafer file左侧切换折叠*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading", function(){
-	$(this).children("span").toggleClass("glyphicon-menu-right glyphicon-menu-down");
-	var slideFun;
-	slideFun = $(this).parent().hasClass("slideUp") ? jQuery().slideDown : jQuery().slideUp;
-	slideFun.call($(this).siblings("ul"), 1000);
-	$(this).parent().toggleClass("slideUp");
-}).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>ul>li", function(){
-	var iThat = $(this),
-	curvetypeid = _.toString(iThat.data("curvetypeid")),
-	seriesName = iThat.data("waferfile")+"  "+iThat.data("curvefile");
-	iThat.toggleClass("list-group-item-info");
-	if(iThat.hasClass("list-group-item-info")){
-		RF_SP2Store.waferSelected.push(curvetypeid);
-		RF_SP2Store.ajax.AnalysisCurve({
-			curveTypeId: [curvetypeid],
-			done: function(data){
-				if(_.keys(data).length == 1){
-					_.forOwn(data, function(v, k){
-						_.forOwn(v, function(vv, kk){
-							RF_SP2Store.util.smithHandler({
-								s: kk,
-								data: vv,
-								seriesName: seriesName
-							});
-						});
-					});
-				}
-			}
-		});
-	}else{
-		_.pull(RF_SP2Store.waferSelected, curvetypeid);
-	}
-	var iparent = iThat.parent();
-	if(iparent.children(".list-group-item-info").length>0){
-		iparent.parent().removeClass("panel-default").addClass("panel-success");
-	}else{
-		iparent.parent().removeClass("panel-success").addClass("panel-default");
-	}
+$(".g_info_r>.glyphicon-user").click(function(){
+	window.location.assign("admin.html");
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 $(window).on("resize", function(){
-	_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithArr, function(v, i, arr){
+	_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithArr, function(v, i, arr){
 		arr[i].onresize();
 	});
 });
@@ -1062,26 +888,26 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	/*全选联动*/
 	$(".g_bodyin_bodyin_bottom_l_inbottom>input").prop("checked", $(".g_bodyin_bodyin_bottom_l_itemin_subin").length === $(".g_bodyin_bodyin_bottom_l_itemin_subin.selected").length);
 	var item = $(this).parent().data("parentfile") +" "+$(this).text();
-	$(this).hasClass("selected") ? RF_SP2Store.waferSelected.push(item) : _.pull(RF_SP2Store.waferSelected, item);
-	if(RF_SP2Store.stateObj.S2PCanRenderChart){
+	$(this).hasClass("selected") ? RF_SP2State.waferSelected.push(item) : _.pull(RF_SP2State.waferSelected, item);
+	if(RF_SP2State.stateObj.S2PCanRenderChart){
 		/*可以画图*/
 		if($(this).hasClass("selected")){
 			/*增加数据列*/
-			var ioldData = _.cloneDeep(RF_SP2Store.mock.RF_SP2[RF_SP2Store.waferSelected.length % 3]);
+			var ioldData = _.cloneDeep(RF_SP2State.mock.RF_SP2[RF_SP2State.waferSelected.length % 3]);
 			if(ioldData.curveinfos.length >= 1){
 				_.forEach(ioldData.curveinfos[2].smithAndCurve.S12, function(vv, ii, arra){
-					arra[ii][1] = arra[ii][1] + RF_SP2Store.waferSelected.length /1000;
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length /1000;
 				});
 				_.forEach(ioldData.curveinfos[2].smithAndCurve.S21, function(vv, ii, arra){
-					arra[ii][1] = arra[ii][1] + RF_SP2Store.waferSelected.length /1000;
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length /1000;
 				});
 				_.forEach(ioldData.curveinfos[2].smithAndCurve.S11, function(vv, ii, arra){
-					arra[ii][0] = arra[ii][0] + RF_SP2Store.waferSelected.length * 1000;
-					arra[ii][1] = arra[ii][1] + RF_SP2Store.waferSelected.length / 1000;
+					arra[ii][0] = arra[ii][0] + RF_SP2State.waferSelected.length * 1000;
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length / 1000;
 				});
 				_.forEach(ioldData.curveinfos[2].smithAndCurve.S22, function(vv, ii, arra){
-					arra[ii][0] = arra[ii][0] + RF_SP2Store.waferSelected.length * 1000;
-					arra[ii][1] = arra[ii][1] + RF_SP2Store.waferSelected.length / 1000;
+					arra[ii][0] = arra[ii][0] + RF_SP2State.waferSelected.length * 1000;
+					arra[ii][1] = arra[ii][1] + RF_SP2State.waferSelected.length / 1000;
 				});
 				var inewDataS12 = [];
 				var inewDataS21 = [];
@@ -1115,7 +941,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					events: {
 						mouseOver: function(){
 							/*console.log(this); // series对象*/
-							/*var curSeriesArr = _.find(RF_SP2Store.stateObj.indicatrix_state_arr, (function(v, i){
+							/*var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
 								return this.name == v.name;
 							}).bind(this));
 							_.forEach(curSeriesArr.seriesName, function(v, i){
@@ -1135,11 +961,11 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 						}
 					}
 				});
-				if(RF_SP2Store.waferSelected.length > 3){
+				if(RF_SP2State.waferSelected.length > 3){
 					var oldHeight = ~~$("#picture_box2").innerHeight();
 					var oldWidth = ~~$("#picture_box2").innerWidth();
 					var radios = 2;
-					if(RF_SP2Store.waferSelected.length > 8){
+					if(RF_SP2State.waferSelected.length > 8){
 						radios = 3;
 					}
 					$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-7);
@@ -1155,7 +981,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 				var addColor = _.find($("#picture2top").highcharts().series, function(o){
 						return o.name == item;
 					}).color;
-				_.forOwn(RF_SP2Store.stateObj.S2PSmallChartSmithData, function(v, k, objj){
+				_.forOwn(RF_SP2State.stateObj.S2PSmallChartSmithData, function(v, k, objj){
 					objj[k].push({
 						name: item,
 						data: _.cloneDeep(ioldData.curveinfos[2].smithAndCurve[k]),
@@ -1163,11 +989,11 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					});
 				});
 
-				_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData.S11, function(v){
+				_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
 					smithS11Data.push(_.cloneDeep(v.data));
 					lineColorArray.push(v.color);
 				});
-				_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData.S22, function(v){
+				_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
 					smithS22Data.push(_.cloneDeep(v.data));
 				});
 
@@ -1182,8 +1008,8 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					msgInitFun: _.bind(msgInitFun, this, _, 'S11', "1", item),
 					msgFun: _.bind(imsgFun, this, _, _, 'S11', "1"),
 					callback: function(smith1){
-						if(RF_SP2Store.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2Store.stateObj.S2PSmallChartSmithArr.length = 0;
-						RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
+						if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+						RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
 					}
 				});
 				getDataBuildS11S22({
@@ -1197,12 +1023,12 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 					msgInitFun: _.bind(msgInitFun, this, _, 'S22', "4", item),
 					msgFun: _.bind(imsgFun, this, _, _, 'S22', "4"),
 					callback: function(smith1){
-						if(RF_SP2Store.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2Store.stateObj.S2PSmallChartSmithArr.length = 0;
-						RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
+						if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+						RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
 					}
 				});
 				/*如果显示大图*/
-				if(RF_SP2Store.stateObj.dblclickFlag){
+				if(RF_SP2State.stateObj.dblclickFlag){
 					var dblid = $("[id$=_chart_S]:visible").attr("id");
 					var dblclassify = dblid.replace("_chart_S", "");
 					if(_.indexOf(["S11", "S22"], dblclassify) > -1){
@@ -1243,7 +1069,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 				_.find($("#picture3top").highcharts().series, function(o){
 					return o.name == item;
 				}).remove();
-				if(RF_SP2Store.waferSelected.length < 4){
+				if(RF_SP2State.waferSelected.length < 4){
 					var oldHeight1 = ~~$("#picture_box2").innerHeight();
 					var oldWidth1 = ~~$("#picture_box2").innerWidth();
 					$("#picture2top, #picture3top").innerHeight(oldHeight1).innerWidth(oldWidth1);
@@ -1254,18 +1080,18 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 			// 史密斯图
 			var lineColorArray2 = [];
 			/*删除数据*/
-			_.forOwn(RF_SP2Store.stateObj.S2PSmallChartSmithData, function(v, k, objj){
-				_.pullAt(RF_SP2Store.stateObj.S2PSmallChartSmithData[k], _.findIndex(RF_SP2Store.stateObj.S2PSmallChartSmithData[k], function(vv){
+			_.forOwn(RF_SP2State.stateObj.S2PSmallChartSmithData, function(v, k, objj){
+				_.pullAt(RF_SP2State.stateObj.S2PSmallChartSmithData[k], _.findIndex(RF_SP2State.stateObj.S2PSmallChartSmithData[k], function(vv){
 					return vv.name == item;
 				}));
 			});
 			var smithS11Data1 = [];
-			_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData.S11, function(v){
+			_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S11, function(v){
 				smithS11Data1.push(_.cloneDeep(v.data));
 				lineColorArray2.push(v.color);
 			});
 			var smithS22Data1 = [];
-			_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData.S22, function(v){
+			_.forEach(RF_SP2State.stateObj.S2PSmallChartSmithData.S22, function(v){
 				smithS22Data1.push(_.cloneDeep(v.data));
 			});
 
@@ -1280,8 +1106,8 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 				msgInitFun: _.bind(msgInitFun, this, _, 'S11', "1", false),
 				msgFun: _.bind(imsgFun, this, _, _, 'S11', "1"),
 				callback: function(smith1){
-					if(RF_SP2Store.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2Store.stateObj.S2PSmallChartSmithArr.length = 0;
-					RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
+					if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+					RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
 				}
 			});
 			getDataBuildS11S22({
@@ -1295,12 +1121,12 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 				msgInitFun: _.bind(msgInitFun, this, _, 'S22', "4", false),
 				msgFun: _.bind(imsgFun, this, _, _, 'S22', "4"),
 				callback: function(smith1){
-					if(RF_SP2Store.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2Store.stateObj.S2PSmallChartSmithArr.length = 0;
-					RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
+					if(RF_SP2State.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2State.stateObj.S2PSmallChartSmithArr.length = 0;
+					RF_SP2State.stateObj.S2PSmallChartSmithArr.push(smith1);
 				}
 			});
 			/*如果显示大图*/
-			if(RF_SP2Store.stateObj.dblclickFlag){
+			if(RF_SP2State.stateObj.dblclickFlag){
 				var dblid1 = $("[id$=_chart_S]:visible").attr("id");
 				var dblclassify1 = dblid1.replace("_chart_S", "");
 				if(_.indexOf(["S11", "S22"], dblclassify1) > -1){
@@ -1443,7 +1269,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 				/*TCF分页*/
 				$(".g_info .glyphicon-question-sign").hide();
 				/*判断重新渲染按钮*/
-				if(RF_SP2Store.waferTCFSelected.length == 2){
+				if(RF_SP2State.waferTCFSelected.length == 2){
 					$(".reRenderBtnDiv").css({
 						"left": (310)+"px",
 						"top": (180)+"px"
@@ -1455,7 +1281,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 					}).slideUp(200);
 				}
 				/*判断重新渲染按钮end*/
-				if(!RF_SP2Store.stateObj.renderSelectCsvSub){
+				if(!RF_SP2State.stateObj.renderSelectCsvSub){
 					renderSelectCsv(store.get("futureDT2__projectAnalysis__selectedObj"), 'sub', $(".g_bodyin_bodyin_bottom_lsub_top"));
 					eleResize2();
 					$(".g_bodyin_bodyin_bottom_lsub_item:first .g_bodyin_bodyin_bottom_lsub_itemin_main").trigger("click");
@@ -1463,7 +1289,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 					getTCFDataANDDrawChart({
 						isComfirmKey: false
 					});
-					RF_SP2Store.stateObj.renderSelectCsvSub = true;
+					RF_SP2State.stateObj.renderSelectCsvSub = true;
 				}
 				/*判断结束*/
 			}else{
@@ -1479,26 +1305,26 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_subin", function(e)
 	var item = $(this).parent().data("parentfile") +" "+$(this).text();
 	if($(this).hasClass("selected")){
 		$(this).removeClass("selected");
-		_.pull(RF_SP2Store.waferTCFSelected, item);
+		_.pull(RF_SP2State.waferTCFSelected, item);
 	}else{
 		/*首先删除其他CSV文件的选中item*/
 		var $others = $(this).parent().parent().parent().siblings();
 		$others.each(function(){
 			$(this).find(".g_bodyin_bodyin_bottom_lsub_itemin_subin.selected").each(function(){
-				_.pull(RF_SP2Store.waferTCFSelected, $(this).parent().data("parentfile") +" "+$(this).text());
+				_.pull(RF_SP2State.waferTCFSelected, $(this).parent().data("parentfile") +" "+$(this).text());
 				$(this).removeClass("selected");
 			});
 		});
 		if($(this).siblings(".selected").length > 1){
 			var select0 = $(this).siblings(".selected").eq(0);
 			var item1 = select0.parent().data("parentfile") +" "+select0.text();
-			_.pull(RF_SP2Store.waferTCFSelected, item1);
+			_.pull(RF_SP2State.waferTCFSelected, item1);
 			select0.removeClass("selected");
 		}
 		$(this).addClass("selected");
-		RF_SP2Store.waferTCFSelected.push(item);
+		RF_SP2State.waferTCFSelected.push(item);
 	}
-	if(RF_SP2Store.waferTCFSelected.length == 2){
+	if(RF_SP2State.waferTCFSelected.length == 2){
 		$(".reRenderBtnDiv").css({
 			"left": (e.pageX + 30)+"px",
 			"top": (e.pageY - 50)+"px"
@@ -1520,7 +1346,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_subin", function(e)
 
 /*重新绘制事件*/
 $(".reRenderBtnDiv").click(function(){
-	if(RF_SP2Store.waferTCFSelected.length != 2) return false;
+	if(RF_SP2State.waferTCFSelected.length != 2) return false;
 	getTCFDataANDDrawChart({
 		isComfirmKey: false
 	});
@@ -1528,8 +1354,8 @@ $(".reRenderBtnDiv").click(function(){
 
 /*数据统计*/
 $(".g_bodyin_tit_r>.glyphicon-stats").click(function(){
-	store.set("RF_SP2_renderCSV", RF_SP2Store.mock.RF_SP2_render);
-	// window.location.assign("dataStatistics.html");
+	store.set("RF_SP2_renderCSV", RF_SP2State.mock.RF_SP2_render);
+	window.location.assign("dataStatistics.html");
 });
 
 /*点击出现计算器*/
@@ -1537,7 +1363,7 @@ $(document).on("click", "tr.canCalc", function(){
 	$(".RF_SP2_cover, .subAddParam").slideDown(200);
 	$("#calc_text").val($(this).children("td:eq(0)").text());
 	$("#clac_textarea").val($(this).children("td:eq(2)").text());
-	RF_SP2Store.stateObj.calcTableIndex = $(this).index();
+	RF_SP2State.stateObj.calcTableIndex = $(this).index();
 }).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
 	$(".RF_SP2_cover, .subAddParam").slideUp(200);
 }).on("click", ".subAddParam_footin>.btn-primary", function(){
@@ -1556,7 +1382,7 @@ $(document).on("click", "tr.canCalc", function(){
 	str = markerMathCalc(str);
 	try{
 		var iVal = eval(str);
-		var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2Store.stateObj.calcTableIndex);
+		var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2State.stateObj.calcTableIndex);
 		if(_.isNaN(iVal)){
 			/*RF_SP2SwalMixin({
 				title: "公式提示",
@@ -1625,7 +1451,7 @@ $(".calcin>div>.row>div>div").on({
 
 $("#clac_textarea").on("keydown", function(e){
 	var i = e.keyCode || e.which || e.charCode;
-	if(_.indexOf(RF_SP2Store.allowKeyCode, i) == -1) return false;
+	if(_.indexOf(RF_SP2State.allowKeyCode, i) == -1) return false;
 }).on("input propertychange change", function(){
 	var old = $(this).val();
 	old = old.replace(/[\u4e00-\u9fa5]+/g, "");
@@ -1669,14 +1495,14 @@ $("#comfirm_key").click(function(){
 	/*$(".buildMarker_body>div tbody>tr").each(function(){
 		$(this).children("td").eq(3).text(key);
 	});*/
-	RF_SP2Store.stateObj.comfirm_key = key;
-	/*_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v){
+	RF_SP2State.stateObj.comfirm_key = key;
+	/*_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v){
 		v.key = key;
 	});*/
 	/*清空*/
-	RF_SP2Store.stateObj.splineSelectedArr = [];
+	RF_SP2State.stateObj.splineSelectedArr = [];
 	$(".buildMarker_body>div tbody").empty();
-	store.set("futureD__RF_SP2__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
+	store.set("futureD__RF_SP2__comfirm_key", RF_SP2State.stateObj.comfirm_key);
 	RF_SP2SwalMixin({
 		title: "Marker确认Key提示",
 		text: "成功，现在可以选点了，请记得保存",
@@ -1685,11 +1511,11 @@ $("#comfirm_key").click(function(){
 		showConfirmButton: false
 	}).then(function(re){
 		if(re.dismiss == "timer"){
-			RF_SP2Store.stateObj.key_y = false;
+			RF_SP2State.stateObj.key_y = false;
 			getTCFDataANDDrawChart({
 				isComfirmKey: true
 			});
-			RF_SP2Store.stateObj.renderSelectCsvSub = true;
+			RF_SP2State.stateObj.renderSelectCsvSub = true;
 		}
 	});
 });
@@ -1699,7 +1525,7 @@ $(document).on("input propertychange change", ".buildMarker_body>.container-flui
 	var origin = $(this).data("iorigin");
 	var newMarker = $(this).text();
 	var flag = true;
-	_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 		if(v.markerName != origin && v.markerName == newMarker){
 			flag = false;
 			return false;
@@ -1731,15 +1557,15 @@ $(document).on("input propertychange change", ".buildMarker_body>.container-flui
 
 /*marker点提交*/
 $(".buildMarker_footin>.btn-primary").click(function(){
-	/*if(_.isEmpty(RF_SP2Store.stateObj.splineSelectedCopyArr)){
+	/*if(_.isEmpty(RF_SP2State.stateObj.splineSelectedCopyArr)){
 
 	}*/
-	_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
+	_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
 		var iText = $(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(v.name+v.x)+"']").children("td").eq(0).text();
 		v.markerName = iText;
 		v.id = iText.match(/Marker(\d+)/)[1];
 	});
-	store.set("futureD__RF_SP2__splineSelectedArr", RF_SP2Store.stateObj.splineSelectedArr);
+	store.set("futureD__RF_SP2__splineSelectedArr", RF_SP2State.stateObj.splineSelectedArr);
 	RF_SP2SwalMixin({
 		title: "Marker提交提示",
 		text: "保存成功",
@@ -1772,7 +1598,7 @@ $(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
 
 /*双击4图表*/
 $(document).on("dblclick", ".chartWarp", function(){
-	RF_SP2Store.stateObj.dblclickFlag = true;
+	RF_SP2State.stateObj.dblclickFlag = true;
 	var itargetchart = $(this).data("itargetchart");
 	$(".fourChart_div").fadeOut(200, function(){
 		$(".signalChart_div").fadeIn(200);
@@ -1810,7 +1636,7 @@ $(".signalChart_div_tit>button.backover").click(function(){
 				$(".fourChart_div").fadeTo(50, 1);
 			}, 50);
 		});
-		RF_SP2Store.stateObj.dblclickFlag = false;
+		RF_SP2State.stateObj.dblclickFlag = false;
 	});
 });
 
@@ -1818,14 +1644,14 @@ $(".signalChart_div_tit>button.backover").click(function(){
 /*显示区间表格*/
 $(".signalChart_div_tit>.open_del_indicatrix").click(function(){
 	$(".RF_SP2_cover, .indicatrix_div").slideDown(200);
-	/*if(RF_SP2Store.stateObj.indicatrix_copy.delFlag && !RF_SP2Store.stateObj.indicatrix_copy.submitFlag){
+	/*if(RF_SP2State.stateObj.indicatrix_copy.delFlag && !RF_SP2State.stateObj.indicatrix_copy.submitFlag){
 		var str1 = '';
-		_.forEach(RF_SP2Store.stateObj.indicatrix_copy.low, function(v, i){
+		_.forEach(RF_SP2State.stateObj.indicatrix_copy.low, function(v, i){
 			str1+='<tr><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[2]+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
 		});
 		$("#lowflag_table>tbody").empty().append(str1);
 		var str2 = '';
-		_.forEach(RF_SP2Store.stateObj.indicatrix_copy.up, function(v, i){
+		_.forEach(RF_SP2State.stateObj.indicatrix_copy.up, function(v, i){
 			str2+='<tr><td>'+v[0]+'</td><td>'+v[1]+'</td><td>'+v[2]+'</td><td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
 		});
 		$("#upflag_table>tbody").empty().append(str2);
@@ -1834,26 +1660,26 @@ $(".signalChart_div_tit>.open_del_indicatrix").click(function(){
 	if(_.isNil(id)) return false;
 	var iclassify = id.replace("_chart_S", "");
 	var strup = '', strlow = '';
-	_.forEach(RF_SP2Store.stateObj[iclassify].indicatrix_up, function(v, i){
+	_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_up, function(v, i){
 		strup+=
 		'<tr><td><input type="text" class="form-control AwesompleteX input_X1" value="'+v[0]+'"></td><td><input type="text" class="form-control AwesompleteX input_X2" value="'+v[1]+'"></td><td><input type="text" class="form-control input_Y0" value="'+v[2]+'"></td><td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
 	});
-	_.forEach(RF_SP2Store.stateObj[iclassify].indicatrix_low, function(v, i){
+	_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_low, function(v, i){
 		strlow+=
 		'<tr><td><input type="text" class="form-control AwesompleteX input_X1" value="'+v[0]+'"></td><td><input type="text" class="form-control AwesompleteX input_X2" value="'+v[1]+'"></td><td><input type="text" class="form-control input_Y0" value="'+v[2]+'"></td><td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>';
 	});
-	RF_SP2Store.stateObj[iclassify].indicatrix_up.length = 0;
-	RF_SP2Store.stateObj[iclassify].indicatrix_low.length = 0;
+	RF_SP2State.stateObj[iclassify].indicatrix_up.length = 0;
+	RF_SP2State.stateObj[iclassify].indicatrix_low.length = 0;
 	$(".indicatrix_body #upflag_table tbody").empty().append(strup);
 	$(".indicatrix_body #lowflag_table tbody").empty().append(strlow);
 	$(".indicatrix_body #upflag_table tbody").find(".glyphicon-ok").trigger("click");
 	$(".indicatrix_body #lowflag_table tbody").find(".glyphicon-ok").trigger("click");
-	if(_.isEmpty(_.concat(RF_SP2Store.stateObj[iclassify].indicatrix_low, RF_SP2Store.stateObj[iclassify].indicatrix_up))){
+	if(_.isEmpty(_.concat(RF_SP2State.stateObj[iclassify].indicatrix_low, RF_SP2State.stateObj[iclassify].indicatrix_up))){
 		$(".indicatrix_footin>.btn-success").prop("disabled", true);
 	}
 	$(".indicatrix_body tbody").find("input[type='text']").each(function(i, el){
 		new Awesomplete(el, {
-			list: RF_SP2Store.stateObj.smithSXCategories,
+			list: RF_SP2State.stateObj.smithSXCategories,
 			minChars: 1,
 			maxItems: 15,
 			autoFirst: true
@@ -1881,10 +1707,10 @@ chartsObj.yAxis[0].addPlotLine({ //在x轴上增加
 });*/
 
 /*删除区间*/
-/*RF_SP2Store.stateObj.indicatrix_copy low up delFlag submitFlag*/
+/*RF_SP2State.stateObj.indicatrix_copy low up delFlag submitFlag*/
 $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>tbody .glyphicon-remove", function(){
-	/*RF_SP2Store.stateObj.indicatrix_copy.delFlag = true;
-	RF_SP2Store.stateObj.indicatrix_copy.submitFlag = false;*/
+	/*RF_SP2State.stateObj.indicatrix_copy.delFlag = true;
+	RF_SP2State.stateObj.indicatrix_copy.submitFlag = false;*/
 	var id = $("[id$='_chart_S']:visible").attr("id");
 	if(_.isNil(id)) return false;
 	var iclassify = id.replace("_chart_S", "");
@@ -1898,9 +1724,9 @@ $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>t
 		});
 		var pullArr;
 		if($(this).parents("#lowflag_table").length){
-			pullArr = RF_SP2Store.stateObj[iclassify].indicatrix_low;
+			pullArr = RF_SP2State.stateObj[iclassify].indicatrix_low;
 		}else{
-			pullArr = RF_SP2Store.stateObj[iclassify].indicatrix_up;
+			pullArr = RF_SP2State.stateObj[iclassify].indicatrix_up;
 		}
 		_.pullAt(pullArr, _.findIndex(pullArr, function(v){
 			return _.isEqual(v, delArr);
@@ -1944,9 +1770,9 @@ $(".indicatrix_footin>.btn-success").click(function(){
 	var id = $("[id$='_chart_S']:visible").attr("id");
 	if(_.isNil(id)) return false;
 	var iclassify = id.replace("_chart_S", "");
-	if(_.isEmpty(_.concat(RF_SP2Store.stateObj[iclassify].indicatrix_low, RF_SP2Store.stateObj[iclassify].indicatrix_up))) return false;
+	if(_.isEmpty(_.concat(RF_SP2State.stateObj[iclassify].indicatrix_low, RF_SP2State.stateObj[iclassify].indicatrix_up))) return false;
 	if(!_.isNil(id)){
-		RF_SP2Store.stateObj.indicatrix_state_arr = [];
+		RF_SP2State.stateObj.indicatrix_state_arr = [];
 		var curChartObj = _.find(Highcharts.charts, function(v) {
 			if (!_.isNil(v)) return $(v.renderTo).is("div#" + id);
 		});
@@ -1969,9 +1795,9 @@ $(".indicatrix_footin>.btn-success").click(function(){
 		});
 		/*删除原来的线段结束*/
 		var xCategories = curChartObj.xAxis[0].categories;
-		var diff = (RF_SP2Store.stateObj.indicatrix_min_max[1] - RF_SP2Store.stateObj.indicatrix_min_max[0])/40;
+		var diff = (RF_SP2State.stateObj.indicatrix_min_max[1] - RF_SP2State.stateObj.indicatrix_min_max[0])/40;
 		/*判断低于区间*/
-		_.forEach(RF_SP2Store.stateObj[iclassify].indicatrix_low, function(v, i){
+		_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_low, function(v, i){
 			var data = [];
 			var inde1 = _.indexOf(xCategories, v[0]);
 			var inde2 = _.indexOf(xCategories, v[1]);
@@ -2004,7 +1830,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				events: {
 					mouseOver: function(){
 						/*console.log(this); // series对象*/
-						var curSeriesArr = _.find(RF_SP2Store.stateObj.indicatrix_state_arr, (function(v, i){
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
 							return this.name == v.name;
 						}).bind(this));
 						_.forEach(curSeriesArr.seriesName, function(v, i){
@@ -2018,7 +1844,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 						});
 					},
 					mouseOut: function(){
-						var curSeriesArr = _.find(RF_SP2Store.stateObj.indicatrix_state_arr, (function(v, i){
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
 							return this.name == v.name;
 						}).bind(this));
 						_.forEach(curSeriesArr.seriesName, function(v, i){
@@ -2063,14 +1889,14 @@ $(".indicatrix_footin>.btn-success").click(function(){
 					}
 				}
 			});
-			RF_SP2Store.stateObj.indicatrix_state_arr.push({
+			RF_SP2State.stateObj.indicatrix_state_arr.push({
 				name: "低于指标#"+i,
 				seriesName: iArr
 			});
 		});
 		/*判断低于区间end*/
 		/*判断高于区间*/
-		_.forEach(RF_SP2Store.stateObj[iclassify].indicatrix_up, function(v, i){
+		_.forEach(RF_SP2State.stateObj[iclassify].indicatrix_up, function(v, i){
 			var data = [];
 			var inde1 = _.indexOf(xCategories, v[0]);
 			var inde2 = _.indexOf(xCategories, v[1]);
@@ -2103,7 +1929,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				events: {
 					mouseOver: function(){
 						/*console.log(this); // series对象*/
-						var curSeriesArr = _.find(RF_SP2Store.stateObj.indicatrix_state_arr, (function(v, i){
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
 							return this.name == v.name;
 						}).bind(this));
 						_.forEach(curSeriesArr.seriesName, function(v, i){
@@ -2117,7 +1943,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 						});
 					},
 					mouseOut: function(){
-						var curSeriesArr = _.find(RF_SP2Store.stateObj.indicatrix_state_arr, (function(v, i){
+						var curSeriesArr = _.find(RF_SP2State.stateObj.indicatrix_state_arr, (function(v, i){
 							return this.name == v.name;
 						}).bind(this));
 						_.forEach(curSeriesArr.seriesName, function(v, i){
@@ -2162,13 +1988,13 @@ $(".indicatrix_footin>.btn-success").click(function(){
 					}
 				}
 			});
-			RF_SP2Store.stateObj.indicatrix_state_arr.push({
+			RF_SP2State.stateObj.indicatrix_state_arr.push({
 				name: "高于指标#"+i,
 				seriesName: iArr
 			});
 		});
 		/*线段变色*/
-		_.forEach(RF_SP2Store.stateObj.indicatrix_state_arr, function(o, ind){
+		_.forEach(RF_SP2State.stateObj.indicatrix_state_arr, function(o, ind){
 			if(_.isEmpty(o.seriesName)) return true;
 			_.find(series, function(oo){
 				return oo.name == o.name;
@@ -2177,10 +2003,10 @@ $(".indicatrix_footin>.btn-success").click(function(){
 			});
 		});
 	}
-	/*RF_SP2Store.stateObj.indicatrix_copy.delFlag = false;
-	RF_SP2Store.stateObj.indicatrix_copy.submitFlag = true;*/
-	/*RF_SP2Store.stateObj.indicatrix_copy.low = _.cloneDeep(RF_SP2Store.stateObj.indicatrix_low);
-	RF_SP2Store.stateObj.indicatrix_copy.up = _.cloneDeep(RF_SP2Store.stateObj.indicatrix_up);*/
+	/*RF_SP2State.stateObj.indicatrix_copy.delFlag = false;
+	RF_SP2State.stateObj.indicatrix_copy.submitFlag = true;*/
+	/*RF_SP2State.stateObj.indicatrix_copy.low = _.cloneDeep(RF_SP2State.stateObj.indicatrix_low);
+	RF_SP2State.stateObj.indicatrix_copy.up = _.cloneDeep(RF_SP2State.stateObj.indicatrix_up);*/
 	$(".indicatrix_footin>.btn-warning").trigger("click");
 });
 
@@ -2189,7 +2015,7 @@ $(".indicatrix_body legend>span").click(function(){
 	$('<tr><td><input type="text" class="form-control AwesompleteX input_X1"></td><td><input type="text" class="form-control AwesompleteX input_X2"></td><td><input type="text" class="form-control input_Y0"></td><td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></td></tr>').appendTo($(this).parent().next().children("tbody")).find("input.AwesompleteX")
 	.each(function(i, el){
 		new Awesomplete(el, {
-			list: RF_SP2Store.stateObj.smithSXCategories,
+			list: RF_SP2State.stateObj.smithSXCategories,
 			minChars: 1,
 			maxItems: 15,
 			autoFirst: true
@@ -2210,16 +2036,16 @@ $(document).on("click", ".indicatrix_body tbody span.glyphicon-ok", function(){
 	if(_.isEmpty(input_X1) || _.isEmpty(input_X2) || _.isEmpty(input_Y0)) return false;
 	var indicatrixArr;
 	if($(this).parents().is("#upflag_table")){
-		indicatrixArr = RF_SP2Store.stateObj[iclassify].indicatrix_up;
-		/*indicatrix_copyArr = RF_SP2Store.stateObj.indicatrix_copy.up;*/
+		indicatrixArr = RF_SP2State.stateObj[iclassify].indicatrix_up;
+		/*indicatrix_copyArr = RF_SP2State.stateObj.indicatrix_copy.up;*/
 	}else if($(this).parents().is("#lowflag_table")){
-		indicatrixArr = RF_SP2Store.stateObj[iclassify].indicatrix_low;
-		/*indicatrix_copyArr = RF_SP2Store.stateObj.indicatrix_copy.low;*/
+		indicatrixArr = RF_SP2State.stateObj[iclassify].indicatrix_low;
+		/*indicatrix_copyArr = RF_SP2State.stateObj.indicatrix_copy.low;*/
 	}
 	var X1 = Math.min(Number(input_X1), Number(input_X2));
 	var X2 = Math.max(Number(input_X1), Number(input_X2));
 	var Y0 = Number(input_Y0);
-	if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2Store.stateObj[iclassify].indicatrix_up, RF_SP2Store.stateObj[iclassify].indicatrix_low))){
+	if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2State.stateObj[iclassify].indicatrix_up, RF_SP2State.stateObj[iclassify].indicatrix_low))){
 		RF_SP2SwalMixin({
 			title: '选择区间提示',
 			text: "区间与已有区间重合，请重选",
@@ -2251,11 +2077,11 @@ $(".indicatrix_footin>.btn-danger").click(function(){
 	var id = $("[id$='_chart_S']:visible").attr("id");
 	if(_.isNil(id)) return false;
 	var iclassify = id.replace("_chart_S", "");
-	if(_.isEmpty(_.concat(RF_SP2Store.stateObj[iclassify].indicatrix_up, RF_SP2Store.stateObj[iclassify].indicatrix_low))) return false;
+	if(_.isEmpty(_.concat(RF_SP2State.stateObj[iclassify].indicatrix_up, RF_SP2State.stateObj[iclassify].indicatrix_low))) return false;
 	$(".indicatrix_footin>.btn-warning").trigger("click");
 	$("#upflag_table>tbody, #lowflag_table>tbody").empty();
-	RF_SP2Store.stateObj[iclassify].indicatrix_up.length = 0;
-	RF_SP2Store.stateObj[iclassify].indicatrix_low.length = 0;
+	RF_SP2State.stateObj[iclassify].indicatrix_up.length = 0;
+	RF_SP2State.stateObj[iclassify].indicatrix_low.length = 0;
 	$(".indicatrix_footin>.btn-success").prop("disabled", true);
 	$(".indicatrix_body legend>span").fadeIn(100);
 	getDataBuildBigS12S21({

@@ -12,16 +12,17 @@
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
 	<title>futureD工程分析</title>
-	<link rel="stylesheet" href="../style/common/reset.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/bootstro.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/common/pagination.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/sweetalert2.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/libs/animate.min.css" type="text/css">
-	<link rel="stylesheet" href="../style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/bootstro.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/pagination.min.css" type="text/css">
+	<!-- 变 -->
+	<link rel="stylesheet" href="src/style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
 </head>
 <body data-curpage="projectAnalysis">
-	<div class="g_logo"><img src="../img/modules/dataList/logo.png" alt="logo"></div>
+	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
 		<div class="g_info_m">
@@ -133,19 +134,18 @@
 
 		
 	</div>
-	<script src="../script/libs/jquery-3.3.1.min.js"></script>
-	<script src="../script/libs/bootstrap.min.js"></script>
-	<script src="../script/libs/lodash.min.js"></script>
-	<script src="../script/libs/store.legacy.min.js"></script>
-	<script src="../script/libs/moment-with-locales.min.js"></script>
-	<script src="../script/libs/sweetalert2.min.js"></script>
-	<script src="../script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
-	<script src="../script/common/futureDT2session.js"></script>
-	<script src="../script/common/pagination.min.js"></script>
-	<script src="../script/libs/bootstro.js"></script>
-	<script src="../script/common/futureD_bootstro.js"></script>
-	<script src="../script/common/futureD_config.js"></script>
-	<script src="../script/common/mock.js"></script>
-	<script src="../script/modules/projectAnalysis/projectAnalysis.js"></script>
+	<script src="assets/script/libs/jquery-3.3.1.min.js"></script>
+	<script src="assets/script/libs/bootstrap.min.js"></script>
+	<script src="assets/script/libs/lodash.min.js"></script>
+	<script src="assets/script/libs/store.legacy.min.js"></script>
+	<script src="assets/script/libs/moment-with-locales.min.js"></script>
+	<script src="assets/script/libs/sweetalert2.min.js"></script>
+	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
+	<script src="assets/script/libs/bootstro.js"></script>
+	<script src="assets/script/common/futureD_bootstro.js"></script>
+	<script src="assets/script/libs/pagination.min.js"></script>
+	<!-- 变 -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/projectAnalysis/projectAnalysis.js"></script>
 </body>
 </html>

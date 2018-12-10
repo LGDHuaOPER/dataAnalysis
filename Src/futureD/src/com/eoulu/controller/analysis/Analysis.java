@@ -1,14 +1,14 @@
 package com.eoulu.controller.analysis;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.eoulu.service.AnalysisService;
-import com.eoulu.service.impl.AnalysisServiceImpl;
+import com.google.gson.Gson;
 
 /**
  * Servlet implementation class Analysis
@@ -31,7 +31,7 @@ public class Analysis extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 		String[] wafer = request.getParameterValues("wafer[]");
-		request.setAttribute("wafer", wafer);
+		request.setAttribute("wafer", new Gson().toJson(wafer));
 		request.getRequestDispatcher("/WEB-INF/html/RF_SP2.jsp").forward(request, response);
 	}
 

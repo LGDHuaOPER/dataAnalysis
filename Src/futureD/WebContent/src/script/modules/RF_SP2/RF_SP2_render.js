@@ -1,13 +1,23 @@
 /*单独获取数据，构造数据，绘制S12,S21*/
 function getDataBuildS12S21(obj){
-	var allData = obj.allData;
+	var allData = obj.allData,
+	container = obj.container,
+	zoomType = obj.zoomType,
+	showCheckbox = obj.showCheckbox,
+	renderData = obj.renderData,
+	GHzFlag = obj.GHzFlag,
+	callback = obj.callback;
 	var objec = {};
 	objec.xCategories = [];
 	_.forEach(allData[0].data, function(v, i){
-		objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+		if(GHzFlag === true) {
+			objec.xCategories.push(v[0]);
+		}else{
+			objec.xCategories.push(Math.floor(v[0] / 10000000)/100);
+		}
 	});
 	objec.series = [];
-	if(obj.renderData){
+	if(renderData){
 		_.forEach(allData, function(v, i){
 			var item = {};
 			item.name = v.name;
@@ -15,10 +25,11 @@ function getDataBuildS12S21(obj){
 			_.forEach(v.data, function(vv, ii){
 				item.data.push(parseFloat(vv[1]));
 			});
+			objec.series.push(item);
 		});
 	}
-	objec.container = obj.container;
-	objec.zoomType = obj.zoomType;
+	objec.container = container;
+	objec.zoomType = zoomType;
 	objec.resetZoomButton = {
 		position: {
 			align: 'left', // by default
@@ -28,12 +39,26 @@ function getDataBuildS12S21(obj){
 		},
 		relativeTo: 'chart'
 	};
-	objec.showCheckbox = obj.showCheckbox;
+	objec.showCheckbox = showCheckbox;
+	objec.callback = callback;
+	console.log(objec)
 	drawRealS12S21(objec);
 }
 
 function getDataBuildS11S22(obj) {
-	var smith1 = smithChart(obj.wrapDOM, obj.title, obj.legendName, obj.data, obj.classify, obj.msgDOM, obj.lineColorArray, obj.msgFun, obj.msgInitFun);
+	var smith1 = smithChart({
+		dom: obj.wrapDOM,
+		titleOneArr: obj.title,
+		legendNameOneArr: obj.legendName,
+		allDataArr: obj.data,
+		Type: obj.classify,
+		msgdom: obj.msgDOM,
+		lineColorArray: obj.lineColorArray,
+		msgFun: obj.msgFun,
+		msgInitFun: obj.msgInitFun,
+		GHzFlag: obj.GHzFlag
+	});
+	console.log(obj.data)
 	_.isFunction(obj.callback) && obj.callback(smith1);
 }
 

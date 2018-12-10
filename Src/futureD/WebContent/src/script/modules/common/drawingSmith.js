@@ -10,7 +10,8 @@ function smithChart(obj) {
 	var lineColorArray = obj.lineColorArray;
 	var msgFun = obj.msgFun;
 	var msgInitFun = obj.msgInitFun;
-	var GHzFlag = obj.GHzFlag;
+    var GHzFlag = obj.GHzFlag;
+	var HzLv = obj.HzLv || 10E6;
 
     // 公式是(x-x0)^2 + (y-y0)^2 = r^2
     dom.innerHTML = '';
@@ -375,11 +376,11 @@ function smithChart(obj) {
                                 verticalLine.style.marginTop = -marginTop + 'px';
                                 //加载点信息
                                 if(msgdom && allData.length){
-                                	var GHzData = _data[t][m][0]/10E6;
+                                	var GHzData = _data[t][m][0]/HzLv;
                                 	if(GHzFlag === true) GHzData = _data[t][m][0];
                                     var messages = "("+_data[t][m][1].toFixed(2)+","+_data[t][m][2].toFixed(2)+"),"+(GHzData).toFixed(2)+"GHz";
                                     if(msgFun){
-                                    	var initGHzData = _data[t][0][0]/10E6;
+                                    	var initGHzData = _data[t][0][0]/HzLv;
                                     	if(GHzFlag === true) initGHzData = _data[t][0][0];
                                         var initMess = "("+_data[t][0][1].toFixed(2)+","+_data[t][0][2].toFixed(2)+"),"+(initGHzData).toFixed(2)+"GHz";
                                         msgFun(messages, t, initMess);
@@ -395,7 +396,7 @@ function smithChart(obj) {
         }
     };
     if(msgdom && allData.length){
-    	var GHzDat = _data[0][0][0]/10E6;
+    	var GHzDat = _data[0][0][0]/HzLv;
     	if(GHzFlag === true) GHzDat = _data[0][0][0];
         var messag = "("+_data[0][0][1].toFixed(2)+","+_data[0][0][2].toFixed(2)+"),"+(GHzDat).toFixed(2)+"GHz";
         if(msgInitFun){
