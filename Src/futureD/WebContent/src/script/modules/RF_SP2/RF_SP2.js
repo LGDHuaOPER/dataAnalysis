@@ -1,5 +1,8 @@
 /*before load*/
 $(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv, .g_bodyin_bodyin_top_wrap_m_in li[data-targetclass='add']").hide();
+$(".reRenderBtnDiv, button.backover, button.open_del_indicatrix, .g_bodyin_bodyin_bottom_rsubin_tit>button").css({
+	"opacity": 1
+});
 
 /*variable defined*/
 /*_.find(Highcharts.charts, function(v){if(!_.isNil(v)) return v.renderTo == $("div#S12_chart_S")[0];});
@@ -40,6 +43,14 @@ RF_SP2Store.stateObj = {
 		indicatrix_low: [],
 		indicatrix_up: [],
 	},
+	S11: {
+		indicatrix_low: [],
+		indicatrix_up: [],
+	},
+	S22: {
+		indicatrix_low: [],
+		indicatrix_up: [],
+	},
 	/*指标线的最大最小值*/
 	indicatrix_min_max: [],
 	indicatrix_state_arr: [],
@@ -56,7 +67,7 @@ RF_SP2Store.stateObj = {
 		S11: [],
 		S12: [],
 		S21: [],
-		S22: [],
+		S22: []
 	},
 	/*双击小图的标志*/
 	dblclickFlag: false,
@@ -68,7 +79,22 @@ RF_SP2Store.stateObj = {
 		S22: false
 	},
 	// 导航栏
-	navCurveType: "RF-S2P"
+	navCurveType: "RF-S2P",
+	// 大图史密斯对象
+	S2PBigChartSmithData: {
+		S11: {
+
+		},
+		S12: {
+
+		},
+		S21: {
+
+		},
+		S22: {
+
+		}
+	}
 };
 RF_SP2Store.MathMap = {
 	"sin": {
@@ -237,7 +263,7 @@ RF_SP2Store.util.smithHandler = function(obj){
 						RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
 					}
 				});
-			}, 30);
+			}, 10);
 		}else if(delLi === true){
 			/*删除数据*/
 			_.pullAt(RF_SP2Store.stateObj.S2PSmallChartSmithData[s], _.findIndex(RF_SP2Store.stateObj.S2PSmallChartSmithData[s], function(vv){
@@ -265,6 +291,7 @@ RF_SP2Store.util.smithHandler = function(obj){
 				lineColorArray: lineColorArray2,
 				msgInitFun: _.bind(msgInitFun, this, _, s, sClassify3, false),
 				msgFun: _.bind(imsgFun, this, _, _, s, sClassify3),
+				GHzFlag: true,
 				callback: function(smith1){
 					if(RF_SP2Store.stateObj.S2PSmallChartSmithArr.length >= 2) RF_SP2Store.stateObj.S2PSmallChartSmithArr.length = 0;
 					RF_SP2Store.stateObj.S2PSmallChartSmithArr.push(smith1);
@@ -340,14 +367,15 @@ RF_SP2Store.util.smithHandler = function(obj){
 RF_SP2Store.util.linkage = function(obj){
 	var classify = obj.classify || 1,
 	jQDOM = obj.jQDOM;
+	if(jQDOM.children(".list-group-item-info").length>0){
+		jQDOM.parent().removeClass("panel-default").addClass("panel-success");
+	}else{
+		jQDOM.parent().removeClass("panel-success").addClass("panel-default");
+	}
 	if(classify === 1){
-		if(jQDOM.children(".list-group-item-info").length>0){
-			jQDOM.parent().removeClass("panel-default").addClass("panel-success");
-		}else{
-			jQDOM.parent().removeClass("panel-success").addClass("panel-default");
-		}
 		/*全选联动*/
 		$(".g_bodyin_bodyin_bottom_l_inbottom>input").prop("checked", $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item").length === $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item.list-group-item-info").length);
+	}else if(classify === 2){
 	}
 };
 RF_SP2Store.util.renderNav = function(obj){
@@ -374,7 +402,109 @@ RF_SP2Store.util.renderNav = function(obj){
 		str+='<li data-targetclass="add"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>';
 	}
 	$(".g_bodyin_bodyin_top_wrap_m_in>ul").empty().append(str);
-}
+};
+RF_SP2Store.util.graphStyleHandler = function(obj){
+	var graphStyle = obj.graphStyle,
+	iclassify = obj.iclassify,
+	itargetchart = obj.itargetchart,
+	contextFlag = obj.contextFlag;
+	switch(graphStyle){
+		case "XYOfPhase":
+			RF_SP2Store.util.graphStyleDraw({
+				graphStyle: graphStyle,
+				sParameter: iclassify,
+				container: itargetchart,
+				series: _.cloneDeep(RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle])
+			});
+		break;
+		case "XYOfMagnitude":
+			RF_SP2Store.util.graphStyleDraw({
+				graphStyle: graphStyle,
+				sParameter: iclassify,
+				container: itargetchart,
+				series: _.cloneDeep(RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle])
+			});
+		break;
+	}
+};
+RF_SP2Store.util.graphStyleDraw = function(obj){
+	var container = obj.container,
+	graphStyle = obj.graphStyle,
+	sParameter = obj.sParameter,
+	// xCategories = obj.xCategories,
+	series = obj.series;
+	var chart;
+	if(graphStyle == "XYOfPhase" || graphStyle == "XYOfMagnitude"){
+		chart = Highcharts.chart(container, {
+			chart: {
+				type: 'line',
+				zoomType: 'x',
+				resetZoomButton: {
+					position: {
+						align: 'left', // by default
+						// verticalAlign: 'top', // by default
+						x: 0,
+						y: 0
+					},
+					relativeTo: 'chart'
+				}
+			},
+			title: {
+				text: sParameter+" - "+graphStyle
+			},
+	        lang: {
+	            loading: 'Loading...' //设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
+	        },
+	        legend: {
+				enabled: true
+			},
+		    xAxis: {
+				title: {
+					text: "GHz",
+				}
+				// categories : xCategories
+			}, 
+			yAxis: {
+				title: {
+					text: _.isEqual(graphStyle, "XYOfPhase") ? "Degrees" : "Magnitude",
+				},
+			    gridLineColor: '#eee',
+			    gridLineWidth: 1
+			},
+			series: series,
+			credits: {
+				enabled: false
+			},
+			tooltip: {
+				formatter: function (e) {
+					return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' dB';
+	            },
+	            useHTML: true
+				/*headerFormat: '<b>{series.name}</b><br>',
+				pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
+			},
+			plotOptions: {
+				series: {
+					point: {
+						events: {
+							mouseOver: function (ev) {
+								var point = this;
+								/*var x = xCategories[this.x] ;
+								var y = this.y ;
+								var str = y+" dB,"+x+" GHz" ;
+								msgDom && msgDom.find(".Smith_Msg2").text(str);*/
+								_.isFunction(obj.pointMouseOverCallback) && obj.pointMouseOverCallback(point, chart, ev);
+							}
+						}
+					},
+					showCheckbox: true
+				}
+			},
+		});
+	}
+	_.isFunction(obj.callback) && obj.callback(chart);
+	return chart;
+};
 
 RF_SP2Store.ajax = Object.create(null);
 RF_SP2Store.ajax.AnalysisFile = function(obj){
@@ -388,9 +518,12 @@ RF_SP2Store.ajax.AnalysisFile = function(obj){
 	}).then(obj.done);
 };
 RF_SP2Store.ajax.AnalysisCurve = function(obj){
+	var iasync = obj.iasync;
+	if(_.isNil(iasync)) iasync = true;
 	$.ajax({
 		type: "GET",
 		url: "AnalysisCurve",
+		async: iasync,
 		data: {
 			curveTypeId: obj.curveTypeId,
 			legend: obj.legend || void(0),
@@ -468,109 +601,81 @@ function judgeLineSegmentIntersect(x1, x2, indicatrix){
 	return flag;
 }
 
-/*史密斯图S12 S21大图获取数据绘制图形*/
+/*史密斯图S12 S21大图获取数据绘制图形
+* XYdBOfMagnitude*/
 function getDataBuildBigS12S21(obj){
-	var iclassify = obj.iclassify;
-	var itargetchart = obj.itargetchart;
-	var contextFlag = obj.contextFlag;
+	var iclassify = obj.iclassify, 
+	itargetchart = obj.itargetchart,
+	contextFlag = obj.contextFlag,
+	graphStyle = obj.graphStyle,
+	callback = obj.callback;
+	var originData;
 	if(contextFlag === true){
-		// 如果是右键绘制
-		var iflag = obj.iflag;
-		switch (iflag) {
-			case "Smith": 
-				getDataBuildBigS12S21({
-					iclassify: iclassify,
-					itargetchart: itargetchart,
-					callback: obj.callback
-				});
-			break;
-			default: 
-				var obje = {};
-				obje.xCategories = [];
-				_.forEach(RF_SP2Store.mock.RF_SP2_MagnitudeDB[0][iclassify], function(v, i){
-					obje.xCategories.push(Math.floor(v[0] / 10000000)/100);
-				});
-				
-				/*真实数据*/
-				obje.series = [];
-				_.forEach(RF_SP2Store.waferSelected, function(v, i){
-					var copyData = _.cloneDeep(RF_SP2Store.mock.RF_SP2_MagnitudeDB[i%3][iclassify]);
-					var item = {};
-					item.name = v;
-					item.data = [];
-					_.forEach(copyData, function(vv, ii){
-						item.data.push(parseFloat(vv[1]));
-					});
-					obje.series.push(item);
-				});
-				obje.container = itargetchart;
-				obje.legend_enabled = true;
-				obje.zoomType = 'x';
-				obje.resetZoomButton = {
-					position: {
-						align: 'left', // by default
-						// verticalAlign: 'top', // by default
-						x: 90,
-						y: 10
-					},
-					relativeTo: 'chart'
-				};
-				obje.text = iclassify;
-				obje.showCheckbox = true;
-				obje.callback = obj.callback;
-				drawRealS12S21(obje);
-		}
+		originData = _.cloneDeep(RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle]);
 	}else{
 		// 如果不是右键绘制
-		var objec = {};
-		objec.xCategories = [];
-		var xCatFlag = false;
-		/*真实数据*/
-		objec.series = [];
-		_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify], function(v, i){
-			var item = {};
-			item.name = v.name;
-			item.data = [];
-			_.forEach(v.data, function(vv, ii){
-				item.data.push(parseFloat(vv[1]));
-				if(!xCatFlag){
-					objec.xCategories.push(parseFloat(vv[0]));
-				}
-			});
-			item.color = v.color;
-			objec.series.push(item);
-			xCatFlag = true;
-		});
-		_.times(objec.series.length, function(ii){
-			RF_SP2Store.stateObj.indicatrix_min_max[0] = _.min([RF_SP2Store.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
-			RF_SP2Store.stateObj.indicatrix_min_max[1] = _.max([RF_SP2Store.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
-		});
-		objec.container = itargetchart;
-		objec.legend_enabled = true;
-		objec.zoomType = 'x';
-		objec.resetZoomButton = {
-			position: {
-				align: 'left', // by default
-				// verticalAlign: 'top', // by default
-				x: 90,
-				y: 10
-			},
-			relativeTo: 'chart'
-		};
-		objec.text = iclassify;
-		objec.showCheckbox = true;
-		objec.callback = obj.callback;
-		RF_SP2Store.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
-		drawRealS12S21(objec);
+		originData = _.cloneDeep(RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify]);
 	}
+	var objec = {};
+	objec.xCategories = [];
+	var xCatFlag = false;
+	/*真实数据*/
+	objec.series = [];
+	_.forEach(originData, function(v, i){
+		var item = {};
+		item.name = v.name;
+		item.data = [];
+		_.forEach(v.data, function(vv, ii){
+			item.data.push(parseFloat(vv[1]));
+			if(!xCatFlag){
+				objec.xCategories.push(parseFloat(vv[0]));
+			}
+		});
+		item.color = v.color;
+		objec.series.push(item);
+		xCatFlag = true;
+	});
+	_.times(objec.series.length, function(ii){
+		RF_SP2Store.stateObj.indicatrix_min_max[0] = _.min([RF_SP2Store.stateObj.indicatrix_min_max[0], _.min(objec.series[ii].data)]);
+		RF_SP2Store.stateObj.indicatrix_min_max[1] = _.max([RF_SP2Store.stateObj.indicatrix_min_max[1], _.max(objec.series[ii].data)]);
+	});
+	objec.container = itargetchart;
+	objec.legend_enabled = true;
+	objec.zoomType = 'x';
+	objec.resetZoomButton = {
+		position: {
+			align: 'left', // by default
+			// verticalAlign: 'top', // by default
+			x: 90,
+			y: 10
+		},
+		relativeTo: 'chart'
+	};
+	if(_.isNil(graphStyle)) {
+		objec.text = iclassify;
+	}else{
+		objec.text = iclassify + " - " + graphStyle;
+	}
+	objec.showCheckbox = true;
+	objec.callback = callback;
+	RF_SP2Store.stateObj.smithSXCategories = _.cloneDeep(objec.xCategories);
+	drawRealS12S21(objec);
 }
 
-/*史密斯S11 S22大图获取数据绘制图形*/
+/*史密斯S11 S22大图获取数据绘制图形
+* 史密斯圆图*/
 function getDataBuildBigS11S22(obj){
-	var iclassify = obj.iclassify;
-	var itargetchart = obj.itargetchart;
-	var item = obj.item;
-	var reduceData = _.cloneDeep(RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify]);
+	var iclassify = obj.iclassify,
+	itargetchart = obj.itargetchart,
+	item = obj.item,
+	contextFlag = obj.contextFlag || false,
+	graphStyle = obj.graphStyle;
+	var reduceData;
+	if(contextFlag === true){
+		reduceData = _.cloneDeep(RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle]);
+	}else if(contextFlag === false){
+		reduceData = _.cloneDeep(RF_SP2Store.stateObj.S2PSmallChartSmithData[iclassify]);
+	}
 	getDataBuildS11S22({
 		wrapDOM: document.getElementById(itargetchart),
 		title: [''],
@@ -603,6 +708,7 @@ function getDataBuildBigS11S22(obj){
 			curDOM.addClass("active").next().addClass("active").find(".Smith_Msg2").text(initMess);
 			curDOM.find(".Smith_Msg2").text(messag);
 		},
+		GHzFlag: true,
 		callback: function(smith1){
 			window.onresize = function () {
 				smith1.onresize();
@@ -994,6 +1100,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading",
 	if(!iThat.hasClass("list-group-item-info")){
 		RF_SP2Store.ajax.AnalysisCurve({
 			curveTypeId: [curvetypeid],
+			async: false,
 			done: function(data){
 				if(_.isNil(data) || _.isEmpty(data)){
 					eouluGlobal.S_getSwalMixin()({
@@ -1004,7 +1111,6 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading",
 					 	showConfirmButton: false,
 						timer: 1800,
 					}).then(function(){
-
 					});
 				}else{
 					if(_.keys(data).length == 1){
@@ -1039,20 +1145,26 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading",
 					/*如果显示大图*/
 					if(RF_SP2Store.stateObj.dblclickFlag){
 						var dblid = $("[id$=_chart_S]:visible").attr("id");
+						// console.assert(dblid=="S11_chart_S", "no S11_chart_S");
 						var dblclassify = dblid.replace("_chart_S", "");
+						// console.assert(dblclassify=="S11", "no S11");
 						if(_.indexOf(["S11", "S22"], dblclassify) > -1){
-							getDataBuildBigS11S22({
-								iclassify: dblclassify,
-								itargetchart: dblid
-							});
+							setTimeout(function(){
+								getDataBuildBigS11S22({
+									iclassify: dblclassify,
+									itargetchart: dblid
+								});
+							}, 30);
 						}else{
 							getDataBuildBigS12S21({
 								iclassify: dblclassify,
-								itargetchart: dblid
+								itargetchart: dblid,
+								callback: function(){
+									setTimeout(function(){
+										$(".indicatrix_footin>.btn-success").trigger("click");
+									}, 50);
+								}
 							});
-							setTimeout(function(){
-								$(".indicatrix_footin>.btn-success").trigger("click");
-							}, 50);
 						}
 					}
 				}
@@ -1092,29 +1204,17 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading",
 			}else{
 				getDataBuildBigS12S21({
 					iclassify: dblclassify1,
-					itargetchart: dblid1
+					itargetchart: dblid1,
+					callback: function(){
+						setTimeout(function(){
+							$(".indicatrix_footin>.btn-success").trigger("click");
+						}, 50);
+					}
 				});
-				setTimeout(function(){
-					$(".indicatrix_footin>.btn-success").trigger("click");
-				}, 50);
 			}
 		}
 	}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 $(window).on("resize", function(){
 	_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithArr, function(v, i, arr){
@@ -1122,69 +1222,121 @@ $(window).on("resize", function(){
 	});
 });
 
-/*S2P分页左侧切换*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_main", function(){
-	if($(this).hasClass("active")){
-		$(this).next().slideUp(1000);
-	}else{
-		$(this).next().slideDown(1000);
-	}
-	$(this).toggleClass("active");
-});
-
+/*全选*/
 $(".g_bodyin_bodyin_bottom_l_inbottom>input").click(function(){
+	var iconClass;
 	if($(this).prop("checked")){
-		$(".g_bodyin_bodyin_bottom_l_itemin_main").each(function(){
-			$(this).addClass("active").next().slideDown(1000);
+		iconClass = "glyphicon-menu-right";
+		var curvetypeid = [],
+		legend = [];
+		$(".g_bodyin_bodyin_bottom_l_intop .panel>ul>li:not(.list-group-item-info)").each(function(i, el){
+			curvetypeid.push($(el).data("curvetypeid"));
+			legend.push($(el).data("waferfile")+"  "+$(el).data("curvefile"));
 		});
+		if(_.isNil(curvetypeid)) return false;
 		RF_SP2SwalMixin({
 			title: '信息',
-			text: "正在绘图",
+			text: "正在绘图，请勿点击",
 			type: 'info',
 			showConfirmButton: false,
-			showCancelButton: false,
-			timer: 2000
-		}).then(function(result){
-			RF_SP2SwalMixin({
-				title: '信息',
-				text: "正在绘图",
-				type: 'info',
-				showConfirmButton: false,
-				showCancelButton: false,
-			});
-			$(".g_bodyin_bodyin_bottom_l_itemin_subin").each(function(){
-				if($(this).hasClass("selected")) return true;
-				$(this).trigger("click");
-			});
-			swal.clickCancel();
+			showCancelButton: false
+		});
+		RF_SP2Store.ajax.AnalysisCurve({
+			curveTypeId: curvetypeid,
+			legend: legend,
+			async: false,
+			done: function(data){
+				if(_.isNil(data) || _.isEmpty(data)){
+					eouluGlobal.S_getSwalMixin()({
+					 	title: "信息",
+					 	text: "所选晶圆无曲线数据！",
+					 	html: undefined,
+					 	type: "info",
+					 	showConfirmButton: false,
+						timer: 1800,
+					}).then(function(){
+					});
+				}else{
+					_.forOwn(data, function(v, k){
+						_.forOwn(v, function(vv, kk){
+							RF_SP2Store.util.smithHandler({
+								s: kk,
+								data: vv,
+								seriesName: k
+							});
+						});
+						var seriesNameArr = k.split("  ");
+						$('.g_bodyin_bodyin_bottom_l_intop .panel>ul>li:not(.list-group-item-info)[data-waferfile="'+seriesNameArr[0]+'"][data-curvefile="'+seriesNameArr[1]+'"]').addClass("list-group-item-info");
+					});
+					Array.prototype.push.apply(RF_SP2Store.waferSelected, _.cloneDeep(curvetypeid));
+					$(".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading").each(function(){
+						var $ul = $(this).siblings("ul");
+						RF_SP2Store.util.linkage({
+							classify: 2,
+							jQDOM: $ul
+						});
+					});
+					// response
+					if(RF_SP2Store.waferSelected.length > 3){
+						var oldHeight = ~~$("#picture_box2").innerHeight();
+						var oldWidth = ~~$("#picture_box2").innerWidth();
+						var radios = 2;
+						if(RF_SP2Store.waferSelected.length > 8){
+							radios = 3;
+						}
+						$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-7);
+						$("#picture2top").highcharts().setSize(oldWidth-7, oldHeight*radios);
+						$("#picture3top").highcharts().setSize(oldWidth-7, oldHeight*radios);
+					}
+					// 如果显示大图
+					if(RF_SP2Store.stateObj.dblclickFlag){
+						var dblid = $("[id$=_chart_S]:visible").attr("id");
+						// console.assert(dblid=="S11_chart_S", "no S11_chart_S");
+						var dblclassify = dblid.replace("_chart_S", "");
+						// console.assert(dblclassify=="S11", "no S11");
+						if(_.indexOf(["S11", "S22"], dblclassify) > -1){
+							setTimeout(function(){
+								getDataBuildBigS11S22({
+									iclassify: dblclassify,
+									itargetchart: dblid
+								});
+							}, 40);
+						}else{
+							getDataBuildBigS12S21({
+								iclassify: dblclassify,
+								itargetchart: dblid,
+								callback: function(){
+									setTimeout(function(){
+										$(".indicatrix_footin>.btn-success").trigger("click");
+									}, 50);
+								}
+							});
+						}
+					}
+					swal.close();
+				}
+			}
 		});
 	}else{
-		$(".g_bodyin_bodyin_bottom_l_itemin_main").each(function(){
-			$(this).removeClass("active").next().slideUp(1000);
-		});
+		iconClass = "glyphicon-menu-down";
+		checkedF = false;
 		RF_SP2SwalMixin({
 			title: '信息',
-			text: "正在绘图",
+			text: "正在绘图，请勿点击",
 			type: 'info',
 			showConfirmButton: false,
-			showCancelButton: false,
-			timer: 2000
-		}).then(function(result){
-			RF_SP2SwalMixin({
-				title: '信息',
-				text: "正在绘图",
-				type: 'info',
-				showConfirmButton: false,
-				showCancelButton: false,
-			});
-			$(".g_bodyin_bodyin_bottom_l_itemin_subin").each(function(){
-				if(!$(this).hasClass("selected")) return true;
+			showCancelButton: false
+		});
+		setTimeout(function(){
+			$(".g_bodyin_bodyin_bottom_l_intop .panel>ul>li.list-group-item-info").each(function(i, el){
 				$(this).trigger("click");
 			});
-			$("#picture1bottom .picturebottom_in_m_in ul, #picture4bottom .picturebottom_in_m_in ul").empty();
-			swal.clickCancel();
-		});
+			swal.close();
+		}, 30);
 	}
+	$(".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading").each(function(){
+		if($(this).children("span").hasClass(iconClass)) $(this).trigger("click");
+	});
 });
 
 /*上部分左右移动*/
@@ -1203,7 +1355,6 @@ $(".g_bodyin_bodyin_top_wrap_l>span").click(function(){
 		queue: false
 	});
 });
-
 $(".g_bodyin_bodyin_top_wrap_r>span").click(function(){
 	var oldLeft = parseFloat($(".g_bodyin_bodyin_top_wrap_m_in").css("left"));
 	var width = $(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() - $(".g_bodyin_bodyin_top_wrap_m").innerWidth();
@@ -1220,6 +1371,7 @@ $(".g_bodyin_bodyin_top_wrap_r>span").click(function(){
 	});
 });
 
+/*导航栏条*/
 $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 	var target = $(this).data("targetclass");
 	if(target == "add"){
@@ -1586,9 +1738,14 @@ $(document).on("dblclick", ".chartWarp", function(){
 				$(".signalChart_div_foot").fadeOut(10);
 				getDataBuildBigS12S21({
 					iclassify: iclassify,
-					itargetchart: itargetchart
+					itargetchart: itargetchart,
+					callback: function(){
+						$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
+						setTimeout(function(){
+							$(".indicatrix_footin>.btn-success").trigger("click");
+						}, 50);
+					}
 				});
-				$(".signalChart_div_tit>button:not(.backover)").prop("disabled", false);
 			}else{
 				/*史密斯图*/
 				$(".signalChart_div_foot").fadeIn(10);
@@ -1606,7 +1763,7 @@ $(document).on("dblclick", ".chartWarp", function(){
 $(".signalChart_div_tit>button.backover").click(function(){
 	$(".signalChart_div").fadeOut(200, function(){
 		$(".fourChart_div").fadeTo(1, 0).fadeIn(100, function(){
-			var iDOM = $(".g_bodyin_bodyin_bottom_l_itemin_subin.selected:first");
+			var iDOM = $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item-info:eq(0)");
 			iDOM.trigger("click");
 			setTimeout(function(){
 				iDOM.trigger("click");
@@ -2065,4 +2222,153 @@ $(".indicatrix_footin>.btn-danger").click(function(){
 		iclassify: iclassify,
 		itargetchart: id
 	});
+});
+
+/*右键切换开始*/
+$.contextMenu({
+	selector: "#S11_chart_S, #S22_chart_S, #S12_chart_S, #S21_chart_S",
+	callback: function(key, options) {
+		console.log(key)
+		console.log(options)
+		if(options.$trigger instanceof jQuery){
+			var curJQ = options.$trigger;
+			console.log(curJQ.data("highcharts-chart"))
+			if(_.isNil(curJQ.data("highcharts-chart"))){
+				curJQ.empty();
+			}else{
+				curJQ.highcharts().destroy();
+			}
+			var $parent = curJQ.parent(),
+			iclassify = curJQ.data("iclassify");
+			curJQ.remove();
+			$parent.append('<div id="'+iclassify+'_chart_S" data-iflag="'+key+'" data-iclassify="'+iclassify+'" style="display: block;"></div>');
+		}
+
+		var curvetypeid = [],
+		legend = [];
+		$(".g_bodyin_bodyin_bottom_l_intop .panel>ul>li.list-group-item-info").each(function(i, el){
+			curvetypeid.push($(el).data("curvetypeid"));
+			legend.push($(el).data("waferfile")+"  "+$(el).data("curvefile"));
+		});
+		if(_.isNil(curvetypeid)) return false;
+		RF_SP2SwalMixin({
+			title: '信息',
+			text: "正在绘图，请勿点击",
+			type: 'info',
+			showConfirmButton: false,
+			showCancelButton: false
+		});
+		var dblid = $("[id$=_chart_S]:visible").attr("id");
+		var dblclassify = dblid.replace("_chart_S", "");
+		RF_SP2Store.ajax.AnalysisCurve({
+			curveTypeId: curvetypeid,
+			legend: legend,
+			graphStyle: key,
+			sParameter: dblclassify,
+			async: false,
+			done: function(data){
+				if(_.isNil(data) || _.isEmpty(data)){
+					eouluGlobal.S_getSwalMixin()({
+					 	title: "信息",
+					 	text: "所选晶圆无曲线数据！",
+					 	html: undefined,
+					 	type: "info",
+					 	showConfirmButton: false,
+						timer: 1800,
+					}).then(function(){
+					});
+				}else{
+					RF_SP2Store.stateObj.S2PBigChartSmithData[dblclassify][key] = [];
+					_.forOwn(data, function(v, k){
+						_.forOwn(v, function(vv, kk){
+							// RF_SP2Store.util.smithHandler({
+							// 	s: kk,
+							// 	data: vv,
+							// 	seriesName: k
+							// });
+							var item = {};
+							item.name = k;
+							item.data = _.cloneDeep(vv);
+							item.color = _.find($("#picture2top").highcharts().series, function(o){
+								return o.name == k;
+							}).color;
+							RF_SP2Store.stateObj.S2PBigChartSmithData[dblclassify][key].push(item);
+						});
+					});
+					switch(key){
+						case "Smith":
+							$(".signalChart_div_foot").fadeIn(10);
+							// 史密斯圆图
+							getDataBuildBigS11S22({
+								iclassify: dblclassify,
+								itargetchart: dblid,
+								contextFlag: true,
+								graphStyle: key
+							});
+						break;
+
+						case "Polar":
+						break;
+
+						case "XYOfPhase":
+							RF_SP2Store.util.graphStyleHandler({
+								iclassify: dblclassify,
+								itargetchart: dblid,
+								contextFlag: true,
+								graphStyle: key
+							});
+						break;
+
+						case "XYOfMagnitude":
+							RF_SP2Store.util.graphStyleHandler({
+								iclassify: dblclassify,
+								itargetchart: dblid,
+								contextFlag: true,
+								graphStyle: key
+							});
+						break;
+
+						case "XYdBOfMagnitude":
+							$(".signalChart_div_foot").fadeOut(10);
+							getDataBuildBigS12S21({
+								iclassify: dblclassify,
+								itargetchart: dblid,
+								contextFlag: true,
+								graphStyle: key,
+								callback: function(){
+									setTimeout(function(){
+										$(".indicatrix_footin>.btn-success").trigger("click");
+									}, 50);
+								}
+							});
+						break;
+					}
+					swal.close();
+				}
+			}
+		});
+		// $("#S21_chart_S").highcharts().destroy()
+	},
+	items: {
+		"Smith": {
+			name: "Smith",
+			icon: ""
+		},
+		"Polar": {
+			name: "Polar",
+			icon: ""
+		},
+		"XYOfPhase": {
+			name: "XYOfPhase",
+			icon: ""
+		},
+		"XYOfMagnitude": {
+			name: "XYOfMagnitude",
+			icon: ""
+		},
+		"XYdBOfMagnitude": {
+			name: "XYdBOfMagnitude",
+			icon: ""
+		}
+	}
 });

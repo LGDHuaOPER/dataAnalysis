@@ -12,6 +12,7 @@ function smithChart(obj) {
 	var msgInitFun = obj.msgInitFun;
     var GHzFlag = obj.GHzFlag;
 	var HzLv = obj.HzLv || 10E6;
+    var chartType = obj.chartType || "Smith";
 
     // 公式是(x-x0)^2 + (y-y0)^2 = r^2
     dom.innerHTML = '';
@@ -79,7 +80,8 @@ function smithChart(obj) {
         var R3 = [];
         var x3, x33;
         var radis, x0, y0, i, j, k, scale;
-        if (type == 'S11' || type == 'S22') {
+        if (chartType == "Smith") {
+            // type == 'S11' || type == 'S22'
             r = [0.2, 0.4, 0.8, 1, 1.5, 2, 3, 4, 5, 10, 50];
             y11 = 0;
             for (i = 0; i < r.length; i++) {
@@ -100,9 +102,11 @@ function smithChart(obj) {
             x0 = 0;
             y0 = 0;
             scale = (Math.min(cWidth, cHeight)) / 2;
-        } else if (type == 'S12') {
+        } else if (chartType == "Polar") {
+            // type == 'S12'
             r = [0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14];
-        } else if (type == 'S21') {
+        } else if (chartType == "Polar") {
+            // type == 'S21'
             r = [5, 10, 15, 20];
         }
         //                外圆，等电阻圆的最大圆，以该圆圆心为坐标原点

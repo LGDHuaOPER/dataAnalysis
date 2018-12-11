@@ -89,7 +89,12 @@ dataCompareState.chartAjaxUrl = {
 	"CPK": "CPKServlet",
 	"correlationgraph": "scatter",
 };
-
+dataCompareState.curPageSelectAll = 
+	{  //当前页是否全选
+		//currentPage : ,
+		//SelectAll : 
+	}                     
+ 
 var dataListDetailStore = Object.create(null);
 dataListDetailStore.state = Object.create(null);
 dataListDetailStore.state = {
@@ -135,7 +140,7 @@ dataListDetailStore.state = {
 
 /*参数分布统计 其他图表绘制*/
 function draw_other_chart(obj){
-	//console.log("draw_other_chart",obj);
+	console.log("draw_other_chart",obj);
 	/*参数获取*/
 	var chartType = obj.chartType;
 	var classify = obj.classify;
@@ -200,16 +205,16 @@ function draw_other_chart(obj){
 				}
 			};
 			var iserise = [];var ndataItem;
-			for(var _id in ndata.percentList){
-				ndataItem = ndata.percentList[_id] ;
+			_.forEach(curWaferId, function(v) {
+				ndataItem = ndata.percentList[v] ;
 				iserise.push({
-					name: curWaferName[_id],
+					name: curWaferName[v],
 					type: "column",
 					data: _.map(ndataItem.percent, function(v){
 						return parseFloat(v);
 					})
 				});
-			}
+			});
 			/*iserise.push({
 				name: iparam+"频率累加",
 				type: "line",
@@ -218,6 +223,7 @@ function draw_other_chart(obj){
 				})
 			});*/
 			series = iserise;
+			console.log("histogram",series);
 		break;
 
 		case "boxlinediagram":
@@ -281,6 +287,7 @@ function draw_other_chart(obj){
 						pointFormat: '温和异常值: {point.y}'
 					}
 				}];
+			console.log("boxlinediagram",series);
 		break;
 		case "CPK":
 			var CPK_data = [];
@@ -326,7 +333,7 @@ function draw_other_chart(obj){
 				}
 			};
 			series = CPK_data;
-			
+			console.log("CPK",series);
 		break;
 		case "correlationgraph":
 			title_text = "相关性图-"+iparam;
@@ -374,6 +381,7 @@ function draw_other_chart(obj){
 			
 			item.data = seriesData;
 			series = [item];
+			console.log("correlationgraph",series);
 		break;
 		/*良品率图*/
 		default:
@@ -385,11 +393,11 @@ function draw_other_chart(obj){
 			var ndata = _.find(data, function(v, k){
 				return _.toString(k) == _.toString(iparam);
 			});
-			for(var _id in ndata){
-				iiiiicategories.push(curWaferName[_id]);
-				var y_data = parseFloat(ndata[_id])
+			_.forEach(curWaferId, function(v) {
+				iiiiicategories.push(curWaferName[v]);
+				var y_data = parseFloat(ndata[v]);
 				item.data.push( y_data);
-			}
+			});
 			xAxis = {
 				categories: iiiiicategories
 			};
@@ -407,6 +415,7 @@ function draw_other_chart(obj){
 		        },
 			};
 			series = [item];
+			console.log("良品率图",series);
 	}
 	/*画图*/
 	dataCompareRenderChart({
@@ -882,7 +891,7 @@ function buildParameterChartContainer(obj){
 
 
 function ajax_all_chart(obj){
-	//console.log("obj",obj);
+	console.log("obj",obj);
 	var times = obj.times;
 	var alltimes = obj.alltimes;
 	var whenArr = obj.whenArr;
@@ -930,7 +939,7 @@ function ajax_all_chart(obj){
 		}
 	}).then(function(data){
 		//console.log("ajaxdata",data);
-		/*console.log(whenArrItem.chartAjaxUrl, data); // GaussianDistribution {}*/
+		var waferArr = curWaferID;
 		if(_.isEmpty(data) || _.isNil(data)) {
 			errorArr.push({
 				chartCNName: whenArrItem.chartCNName,
@@ -943,10 +952,7 @@ function ajax_all_chart(obj){
 			//$("#swal2-content").text("正在绘制"+whenArrItem.chartCNName+"，绘图进度 "+(times+1)+"/"+alltimes);
 			var paramsArr;
 			if(["map_good_rate_distribution", "map_color_order_distribution"].indexOf(whenArrItem.classify) > -1){
-				var waferArr = [];paramsArr = curParam;
-				for(var i in data){
-					waferArr.push(i);
-				}
+				var paramsArr = curParam;
 			}
 			else if(["good_rate"].indexOf(whenArrItem.classify) > -1){
 				paramsArr = curParam;
@@ -1152,6 +1158,7 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   			}, 50);
   		}
   		else{
+  			
   			eouluGlobal.S_getSwalMixin()({
   				title: '加载数据',
   				text: "数据加载绘制图形中...",
@@ -1228,7 +1235,7 @@ function dataCompareRenderData(currentPage){
 		   					'<td class="test_operator" data-itext="'+test_operator+'">'+test_operator+'</td>'+
 		   					'<td class="description" data-itext="'+v.description+'">'+v.description+'</td>'+
 		   					'<td class="data_format" data-itext="'+v.data_format+'" style="display:none;">'+v.data_format+'</td>'+
-		   					'<td class="data_trash not_search"><img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" ></td>'+
+		   					'<td class="data_trash not_search"   data-page="'+currentPage+'" ><img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" ></td>'+
 		   				'</tr>';
 		   		});
 		   		$(".home_dataCompare_top tbody").empty().append(str);
@@ -1262,6 +1269,10 @@ function dataCompareRenderData(currentPage){
 						}
 					});
 					$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
+				}
+				dataCompareState.curPageSelectAll = {};
+				for(var pagenum = 0 ;pagenum < data.totalPage ; pagenum++ ){
+					dataCompareState.curPageSelectAll[pagenum+1] = false
 				}
 	       },
 	       error: function (data, status, e) {
@@ -1648,8 +1659,6 @@ $(function(){
 	/*判断权限end*/
 	
 	
-	
-	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	/*判断是否有选中*/
 	//var dataArr = getdataCompareData(null);
@@ -1765,7 +1774,7 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 }).on("change", ".home_dataCompare_top tbody [type='checkbox']", function(){
 	var ID = $(this).data("ivalue").toString();
 	var curDataExamine = true;
-	console.log('$(this).prop("checked")',$(this).prop("checked"));
+	//console.log('$(this).prop("checked")',$(this).prop("checked"));
 	if($(this).prop("checked")){
 		$.ajax({
 		       url: 'Examine', 
@@ -1808,14 +1817,11 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 		_.pull(dataCompareState.sellectObj.selectItem, ID);
 		if(dataCompareState.searchObj.hasSearch) _.pull(dataCompareState.sellectObj.selectSearchItem, ID);
 		$(".home_dataCompare_bottom tbody [type='checkbox'][data-ivalue='"+Number(ID)+"']").parent().parent().remove();
+		
+		dataCompareState.curPageSelectAll[dataCompareState.pageObj.currentPage] = false;
 	}
 	dataCompareState.sellectObj.selectItem = _.uniq(dataCompareState.sellectObj.selectItem);
 	dataCompareState.sellectObj.selectSearchItem = _.uniq(dataCompareState.sellectObj.selectSearchItem);
-//	if(dataCompareState.searchObj.hasSearch){
-//		$("#checkAll").prop("checked", dataCompareState.pageSearchObj.itemLength == dataCompareState.sellectObj.selectItem.length);
-//	}else{
-//		$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
-//	}
 	$("#checkAll").prop("checked", $(".home_dataCompare_top tbody tr.warning").length == $(".home_dataCompare_top tbody tr").length);
 	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
 	renderCommonParameter();
@@ -1825,66 +1831,119 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 /*点击选中所有*/
 $("#checkAll").on({
 	click: function(){
-		var that = $(this);
-		$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
-			$(this).prop("checked", that.prop("checked"));
-			that.prop("checked") ? ($(this).parent().parent().removeClass("info").addClass("warning")) : ($(this).parent().parent().removeClass("warning info"));
-		});
-		dataCompareState.sellectObj.selectAll = that.prop("checked");
-		
-		var select_tr  = $(".home_dataCompare_top tbody tr");
-		if(that.prop("checked")){
-			for(var i = 0 ; i < select_tr.length ; i++){
-				if(_.indexOf(dataCompareState.sellectObj.selectItem, select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()) < 0){
-					dataCompareState.sellectObj.selectItem.push(select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString());
+			var check_currentPage = dataCompareState.pageObj.currentPage;
+			var that = $(this);
+			if( !dataCompareState.curPageSelectAll[check_currentPage]){
+				dataCompareState.curPageSelectAll[check_currentPage] = true;
+				var check_num = 0 ,errorArr = [];
+				$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
+					var ID = $(this).data("ivalue");
+					var _that = $(this);
+					$.ajax({
+					       url: 'Examine', 
+					       type: 'GET',
+					       data: {
+					    	   waferId : ID ,
+					       },
+					       dataType: 'json',
+					       async : false ,
+					       success: function (data) {
+					    	   var check_tr = _that.parent().parent();
+					    	   if(data){
+					    		   if(_.indexOf(dataCompareState.sellectObj.selectItem, _that.data("ivalue").toString() ) < 0){
+					    			   _that.prop("checked", true);
+						    		   _that.parent().parent().removeClass("info").addClass("warning");
+						    		   check_num++;
+						    		   dataCompareState.sellectObj.selectItem.push(_that.data("ivalue").toString());
+										var str = '<tr>'+
+											'<td class="not_search"><input type="checkbox" data-ivalue="'+check_tr.find("input[type='checkbox']").data("ivalue")+'"></td>'+
+											'<td class="product_category" data-itext="'+check_tr.find(".product_category").text()+'">'+check_tr.find(".product_category").text()+'</td>'+
+											'<td class="device_number" data-itext="'+check_tr.find(".device_number").text()+'">'+check_tr.find(".device_number").text()+'</td>'+
+											'<td class="lot_number" data-itext="'+check_tr.find(".lot_number").text()+'">'+check_tr.find(".lot_number").text()+'</td>'+
+											'<td class="wafer_number" data-itext="'+check_tr.find(".wafer_number").text()+'">'+check_tr.find(".wafer_number").text()+'</td>'+
+											'<td class="die_type" data-itext="'+check_tr.find(".die_type").text()+'">'+check_tr.find(".die_type").text()+'</td>'+
+											'<td class="qualified_rate" data-itext="'+check_tr.find(".qualified_rate").text()+'">'+check_tr.find(".qualified_rate").text()+'</td>'+
+											'<td class="test_end_date" data-itext="'+check_tr.find(".test_end_date").text()+'">'+check_tr.find(".test_end_date").text()+'</td>'+
+											'<td class="test_operator" data-itext="'+check_tr.find(".test_operator").text()+'">'+check_tr.find(".test_operator").text()+'</td>'+
+											'<td class="description" data-itext="'+check_tr.find(".description").text()+'">'+check_tr.find(".description").text()+'</td>'+
+											'<td class="data_format" data-itext="'+check_tr.find(".data_format").text()+'" style="display:none;">'+check_tr.find(".data_format").text()+'</td>'+
+											'<td  class="data_trash" data-page="'+check_currentPage+'"><img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" ></td>'+
+										'</tr>';
+										if($(".home_dataCompare_bottom tbody>tr").length){
+											$(".home_dataCompare_bottom tbody>tr:first").before(str);
+										}else{
+											$(".home_dataCompare_bottom tbody").append(str);
+										}
+					    		   }
+					    	   }
+					    	   else{
+					    		   errorArr.push([check_tr.find(".wafer_number").text(),check_tr.find(".die_type").text()]);
+					    	   }
+					       },
+					       error: function (data, status, e) {
+					    	   dataCompareSwalMixin({
+					    			title: '异常',
+					    			text: "服务器繁忙！",
+					    			type: 'error',
+					    			showConfirmButton: false,
+					    			timer: 2000,
+					    		})
+					       }
+					  });
 					
-					var str = '<tr>'+
-						'<td class="not_search"><input type="checkbox" data-ivalue="'+select_tr.eq(i).find("input[type='checkbox']").data("ivalue")+'"></td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".product_category").text()+'">'+select_tr.eq(i).find(".product_category").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".device_number").text()+'">'+select_tr.eq(i).find(".device_number").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".lot_number").text()+'">'+select_tr.eq(i).find(".lot_number").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".wafer_number").text()+'">'+select_tr.eq(i).find(".wafer_number").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".die_type").text()+'">'+select_tr.eq(i).find(".die_type").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".qualified_rate").text()+'">'+select_tr.eq(i).find(".qualified_rate").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".test_end_date").text()+'">'+select_tr.eq(i).find(".test_end_date").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".test_operator").text()+'">'+select_tr.eq(i).find(".test_operator").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".description").text()+'">'+select_tr.eq(i).find(".description").text()+'</td>'+
-						'<td data-itext="'+select_tr.eq(i).find(".data_format").text()+'" style="display:none;">'+select_tr.eq(i).find(".data_format").text()+'</td>'+
-						'<td class="data_trash"><img src="assets/img/common/del_24px.svg"  data-iicon="glyphicon-remove" alt="删除" title="删除" ></td>'+
-					'</tr>';
-					if($(".home_dataCompare_bottom tbody>tr").length){
-						$(".home_dataCompare_bottom tbody>tr:first").before(str);
-					}else{
-						$(".home_dataCompare_bottom tbody").append(str);
+				});
+				if(!_.isEmpty(errorArr)){
+					var iiistr = '';
+					iiistr+='<div class="container-fluid">'+
+								'<table class="table table-striped table-bordered table-hover table-condensed">'+
+									'<thead>'+
+										'<tr><th style="font-size:14px;width: 80px;text-align:center;">无数据晶圆</th></tr>'+
+									'</thead><tbody>';
+					for(var e = 0 ; e < errorArr.length ; e++){
+						iiistr+='<tr>'+
+							'<td style="vertical-align: top;font-size:14px;">'+errorArr[e][0]+" : "+errorArr[e][1]+
+							'</td></tr>';
 					}
+					iiistr+='</tbody></table></div>';
+					eouluGlobal.S_getSwalMixin()({
+						title: "当前页部分晶圆无数据",
+						html: iiistr,
+						// type: "info",
+						showConfirmButton: true,
+					});
 				}
+				
+				that.prop("checked",check_num == $(".home_dataCompare_top tbody tr").length);
 			}
-		}else{
-			//console.log("selectItem2",dataCompareState.sellectObj.selectItem);
-			for(var i = 0 ; i < select_tr.length ; i++){
-				if(_.indexOf(dataCompareState.sellectObj.selectItem, select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()) > -1){
-					dataCompareState.sellectObj.selectItem.splice(dataCompareState.sellectObj.selectItem.indexOf(select_tr.eq(i).find("input[type='checkbox']").data("ivalue").toString()), 1);
-					//console.log("selectItem2",dataCompareState.sellectObj.selectItem);
-					$(".home_dataCompare_bottom tbody>tr  input[data-ivalue ='"+select_tr.eq(i).find("input[type='checkbox']").data("ivalue")+"']").parent().parent().remove();
-				}
+			else{
+				that.prop("checked",false);
+				dataCompareState.curPageSelectAll[check_currentPage] = false;
+				$(".home_dataCompare_top tbody tr.warning").each(function(){	
+					if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).find("input[type='checkbox']").data("ivalue").toString()) > -1){
+						dataCompareState.sellectObj.selectItem.splice(dataCompareState.sellectObj.selectItem.indexOf($(this).find("input[type='checkbox']").data("ivalue").toString()), 1);
+						$(".home_dataCompare_bottom tbody>tr  input[data-ivalue ='"+$(this).find("input[type='checkbox']").data("ivalue")+"']").parent().parent().remove();
+						$(this).removeClass("warning info").find("input[type='checkbox']").prop("checked", false);
+					}
+				})
 			}
-		}	
-		renderCommonParameter();
-		groupJudgeRenderNav("wafer");
+			
+			dataCompareState.sellectObj.selectAll = that.prop("checked");
+			renderCommonParameter();
+			groupJudgeRenderNav("wafer");
 	}
 });
-
 /*删除选中*/
 $(document).on("click",".home_dataCompare_bottom .data_trash",function(){
 	var ID = $(this).parent().find("input[type='checkbox']").data("ivalue").toString();
 	$(".home_dataCompare_top tr input[type='checkbox'][data-ivalue='"+ID+"']").prop("checked",false).parent().parent().removeClass("warning");
 	_.remove(dataCompareState.sellectObj.selectItem, function(n) { return n  == ID ;});
-	//console.log("dataCompareState.sellectObj.selectItem",dataCompareState.sellectObj.selectItem);
 	$("#checkAll").prop("checked",false);
 	dataCompareState.sellectObj.selectAll = $("#checkAll").prop("checked");
 	renderCommonParameter();
 	groupJudgeRenderNav("wafer");
 	$(this).parent().remove();
+	
+	dataCompareState.curPageSelectAll[$(this).data("page")] = false;
 })
 /*删除全部*/
 $(document).on("dblclick",".home_dataCompare_bottom .home_dataCompare_bottom_del_all",function(){
@@ -1895,6 +1954,10 @@ $(document).on("dblclick",".home_dataCompare_bottom .home_dataCompare_bottom_del
 	renderCommonParameter();
 	groupJudgeRenderNav("wafer");
 	$(".home_dataCompare_bottom tbody").empty();
+	
+	_.forOwn(dataCompareState.curPageSelectAll, function(value, key) {
+		dataCompareState.curPageSelectAll[key] = false;
+	});
 })
 
 

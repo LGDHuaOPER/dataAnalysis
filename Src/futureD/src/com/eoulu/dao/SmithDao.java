@@ -116,11 +116,18 @@ public class SmithDao {
 		case "XYdBOfMagnitude":
 			condition = ",round((20*log10(sqrt("+real+"*"+real+"+"+imaginary+"*"+imaginary+"))),2) dbs ";
 			break;
-		default:
+		case "Smith" :
 			length = 3;
 			condition = ",round("+real+",2)"+real+",round("+imaginary+",2)"+imaginary+" ";
 			break;
+		case "Polar":
+			length = 3;
+			condition = ",round(sqrt("+real+"*"+real+"+"+imaginary+"*"+imaginary+"),2) r,round(degrees(atan("+imaginary+"/"+real+")),2) degrees ";
+			break;
+		default:
+			break;
 		}
+		
 		
 		
 		try {

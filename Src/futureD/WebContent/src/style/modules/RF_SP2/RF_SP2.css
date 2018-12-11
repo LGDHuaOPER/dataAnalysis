@@ -799,6 +799,10 @@ span.glyphicon {
 	z-index: 2;
 }
 
+.reRenderBtnDiv, button.backover, button.open_del_indicatrix, .g_bodyin_bodyin_bottom_rsubin_tit>button {
+	opacity: 0;
+}
+
 div.awesomplete {
 	display: block;
 }
@@ -971,7 +975,7 @@ div.popover .row:last-child>div {
 	display: inline-block;
 }
 
-#S11_chart_S, #S22_chart_S {
+#S11_chart_S, #S22_chart_S, #S12_chart_S, #S21_chart_S {
 	position: relative;
 }
 

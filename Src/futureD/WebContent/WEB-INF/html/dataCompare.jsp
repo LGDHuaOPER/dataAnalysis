@@ -102,15 +102,15 @@
 						    				<table class="table table-striped">
 						    					<thead>
 						    						<tr>
-						    							<th><input type="checkbox" id="checkAll"></th>
+						    							<th><input type="checkbox" id="checkAll" checkAll="false"></th>
 						    							<th>产品类别</th>
-						    							<th>设备/产品类型</th>
+						    							<th>产品名称</th>
 						    							<th>批次编号</th>
 						    							<th>晶圆编号</th>
 						    							<th>器件类型</th>
-						    							<th>合格率</th>
-						    							<th>测试时间</th>
-						    							<th>上传者</th>
+						    							<th>良品率</th>
+						    							<th>测试完成时间</th>
+						    							<th>测试员</th>
 						    							<th>描述</th>
 						    						</tr>
 						    					</thead>
@@ -130,11 +130,11 @@
 						    				<table class="table table-striped">
 						    					<thead>
 						    						<th>产品类别</th>
-						    						<th>设备/产品类型</th>
+						    						<th>产品名称</th>
 						    						<th>批次编号</th>
 						    						<th>晶圆编号</th>
 						    						<th>器件类型</th>
-						    						<th>合格率</th>
+						    						<th>良品率</th>
 						    						<th title="双击全部删除" class="home_dataCompare_bottom_del_all">删除选中</th>
 						    					</thead>
 						    					<tbody></tbody>
@@ -304,12 +304,12 @@
 	<!--压缩文件  -->
 	<script src="dist/script/modules/common/futureD_config.js"></script>
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<script src="dist/script/modules/dataCompare/dataCompare.js"></script>
+	<!-- <script src="dist/script/modules/dataCompare/dataCompare.js"></script> -->
 	<script src="dist/script/modules/common/globalConf.js"></script>
 	<!-- <script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
 	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
 	<script src="src/script/modules/common/globalConf.js"></script> -->
-	<!-- <script src="src/script/modules/dataCompare/dataCompare.js"></script> -->
+	<script src="src/script/modules/dataCompare/dataCompare.js"></script> 
 </body>
 </html>

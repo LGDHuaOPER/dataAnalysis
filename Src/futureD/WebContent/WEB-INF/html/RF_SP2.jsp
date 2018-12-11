@@ -20,6 +20,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/awesomplete_all.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 	<link rel="stylesheet" href="src/style/modules/RF_SP2/RF_SP2.css" type="text/css">
 </head>
 <body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}'>
@@ -196,10 +197,10 @@
 										</button>
 									</div>
 									<div class="signalChart_div_body">
-										<div id="S11_chart_S"></div>
+										<div id="S11_chart_S" data-iclassify="S11" data-iflag="initial"></div>
 										<div id="S12_chart_S" data-iflag="initial" data-iclassify="S12"></div>
 										<div id="S21_chart_S" data-iflag="initial" data-iclassify="S21"></div>
-										<div id="S22_chart_S"></div>
+										<div id="S22_chart_S" data-iclassify="S22" data-iflag="initial"></div>
 									</div>
 									<div class="signalChart_div_foot">
 						  				<div class="signalChart_div_foot_in">
@@ -456,11 +457,13 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/highcharts_6.1.4.js"></script>
 	<script src="assets/script/libs/highcharts-axis-arrow.js"></script>
-	<script src="src/script/modules/common/drawingSmith.js"></script>
 	<!-- <script src="assets/script/libs/drawingSmith.js"></script> -->
+	<script src="src/script/modules/common/drawingSmith.js"></script>
+	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
+	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<!-- 变 -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<script src="src/script/modules/common/globalConf.js"></script>
+	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="dist/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/RF_SP2/RF_SP2.js"></script>
 	<script src="src/script/modules/RF_SP2/RF_SP2_render.js"></script>
 </body>
