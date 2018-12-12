@@ -455,7 +455,8 @@
 	<script src="assets/script/libs/awesomplete.min.js"></script>
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
-	<script src="assets/script/libs/highcharts_6.1.4.js"></script>
+	<script src="assets/script/libs/highcharts_6.2.0.js"></script>
+	<script src="assets/script/libs/highcharts-more.js"></script>
 	<script src="assets/script/libs/highcharts-axis-arrow.js"></script>
 	<!-- <script src="assets/script/libs/drawingSmith.js"></script> -->
 	<script src="src/script/modules/common/drawingSmith.js"></script>

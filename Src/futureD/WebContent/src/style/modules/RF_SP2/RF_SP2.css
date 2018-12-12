@@ -676,7 +676,7 @@ span.glyphicon {
 	position: absolute;
 	width: 700px;
 	left: calc(50% - 350px);
-	top: 50px;
+	top: 20px;
 	background-color: #fff;
 	font-size: 15px;
 	border-radius: 5px;

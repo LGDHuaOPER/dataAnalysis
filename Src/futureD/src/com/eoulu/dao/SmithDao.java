@@ -121,8 +121,9 @@ public class SmithDao {
 			condition = ",round("+real+",2)"+real+",round("+imaginary+",2)"+imaginary+" ";
 			break;
 		case "Polar":
-			length = 3;
-			condition = ",round(sqrt("+real+"*"+real+"+"+imaginary+"*"+imaginary+"),2) r,round(degrees(atan("+imaginary+"/"+real+")),2) degrees ";
+			length = 5;
+			condition = ",round(sqrt("+real+"*"+real+"+"+imaginary+"*"+imaginary+"),2) r,"
+					+ "round(degrees(atan("+imaginary+"/"+real+")),2) degrees,round("+real+",2)"+real+",round("+imaginary+",2)"+imaginary+" " ;
 			break;
 		default:
 			break;
@@ -137,7 +138,11 @@ public class SmithDao {
 			ResultSet rs = ps.executeQuery();
 			if(length>2){
 				while(rs.next()){
-					data = new Object[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
+					data = new Object[length];
+					for(int i = 0;i < length;i ++){
+						data[i] = rs.getDouble(i+1);
+					}
+		//			data = new Object[]{rs.getDouble(1),rs.getDouble(2),rs.getDouble(3)};
 					list.add(data);
 				}
 			}else{
