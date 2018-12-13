@@ -49,21 +49,42 @@ body {
 	position: absolute;
 	padding-left: 10px;
     letter-spacing: 2px;
-    width: 215px;
+    width: 220px;
     color: rgb(53, 140, 245);
     font-weight: 600;
 }
 
 .g_info_r {
-	padding-left: 215px;
+	padding-left: 220px;
 	text-align: right;
 }
 
-.g_info_r .glyphicon {
+.g_info_r img[data-iicon] {
 	margin-right: 20px;
-	font-size: 22px;
-	vertical-align: middle;
 }
+
+/* 管理员按钮 */
+.user_dropdown{
+    display: inline-block;
+    margin-right: 20px;
+}
+.user_dropdown>button{
+    border: none;
+    padding:0;
+    background-color:#fff;
+    outline:none;
+}
+.user_dropdown .curusername{
+	text-indent:20px;
+}
+.user_dropdown .divider{
+	margin:0!important;
+}
+.user_dropdown .Information>a,.user_dropdown .AdminOperat>a{
+    height: 35px;
+    line-height: 35px;
+}
+/* 管理员按钮end */
 
 .g_bodyin {
 	height: 100%;
@@ -376,29 +397,30 @@ body {
 100% {background-color: #fff;}
 } */
 
-/* RF-S2P:左侧数据列表区域 */
-.g_bodyin_bodyin_bottom_l_intop .panel {
+/* RF-S2P TCF:左侧数据列表区域 */
+.g_bodyin_bodyin_bottom_l_intop .panel,  .g_bodyin_bodyin_bottom_lsub_top .panel{
 	margin-bottom: 0px;
 }
 
-.g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading {
+.g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, .g_bodyin_bodyin_bottom_lsub_top .panel>.panel-heading {
 	position: relative;
 	cursor: pointer;
 }
 
-.g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading>.glyphicon {
+.g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading>.glyphicon, .g_bodyin_bodyin_bottom_lsub_top .panel>.panel-heading>.glyphicon {
 	position: absolute;
 	right: 10px;
     top: 13px;
 }
 
-.g_bodyin_bodyin_bottom_l_intop .panel.slideUp>ul {
+.g_bodyin_bodyin_bottom_l_intop .panel.slideUp>ul, .g_bodyin_bodyin_bottom_lsub_top .panel.slideUp>ul {
 	display: none;
 }
 
-.g_bodyin_bodyin_bottom_l_intop .panel>ul>li {
+.g_bodyin_bodyin_bottom_l_intop .panel>ul>li, .g_bodyin_bodyin_bottom_lsub_top .panel>ul>li {
 	cursor: pointer;
 }
+/* RF-S2P TCF:左侧数据列表区域 */
 
 .g_bodyin_bodyin_bottom_r {
 	-ms-grid-row: 1;
@@ -620,7 +642,7 @@ body {
 	text-align: center;
 }
 
-span.glyphicon {
+span.glyphicon, img[data-iicon] {
 	cursor: pointer;
 }
 

@@ -51,7 +51,7 @@ public class UserDao {
 		return result == null ? "" : result.toString();
 	}
 
-	public static String getUserId(Connection conn, String userName) {
+	public  String getUserId(Connection conn, String userName) {
 		String sql = "select user_id from dm_user where binary user_name='"+userName+"' and 1";
 		Object result = db.queryResult(conn, sql, null);
 		return result == null ? "" : result.toString();

@@ -95,7 +95,7 @@ public class Wafer extends HttpServlet {
 	
 	public static void main(String[] args) {
 
-		String waferIdStr = "406",
+		String waferIdStr = "2",
 				parameter = "";
 		double left = 0,right=0;
 		int equal = 8;	

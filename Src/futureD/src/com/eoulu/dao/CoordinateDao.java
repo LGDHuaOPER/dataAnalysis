@@ -196,7 +196,7 @@ public class CoordinateDao {
 	 * @return
 	 */
 	public String insertSubdie(Connection conn,List<Object[]> list){
-		String sql = "insert into dm_wafer_subdie (coordinate_id,subdie_number,subdie_name,wafer_id) values (?,?,?,?)";
+		String sql = "insert into dm_wafer_subdie (coordinate_id,subdie_number,wafer_id) values (?,?,?)";
 		PreparedStatement ps;
 		String flag = "success";
 		try {
@@ -242,12 +242,18 @@ public class CoordinateDao {
 	 * @param dieNumber
 	 * @return
 	 */
-	public Map<String,Object> getCoordinate(Connection conn,int waferId,String dieNumber){
+	public int getCoordinate(Connection conn,int waferId,String dieNumber){
 		String sql = "select coordinate_id from dm_wafer_coordinate_data where die_number=? and wafer_id=?";
 		Object[] param = new Object[]{dieNumber,waferId};
 		List<Map<String,Object>> ls = db.queryToList(conn, sql, param);
-		return ls.size()>0?ls.get(0):null;
+		int coordinateId = 0;
+		if(ls.size()>0){
+			coordinateId = Integer.parseInt(ls.get(0).get("coordinate_id").toString());
+		}
+		return coordinateId;
 	}
+	
+	
 	/**
 	 * 根据晶圆主键、坐标获取Coordinate主键
 	 * @param conn
@@ -352,7 +358,7 @@ public class CoordinateDao {
 	
 	
 	public Map<String,Object> getOtherDie(Connection conn,int waferId,String waferNO){
-		String sql = "select x_coordinate,y_coordinate,bin from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status=0) ";
+		String sql = "select x_coordinate,y_coordinate,bin from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status<>2) ";
 		Map<String,Object> result = new HashMap<>();
 		PreparedStatement ps;
 		try {
@@ -505,7 +511,7 @@ public class CoordinateDao {
 	 */
 	public WaferMapDTO getVectorMap(Connection conn,int waferId,String subdieName,String deviceGroup) {
 		WaferMapDTO wafer = new WaferMapDTO();
-		wafer.setParameter("All");
+		wafer.setParameter("Total Yield");
 		String sql = "select x_coordinate,y_coordinate,bin,coordinate_id from dm_wafer_coordinate_data where wafer_id=? ";
 		if(!"".equals(subdieName)){
 			sql += " and coordinate_id in (select distinct coordinate_id from dm_wafer_subdie where subdie_name=?) ";
@@ -560,6 +566,35 @@ public class CoordinateDao {
 		String sql = "select distinct subdie_name from dm_wafer_subdie where wafer_id="+waferId;
 		return db.queryList(sql, null);
 	}
+	
+	
+	public WaferMapDTO getAllDie(Connection conn,String waferNO){
+		WaferMapDTO wafer = new WaferMapDTO();
+		String sql  = "select x_coordinate,y_coordinate,bin,coordinate_id from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?) ";
+		Map<String,Object> result = new HashMap<>(),map = null;
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, waferNO);
+			ResultSet rs = ps.executeQuery();
+			int bin = 0,coordinate_id=0;
+			while(rs.next()){
+				bin  = rs.getInt(3);
+				coordinate_id = rs.getInt(4);
+				map = new HashMap<>();
+				map.put("coordinateId", coordinate_id);
+				map.put("bin", bin);
+				result.put(rs.getInt(1)+":"+rs.getInt(2), map);
+			}
+			wafer.setCurrentDieList(result);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return wafer;
+	}
+	
 	
 	
 }

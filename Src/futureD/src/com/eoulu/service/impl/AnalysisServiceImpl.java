@@ -14,7 +14,6 @@ import java.util.Map;
 
 import com.eoulu.action.calculate.ExpressionFormatException;
 import com.eoulu.action.calculate.NumericalCalculator;
-import com.eoulu.dao.BoxPlotDao;
 import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.CurveDao;
 import com.eoulu.dao.ParameterDao;
@@ -67,9 +66,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 		Map<String, Object> map = new LinkedHashMap<>();
 		List<String[]> list = null;
 		int id = 0;
-		String waferFile = "",waferNO="";
+		String waferNO="";
 		Connection conn = DataBaseUtil.getInstance().getConnection();
 		Map<String,Object> wafer = null;
+		Map<String, Object> waferInfo = null;
 		try {
 			for(int i=0,length=waferId.length;i<length;i++){
 				id = Integer.parseInt(waferId[i]);
@@ -77,7 +77,11 @@ public class AnalysisServiceImpl implements AnalysisService{
 				wafer = dao.getFile(conn,id);
 //				waferFile = wafer.get("wafer_file_name").toString();
 				waferNO = wafer.get("wafer_number").toString()+".CSV";
-				map.put(waferNO, list);
+				waferInfo = new HashMap<>();
+				waferInfo.put("waferFile", waferNO);
+				waferInfo.put("curveFile", list);
+				map.put(id+"", waferInfo);
+				
 			}
 		}finally {
 			try {

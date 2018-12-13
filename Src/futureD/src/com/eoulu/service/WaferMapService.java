@@ -27,6 +27,7 @@ public interface WaferMapService {
 	Map<String,Object> getMapInfo(String[] waferAtt,List<String> paramList,Map<String,List<Double>> rangeList);
 	
 	
+	
 	/**
 	 * 色阶晶圆
 	 * @param waferAtt
@@ -74,4 +75,6 @@ public interface WaferMapService {
 	 * @return
 	 */
 	Map<String, Object> getVectorCurve(int coordinateId, String subdieName, String deviceGroup);
+	
+	
 }

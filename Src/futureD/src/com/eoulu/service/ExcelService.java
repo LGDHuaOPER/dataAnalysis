@@ -16,11 +16,13 @@ import java.util.regex.Pattern;
 import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.CurveDao;
 import com.eoulu.dao.ParameterDao;
+import com.eoulu.dao.SubdieDao;
 import com.eoulu.dao.WaferDao;
 import com.eoulu.entity.MapParameterDO;
 import com.eoulu.entity.WaferDO;
 import com.eoulu.parser.ExcelParser;
 import com.eoulu.parser.ZipFileParser;
+import com.eoulu.transfer.ObjectTable;
 
 
 /**
@@ -30,20 +32,10 @@ import com.eoulu.parser.ZipFileParser;
  */
 public class ExcelService {
 	
-	private WaferDao dao ;
-	private ParameterDao parameterDao;
-	private ExcelParser util ;
-	private CoordinateDao coordinate ;
-	public ExcelService(WaferDao dao,ParameterDao parameterDao,ExcelParser util,CoordinateDao coordinate){
-		this.dao = dao;
-		this.parameterDao = parameterDao;
-		this.util = util;
-		this.coordinate = coordinate;
-	}
+//	private WaferDao dao ;
+//	private ParameterDao parameterDao;
+//	private CoordinateDao coordinate ;
 
-	private List<String> coor = new ArrayList<String>();
-//	private double sizeX;
-//	private double sizeY;
 	
 	/**
 	 * 存储晶圆信息与晶圆参数
@@ -56,6 +48,8 @@ public class ExcelService {
 	 * @return
 	 */
 	public String saveWaferParameter(Connection conn,List<List<String>> paramList,Map<String, List<String>> limitMap,WaferDO wafer ){
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		String status = "";
 		int waferId = 0;
 		Object[] param = null;
@@ -104,6 +98,8 @@ public class ExcelService {
 	 */
 	public String saveCoordinate(Connection conn, Map<String, List<String>> limitMap,
 			Map<String,List<Object[]>> dataMap, String waferNumber, boolean coordinateFlag,String column,String str) {
+		CoordinateDao coordinate =  (CoordinateDao) ObjectTable.getObject("CoordinateDao");
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
 		List<Object[]> dieList = null;
 		int  maxX = 0, minX = 10000000, maxY = 0, minY = 10000000, size = limitMap.keySet().size(),
 				 waferId = 0;
@@ -123,6 +119,8 @@ public class ExcelService {
 	}
 	
 	public String updateYield(Connection conn,Map<String, List<String>> limitMap,String waferNO){
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		CoordinateDao coordinate =  (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		int waferId=0;
 		double yield = 0;
 		for(String dieType:limitMap.keySet()){
@@ -135,12 +133,18 @@ public class ExcelService {
 		return "success";
 	}
 	
-	public String updateYield(Connection conn,List<String> typeList,String waferNO){
+	public String updateYield(Connection conn,List<String> typeList,String waferNO,boolean subdieExist,SubdieDao subdieDao){
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		CoordinateDao coordinate =  (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		int waferId=0;
 		double yield = 0;
 		for(int i=0,size=typeList.size();i<size;i++){
 			waferId = dao.getWaferID(conn, waferNO, typeList.get(i));
-			yield = coordinate.getYield(conn, waferId)*100;
+			if(subdieExist){
+				yield = subdieDao.getYield(conn, waferId)*100;
+			}else{
+				yield = coordinate.getYield(conn, waferId)*100;
+			}
 			if(!dao.updateYield(conn, yield, waferId)){
 				return "良率计算失败！";
 			}
@@ -150,6 +154,7 @@ public class ExcelService {
 	}
 	
 	public int getBin(StringBuilder paramvalue,int waferId,Connection conn){
+		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		//按逗号分割paramvalue，获取参数结果
 		String[] paramvalues = paramvalue.toString().split(",");
 		System.out.println(Arrays.toString(paramvalues));
@@ -175,6 +180,7 @@ public class ExcelService {
 	 * @return
 	 */
 	public String saveMap(Connection conn,String waferNumber,boolean exsit,double sizeX,double sizeY){
+		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		double diameter = 200;
 		double flatLength = 50;
 		MapParameterDO map = new MapParameterDO();
@@ -213,15 +219,11 @@ public class ExcelService {
 	 * @return
 	 */
 	public String saveTxtParameter(Connection conn,int interval,int waferId,List<String> paramList,List<String> downLimit,List<String> upLimit,List<Integer> hex,List<Object> dataList){
-		String paramColumn = "";
-		String valueColumn = "";
-		String lower = "";
-		String up = "";
-		String status = "";
+		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
+		CoordinateDao coordinate =  (CoordinateDao) ObjectTable.getObject("CoordinateDao");
+		String paramColumn = "", valueColumn = "", lower = "", up = "", status = "",column = "";
 		Object[] param = null;
-		String column = "";
-		int increment = 50/10;
-		int count = 1;
+		int increment = 50/10, count = 1;
 		for(int i=0,length = paramList.size();i<length;i++){
 			if(i==(length/5*count) && count<increment){
 				interval += 10;

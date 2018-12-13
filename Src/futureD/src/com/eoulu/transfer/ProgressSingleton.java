@@ -23,5 +23,9 @@ public class ProgressSingleton {
 	public static Object remove(Object key){
 		return table.remove(key);
 	}
+	
+	public static void clear(){
+		table.clear();
+	}
 
 }

@@ -16,6 +16,8 @@ import com.eoulu.service.LogService;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
+import com.eoulu.transfer.ObjectTable;
+import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.DataBaseUtil;
 
 /**
@@ -37,7 +39,8 @@ public class DataManager implements ServletContextListener {
      */
     public void contextDestroyed(ServletContextEvent arg0)  { 
 //    	 new  DataBaseUtil().close();
-    	
+    	ObjectTable.clear();
+    	ProgressSingleton.clear();
     }
 
 	/**

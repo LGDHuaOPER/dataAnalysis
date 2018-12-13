@@ -27,7 +27,20 @@
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r bootstro" data-bootstro-title="RF-SP2引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="RF-SP2引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1">
+			<div class="dropdown user_dropdown">
+			  	<button id="userLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			      	<img src="assets/img/common/admin_32px.svg" >
+			  	</button>
+			  	<ul id="menu1" class="dropdown-menu" aria-labelledby="userLabel">
+		          	<li class="curusername">${userName}</li>
+		          	<li role="separator" class="divider"></li>
+		          	<li class="Information"><a>资料与账号</a></li>
+		          	<li class="AdminOperat"><a>管理员操作</a></li>
+		       	</ul>
+		    </div>
+			<!-- <img src="assets/img/common/admin_32px.svg" data-iicon="glyphicon-user" alt="管理员"> --><img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引" title="操作指引"><img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出" title="安全退出">
+		</div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
@@ -37,7 +50,7 @@
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
-					  	<li><a href="projectAnalysis">工程分析</a></li>
+					  	<li><a href="ProjectAnalysis">工程分析</a></li>
 					  	<li class="active">RF-SP2分析</li>
 					</ol>
 					<span class="glyphicon glyphicon-stats" aria-hidden="true" title="进入数据统计功能"></span>
@@ -61,19 +74,7 @@
 						<div class="g_bodyin_bodyin_bottom_1">
 							<div class="g_bodyin_bodyin_bottom_l bootstro" data-bootstro-title="RF-SP2引导：第四步" data-bootstro-content="<div class='well well-sm'><h4>CSV文件区域</h4><p>在这里显示的是您在工程分析选择的数据。</p><p>切换到TCF分页后，在这里显示的是CSV文件和参数计算区域，参数计算区域点击表格行可以弹出计算器。</p></div>" data-bootstro-placement="right" data-bootstro-html="true" data-bootstro-step="3">
 								<div class="g_bodyin_bodyin_bottom_l_intop">
-									<!-- <div class="g_bodyin_bodyin_bottom_l_item">
-										<div class="g_bodyin_bodyin_bottom_l_itemin">
-											<div class="g_bodyin_bodyin_bottom_l_itemin_main">WaferID01.csv<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-											<div class="g_bodyin_bodyin_bottom_l_itemin_sub">
-												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">1-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">2-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">3-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">4-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_l_itemin_subin">5-0-RF.S2P</div>
-											</div>
-										</div>
-									</div> -->
-								</div><!-- g_bodyin_bodyin_bottom_l_intop end -->
+								</div>
 								<div class="g_bodyin_bodyin_bottom_l_inbottom"><input type="checkbox">全选/全不选</div>
 							</div><!-- g_bodyin_bodyin_bottom_l end -->
 							<div class="g_bodyin_bodyin_bottom_r bootstro" data-bootstro-title="RF-SP2引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>图表区域</h4><p>在这里显示的是图例，双击某个图例可以查看大图。</p><p>切换到TCF分页后，在这里显示的是具有标记Marker点功能的图表</p></div>" data-bootstro-placement="left" data-bootstro-html="true" data-bootstro-step="4">
@@ -229,19 +230,7 @@
 						<div class="g_bodyin_bodyin_bottom_2">
 							<div class="g_bodyin_bodyin_bottom_lsub">
 								<div class="g_bodyin_bodyin_bottom_lsub_top">
-									<!-- <div class="g_bodyin_bodyin_bottom_lsub_item">
-										<div class="g_bodyin_bodyin_bottom_lsub_itemin">
-											<div class="g_bodyin_bodyin_bottom_lsub_itemin_main">WaferID01.csv<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>
-											<div class="g_bodyin_bodyin_bottom_lsub_itemin_sub">
-												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">1-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">2-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">3-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">4-0-RF.S2P</div>
-												<div class="g_bodyin_bodyin_bottom_lsub_itemin_subin">5-0-RF.S2P</div>
-											</div>
-										</div>
-									</div> -->
-								</div><!-- g_bodyin_bodyin_bottom_lsub_top end -->
+								</div>
 								<div class="g_bodyin_bodyin_bottom_lsub_bottom">
 									<table class="table table-striped table-bordered table-hover table-condensed">
 										<thead>

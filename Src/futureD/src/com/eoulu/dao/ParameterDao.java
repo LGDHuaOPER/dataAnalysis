@@ -132,6 +132,12 @@ public class ParameterDao {
 		return map;
 	}
 	
+	/**
+	 * 晶圆的WaferMap参数暂时只取目前需要的存至数据库
+	 * @param conn
+	 * @param map
+	 * @return
+	 */
 	public String insertMapParameter(Connection conn,MapParameterDO map){
 		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		String flag = "success";
@@ -140,7 +146,7 @@ public class ParameterDao {
 		return flag;
 	}
 	
-	public static String updateMapParameter(Connection conn ,MapParameterDO map){
+	public String updateMapParameter(Connection conn ,MapParameterDO map){
 		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=?";
 		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
 		String flag = "success";

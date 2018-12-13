@@ -89,7 +89,7 @@ public interface WaferService {
 	 * @param invalidationList 无效die，来自map文件
 	 * @return
 	 */
-	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,String productCategory,String testOperator,String description,String csvExcel,DataBaseUtil db,String lastModified);
+	 String saveZipData(Connection conn,Map<String,Object> mapFileList,String file,DataBaseUtil db,Map<String,Object> map);
 	 
 	 /**
 	  * EOULU标准Excel

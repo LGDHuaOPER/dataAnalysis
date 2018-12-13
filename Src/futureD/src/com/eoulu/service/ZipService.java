@@ -17,12 +17,15 @@ import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.CurveDao;
 import com.eoulu.dao.ParameterDao;
 import com.eoulu.dao.SmithDao;
+import com.eoulu.dao.SubdieDao;
 import com.eoulu.dao.WaferDao;
 import com.eoulu.entity.MapParameterDO;
 import com.eoulu.entity.WaferDO;
 import com.eoulu.parser.ZipFileParser;
 import com.eoulu.transfer.IndexChange;
+import com.eoulu.transfer.ObjectTable;
 import com.eoulu.util.DataBaseUtil;
+import com.google.gson.Gson;
 
 /**
  * @author mengdi
@@ -31,19 +34,9 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class ZipService {
 	
-	private WaferDao dao ;
-	private ParameterDao parameterDao;
-	private ZipFileParser util ;
-	private CoordinateDao coordinate;
-	private CurveDao curveDao = new CurveDao();
-	private List<Object[]> subdie = null; // die编号+subdie编号
-	private Hashtable<String, Object[]> table = null;// key:die编号+subdie编号，value：waferId+coordinateId
-	public ZipService(WaferDao dao,ParameterDao parameterDao,ZipFileParser util,CoordinateDao coordinate){
-		this.dao = dao;
-		this.parameterDao = parameterDao;
-		this.util = util;
-		this.coordinate = coordinate;
-	}
+	private List<Object[]> subdie = new ArrayList<>(); // die编号+subdie编号
+	// key:die编号+subdie编号，value：waferId+coordinateId ;
+	private Hashtable<String, Object[]> table = new Hashtable<>();
 	
 	/**
 	 * 晶圆表与参数表的添加
@@ -56,14 +49,13 @@ public class ZipService {
 	 * @return
 	 */
 	public String saveWaferInfo(Connection conn,  WaferDO wafer,
-			Map<String, List<Object[]>> parameterList,String tester,String totalTestTime ) {
+			Map<String, List<Object[]>> parameterList,String tester,WaferDao dao ,ParameterDao parameterDao,SubdieDao subdieDao) {
 		int waferFlag = 0;
 		String status = null;
 		for (String dieType:parameterList.keySet()) {
 			waferFlag = dao.queryWaferinfo(conn,wafer.getWaferNumber(), wafer.getLotNumber(), wafer.getDeviceNumber(), dieType);
 			if(waferFlag != 0){
 				dao.remove(conn,waferFlag, 2);
-				
 			}
 			wafer.setDieType(dieType);
 			status = dao.insert(conn, wafer);
@@ -84,6 +76,22 @@ public class ZipService {
 		return status;
 	}
 
+	/**
+	 * 晶圆的map参数存储
+	 * @param conn
+	 * @param mapParamDO
+	 * @param parameterDao
+	 * @return
+	 */
+	public String saveMapParameter(Connection conn,MapParameterDO mapParamDO,ParameterDao parameterDao){
+		String status = "success";
+		if(parameterDao.getMapParameter(conn, mapParamDO.getWaferNumber())){
+			status = parameterDao.updateMapParameter(conn, mapParamDO);
+		}else{
+			status = parameterDao.insertMapParameter(conn, mapParamDO);
+		}
+		return status;
+	}
 	
 	/**
 	 * 存储Die坐标数据
@@ -91,54 +99,64 @@ public class ZipService {
 	 * @param filelist
 	 * @param datanum
 	 * @param dietypeName
-	 * @param mapparameters
+	 * @param convertParam
 	 * @param waferNumber
-	 * @param invalidationList 无效die
+	 * @param dieMap
+	 * @param subdieExist
+	 * @param coordinate
+	 * @param dao
+	 * @param parameterDao
 	 * @return
 	 */
-	public String saveCoordinateData(Connection conn, List<String> filelist, int datanum,
-			Map<Integer, Object> dietypeName, List<String> mapparameters, String waferNumber,Map<String,Object> dieMap) {
+	public String saveCoordinateData(Connection conn, Map<String,Object> transfer,CoordinateDao coordinate,WaferDao dao,ParameterDao parameterDao) {
+		List<String> dieList = (List<String>) transfer.get("dieList"),convertParam = (List<String>) transfer.get("convertParam"); 
+		Map<Integer, Object> dietypeName = (Map<Integer, Object>) transfer.get("dietypeName"); 
+		Map<String,Object> dieMap = (Map<String, Object>) transfer.get("dieMap");
+		boolean subdieExist = (boolean) transfer.get("subdieExist");
+		int datanum = Integer.parseInt(transfer.get("datanum").toString());
 		List<String> invalidationList = (List<String>) dieMap.get("invalidation");
 		Map<String,String> validList = (Map<String, String>) dieMap.get("validation");
 //		System.out.println(invalidationList.size()+"===validList"+validList.size());
+		if(subdieExist){
+			dieList = new ArrayList<>();
+			datanum = 0;
+		}
 		String key = "",value = "";
 		String attCsv[] = null,attMap[] = null;
-		for(int m = datanum;m < filelist.size();m++){
-			attCsv = filelist.get(m).split(",");
+		for(int m = datanum;m < dieList.size();m++){
+			attCsv = dieList.get(m).split(",");
 			key = attCsv[0]+","+attCsv[1];
 			if(validList.containsKey(key)){
 				value = validList.get(key);
 				attMap = value.split(",");
 				if("-1".equals(attCsv[2])){
 					attCsv[2] = attMap[2];
+					dieList.set(m, String.join(",", attCsv));
 				}
-				filelist.set(m, String.join(",", attCsv));
 				validList.remove(key);
 			}
 			
 		}
 		for(String diexy:validList.keySet()){
 			value = validList.get(diexy);
-			filelist.add(value);
+			dieList.add(value);
 		}
 //		System.out.println("value:"+value);
 		for(String str:invalidationList){
-			filelist.add(str);
+			dieList.add(str);
 		}
-		String status = null, diepos, TestTime,dieType,temp = ""; // 临时变量，用于比较dieType
-		int paramLength = 0, waferId = 0;
+		String status = null, diepos="", TestTime,dieType,temp = "",waferNO = transfer.get("waferNO").toString(); 
+		int paramLength = 0 , waferId = 0;
 		String column = "", columnStr = "";
 		Object[] obj = null;
-		List<Map<String, Double>> upperAndLowerLimit = null;// 参数上下限
+		List<Map<String, Double>> upperAndLowerLimit = null;
 		List<Object[]> list = new ArrayList<>();
-		if (subdie != null) {
-			subdie = null;
-		}
-		subdie = new ArrayList<>();
 		Object[] subdieInfo = null;
+		subdie = new ArrayList<>();
+		boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
 		try {
-			for (int m = datanum; m < filelist.size(); m++) {
-				String data[] = filelist.get(m).split(",");//x,y,bin,dieType,dieNO,subdieNo,testTime
+			for (int m = datanum; m < dieList.size(); m++) {
+				String data[] = dieList.get(m).split(",");//x,y,bin,dieType,dieNO,subdieNo,testTime
 				if (m == datanum) {
 					paramLength = data.length;
 					for (int j = 7; j < data.length; j++) {
@@ -162,7 +180,7 @@ public class ZipService {
 					dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
 				}
 				if (!temp.equals(dieType)) {
-					waferId = dao.getWaferID(conn, waferNumber, dieType);
+					waferId = dao.getWaferID(conn, waferNO, dieType);
 					upperAndLowerLimit = parameterDao.getUpperAndLowerLimit(waferId, conn);
 					temp = dieType;
 				}
@@ -194,10 +212,13 @@ public class ZipService {
 				} else {
 					TestTime = data[6];
 				}
-				diepos = IndexChange.DiePositionTrans(Integer.parseInt(data[0]), Integer.parseInt(data[1]),
-						mapparameters.get(0), mapparameters.get(1), mapparameters.get(2), mapparameters.get(3),
-						Integer.parseInt(mapparameters.get(4)), Integer.parseInt(mapparameters.get(5)),
-						mapparameters.get(6), mapparameters.get(7));
+				if(convertFlag){
+					diepos = IndexChange.DiePositionTrans(Integer.parseInt(data[0]), Integer.parseInt(data[1]),
+							convertParam.get(0), convertParam.get(1), convertParam.get(2), convertParam.get(3),
+							Integer.parseInt(convertParam.get(4)), Integer.parseInt(convertParam.get(5)),
+							convertParam.get(6), convertParam.get(7));	
+				}
+				
 				obj[0] = waferId;
 				obj[1] = diepos;
 				obj[2] = data[0];
@@ -234,45 +255,204 @@ public class ZipService {
 		}
 		System.out.println("长度:"+list.size());
 		System.out.println("waferId:"+waferId);
+		
 		status = coordinate.insertCoordinate(conn, list, column, columnStr);
 		
 		return status;
 	}
+	
 
 	/**
-	 * subdie存储
-	 * 
+	 * subdie存储,非测试数据
+	 * transfer
 	 * @param conn
 	 * @param waferNumber
 	 * @return
 	 */
-	public String saveSubdie(Connection conn, String waferNumber) {
+	public String saveSubdie(Connection conn,Map<String,Object> transfer,CoordinateDao coordinate,WaferDao dao,ParameterDao parameterDao,SubdieDao subdieDao) {
 		Object[] subdieInfo = null;
-		Map<String, Object> map = null;
-		int waferId = 0;
-		int coordinateId = 0;
-		String dieNO = "";
-		String subdieNO = "";
+		String[] att = null;
+		int waferId =0 , coordinateId;
+		String dieNO = "", subdieNO = "",status = "",waferNO = transfer.get("waferNO").toString();
 		List<Object[]> list = new ArrayList<>();
-		if (table != null) {
-			table = null;
+		boolean subdieExist = (boolean) transfer.get("subdieExist");
+		if(subdieExist){
+			List<String> filelist = (List<String>) transfer.get("filelist"),
+					convertParam = (List<String>) transfer.get("convertParam"),
+							configList = (List<String>) transfer.get("configList");
+			for(int i=0,size=configList.size();i<size;i++){
+				att = configList.get(i).split(",");
+				subdieInfo = new Object[]{Integer.parseInt(att[0])+1,att[1],att[2],att[3],att[4],waferNO};
+				list.add(subdieInfo);
+			}
+			status = subdieDao.insertSubdieConfig(conn, list);
+			if(!"success".equals(status)){
+				return status;
+			}
+			list = new ArrayList<>();
+			 
+			Map<Integer, Object> dietypeName = (Map<Integer, Object>) transfer.get("dietypeName"); 
+			Map<String,Object> subdieMap = (Map<String, Object>) transfer.get("subdieMap");
+			int datanum = Integer.parseInt(transfer.get("datanum").toString());
+			List<String> subdieList = (List<String>) subdieMap.get("subdieList");
+			Map<String,String> map = (Map<String, String>) subdieMap.get("subdieMap");
+			String key = "",value = "";
+			String attCsv[] = null,attMap[] = null;
+			for(int m = datanum;m < filelist.size();m++){
+				attCsv = filelist.get(m).split(",");
+				key = attCsv[0]+","+attCsv[1];
+				if(map.containsKey(key)){
+					value = map.get(key);
+					attMap = value.split(",");
+					if("-1".equals(attCsv[2])){
+						attCsv[2] = attMap[2];
+						filelist.set(m, String.join(",", attCsv));
+					}
+					map.remove(key);
+				}
+				
+			}
+			System.out.println("filelist.size:"+filelist.size());
+			for(String diexy:map.keySet()){
+				value = map.get(diexy);
+				filelist.add(value);
+			}
+//			System.out.println("value:"+value);
+			for(String str:subdieList){
+				filelist.add(str);
+//				System.out.println("str:"+str);
+			}
+			System.out.println("filelist.size:"+filelist.size());
+			String  diepos="", TestTime,dieType,temp = "";  
+			int paramLength = 0 ;
+			String column = "", columnStr = "";
+			Object[] obj = null;
+			List<Map<String, Double>> upperAndLowerLimit = null;
+			subdie = new ArrayList<>();
+			boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
+			try {
+				for (int m = datanum; m < filelist.size(); m++) {
+					String data[] = filelist.get(m).split(",");//x,y,bin,dieType,dieNO,subdieNo,testTime
+					if (m == datanum) {
+						paramLength = data.length+1;
+						for (int j = 7; j < data.length; j++) {
+						column += ",C" + (j - 6);
+						columnStr += ",?";
+						}
+						
+					}
+//					System.out.println("data:"+Arrays.toString(data));
+					obj = new Object[paramLength];
+					if (data.length == 0)
+						continue;
+					if ("".equals(data[3])) {
+						status = "上传失败，文件中的DieType存在空值！";
+						conn.rollback();
+						return status;
+					} else if (!dietypeName.containsKey(Integer.parseInt(data[3]))) {
+						dieType = "DefaultType";
+						System.out.println("dieType");
+					} else {
+						dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
+					}
+					if (!temp.equals(dieType)) {
+						waferId = dao.getWaferID(conn, waferNO, dieType);
+						upperAndLowerLimit = parameterDao.getUpperAndLowerLimit(waferId, conn);
+						temp = dieType;
+					}
+
+					if ("".equals(data[0])) {
+						status = "上传失败，文件中的DieX存在空值！";
+						conn.rollback();
+						return status;
+					}
+					if ("".equals(data[1])) {
+						status = "上传失败，文件中的DieY存在空值！";
+						conn.rollback();
+						return status;
+					}
+					if ("".equals(data[2])) {
+						status = "上传失败，文件中的Bin值存在空值！";
+						conn.rollback();
+						return status;
+					}
+					// 设置默认值
+					if ("".equals(data[4])) {
+						data[4] = "0";
+					}
+					if ("".equals(data[5])) {
+						data[5] = "0";
+					}
+					if (6 >= data.length || "".equals(data[6])) {
+						TestTime = "0";
+					} else {
+						TestTime = data[6];
+					}
+					if(convertFlag){
+						diepos = IndexChange.DiePositionTrans(Integer.parseInt(data[0]), Integer.parseInt(data[1]),
+								convertParam.get(0), convertParam.get(1), convertParam.get(2), convertParam.get(3),
+								Integer.parseInt(convertParam.get(4)), Integer.parseInt(convertParam.get(5)),
+								convertParam.get(6), convertParam.get(7));	
+					}
+					obj[0] = waferId;
+					obj[1] = diepos;
+					obj[2] = data[0];
+					obj[3] = data[1];
+					obj[4] = data[5];
+					obj[6] = TestTime;
+					boolean bin = true;
+					String str = "";
+					
+					if(!"-1".equals(data[4])){
+						
+						for (int j = 7; j < data.length; j++) {
+							obj[j+1] = data[j];
+							bin = bin && (data[j] == null || "null".equals(data[j]) || "".equals(data[j])
+									|| (Double.parseDouble(data[j]) >= upperAndLowerLimit.get(j - 7).get("lower")
+											&& Double.parseDouble(data[j]) <= upperAndLowerLimit.get(j - 7).get("upper")));
+							str += "," + bin;
+						}
+						if(data.length == 7){
+							obj[5] = data[2];
+						}else{
+							obj[5] = str.contains("false") ? "255" : "1";
+						}
+						obj[7] = coordinate.getCoordinate(conn, waferId, data[4]);
+					}else{
+						obj[5] = "-1";
+//						System.out.println("obj:"+obj.length);
+//						System.out.println("data:"+Arrays.toString(data));
+						obj[7] = coordinate.getCoordinateId(conn, waferId, data[7], data[8]);
+					}
+					
+					list.add(obj);
+					
+
+				} // 循环遍历数据信息行
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			status = subdieDao.insertSubdie(conn, list, column, columnStr);
+		}else{
+			
+			table = new Hashtable<>();
+			for (int i = 0, size = subdie.size(); i < size; i++) {
+				subdieInfo = subdie.get(i);
+				dieNO = subdieInfo[0].toString();
+				subdieNO = subdieInfo[1].toString();
+				waferId = Integer.parseInt(subdieInfo[4].toString());
+				coordinateId = coordinate.getCoordinate(conn, waferId, dieNO);
+				subdieInfo = new Object[] { coordinateId, Integer.parseInt(subdieNO),waferId};
+				list.add(subdieInfo);
+				subdieInfo = new Object[] { waferId, coordinateId };
+				table.put(dieNO + "," + subdieNO, subdieInfo);
+			}
+			status = coordinate.insertSubdie(conn, list);
 		}
-		table = new Hashtable<>();
-//		System.out.println("subdie.size():"+Arrays.toString(subdie.get(0)));
-		for (int i = 0, size = subdie.size(); i < size; i++) {
-			subdieInfo = subdie.get(i);
-			dieNO = subdieInfo[0].toString();
-			subdieNO = subdieInfo[1].toString();
-			waferId = Integer.parseInt(subdieInfo[4].toString());
-			map = coordinate.getCoordinate(conn, waferId, dieNO);
-			coordinateId = Integer.parseInt(map.get("coordinate_id").toString());
-			subdieInfo = new Object[] { coordinateId, Integer.parseInt(subdieNO), "" ,waferId};
-			list.add(subdieInfo);
-			subdieInfo = new Object[] { waferId, coordinateId };
-			table.put(dieNO + "," + subdieNO, subdieInfo);
-		}
-		return coordinate.insertSubdie(conn, list);
+		
+		return status;
 	}
+	
 
 	private static List<String> suffix = null;
 	static {
@@ -296,6 +476,8 @@ public class ZipService {
 	 */
 
 	public String insertCurve(Connection conn, String file,DataBaseUtil db) {
+		ZipFileParser util = (ZipFileParser) ObjectTable.getObject("ZipFileParser");
+		CoordinateDao coordinate =  (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 //		System.out.println("读到了么：" + file);
 		long time0 = System.currentTimeMillis();
 		// 曲线文件夹名字与CSV文件名字相同
@@ -423,6 +605,7 @@ public class ZipService {
 	 */
 	public String saveCurveType(Connection conn, int waferId, int coordinateId, int subdieId, String curveType,
 			String deviceGroup, String name, int fileType) {
+		CurveDao curveDao = (CurveDao) ObjectTable.getObject("CurveDao");
 		String flag = "success";
 		Object[] param = new Object[] { waferId, coordinateId, subdieId, curveType, deviceGroup, name, fileType };
 		flag = curveDao.insertCurveType(conn, param);
@@ -444,6 +627,7 @@ public class ZipService {
 	 */
 	public String saveCurve(Connection conn, int waferId, int subdieId, String name, List<String> list) {
 		String flag = "success";
+		CurveDao curveDao = (CurveDao) ObjectTable.getObject("CurveDao");
 		int curveTypeId = curveDao.getCurveTypeId(conn, subdieId, name);
 		String[] datas = null;
 		Object[] temp = null;
@@ -493,6 +677,7 @@ public class ZipService {
 	 * @return
 	 */
 	public String saveSmith(Connection conn, int waferId, int subdieId, String name, List<String> list,DataBaseUtil db) {
+		CurveDao curveDao = (CurveDao) ObjectTable.getObject("CurveDao");
 		int curveTypeId = curveDao.getCurveTypeId(conn, subdieId, name);
 		int index = 0;
 		List<Object[]> smithList = new ArrayList<>();

@@ -15,11 +15,15 @@ import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.CurveDao;
 import com.eoulu.dao.ParameterDao;
 import com.eoulu.dao.SmithDao;
+import com.eoulu.dao.SubdieDao;
 import com.eoulu.dao.WaferDao;
 import com.eoulu.service.AnalysisService;
 import com.eoulu.service.WaferMapService;
+import com.eoulu.transfer.ObjectTable;
+import com.eoulu.transfer.SubdieDO;
 import com.eoulu.transfer.WaferMapDTO;
 import com.eoulu.util.DataBaseUtil;
+import com.google.gson.Gson;
 
 
 /**
@@ -29,23 +33,47 @@ import com.eoulu.util.DataBaseUtil;
  */
 public class WaferMapServiceImpl implements WaferMapService {
 
+	
+
 
 	@Override
 	public Map<String, Object> getMapInfo( String[] waferAtt, List<String> paramList,
 			Map<String,List<Double>> rangeList) {
-		 WaferDao dao = new WaferDao();
-		 ParameterDao parameterDao = new ParameterDao();
-		 CoordinateDao coordinate = new CoordinateDao();
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
+		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
+		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		Map<String, Object> result = new LinkedHashMap<>(), map = null;
+		List<WaferMapDTO> waferList = null;
+		List<SubdieDO> waferSubdie = null;
 		int waferId = 0;
 		double upper=0,lower=0;
-		String column = "";
-		List<WaferMapDTO> waferList = null;
+		String column = "",waferNO="";
+		boolean flag = false;
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			String waferNO = dao.getWaferNO(conn,waferId);
+			 waferNO = dao.getWaferNO(conn,waferId);
 			map = getMapParameter(conn, waferNO);
+			flag = subdieDao.getSubdieExist(conn,waferNO);
+			if(flag){
+				map.put("waferDie", coordinate.getAllDie(conn, waferNO));
+				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
+				map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO));
+				waferSubdie = new ArrayList<SubdieDO>();
+				waferSubdie.add(subdieDao.getTotalYield(conn, waferId));
+				for (String param : paramList) {
+					List<Double> ls = rangeList.get(param);
+					upper = ls.get(1);
+					lower = ls.get(0);
+					column = parameterDao.getColumnByName(conn, param, waferId);
+					waferSubdie.add(subdieDao.getPerParameter(conn, waferId, column, param, upper, lower));
+				}
+				map.put("waferList", waferSubdie);
+				map.put("containSubdie", flag);
+				result.put(waferAtt[i], map);
+				continue;
+			}
 			map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
 			waferList = new ArrayList<WaferMapDTO>();
 			waferList.add(coordinate.getAllParameter(conn, waferId));
@@ -73,22 +101,42 @@ public class WaferMapServiceImpl implements WaferMapService {
 	@Override
 	public Map<String, Object> getColorMap(String[] waferAtt, List<String> paramList,
 			Map<String, List<Double>> rangeList) {
-		 WaferDao dao = new WaferDao();
-		 ParameterDao parameterDao = new ParameterDao();
-		 CoordinateDao coordinate = new CoordinateDao();
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
+		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
+		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		Map<String, Object> result = new LinkedHashMap<>(), map = null;
 		int waferId = 0;
+		boolean flag = false;
 		double upper=0,lower=0;
-		String column = "";
+		String column = "",waferNO = "";
 		List<WaferMapDTO> waferList = null;
+		List<SubdieDO> waferSubdie = null;
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			String waferNO = dao.getWaferNO(conn,waferId);
+			waferNO = dao.getWaferNO(conn,waferId);
 			map = getMapParameter(conn, waferNO);
+			flag = subdieDao.getSubdieExist(conn,waferNO);
+			if(flag){
+				map.put("waferDie", coordinate.getAllDie(conn, waferNO));
+				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
+				map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO));
+				waferSubdie = new ArrayList<SubdieDO>();
+				for (String param : paramList) {
+					List<Double> ls = rangeList.get(param);
+					upper = ls.get(1);
+					lower = ls.get(0);
+					column = parameterDao.getColumnByName(conn, param, waferId);
+					waferSubdie.add(subdieDao.getColorMap(conn, waferId, column, param, upper, lower));
+				}
+				map.put("waferList", waferSubdie);
+				map.put("containSubdie", flag);
+				result.put(waferAtt[i], map);
+				continue;
+			}
 			map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
 			waferList = new ArrayList<WaferMapDTO>();
-			
 			for (String param : paramList) {
 				List<Double> ls = rangeList.get(param);
 				upper = ls.get(1);
@@ -223,7 +271,30 @@ public class WaferMapServiceImpl implements WaferMapService {
 	}
 
 
+
+
 	
+
+	
+public static void main(String[] args) {
+	WaferMapService service = new WaferMapServiceImpl();
+	String[] waferAtt = new String[]{"124"};
+	List<String> paramList = new ArrayList<>();
+	paramList.add("BV.Result");
+	paramList.add("Vth.Result");
+	Map<String, List<Double>> rangeList = new HashMap<>();
+	List<Double> ls = new ArrayList<>();
+	 ls.add(1e-006);
+	 ls.add(1e-005);
+	rangeList.put("BV.Result",ls);
+	ls.clear();
+	 ls.add(9e+037);
+	 ls.add(-9e+037);
+	rangeList.put("Vth.Result", ls);
+	
+	System.out.println(new Gson().toJson(service.getMapInfo(waferAtt, paramList, rangeList)));
+	
+}
 
 	
 

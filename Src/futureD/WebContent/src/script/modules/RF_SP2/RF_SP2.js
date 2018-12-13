@@ -25,7 +25,9 @@ var S_factorial = eouluGlobal.S_factorial;
 
 var RF_SP2Store = Object.create(null);
 RF_SP2Store.waferSelected = [];
-RF_SP2Store.waferTCFSelected = [];
+RF_SP2Store.waferTCFSelected = {
+
+};
 RF_SP2Store.contextObj = {
 	classify: null,
 	flag: null
@@ -185,9 +187,10 @@ RF_SP2Store.search_markerObj = {
 RF_SP2Store.util = Object.create(null);
 RF_SP2Store.util.renderWaferFile = function(obj){
 	var data = obj.data || [],
-	waferFile = obj.waferFile;
+	waferFile = obj.waferFile,
+	waferId = obj.waferId;
 	var str = '<div class="panel panel-default slideUp">'+
-				  	'<div class="panel-heading" title="点击展开">'+waferFile+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>'+
+				  	'<div class="panel-heading" title="点击展开" data-waferid="'+waferId+'" data-waferfile="'+waferFile+'">'+waferFile+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>'+
 				  	'<ul class="list-group">';
 	_.forEach(data, function(v, i){
 		str+='<li class="list-group-item" data-waferfile="'+waferFile+'" data-curvefile="'+v[0]+'" data-curvetypeid="'+v[1]+'" data-dieid="'+v[2]+'">'+v[0]+'</li>';
@@ -195,6 +198,7 @@ RF_SP2Store.util.renderWaferFile = function(obj){
 	str+='</ul></div>';
 	return str;
 };
+// 自适应布局
 RF_SP2Store.util.eleResize = function(obj){
 	obj = obj || {};
 	var classify = obj.classify || 1;
@@ -372,17 +376,22 @@ RF_SP2Store.util.smithHandler = function(obj){
 	}
 };
 RF_SP2Store.util.linkage = function(obj){
-	var classify = obj.classify || 1,
-	jQDOM = obj.jQDOM;
+	var classify = obj.classify || 1, // 全选联动标志
+	jQDOM = obj.jQDOM,
+	TCFflag = obj.TCFflag || false;
 	if(jQDOM.children(".list-group-item-info").length>0){
 		jQDOM.parent().removeClass("panel-default").addClass("panel-success");
 	}else{
 		jQDOM.parent().removeClass("panel-success").addClass("panel-default");
 	}
-	if(classify === 1){
-		/*全选联动*/
-		$(".g_bodyin_bodyin_bottom_l_inbottom>input").prop("checked", $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item").length === $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item.list-group-item-info").length);
-	}else if(classify === 2){
+	if(TCFflag === true){
+
+	}else if(TCFflag === false){
+		if(classify === 1){
+			/*全选联动*/
+			$(".g_bodyin_bodyin_bottom_l_inbottom>input").prop("checked", $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item").length === $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item.list-group-item-info").length);
+		}else if(classify === 2){
+		}
 	}
 };
 RF_SP2Store.util.renderNav = function(obj){
@@ -842,6 +851,7 @@ RF_SP2Store.util.graphStyleDispatch = function(obj){
 		$(".signalChart_div_foot").fadeOut(10);
 	}
 };
+// 最小最大值处理
 RF_SP2Store.util.min_maxHandler = function(obj){
 	var series = obj.series;
 	var min_maxArr = [];
@@ -1334,11 +1344,14 @@ $(function(){
 					var str = '';
 					_.forOwn(data, function(v, k){
 						str+=RF_SP2Store.util.renderWaferFile({
-							data: v,
-							waferFile: k
+							data: v.curveFile,
+							waferFile: v.waferFile,
+							waferId: k
 						});
 					});
 					$(".g_bodyin_bodyin_bottom_l_intop").empty().append(str).children("div.panel:eq(0)").children("div.panel-heading").trigger("click").siblings("ul").children("li:eq(0)").trigger("click");
+					// TCF分页也加上
+					$(".g_bodyin_bodyin_bottom_lsub_top").empty().append(str).children("div.panel:eq(0)").children("div.panel-heading").trigger("click");
 				}
 				// 页面布局适应
 				RF_SP2Store.util.eleResize();
@@ -1466,11 +1479,11 @@ $(function(){
 
 /*event handler*/
 /*wafer file左侧切换折叠*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading", function(){
+$(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, .g_bodyin_bodyin_bottom_lsub_top .panel>.panel-heading", function(){
 	$(this).children("span").toggleClass("glyphicon-menu-right glyphicon-menu-down");
 	var slideFun;
 	slideFun = $(this).parent().hasClass("slideUp") ? jQuery().slideDown : jQuery().slideUp;
-	slideFun.call($(this).siblings("ul"), 1000);
+	slideFun.call($(this).siblings("ul"), 800);
 	$(this).parent().toggleClass("slideUp");
 }).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>ul>li", function(){
 	var iThat = $(this),
@@ -1632,6 +1645,65 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading",
 			}
 		}
 	}
+})
+// TCF 左侧li点击
+.on("click", ".g_bodyin_bodyin_bottom_lsub_top .panel>ul>li", function(e){
+	var iThat = $(this),
+	iparent = iThat.parent();
+	var waferid = _.toString(iparent.prev().data("waferid")),
+	waferfile = iThat.data("waferfile"),
+	curvefile = iThat.data("curvefile"),
+	curvetypeid = _.toString(iThat.data("curvetypeid"));
+	if(iThat.hasClass("list-group-item-info")){
+		iThat.removeClass("list-group-item-info");
+		_.pullAt(RF_SP2Store.waferTCFSelected[waferid].selected, _.findIndex(RF_SP2Store.waferTCFSelected[waferid].selected, function(v, i){
+			return _.isEqual(v.curvetypeid, curvetypeid);
+		}));
+	}else{
+		iThat.addClass("list-group-item-info");
+		if(_.isNil(RF_SP2Store.waferTCFSelected[waferid])) RF_SP2Store.waferTCFSelected[waferid] = {};
+		RF_SP2Store.waferTCFSelected[waferid].waferfile = waferfile;
+		if(_.isNil(RF_SP2Store.waferTCFSelected[waferid].selected)) RF_SP2Store.waferTCFSelected[waferid].selected = [];
+		if(RF_SP2Store.waferTCFSelected[waferid].selected.length >= 2) {
+			var ishift = RF_SP2Store.waferTCFSelected[waferid].selected.shift();
+			$('.g_bodyin_bodyin_bottom_lsub_top .panel>ul>li[data-curvetypeid="'+ishift.curvetypeid+'"]').removeClass("list-group-item-info");
+		}
+		RF_SP2Store.waferTCFSelected[waferid].selected.push({
+			curvefile: curvefile,
+			curvetypeid: curvetypeid
+		});
+		// 操作其他csv文件对象
+		_.forEach(RF_SP2Store.waferTCFSelected, function(v, k, obje){
+			if(_.isEqual(_.toString(k), waferid)) return true;
+			if(_.isNil(v.selected)) obje[k].selected = [];
+			_.forEach(obje[k].selected, function(vv, ii){
+				$('.g_bodyin_bodyin_bottom_lsub_top .panel>ul>li[data-curvetypeid="'+vv.curvetypeid+'"]').removeClass("list-group-item-info");
+			});
+			obje[k].selected = [];
+			// var panelHead = $('.g_bodyin_bodyin_bottom_lsub_top .panel-heading[data-waferid="'+_.toNumber(k)+'"]');
+			// panelHead.parent().removeClass("panel-success").addClass("panel-default");
+		});
+	}
+	$(".g_bodyin_bodyin_bottom_lsub_top>.panel>ul").each(function(i, el){
+		RF_SP2Store.util.linkage({
+			jQDOM: $(el),
+			TCFflag: true
+		});
+	});
+	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v){
+		return (v.selected || []).length == 2;
+	});
+	if(!_.isNil(findTCFWafer)){
+		$(".reRenderBtnDiv").css({
+			"left": (e.pageX + 30)+"px",
+			"top": (e.pageY - 50)+"px"
+		}).slideDown(200);
+	}else{
+		$(".reRenderBtnDiv").css({
+			"left": (e.pageX + 30)+"px",
+			"top": (e.pageY - 50)+"px"
+		}).slideUp(200);
+	}
 });
 
 $(window).on("resize", function(){
@@ -1640,7 +1712,7 @@ $(window).on("resize", function(){
 	});
 });
 
-/*全选*/
+/*RF-SP2全选*/
 $(".g_bodyin_bodyin_bottom_l_inbottom>input").click(function(){
 	var iconClass;
 	if($(this).prop("checked")){
@@ -1822,89 +1894,39 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 			/*导航栏结束*/
 			if(target == "g_bodyin_bodyin_bottom_2"){
 				/*TCF分页*/
-				$(".g_info .glyphicon-question-sign").hide();
-				/*判断重新渲染按钮*/
-				if(RF_SP2Store.waferTCFSelected.length == 2){
-					$(".reRenderBtnDiv").css({
-						"left": (310)+"px",
-						"top": (180)+"px"
-					}).slideDown(200);
-				}else{
-					$(".reRenderBtnDiv").css({
-						"left": (310)+"px",
-						"top": (180)+"px"
-					}).slideUp(200);
-				}
-				/*判断重新渲染按钮end*/
+				$(".g_info [data-iicon='glyphicon-question-sign']").hide();
 				if(!RF_SP2Store.stateObj.renderSelectCsvSub){
-					renderSelectCsv(store.get("futureDT2__projectAnalysis__selectedObj"), 'sub', $(".g_bodyin_bodyin_bottom_lsub_top"));
-					eleResize2();
-					$(".g_bodyin_bodyin_bottom_lsub_item:first .g_bodyin_bodyin_bottom_lsub_itemin_main").trigger("click");
-					$(".g_bodyin_bodyin_bottom_lsub_item:first .g_bodyin_bodyin_bottom_lsub_itemin_sub>.g_bodyin_bodyin_bottom_lsub_itemin_subin:first").trigger("click").next().trigger("click");
-					getTCFDataANDDrawChart({
-						isComfirmKey: false
+					RF_SP2Store.util.eleResize({
+						classify: 2
 					});
+					var lis = $(".g_bodyin_bodyin_bottom_lsub_top>.panel:eq(0)>ul>li");
+					lis.eq(0).trigger("click");
+					lis.eq(1).trigger("click");
+					// 触发点击
+					// getTCFDataANDDrawChart({
+					// 	isComfirmKey: false
+					// });
 					RF_SP2Store.stateObj.renderSelectCsvSub = true;
 				}
+				$(".reRenderBtnDiv").slideDown(200);
 				/*判断结束*/
 			}else{
 				$(".reRenderBtnDiv").hide();
-				$(".g_info .glyphicon-question-sign").show();
+				$(".g_info [data-iicon='glyphicon-question-sign']").show();
 			}
 		});
 	}
 });
 
-/*TCF分析模型左侧*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_subin", function(e){
-	var item = $(this).parent().data("parentfile") +" "+$(this).text();
-	if($(this).hasClass("selected")){
-		$(this).removeClass("selected");
-		_.pull(RF_SP2Store.waferTCFSelected, item);
-	}else{
-		/*首先删除其他CSV文件的选中item*/
-		var $others = $(this).parent().parent().parent().siblings();
-		$others.each(function(){
-			$(this).find(".g_bodyin_bodyin_bottom_lsub_itemin_subin.selected").each(function(){
-				_.pull(RF_SP2Store.waferTCFSelected, $(this).parent().data("parentfile") +" "+$(this).text());
-				$(this).removeClass("selected");
-			});
-		});
-		if($(this).siblings(".selected").length > 1){
-			var select0 = $(this).siblings(".selected").eq(0);
-			var item1 = select0.parent().data("parentfile") +" "+select0.text();
-			_.pull(RF_SP2Store.waferTCFSelected, item1);
-			select0.removeClass("selected");
-		}
-		$(this).addClass("selected");
-		RF_SP2Store.waferTCFSelected.push(item);
-	}
-	if(RF_SP2Store.waferTCFSelected.length == 2){
-		$(".reRenderBtnDiv").css({
-			"left": (e.pageX + 30)+"px",
-			"top": (e.pageY - 50)+"px"
-		}).slideDown(200);
-	}else{
-		$(".reRenderBtnDiv").css({
-			"left": (e.pageX + 30)+"px",
-			"top": (e.pageY - 50)+"px"
-		}).slideUp(200);
-	}
-}).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_main", function(){
-	if($(this).hasClass("active")){
-		$(this).next().slideUp(1000);
-	}else{
-		$(this).next().slideDown(1000);
-	}
-	$(this).toggleClass("active");
-});
-
 /*重新绘制事件*/
 $(".reRenderBtnDiv").click(function(){
-	if(RF_SP2Store.waferTCFSelected.length != 2) return false;
-	getTCFDataANDDrawChart({
-		isComfirmKey: false
+	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v){
+		return (v.selected || []).length == 2;
 	});
+	console.log(findTCFWafer)
+	// getTCFDataANDDrawChart({
+	// 	isComfirmKey: false
+	// });
 });
 
 /*数据统计*/
@@ -2018,6 +2040,7 @@ $("#clac_textarea").on("keydown", function(e){
 $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 	click: function(){
 		var $next = $(this).next();
+		if($next.data("imouseenter") == "enter") return false;
 		$next.toggleClass("clicked");
 		if($next.hasClass("clicked")){
 			$next.slideDown(600);
@@ -2027,12 +2050,15 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 			$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 打开Marker设置');
 		}
 	},
-	mouseover: function(){
+	mouseenter: function(){
 		var $next = $(this).next();
 		if($next.hasClass("clicked")) return false;
-		$next.addClass("clicked").slideDown(600);
+		$next.data("imouseenter", "enter");
+		$next.addClass("clicked").slideDown(600, function(){
+			$next.data("imouseenter", "leave");
+		});
 		$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 关闭Marker设置');
-	},
+	}
 	/*mouseout: function(){
 		var $next = $(this).next();
 		if($next.hasClass("clicked")) return false;
