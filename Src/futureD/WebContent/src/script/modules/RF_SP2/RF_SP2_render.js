@@ -150,6 +150,7 @@ function getEventPosition(ev) {
 
 /*绘制曲线图*/
 function renderSpline(option){
+	var nameArr = option.name;
 	var chart = Highcharts.chart(option.container, {
 		chart: {
 			type: 'spline',
@@ -213,9 +214,9 @@ function renderSpline(option){
 		},
 		tooltip: {
 			formatter: function (e) {
-				if(RF_SP2State.stateObj.comfirm_key == "y"){
+				if(RF_SP2Store.stateObj.comfirm_key == "y"){
 					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, <b class="underline_b">'+this.y+' dB</b>';
-				}else if(RF_SP2State.stateObj.comfirm_key == "x"){
+				}else if(RF_SP2Store.stateObj.comfirm_key == "x"){
 					return '<b>'+this.series.name+'</b><br><b class="underline_b">'+this.x+' Mhz</b>, '+this.y+' dB';
 				}else{
 					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, '+this.y+' dB';
@@ -277,7 +278,7 @@ function renderSpline(option){
 							console.log(chart.series);
 							console.log(chart.xAxis);
 							console.log(this);*/
-							if(_.isNil(RF_SP2State.stateObj.comfirm_key)){
+							if(_.isNil(RF_SP2Store.stateObj.comfirm_key)){
 								RF_SP2SwalMixin({
 									title: 'Key值设置提醒',
 									text: "请先设置Key值并保存",
@@ -293,19 +294,19 @@ function renderSpline(option){
 							var x = this.category;
 							var y = this.y;
 							var iindex = this.x;
-							if(RF_SP2State.stateObj.comfirm_key == "x"){
+							if(RF_SP2Store.stateObj.comfirm_key == "x"){
 								/*以X为Key*/
 								var y2 = chart.series[Number(ii)].yData[iindex];
 								if(this.selected){
 									/*以前选中了*/
 									this.select(false,true);
 									chart.series[Number(ii)].data[iindex].select(false, true);
-									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+									_.pull(RF_SP2Store.stateObj.splineSelectedArr, _.find(RF_SP2Store.stateObj.splineSelectedArr, function(o) { 
 											var flag = false;
 											if(o.name == name && o.x == x) flag = true;
 											return flag;
 										 }));
-									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+									_.pull(RF_SP2Store.stateObj.splineSelectedArr, _.find(RF_SP2Store.stateObj.splineSelectedArr, function(o) { 
 											var flag = false;
 											if(o.name == name2 && o.x == x) flag = true;
 											return flag;
@@ -315,7 +316,7 @@ function renderSpline(option){
 								}else{
 									/*以前未选中*/
 									var serise1 = 0;
-									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(o){
+									_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(o){
 										 if(o.name == name){
 										 	serise1++;
 										 }
@@ -334,13 +335,13 @@ function renderSpline(option){
 									saveMarkerANDaddTr(name, x, y, false, iindex);
 									saveMarkerANDaddTr(name2, x, y2, false, iindex);
 								}
-							}else if(RF_SP2State.stateObj.comfirm_key == "y"){
+							}else if(RF_SP2Store.stateObj.comfirm_key == "y"){
 								/*以Y为Key*/
 								if(this.selected){
 									/*选中过*/
 									/*第一步，自己曲线找*/
 									/*var otherx = null;
-									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+									_.pull(RF_SP2Store.stateObj.splineSelectedArr, _.find(RF_SP2Store.stateObj.splineSelectedArr, function(o) { 
 											var flag = false;
 											if(o.name == name && o.y == y){
 												flag = true;
@@ -350,7 +351,7 @@ function renderSpline(option){
 											}
 											return flag;
 										 }));
-									_.pull(RF_SP2State.stateObj.splineSelectedArr, _.find(RF_SP2State.stateObj.splineSelectedArr, function(o) { 
+									_.pull(RF_SP2Store.stateObj.splineSelectedArr, _.find(RF_SP2Store.stateObj.splineSelectedArr, function(o) { 
 											var flag = false;
 											if(o.name == name && o.y == y){
 												flag = true;
@@ -367,19 +368,19 @@ function renderSpline(option){
 										chart.series[Number(!ii)].data[_.indexOf(chart.xAxis[0].categories, otherx)].select(false, false);
 									}*/
 									/*第二步，另一条曲线找*/
-									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+									_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
 										if(!_.isNil(v.isNew)){
-											var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+											var iii = _.indexOf(nameArr, v.name);
 											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(false, true);
 										}
 									});
-									RF_SP2State.stateObj.splineSelectedArr = [];
+									RF_SP2Store.stateObj.splineSelectedArr = [];
 									$(".buildMarker_body>.container-fluid tbody").empty();
-									RF_SP2State.stateObj.key_y = false;
+									RF_SP2Store.stateObj.key_y = false;
 								}else{
 									/*先前未选中*/
 									/*只可选一次*/
-									if(RF_SP2State.stateObj.key_y) return false;
+									if(RF_SP2Store.stateObj.key_y) return false;
 									/*第一步，自己曲线找*/
 									var yData1 = chart.series[Number(!ii)].yData;
 									var lastYIndex1 = _.lastIndexOf(yData1, y);
@@ -640,14 +641,14 @@ function renderSpline(option){
 										saveMarkerANDaddTr(name2, anotherXData[_.head(hasYDataIndexArr)], y, false, _.head(hasYDataIndexArr));
 										saveMarkerANDaddTr(name2, anotherXData[_.last(hasYDataIndexArr)], y, false, _.last(hasYDataIndexArr));
 									}
-									_.forEach(RF_SP2State.stateObj.splineSelectedArr, function(v, i){
+									_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v, i){
 										if(!_.isNil(v.isNew)){
-											var iii = _.indexOf(RF_SP2State.waferTCFSelected, v.name);
+											var iii = _.indexOf(nameArr, v.name);
 											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
 										}
 									});
 									/*第二步，另一条曲线找end*/
-									RF_SP2State.stateObj.key_y = true;
+									RF_SP2Store.stateObj.key_y = true;
 									/*判断另一条曲线是否有相同的y结束*/
 								}
 							}
@@ -694,33 +695,33 @@ function judgeIntersect(yData1, iindex, cur, y){
 /*保存marker和添加表格行*/
 function saveMarkerANDaddTr(name, x, y, isNew, newIndex){
 	var maxID;
-	if(_.isNil(RF_SP2State.stateObj.splineSelectedArr) || _.isEmpty(RF_SP2State.stateObj.splineSelectedArr)){
+	if(_.isNil(RF_SP2Store.stateObj.splineSelectedArr) || _.isEmpty(RF_SP2Store.stateObj.splineSelectedArr)){
 		maxID = 1;
 	}else{
-		maxID = Number(_.last(_.sortBy(RF_SP2State.stateObj.splineSelectedArr, function(o) { return o.id; })).id) + 1;
+		maxID = Number(_.last(_.sortBy(RF_SP2Store.stateObj.splineSelectedArr, function(o) { return o.id; })).id) + 1;
 	}
 	var markerName = "Marker"+maxID;
 	/*var markerName2 = "Marker"+(maxID+1);*/
-	RF_SP2State.stateObj.splineSelectedArr.push({
+	RF_SP2Store.stateObj.splineSelectedArr.push({
 		name: name,
 		x: x,
 		y: y,
 		markerName: markerName,
-		key: RF_SP2State.stateObj.comfirm_key,
+		key: RF_SP2Store.stateObj.comfirm_key,
 		id: maxID,
 		isNew: isNew,
 		newIndex: newIndex
 	});
-	/*RF_SP2State.stateObj.splineSelectedArr.push({
+	/*RF_SP2Store.stateObj.splineSelectedArr.push({
 		name: name2,
 		x: x,
 		y: y2,
 		markerName: markerName2,
-		key: RF_SP2State.stateObj.comfirm_key,
+		key: RF_SP2Store.stateObj.comfirm_key,
 		id: maxID+1
 	});*/
-	$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name+x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName+'">'+markerName+'</td><td>'+x+'</td><td>'+y+'</td><td>'+RF_SP2State.stateObj.comfirm_key+'</td></tr>');
-	/*$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name2+x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName2+'">'+markerName2+'</td><td>'+x+'</td><td>'+y2+'</td><td>'+RF_SP2State.stateObj.comfirm_key+'</td></tr>');*/
+	$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name+x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName+'">'+markerName+'</td><td>'+x+'</td><td>'+y+'</td><td>'+RF_SP2Store.stateObj.comfirm_key+'</td></tr>');
+	/*$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name2+x)+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName2+'">'+markerName2+'</td><td>'+x+'</td><td>'+y2+'</td><td>'+RF_SP2Store.stateObj.comfirm_key+'</td></tr>');*/
 }
 
 function findPointCombinatorial(obj){

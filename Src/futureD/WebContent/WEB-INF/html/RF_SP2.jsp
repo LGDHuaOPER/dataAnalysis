@@ -46,7 +46,7 @@
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit bootstro" data-bootstro-title="RF-SP2引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，或者跳转工程分析页面，点击右边图标可以跳转数据统计页面。</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
@@ -258,6 +258,7 @@
 														<div class="col-sm-6 col-md-4 col-lg-4">以x/y为Key</div>
 														<div class="col-sm-6 col-md-4 col-lg-4">
 															<select id="comfirm_key_sel" class="form-control">
+																<option value="请选择">请选择</option>
 																<option value="x">x</option>
 																<option value="y">y</option>
 															</select>
