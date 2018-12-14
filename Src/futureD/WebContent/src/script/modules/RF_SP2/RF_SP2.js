@@ -306,14 +306,14 @@ RF_SP2Store.util.smithHandler = function(obj){
 			});
 		}
 	}else if(_.isEqual(s, "S12") || _.isEqual(s, "S21")){
-		var sClassify2,
-		messag = "(" + data[0][1].toFixed(2) + " dB," + data[0][0].toFixed(2) + " GHz)";
+		var sClassify2;
 		if(_.isEqual(s, "S12")){
 			sClassify2 = "2";
 		}else{
 			sClassify2 = "3";
 		}
 		if(delLi === false){
+			var messag = "(" + data[0][1].toFixed(2) + " dB," + data[0][0].toFixed(2) + " GHz)";
 			if(RF_SP2Store.stateObj.smithSmallContainerFlag[s] === false){
 				getDataBuildS12S21({
 					allData: [{
@@ -1197,7 +1197,7 @@ function buildS11ANDS22Bottom(obj){
 					'<p style="background: '+v.color+'"></p>'+
 				'</div>'+
 				'<div class="smithdata">'+
-					'<p class="smithdata1"><span class="Smith_Paramter">'+v.name+' Paramter </span>(<span class="Smith_Msg1">'+classify+'</span>): <span class="Smith_Msg2"></span></p>'+
+					'<p class="smithdata1"><span class="Smith_Paramter">'+v.name+' </span>(<span class="Smith_Msg1">'+classify+'</span>): <span class="Smith_Msg2"></span></p>'+
 				'</div>'+
 			'</li>';
 	});
