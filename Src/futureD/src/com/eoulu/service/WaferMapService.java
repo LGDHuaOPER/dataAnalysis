@@ -53,7 +53,7 @@ public interface WaferMapService {
 	 * @param deviceGroup
 	 * @return
 	 */
-	WaferMapDTO getVectorMap(int waferId,String subdieName,String deviceGroup);
+	Object getVectorMap(int waferId,String subdieName,String deviceGroup);
 	/**
 	 * 指定晶圆的所有subdie
 	 * @param waferId

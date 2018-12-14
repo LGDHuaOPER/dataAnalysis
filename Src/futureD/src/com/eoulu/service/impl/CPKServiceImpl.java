@@ -13,9 +13,12 @@ import java.util.Map;
 import com.eoulu.dao.CPKDao;
 import com.eoulu.dao.GaussianDao;
 import com.eoulu.dao.HistogramDao;
+import com.eoulu.dao.SubdieDao;
+import com.eoulu.dao.WaferDao;
 import com.eoulu.dao.YieldDao;
 import com.eoulu.service.CPKService;
 import com.eoulu.transfer.FunctionUtil;
+import com.eoulu.transfer.ObjectTable;
 import com.eoulu.util.DataBaseUtil;
 
 /**
@@ -27,6 +30,9 @@ public class CPKServiceImpl implements CPKService{
 	private final static double Variance=6E-6;
 	@Override
 	public Map<String,List<Object>> getCPK(String waferIdStr, String param) {
+		WaferDao waferDao = (WaferDao) ObjectTable.getObject("WaferDao");
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
+		CPKDao dao = new CPKDao();
 		HistogramDao histogram = new HistogramDao();
 		Map<String,List<Object>> waferMap=new HashMap();
 		Connection conn = new DataBaseUtil().getConnection();
@@ -36,10 +42,12 @@ public class CPKServiceImpl implements CPKService{
 		double upper = 0,lower=0,avg=0,variance=0,StandardDeviation=0,CPKu=0,CPKI=0,CPK=0;
 		int waferId = 0,count = 0;String waferNO = "";
 		String att[] = waferIdStr.split(",");
-		
+		boolean flag = false;
 		for(int i=0,length=att.length;i<length;i++){
 			waferId = Integer.parseInt(att[i]);
-			limit = new CPKDao().getLimit(conn, param, waferId);
+			waferNO = waferDao.getWaferNO(conn, waferId);
+			flag = subdieDao.getSubdieExist(conn, waferNO);
+			limit = dao.getLimit(conn, param, waferId);
 		
 			String column = histogram.getColumn(conn, waferId, param);
 			if(limit.size()<1){
@@ -50,13 +58,17 @@ public class CPKServiceImpl implements CPKService{
 				upper =  Double.parseDouble(limit.get(0).get("upper_limit").toString());//参数对应数据的上下
 				lower =  Double.parseDouble(limit.get(0).get("lower_limit").toString());//参数对应数据的下限
 			}
-			count = histogram.getQuantity(conn, waferId, "and "+column+" is not null and "+column+" < 9E30 and bin <>-1");
-			result = new ArrayList<Object>();
-			list = new CPKDao().getData(conn, column, waferId,count);
+			if(flag){
+				count = subdieDao.getQuantity(conn, waferId,  "and "+column+" is not null and "+column+" < 9E30 and (subdie_bin=1 or subdie_bin=255)");
+			}else{
+				count = histogram.getQuantity(conn, waferId, "and "+column+" is not null and "+column+" < 9E30 and (bin=1 or bin=255)");
+			}
+			list = dao.getData(conn, column, waferId,count,flag);
 //			System.out.println(list);
 //			if(list==null){
 //				return null;
 //			}
+			result = new ArrayList<Object>();
 			for(Map<String,Object> waferData:list){
 				 avg = waferData.get("avg")==null?0:Double.parseDouble(waferData.get("avg").toString());
 				datas = (List<Double>) waferData.get("datas");
@@ -77,7 +89,7 @@ public class CPKServiceImpl implements CPKService{
 				 }
 				
 			}
-			waferNO = new YieldDao().getWaferNO(conn, waferId);
+		
 			waferMap.put(att[i], result);
 		}
 		

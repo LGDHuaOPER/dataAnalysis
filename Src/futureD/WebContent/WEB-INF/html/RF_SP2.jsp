@@ -21,6 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/awesomplete_all.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.css" type="text/css">
 	<link rel="stylesheet" href="src/style/modules/RF_SP2/RF_SP2.css" type="text/css">
 </head>
 <body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}'>
@@ -79,6 +80,7 @@
 							</div><!-- g_bodyin_bodyin_bottom_l end -->
 							<div class="g_bodyin_bodyin_bottom_r bootstro" data-bootstro-title="RF-SP2引导：第五步" data-bootstro-content="<div class='well well-sm'><h4>图表区域</h4><p>在这里显示的是图例，双击某个图例可以查看大图。</p><p>切换到TCF分页后，在这里显示的是具有标记Marker点功能的图表</p></div>" data-bootstro-placement="left" data-bootstro-html="true" data-bootstro-step="4">
 								<div class="container-fluid fourChart_div">
+									<img src="assets/img/common/detail_24px.svg" alt="" title="查看所有图例" id="RFSP2SmallLegend">
 									<div class="row">
 										<div class="col-sm-12 col-md-6 col-lg-6">
 											<div class="chartWarp" id="picture_box1" data-itargetchart="S11_chart_S">
@@ -391,7 +393,7 @@
 	</div>
 	<!-- 查看区间 -->
 	<div class="indicatrix_div">
-		<div class="indicatrix_tit">查看/删除区间<span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+		<div class="indicatrix_tit">查看/删除区间（此面板可拖动）<span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
 		<div class="indicatrix_body">
 			<div class="container-fluid">
 				<fieldset>
@@ -435,6 +437,15 @@
 	<div class="reRenderBtnDiv">
 		<input type="button" class="btn btn-success" value="重新绘制">
 	</div>
+	<!-- 所有图例 -->
+	<div class="allLegends">
+		<div class="allLegends_tit">查看所有图例（此面板可拖动）<span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+		<div class="allLegends_body">
+			<div class="container-fluid">
+				
+			</div>
+		</div>
+	</div>
 	<script src="assets/script/libs/jquery-3.3.1.min.js"></script>
 	<script src="assets/script/libs/bootstrap.min.js"></script>
 	<script src="assets/script/libs/lodash.min.js"></script>
@@ -452,8 +463,9 @@
 	<script src="src/script/modules/common/drawingSmith.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
+	<script src="assets/script/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.js"></script>
 	<!-- 变 -->
-	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="dist/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/RF_SP2/RF_SP2.js"></script>
 	<script src="src/script/modules/RF_SP2/RF_SP2_render.js"></script>

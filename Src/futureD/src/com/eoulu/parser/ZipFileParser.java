@@ -1093,24 +1093,30 @@ public class ZipFileParser {
 			if(subdieFlag){
 				diexdiey = s.split(",");
 				dieno = diexdiey[0].split("=")[1];
-				if(indexFlag.equals(dieno) ){
-					subdieNO++;
-				}else{
-					subdieNO = 1;
-					indexFlag = dieno;
-				}
 				diexy = diexdiey[1] + "," + diexdiey[2];
 				if (s.contains("ToBeProbed") || s.contains("ToInked")) {
+					if(indexFlag.equals(dieno) ){
+						subdieNO++;
+					}else{
+						subdieNO = 1;
+						indexFlag = dieno;
+					}
 					str = diexy + ",5000," + diexdiey[5] + "," + dieno + ","+subdieNO+",0";
 					subdieMap.put(diexy, str);
 				}else{
-					str = diexy + ",-1," + diexdiey[5] + "," + dieno + ","+subdieNO+",0";
+					
 					order = Integer.parseInt(diexdiey[0].split("=")[0]);
-					if(order%configCount != 0){
+					if(order%configCount == 1){
+						subdieNO = 1;
 						order = order/configCount+1;
+					}else if(order%configCount !=0){
+						order = order/configCount+1;
+						subdieNO++;
 					}else{
 						order = order/configCount;
+						subdieNO++;
 					}
+					str = diexy + ",-1," + diexdiey[5] + "," + dieno + ","+subdieNO+",0";
 					str += ","+removedOrder.get(order);
 					subdieList.add(str);
 				}

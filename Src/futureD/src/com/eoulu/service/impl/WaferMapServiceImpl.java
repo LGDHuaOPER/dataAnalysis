@@ -187,16 +187,25 @@ public class WaferMapServiceImpl implements WaferMapService {
 
 
 	public Map<String, Object> getVectorMap(int waferId){
-		 WaferDao dao = new WaferDao();
-		 CoordinateDao coordinate = new CoordinateDao();
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
+		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		Map<String, Object> map = new HashMap<>();
 		
 		Connection conn = new DataBaseUtil().getConnection();
 		String waferNO = dao.getWaferNO(conn,waferId);
+		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
 		map = getMapParameter(conn, waferNO);
-		map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
-		
-		map.put("waferList", coordinate.getVectorMap(conn, waferId, "", ""));
+		if(flag){
+			map.put("waferDie", coordinate.getAllDie(conn, waferNO));
+			map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
+			map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO));
+			map.put("waferList", subdieDao.getVectorMap(conn, waferId, "", ""));
+			map.put("containSubdie", flag);
+		}else{
+			map.put("otherDieType",coordinate.getOtherDie(conn, waferId, waferNO));
+			map.put("waferList", coordinate.getVectorMap(conn, waferId, "", ""));
+		}
 		map.put("waferNO", waferNO);
 		try {
 			conn.close();
@@ -207,16 +216,26 @@ public class WaferMapServiceImpl implements WaferMapService {
 	}
 
 	@Override
-	public WaferMapDTO getVectorMap(int waferId, String subdieName, String deviceGroup) {
+	public Object getVectorMap(int waferId, String subdieName, String deviceGroup) {
 		Connection conn = DataBaseUtil.getInstance().getConnection();
-		CoordinateDao coordinate = new CoordinateDao();
-		WaferMapDTO wafer = coordinate.getVectorMap(conn, waferId, subdieName, deviceGroup);
+		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
+		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
+		String waferNO = dao.getWaferNO(conn,waferId);
+		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
+		Object result = null;
+		if(flag){
+			result = subdieDao.getVectorMap(conn, waferId, "", "");
+		}else{
+			result = coordinate.getVectorMap(conn, waferId, subdieName, deviceGroup);
+		}
+		
 		try {
 			conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return wafer;
+		return result;
 	}
 	
 	@Override

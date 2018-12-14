@@ -456,14 +456,10 @@ body {
 }
 
 .chartWarp>.picturebottom {
-	max-height: 40px;
-	height: 40px;
+	max-height: 20px;
+	height: 20px;
 	max-width: 100%;
 	width: 100%;
-}
-
-#picture2bottom, #picture3bottom {
-	display: none;
 }
 
 .picturebottom_in {
@@ -472,7 +468,7 @@ body {
 	-ms-grid-columns: 25px 1fr 25px;
 	grid-template-columns: 25px 1fr 25px;
 	    grid-template-areas: "picturebottom_in_l picturebottom_in_m picturebottom_in_r";
-	height: 40px;
+	height: 20px;
 }
 
 .picturebottom_in_l {
@@ -505,8 +501,9 @@ body {
 
 .picturebottom div.pictureline {
 	display: inline-block;
-	padding-top: 17px;
-    height: 40px;
+	margin-right: 3px;
+	padding-top: 9px;
+    height: 20px;
 	width: 50px;
 	cursor: pointer;
 	vertical-align: top;
@@ -514,7 +511,7 @@ body {
 
 .picturebottom div.smithdata {
 	display: inline-block;
-	height: 40px;
+	height: 20px;
 }
 
 .picturebottom_in_m_in {
@@ -555,6 +552,10 @@ body {
 
 #picture_box2, #picture_box3 {
 	overflow-y: auto;
+}
+
+#picture2bottom, #picture3bottom {
+	margin-top: 1px;
 }
 
 .g_bodyin_bodyin_bottom_r .row+.row {
@@ -654,7 +655,7 @@ span.glyphicon, img[data-iicon] {
     left: 0;
     right: 0;
     bottom: 0;
-	background-color: rgba(10%,20%,30%,.7);
+	background-color: rgba(10%,20%,30%,.6);
 	z-index: 9;
 	overflow: hidden;
 	display: none;
@@ -1008,6 +1009,68 @@ div.swal2-content div.container-fluid>.row>div {
 
 div.swal2-container {
 	z-index: 999999 !important;
+}
+
+/* RF-SP2图例全 */
+.fourChart_div {
+	position: relative;
+}
+
+.allLegends {
+	position: absolute;
+	width: 500px;
+	left: calc(50% - 250px);
+	top: 20px;
+	background-color: #fff;
+	font-size: 14px;
+	border-radius: 5px;
+	border: 1px dashed #ccc;
+	z-index: 10;
+	display: none;
+}
+
+.allLegends_tit {
+	position: relative;
+	height: 35px;
+	line-height: 35px;
+	text-indent: 20px;
+	color: #fff;
+	background-color: rgb(45, 76, 148);
+}
+
+.allLegends_tit>span {
+	position: absolute;
+	font-size: 20px;
+	right: 20px;
+	top: 8px;
+}
+
+.allLegends_body {
+	padding-top: 5px;
+	max-height: 450px;
+	overflow-y: auto;
+}
+
+.allLegends_body div.row+div.row {
+	border-top: 1px solid #eee;
+}
+
+.allLegends_body p {
+	margin-bottom: 1px;
+}
+
+.allLegends_body .legend_color {
+	margin-top: 4px;
+	height: 10px;
+}
+/* RF-SP2图例end */
+
+#RFSP2SmallLegend {
+	position: absolute;
+	left: 30px;
+	width: 40px;
+	cursor: pointer;
+	z-index: 9;
 }
 
 @media screen and (max-width: 1366px) {

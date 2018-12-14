@@ -34,9 +34,9 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 	double innerIQRmin; // 最小内限
 	double outerIQRmax; // 最大外限
 	double outerIQRmin; // 最小外限
-	private BoxPlotDao dao = new BoxPlotDao();
 	@Override
 	public Map<String, Object> getBoxPlot(String param, String waferIdStr) {
+		BoxPlotDao dao = new BoxPlotDao();
 		Map<String, Object> resultMap =new HashMap<String,Object>(),boxData = null,boxMap=null,outliers = null;
 		List<Double> boxlist = null,softOutliersList = null,extremeOutliersList = null;
 		String att[] = waferIdStr.split(",");
@@ -118,18 +118,18 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 			int num = length / 4;
 			if (length % 2 == 0) {
 				median =  (Nums[length / 2 - 1] + Nums[length / 2]) / 2;
-				BigDecimal bd = new BigDecimal(median);
-				median = bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+//				BigDecimal bd = new BigDecimal(median);
+//				median = bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 			} else {
 				median = Nums[(length + 1) / 2 - 1];
 			}
 			if (length % 4 == 0) {// 是整数，Q1=1+n/4的位置与n/4位置的平均值
 				firstQuartile = (Nums[num - 1] + Nums[num]) / 2;
-				BigDecimal bd = new BigDecimal(firstQuartile);
-				firstQuartile = bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+//				BigDecimal bd = new BigDecimal(firstQuartile);
+//				firstQuartile = bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 				thirdQuartile =  (Nums[3 * num - 1] + Nums[3 * num]) / 2;
-				BigDecimal bd2 = new BigDecimal(thirdQuartile);
-				thirdQuartile = bd2.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+//				BigDecimal bd2 = new BigDecimal(thirdQuartile);
+//				thirdQuartile = bd2.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 			} else {// 不是整数，Q1=1+n/4的位置的数据
 				firstQuartile = Nums[num];
 				thirdQuartile = Nums[length * 3 / 4];

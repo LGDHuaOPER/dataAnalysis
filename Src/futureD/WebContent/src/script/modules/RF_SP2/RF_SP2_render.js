@@ -4,9 +4,12 @@ function getDataBuildS12S21(obj){
 	container = obj.container,
 	zoomType = obj.zoomType,
 	showCheckbox = obj.showCheckbox,
+	title = obj.title,
+	legend_enabled = obj.legend_enabled,
 	renderData = obj.renderData,
 	GHzFlag = obj.GHzFlag,
-	callback = obj.callback;
+	callback = obj.callback,
+	pointMouseOverCallback = obj.pointMouseOverCallback;
 	var objec = {};
 	objec.xCategories = [];
 	_.forEach(allData[0].data, function(v, i){
@@ -40,7 +43,10 @@ function getDataBuildS12S21(obj){
 		relativeTo: 'chart'
 	};
 	objec.showCheckbox = showCheckbox;
+	objec.title = title;
+	objec.legend_enabled = legend_enabled;
 	objec.callback = callback;
+	objec.pointMouseOverCallback = pointMouseOverCallback;
 	drawRealS12S21(objec);
 }
 
@@ -65,10 +71,10 @@ function drawRealS12S21(obj){
 	var container = obj.container;
 	var xCategories = obj.xCategories;
 	var series = obj.series;
-	var legend_enabled = obj.legend_enabled || true;
+	var legend_enabled = _.isNil(obj.legend_enabled) ? true : obj.legend_enabled;
 	var zoomType = obj.zoomType || "None";
 	var resetZoomButton = obj.resetZoomButton;
-	var text = obj.text || null;
+	var title = obj.title || {text: null};
 	var showCheckbox = obj.showCheckbox || false;
 	var chart = Highcharts.chart(container, {
 		chart: {
@@ -76,9 +82,7 @@ function drawRealS12S21(obj){
 			zoomType: zoomType,
 			resetZoomButton: resetZoomButton
 		},
-		title: {
-			text: text
-		},
+		title: title,
         lang: {
             loading: 'Loading...' ,//设置载入动画的提示内容，默认为'Loading...'，若不想要文字提示，则直接赋值空字符串即可 
         },
@@ -119,10 +123,6 @@ function drawRealS12S21(obj){
 					events: {
 						mouseOver: function (ev) {
 							var point = this;
-							/*var x = xCategories[this.x] ;
-							var y = this.y ;
-							var str = y+" dB,"+x+" GHz" ;
-							msgDom && msgDom.find(".Smith_Msg2").text(str);*/
 							_.isFunction(obj.pointMouseOverCallback) && obj.pointMouseOverCallback(point, chart, ev);
 						}
 					}

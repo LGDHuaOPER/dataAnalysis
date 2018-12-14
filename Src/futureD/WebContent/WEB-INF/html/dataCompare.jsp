@@ -299,9 +299,12 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
-	<script src="assets/script/libs/drawWaferMap.js"></script>
+	
 	
 	<!--压缩文件  -->
+	<!-- <script src="assets/script/libs/drawWaferMap.js"></script> -->
+	<script src="src/script/modules/common/drawWaferMap.js"></script>
+	
 	<script src="dist/script/modules/common/futureD_config.js"></script>
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart.js"></script>
 	<!-- <script src="dist/script/modules/dataCompare/dataCompare.js"></script> -->

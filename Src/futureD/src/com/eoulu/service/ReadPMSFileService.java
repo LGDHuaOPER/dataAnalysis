@@ -493,19 +493,20 @@ public class ReadPMSFileService {
 			coordinateId = coordinate.getCoordinateId(conn, waferId, dieX, dieY);
 			subdieName = subdieMap.get(key).toString().split(",")[0];
 			deviceGroup = subdieMap.get(key).toString().split(",")[1];
-			att = new Object[]{coordinateId,0,subdieName};
-			status = coordinate.insertSubdie(conn, att);
-			if(!"success".equals(status)){
-				break;
-			}
-			subdieId = coordinate.getSubdieId(conn, coordinateId, 0, subdieName);
-			att = new Object[]{waferId,coordinateId,subdieId,deviceGroup,deviceGroup,"",0};
-			status = curve.insertCurveType(conn, att);
-			if(!"success".equals(status)){
-				break;
-			}
-			curveTypeId = curve.getCurveTypeId(conn, subdieId, "");
-			subdieIdMap.put(key, curveTypeId);
+			//暂时注释
+//			att = new Object[]{coordinateId,0,subdieName};
+//			status = coordinate.insertSubdie(conn, att);
+//			if(!"success".equals(status)){
+//				break;
+//			}
+//			subdieId = coordinate.getSubdieId(conn, coordinateId, 0, subdieName);
+//			att = new Object[]{waferId,coordinateId,subdieId,deviceGroup,deviceGroup,"",0};
+//			status = curve.insertCurveType(conn, att);
+//			if(!"success".equals(status)){
+//				break;
+//			}
+//			curveTypeId = curve.getCurveTypeId(conn, subdieId, "");
+//			subdieIdMap.put(key, curveTypeId);
 		}
 		return status;
 	}

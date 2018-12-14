@@ -237,18 +237,20 @@ public class CurveDao {
 	public List<Map<String, Object>> getCurveType(Connection conn,int coordinateId, String subdieName, String deviceGroup) {
 		String sql = "select curve_type_id,curve_type,curve_file_type from dm_curve_type where coordinate_id=? ";
 		Object[] param = new Object[]{coordinateId};
+		if (!"".equals(subdieName) && !"".equals(deviceGroup)){
+			sql += " and device_group=?  and  subdie_id in (select subdie_id from dm_wafer_subdie where subdie_number=?) ";
+			param = new Object[]{coordinateId,deviceGroup,subdieName};
+		}else
 		if (!"".equals(deviceGroup)) {
 			sql += " and device_group=? ";
 			param = new Object[]{coordinateId,deviceGroup};
-		}
+		}else
 		if (!"".equals(subdieName)) {
-			sql += " and  subdie_id in (select subdie_id from dm_wafer_subdie where subdie_name=?) ";
+			sql += " and  subdie_id in (select subdie_id from dm_wafer_subdie where subdie_number=?) ";
 			param = new Object[]{coordinateId,subdieName};
 		}
-		if (!"".equals(subdieName) && !"".equals(deviceGroup)){
-			sql += " and device_group=?  and  subdie_id in (select subdie_id from dm_wafer_subdie where subdie_name=?) ";
-			param = new Object[]{coordinateId,deviceGroup,subdieName};
-		}
+		
+		System.out.println("SQL==="+sql);
 		return db.queryToList(conn,sql, param);
 	}
 	

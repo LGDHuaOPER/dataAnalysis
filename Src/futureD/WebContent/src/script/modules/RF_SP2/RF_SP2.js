@@ -3,11 +3,6 @@ $(".g_bodyin_bodyin_bottom_2, .signalChart_div, .reRenderBtnDiv, .g_bodyin_bodyi
 $(".reRenderBtnDiv, button.backover, button.open_del_indicatrix, .g_bodyin_bodyin_bottom_rsubin_tit>button").css({
 	"opacity": 1
 });
-Highcharts.setOptions({
-	chart: {
-		colorCount: 20
-	}
-});
 
 /*variable defined*/
 /*_.find(Highcharts.charts, function(v){if(!_.isNil(v)) return v.renderTo == $("div#S12_chart_S")[0];});
@@ -192,6 +187,7 @@ RF_SP2Store.util.renderWaferFile = function(obj){
 	var str = '<div class="panel panel-default slideUp">'+
 				  	'<div class="panel-heading" title="点击展开" data-waferid="'+waferId+'" data-waferfile="'+waferFile+'">'+waferFile+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></div>'+
 				  	'<ul class="list-group">';
+	data = _.sortBy(data, function(o) { return o[2]; });
 	_.forEach(data, function(v, i){
 		str+='<li class="list-group-item" data-waferfile="'+waferFile+'" data-curvefile="'+v[0]+'" data-curvetypeid="'+v[1]+'" data-dieid="'+v[2]+'">'+v[0]+'</li>';
 	});
@@ -213,13 +209,13 @@ RF_SP2Store.util.eleResize = function(obj){
 		$("div.picturetop").each(function(){
 			if($(this).is("#picture2top") || $(this).is("#picture3top")){
 				var radios = 1, minus = 0;
-				if(RF_SP2Store.waferSelected.length > 3) {
+				if(RF_SP2Store.waferSelected.length > 20) {
 					radios = 2;
-					minus = 7;
+					minus = _.get(eouluGlobal.S_getPageAllConfig(), "futureDT2.scrollBarWidth", 7);
 				}
-				$(this).innerHeight(~~($(this).parent().height()*radios)).innerWidth(~~($(this).parent().width()-minus));
+				$(this).innerHeight(~~($(this).parent().height()*radios)-30).innerWidth(~~($(this).parent().width()-minus));
 			}else{
-				$(this).innerHeight($(this).parent().height() - 50);
+				$(this).innerHeight($(this).parent().height() - 30);
 			}
 		});
 		$(".picturebottom_in_m ul>li").innerWidth($(".picturebottom_in_m").innerWidth());
@@ -310,7 +306,8 @@ RF_SP2Store.util.smithHandler = function(obj){
 			});
 		}
 	}else if(_.isEqual(s, "S12") || _.isEqual(s, "S21")){
-		var sClassify2;
+		var sClassify2,
+		messag = "(" + data[0][1].toFixed(2) + " dB," + data[0][0].toFixed(2) + " GHz)";
 		if(_.isEqual(s, "S12")){
 			sClassify2 = "2";
 		}else{
@@ -327,9 +324,27 @@ RF_SP2Store.util.smithHandler = function(obj){
 					container: "picture"+sClassify2+"top",
 					zoomType: "None",
 					showCheckbox: false,
+					title: {
+						text: s,
+						floating: true,
+						align: 'right',
+						x: -10,
+						y: 10
+					},
+					legend_enabled: false,
 					GHzFlag: true, 
 					callback: function(){
 						RF_SP2Store.stateObj.smithSmallContainerFlag[s] = true;
+						setTimeout(function() {
+							// 生成图例
+							msgInitFun(messag, s, sClassify2, false);
+						}, 10);
+					},
+					pointMouseOverCallback: function(point, chart, ev){
+						var icategories = chart.xAxis[0].categories;
+						var str = "("+point.y+" dB,"+icategories[point.x]+" GHz)";
+						$("#picture"+sClassify2+"bottom .picturebottom_in_m_in ul>li[data-iparamter='"+point.series.name+"']").addClass("active").siblings().removeClass("active");
+						$("#picture"+sClassify2+"bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(str);
 					}
 				});
 			}else{
@@ -347,12 +362,18 @@ RF_SP2Store.util.smithHandler = function(obj){
 							/*console.log(this); // series对象*/
 						},
 					},
-					point: {
-						events: {
-							mouseOver: undefined
-						}
-					}
+					// point: {
+					// 	events: {
+					// 		mouseOver: function(){
+
+					// 		}
+					// 	}
+					// }
 				});
+				setTimeout(function() {
+					// 生成图例
+					msgInitFun(messag, s, sClassify2, seriesName);
+				}, 10);
 			}
 			/*保存数据*/
 			var addColor2 = _.find($("#picture"+sClassify2+"top").highcharts().series, function(o){
@@ -428,15 +449,22 @@ RF_SP2Store.util.graphStyleHandler = function(obj){
 	callback = obj.callback;
 	if(graphStyle == "XYOfPhase" || graphStyle == "XYOfMagnitude"){
 		$(".signalChart_div_foot").fadeOut(10);
-		var iseries = _.cloneDeep(RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle]),
+		var jdata = RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle];
+		var iseries = _.map(jdata, function(v, i){
+			var item = {};
+			item.name = v.name;
+			item.color = v.color;
+			item.data = _.zip.apply(undefined, v.data)[1];
+			return item;
+		}),
 		xCategories;
 		if(_.isNil(iseries[0])){
 			xCategories = [];
 		}else{
 			RF_SP2Store.util.min_maxHandler({
-				series: _.cloneDeep(iseries)
+				series: _.cloneDeep(jdata)
 			});
-			xCategories = _.zip.apply(undefined, iseries[0].data)[0];
+			xCategories = _.zip.apply(undefined, jdata[0].data)[0];
 		}
 		RF_SP2Store.util.graphStyleDraw({
 			graphStyle: graphStyle,
@@ -533,6 +561,16 @@ RF_SP2Store.util.graphStyleDraw = function(obj){
 			},
 			tooltip: {
 				formatter: function (e) {
+					// this 属性
+					// color: "#DDA0DD"
+					// colorIndex: undefined
+					// key: 21.51
+					// percentage: undefined
+					// point: C {series: e, color: "#DDA0DD", y: 0.05, options: {…}, isNull: false, …}
+					// series: e {chart: a.Chart, userOptions: {…}, tooltipOptions: {…}, stickyTracking: true, zoneAxis: undefined, …}
+					// total: undefined
+					// x: 21.51
+					// y: 0.05
 					return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' '+(_.isEqual(graphStyle, "XYOfPhase") ? "Degrees" : "Magnitude");
 	            },
 	            useHTML: true
@@ -1154,14 +1192,12 @@ function buildS11ANDS22Bottom(obj){
 		forData = RF_SP2Store.stateObj.S2PSmallChartSmithData[classify];
 	}
 	_.forEach(forData, function(v, i){
-		var prevParam = v.name.split("  ")[1].replace(/\..*/, "");
 		str+='<li data-iparamter="'+v.name+'">'+
 				'<div class="pictureline">'+
 					'<p style="background: '+v.color+'"></p>'+
 				'</div>'+
 				'<div class="smithdata">'+
-					'<p class="smithdata1"><span class="Smith_Paramter">'+prevParam+' Paramter</span> (<span class="Smith_Msg1">'+classify+'</span>)</p>'+
-					'<p class="smithdata2"><span class="Smith_Paramter">'+prevParam+' Paramter</span> : <span class="Smith_Msg2"></span></p>'+
+					'<p class="smithdata1"><span class="Smith_Paramter">'+v.name+' Paramter </span>(<span class="Smith_Msg1">'+classify+'</span>): <span class="Smith_Msg2"></span></p>'+
 				'</div>'+
 			'</li>';
 	});
@@ -1388,13 +1424,23 @@ $(function(){
 			wafer: wafer,
 			done: function(data){
 				if(!_.isNil(data) && !_.isEmpty(data)){
-					var str = '';
+					var str = '',
+					sizes = 0;
 					_.forOwn(data, function(v, k){
+						sizes += v.curveFile.length;
 						str+=RF_SP2Store.util.renderWaferFile({
 							data: v.curveFile,
 							waferFile: v.waferFile,
 							waferId: k
 						});
+					});
+					var colorArray = eouluGlobal.S_getPageAllConfig().colorArray;
+					// _.shuffle([1, 2, 3, 4]);
+					Highcharts.setOptions({
+						chart: {
+							colorCount: sizes
+						},
+						colors: _.sampleSize(colorArray, sizes)
 					});
 					$(".g_bodyin_bodyin_bottom_l_intop").empty().append(str).children("div.panel:eq(0)").children("div.panel-heading").trigger("click").siblings("ul").children("li:eq(0)").trigger("click");
 					// TCF分页也加上
@@ -1424,6 +1470,9 @@ $(function(){
 	// key值回显
 	$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
 	RF_SP2Store.stateObj.key_y = RF_SP2Store.stateObj.comfirm_key == "y" ? true : false;
+
+	// 拖动初始化
+	$(".indicatrix_div, .allLegends").draggable({ distance: 5 });
 	return false;
 
 	/*保存Marker后的动作*/
@@ -1571,16 +1620,17 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 						jQDOM: iparent
 					});
 					// response
-					if(RF_SP2Store.waferSelected.length > 3){
+					if(RF_SP2Store.waferSelected.length > 20){
 						var oldHeight = ~~$("#picture_box2").innerHeight();
 						var oldWidth = ~~$("#picture_box2").innerWidth();
-						var radios = 2;
-						if(RF_SP2Store.waferSelected.length > 8){
+						var radios = 2,
+						minus = _.get(eouluGlobal.S_getPageAllConfig(), "futureDT2.scrollBarWidth", 7);
+						if(RF_SP2Store.waferSelected.length > 40){
 							radios = 3;
 						}
-						$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-7);
-						$("#picture2top").highcharts().setSize(oldWidth-7, oldHeight*radios);
-						$("#picture3top").highcharts().setSize(oldWidth-7, oldHeight*radios);
+						$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-minus);
+						$("#picture2top").highcharts().setSize(oldWidth-minus, oldHeight*radios);
+						$("#picture3top").highcharts().setSize(oldWidth-minus, oldHeight*radios);
 					}
 					/*如果显示大图*/
 					if(RF_SP2Store.stateObj.dblclickFlag){
@@ -1633,7 +1683,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 				delLi: true
 			});
 		});
-		if(RF_SP2Store.waferSelected.length < 4){
+		if(RF_SP2Store.waferSelected.length < 21){
 			var oldHeight1 = ~~$("#picture_box2").innerHeight();
 			var oldWidth1 = ~~$("#picture_box2").innerWidth();
 			$("#picture2top, #picture3top").innerHeight(oldHeight1).innerWidth(oldWidth1);
@@ -1695,6 +1745,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 })
 // TCF 左侧li点击
 .on("click", ".g_bodyin_bodyin_bottom_lsub_top .panel>ul>li", function(e){
+	e = e || window.event;
 	var iThat = $(this),
 	iparent = iThat.parent();
 	var waferid = _.toString(iparent.prev().data("waferid")),
@@ -1815,16 +1866,17 @@ $(".g_bodyin_bodyin_bottom_l_inbottom>input").click(function(){
 						});
 					});
 					// response
-					if(RF_SP2Store.waferSelected.length > 3){
+					if(RF_SP2Store.waferSelected.length > 20){
 						var oldHeight = ~~$("#picture_box2").innerHeight();
 						var oldWidth = ~~$("#picture_box2").innerWidth();
-						var radios = 2;
-						if(RF_SP2Store.waferSelected.length > 8){
+						var radios = 2,
+						minus = _.get(eouluGlobal.S_getPageAllConfig(), "futureDT2.scrollBarWidth", 7);
+						if(RF_SP2Store.waferSelected.length > 40){
 							radios = 3;
 						}
-						$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-7);
-						$("#picture2top").highcharts().setSize(oldWidth-7, oldHeight*radios);
-						$("#picture3top").highcharts().setSize(oldWidth-7, oldHeight*radios);
+						$("#picture2top, #picture3top").innerHeight(oldHeight*radios).innerWidth(oldWidth-minus);
+						$("#picture2top").highcharts().setSize(oldWidth-minus, oldHeight*radios);
+						$("#picture3top").highcharts().setSize(oldWidth-minus, oldHeight*radios);
 					}
 					// 如果显示大图
 					if(RF_SP2Store.stateObj.dblclickFlag){
@@ -2245,6 +2297,7 @@ $(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
 /*双击4图表*/
 $(document).on("dblclick", ".chartWarp", function(){
 	RF_SP2Store.stateObj.dblclickFlag = true;
+	$(".allLegends").hide();
 	var itargetchart = $(this).data("itargetchart");
 	$(".fourChart_div").fadeOut(200, function(){
 		$(".signalChart_div").fadeIn(200);
@@ -2277,12 +2330,12 @@ $(document).on("dblclick", ".chartWarp", function(){
 /*后退*/
 $(".signalChart_div_tit>button.backover").click(function(){
 	$(".signalChart_div").fadeOut(200, function(){
-		$(".fourChart_div").fadeTo(1, 0).fadeIn(100, function(){
-			var iDOM = $(".g_bodyin_bodyin_bottom_l_intop li.list-group-item-info:eq(0)");
-			iDOM.trigger("click");
+		$(".fourChart_div").fadeIn(100, function(){
+			$(window).trigger("resize");
 			setTimeout(function(){
-				iDOM.trigger("click");
-				$(".fourChart_div").fadeTo(50, 1);
+				_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithArr, function(v, i, arr){
+					arr[i].onresize();
+				});
 			}, 50);
 		});
 		RF_SP2Store.stateObj.dblclickFlag = false;
@@ -2466,8 +2519,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 		});
 		/*删除原来的线段结束*/
 		var xCategories = curChartObj.xAxis[0].categories;
-		console.log(xCategories)
-		var diff = (RF_SP2Store.stateObj.indicatrix_min_max[1] - RF_SP2Store.stateObj.indicatrix_min_max[0])*0.05;
+		var diff = (RF_SP2Store.stateObj.indicatrix_min_max[1] - RF_SP2Store.stateObj.indicatrix_min_max[0])*0.02;
 		/*判断低于区间*/
 		_.forEach(RF_SP2Store.stateObj[iclassify].indicatrix_low, function(v, i){
 			var data = [];
@@ -2521,10 +2573,10 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				return true;
 			}
 			// 如果索引值是-1结束
-			data.push([inde1, v[2]-diff]);
+			data.push([inde1, v[2]+diff]);
 			data.push([inde1, v[2]]);
 			data.push([inde2, v[2]]);
-			data.push([inde2, v[2]-diff]);
+			data.push([inde2, v[2]+diff]);
 			curChartObj.addSeries({
 				name: "低于指标#"+i,
 				data: data,
@@ -2668,10 +2720,10 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				return true;
 			}
 			// 如果索引值是-1结束
-			data.push([inde1, v[2]+diff]);
+			data.push([inde1, v[2]-diff]);
 			data.push([inde1, v[2]]);
 			data.push([inde2, v[2]]);
-			data.push([inde2, v[2]+diff]);
+			data.push([inde2, v[2]-diff]);
 			curChartObj.addSeries({
 				name: "高于指标#"+i,
 				data: data,
@@ -2900,4 +2952,25 @@ $.contextMenu({
 			icon: ""
 		}
 	}
+});
+
+// 查看所有图例
+$('#RFSP2SmallLegend').click(function(e){
+	e = e || window.event;
+	$(".allLegends").css({
+		left: e.pageX+"px",
+		top: e.pageY+"px"
+	}).fadeIn(200);
+	var str = '';
+	_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData.S11, function(v, i){
+		str+='<div class="row">'+
+					'<div class="col-sm-2 col-md-2 col-lg-2"><p class="legend_color" style="background-color: '+v.color+'"></p></div>'+
+					'<div class="col-sm-10 col-md-10 col-lg-10"><p class="legend_text">'+v.name+'</p></div>'+
+				'</div>';
+	});
+	$(".allLegends_body>.container-fluid").empty().append(str);
+});
+
+$(".allLegends_tit>span").click(function(){
+	$(".allLegends").fadeOut(200);
 });
