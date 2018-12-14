@@ -456,14 +456,10 @@ body {
 }
 
 .chartWarp>.picturebottom {
-	max-height: 40px;
-	height: 40px;
+	max-height: 20px;
+	height: 20px;
 	max-width: 100%;
 	width: 100%;
-}
-
-#picture2bottom, #picture3bottom {
-	display: none;
 }
 
 .picturebottom_in {
@@ -472,7 +468,7 @@ body {
 	-ms-grid-columns: 25px 1fr 25px;
 	grid-template-columns: 25px 1fr 25px;
 	    grid-template-areas: "picturebottom_in_l picturebottom_in_m picturebottom_in_r";
-	height: 40px;
+	height: 20px;
 }
 
 .picturebottom_in_l {
@@ -505,8 +501,9 @@ body {
 
 .picturebottom div.pictureline {
 	display: inline-block;
-	padding-top: 17px;
-    height: 40px;
+	margin-right: 3px;
+	padding-top: 9px;
+    height: 20px;
 	width: 50px;
 	cursor: pointer;
 	vertical-align: top;
@@ -514,7 +511,7 @@ body {
 
 .picturebottom div.smithdata {
 	display: inline-block;
-	height: 40px;
+	height: 20px;
 }
 
 .picturebottom_in_m_in {
@@ -555,6 +552,10 @@ body {
 
 #picture_box2, #picture_box3 {
 	overflow-y: auto;
+}
+
+#picture2bottom, #picture3bottom {
+	margin-top: 1px;
 }
 
 .g_bodyin_bodyin_bottom_r .row+.row {

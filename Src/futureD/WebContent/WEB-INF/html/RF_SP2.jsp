@@ -21,6 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/awesomplete_all.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
+	<link rel="stylesheet" href="assets/style/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.css" type="text/css">
 	<link rel="stylesheet" href="src/style/modules/RF_SP2/RF_SP2.css" type="text/css">
 </head>
 <body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}'>
@@ -451,8 +452,9 @@
 	<script src="src/script/modules/common/drawingSmith.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
+	<script src="assets/script/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.js"></script>
 	<!-- 变 -->
-	<script src="dist/script/modules/common/futureD_config.js"></script>
+	<script src="src/script/modules/common/futureD_config.js"></script>
 	<script src="dist/script/modules/common/globalConf.js"></script>
 	<script src="src/script/modules/RF_SP2/RF_SP2.js"></script>
 	<script src="src/script/modules/RF_SP2/RF_SP2_render.js"></script>
