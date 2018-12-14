@@ -32,7 +32,7 @@ RF_SP2Store.stateObj = {
 	calcTableIndex: -1,
 	splineSelectedArr: [],
 	splineSelectedCopyArr: [],
-	comfirm_key: store.get("futureD__RF_SP2__comfirm_key"),
+	comfirm_key: store.get("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key") || "请选择",
 	key_y: false,
 	/*awesomeX坐标备选*/
 	smithSXCategories: [],
@@ -892,6 +892,37 @@ RF_SP2Store.util.min_maxHandler = function(obj){
 	RF_SP2Store.stateObj.indicatrix_min_max[0] = min_maxArr[0];
 	RF_SP2Store.stateObj.indicatrix_min_max[1] = min_maxArr[1];
 };
+// TCF曲线获取数据后处理
+RF_SP2Store.util.MarkerCurveHandler = function(obj){
+	var data = obj.data,
+	container = obj.container,
+	title = obj.title || "marker图",
+	findData = obj.findData;
+	var xData = [], yData = [], nameArr = [];
+	_.forOwn(data, function(v, k){
+		var curvefile = _.find(findData.selected, function(vv, ii){
+			return _.isEqual(vv.curvetypeid, _.toString(k));
+		}).curvefile;
+		nameArr.push(findData.waferfile.replace(/\..*$/, "")+"  "+curvefile);
+		// v.markerData
+		var zipArr = _.zip.apply(undefined, v.curveData);
+		xData.push(zipArr[0]);
+		yData.push(zipArr[1]);
+	});
+	console.log(xData)
+	console.log(yData)
+	console.log(nameArr)
+	renderSpline({
+		container: container,
+		title: title,
+		data: {
+			xData: xData,
+			yData: yData
+		},
+		name: nameArr,
+		callback: null
+	});
+};
 
 RF_SP2Store.ajax = Object.create(null);
 RF_SP2Store.ajax.AnalysisFile = function(obj){
@@ -916,6 +947,22 @@ RF_SP2Store.ajax.AnalysisCurve = function(obj){
 			legend: obj.legend || void(0),
 			graphStyle: obj.graphStyle || void(0),
 			sParameter: obj.sParameter || void(0)
+		},
+		dataType: "json"
+	}).then(obj.done);
+};
+// TCF模型分析页面：marker曲线
+RF_SP2Store.ajax.MarkerCurve = function(obj){
+	var curveTypeId = obj.curveTypeId,
+	waferId = obj.waferId,
+	sParameter = obj.sParameter || "S11";
+	$.ajax({
+		type: "GET",
+		url: "MarkerCurve",
+		data: {
+			curveTypeId: curveTypeId,
+			waferId: waferId,
+			sParameter: sParameter
 		},
 		dataType: "json"
 	}).then(obj.done);
@@ -1403,6 +1450,10 @@ $(function(){
 	if($(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() > $(".g_bodyin_bodyin_top_wrap_m").innerWidth()){
 		$(".g_bodyin_bodyin_top_wrap_l>span, .g_bodyin_bodyin_top_wrap_r>span").show();
 	}
+
+	// key值回显
+	$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
+	RF_SP2Store.stateObj.key_y = RF_SP2Store.stateObj.comfirm_key == "y" ? true : false;
 	return false;
 
 	/*保存Marker后的动作*/
@@ -1435,10 +1486,6 @@ $(function(){
 		});
 		/*$(".buildMarker_body>.container-fluid tbody").empty().append(str2);*/
 		RF_SP2Store.search_markerObj.list = _.cloneDeep(iArra);
-	}
-
-	if(!_.isNil(RF_SP2Store.stateObj.comfirm_key)){
-		$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
 	}
 
 	/*计算参数回显*/
@@ -1694,6 +1741,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 		iThat.addClass("list-group-item-info");
 		if(_.isNil(RF_SP2Store.waferTCFSelected[waferid])) RF_SP2Store.waferTCFSelected[waferid] = {};
 		RF_SP2Store.waferTCFSelected[waferid].waferfile = waferfile;
+		RF_SP2Store.waferTCFSelected[waferid].waferid = waferid;
 		if(_.isNil(RF_SP2Store.waferTCFSelected[waferid].selected)) RF_SP2Store.waferTCFSelected[waferid].selected = [];
 		if(RF_SP2Store.waferTCFSelected[waferid].selected.length >= 2) {
 			var ishift = RF_SP2Store.waferTCFSelected[waferid].selected.shift();
@@ -1935,6 +1983,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 					lis.eq(0).trigger("click");
 					lis.eq(1).trigger("click");
 					// 触发点击
+					$(".reRenderBtnDiv").trigger("click");
 					// getTCFDataANDDrawChart({
 					// 	isComfirmKey: false
 					// });
@@ -1955,7 +2004,27 @@ $(".reRenderBtnDiv").click(function(){
 	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v){
 		return (v.selected || []).length == 2;
 	});
-	console.log(findTCFWafer)
+	if(!_.isNil(findTCFWafer)){
+		var curveTypeId = [],
+		waferId = findTCFWafer.waferid;
+		_.forEach(findTCFWafer.selected, function(v, i){
+			curveTypeId.push(v.curvetypeid);
+		});
+		RF_SP2Store.ajax.MarkerCurve({
+			curveTypeId: curveTypeId,
+			waferId: waferId,
+			sParameter: "S11",
+			done: function(data){
+				if(!_.isNil(data)){
+					RF_SP2Store.util.MarkerCurveHandler({
+						data: data,
+						container: "markerChart",
+						findData: findTCFWafer
+					});
+				}
+			}
+		});
+	}
 	// getTCFDataANDDrawChart({
 	// 	isComfirmKey: false
 	// });
@@ -2105,17 +2174,12 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 
 $("#comfirm_key").click(function(){
 	var key = $(this).parent().prev().children("select").val();
-	/*$(".buildMarker_body>div tbody>tr").each(function(){
-		$(this).children("td").eq(3).text(key);
-	});*/
+	if(_.isNil(key) || _.isEqual(key, "请选择")) return false;
 	RF_SP2Store.stateObj.comfirm_key = key;
-	/*_.forEach(RF_SP2Store.stateObj.splineSelectedArr, function(v){
-		v.key = key;
-	});*/
 	/*清空*/
 	RF_SP2Store.stateObj.splineSelectedArr = [];
 	$(".buildMarker_body>div tbody").empty();
-	store.set("futureD__RF_SP2__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
+	store.set("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
 	RF_SP2SwalMixin({
 		title: "Marker确认Key提示",
 		text: "成功，现在可以选点了，请记得保存",
@@ -2123,11 +2187,12 @@ $("#comfirm_key").click(function(){
 		timer: 1000,
 		showConfirmButton: false
 	}).then(function(re){
-		if(re.dismiss == "timer"){
+		if(re.dismiss == swal.DismissReason.backdrop || re.dismiss == swal.DismissReason.esc || re.dismiss == swal.DismissReason.timer){
 			RF_SP2Store.stateObj.key_y = false;
-			getTCFDataANDDrawChart({
-				isComfirmKey: true
-			});
+			// getTCFDataANDDrawChart({
+			// 	isComfirmKey: true
+			// });
+			$(".reRenderBtnDiv").trigger("click");
 			RF_SP2Store.stateObj.renderSelectCsvSub = true;
 		}
 	});
