@@ -8,7 +8,21 @@ function IsInnerRect(rec,p){
         contain = false;
     return contain;
 }
-
+function IsInSubRec(rec,p)
+{
+	//.console.log("rec",rec);
+	var contain = false;
+	for(var i =0 ; i < rec.length ; i++){
+		var subrec = rec[i];
+		if((p.x >subrec.X && p.x <= subrec.X + subrec.Width) && (p.y >subrec.Y && p.y <= subrec.Y + subrec.Height))
+		{
+			contain = rec[i]; 
+			break;
+		}
+		
+	}
+	return contain;
+}
 function getEventPosition(ev) {
     var x, y;
     if (ev.layerX || ev.layerX == 0) {
@@ -44,6 +58,8 @@ function getEventPosition(ev) {
     ctx.lineTo(x+dieXZoom-sidewidth,y);
     ctx.lineTo(x+dieXZoom-sidewidth,y+dieYZoom/5);
     ctx.stroke();
+    
+    ctx.closePath()
 }
 
 function HashTable(){ 
@@ -106,15 +122,54 @@ function HashTable(){
 //转换为哈希表格式
 function changeHash(obj){
 	var Hash = new HashTable();
-	for(var i = 0 ; i < obj.length ; i++){
-		for(var a in obj[i]){
-			Hash.add(a,obj[i][a]);
+	if(obj instanceof Array){
+		for(var i = 0 ; i < obj.length ; i++){
+			for(var a in obj[i]){
+				Hash.add(a,obj[i][a]);
+			}
+		}
+	}
+	else{
+		for(var a in obj){
+			Hash.add(a,obj[a].bin);
 		}
 	}
 	return Hash;
 }
+function getCoordinateId(obj_die,obj_subdie){
+	var CoordinateIdObj = {};  // { "0:0" : {id : [{subcoord :"0:1",bin :-1,subNo :1 }]  }   }
+	for(var a in obj_die){
+		//var CoordObj  = {}; //{id : [{subcoord :"0:1",bin :-1,subNo :1 }]  }
+		var coordinateId = obj_die[a].coordinateId;  // id
+		var Id_Subdie = [];
+		for(var v in obj_subdie){
+			if(obj_subdie[v].coordinateId == coordinateId){
+				var Id_Subdie_obj = {};
+				Id_Subdie_obj.subcoord =  v;
+				Id_Subdie_obj.bin = obj_subdie[v].subdieBin ;
+				Id_Subdie_obj.subNo = obj_subdie[v].subdieNO ;
+				Id_Subdie.push(Id_Subdie_obj);
+			}
+		}
+		//CoordObj[coordinateId] = Id_Subdie;
+		CoordinateIdObj[a] = Id_Subdie;  // "0:0"
+	}
+	return CoordinateIdObj;
+}
+
+
+var subdieList = [{
+	"sX" : 3000,
+	"sY" : 3000,
+	"sW" :10000,
+	"sH" :10000,
+	"bin" : 100,
+	"Coord_X" : "0",
+	"Coord_Y" : "-1",
+}]
 
 function WaferMapPlotObj(option) {
+	console.log("option",option);
     this.colorMap = option.colorMap;
     this.bgFillColor = option.bgFillColor;
     this.ctx = option.ctx;
@@ -140,6 +195,8 @@ function WaferMapPlotObj(option) {
     this.coordsArra = option.coordsArra;
     this.vectorMap = option.vectorMap;
     this.container = option.container;
+    this.waferData  = option.waferData ;
+    this.param  = option.param ;
 }
 
 if (WaferMapPlotObj.prototype.type == undefined) {
@@ -168,6 +225,8 @@ if (WaferMapPlotObj.prototype.type == undefined) {
         var isSaveDieCoord = this.isSaveDieCoord;
         var coordsArra = this.coordsArra;
         var vectorMap = this.vectorMap;
+        
+        
         //计算行列坐标平均值
         for (var i = this.maxRow; i >= this.minRow; i--) {
             for (var j = this.maxCol; j >= this.minCol; j--) {
@@ -206,6 +265,7 @@ if (WaferMapPlotObj.prototype.type == undefined) {
         }
         dieXZoom = 0.995 * dieXZoom * realr / rc;
         dieYZoom = 0.995 * dieYZoom * realr / rc;
+        
         //计算圆弧的角度
         var a = Math.floor(180 * Math.asin(this.FlatLength / (2 * this.r0)) / Math.PI);
         var startArc = ((90 + a) * Math.PI) / 180;
@@ -222,6 +282,9 @@ if (WaferMapPlotObj.prototype.type == undefined) {
         var x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4;
         var area = this.r * this.r;
         var dieCount = 0;
+      //存储是否有subdie状态
+        subdieFlag = this.waferData.containSubdie;
+        //console.log("coordinateIdObj",coordinateIdObj);
         if (this.positionFlag == 'nullnull') {
             for (var i = this.maxRow; i >= this.minRow; i--) {
                 var y = this.centerY + i * dieYZoom - dieYZoom;
@@ -311,96 +374,7 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     }
                 }
             }
-        } else if (this.positionFlag == 'LeftDown') {
-            for (var i = this.minRow; i <= this.maxRow; i++) {
-                var y = this.centerY - i * dieYZoom + ymean * dieYZoom - 0.5 * dieYZoom;
-                for (var j = this.minCol; j <= this.maxCol; j++) {
-                    var key = j + ":" + i;
-                    var x = this.centerX + j * dieXZoom - xmean * dieXZoom - 0.5 * dieXZoom;
-                    if (this.coordsArray.containsKey(key)) {
-                        dieCount++; ///
-                        var bin = this.coordsArray.getValue(key);
-                        var Die = new Object(); ///
-                        var rect = new Object(); ///
-                        /*普通分布于色阶分布*/
-                        if(colorOrder === true){
-                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
-                            ///
-                            if(vectorMap){
-                                if(!_.isEmpty(filterArr)){
-                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
-                                        Die.filterFlag = "undisabled";
-                                    }
-                                    else{
-                                        ctx.fillStyle="#ccc";   
-                                        Die.filterFlag = "disabled";
-                                    }
-                                }else{
-                                    Die.filterFlag = "undisabled";
-                                }
-                            }
-                            ///
-                        }else{
-                            ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
-                            ///
-                            if(vectorMap){
-                                if(!_.isEmpty(filterArr)){
-                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
-                                        Die.filterFlag = "undisabled";
-                                    }
-                                    else{
-                                        ctx.fillStyle="#ccc";   
-                                        Die.filterFlag = "disabled";
-                                    }
-                                }
-                                else{
-                                    Die.filterFlag = "undisabled";
-                                }
-                            }
-                            ///
-                        }
-                        /*普通分布于色阶分布end*/
-                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
-                        ctx.lineWidth = 1;
-                        ctx.strokeStyle = "black";
-                        ctx.strokeRect(x, y, dieXZoom, dieYZoom);
-                        ///
-                        if(vectorMap){
-                            var BBin = bin;
-                            if(colorOrder === true){
-                                BBin = bin.bin;
-                            }
-                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 5001){ // 第一次加载  
-                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
-                                isFirst = false;
-                                Die.moveFlag = true;
-                                if(isSaveDieCoord === true){
-                                    this.saveDieCoord[0] = key;
-                                }                   
-                            }
-                            else if( this.currentDieCoord == key){
-                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
-                                Die.moveFlag = true;
-                            }
-                            else{
-                                Die.moveFlag = false;
-                            }
-                            rect.x = x;
-                            rect.y = y;
-                            rect.width = dieXZoom;
-                            rect.height = dieYZoom;
-                            Die.Dieno=dieCount;
-                            Die.Bin = BBin;
-                            Die.rect = rect;
-                            coordsArra.add(key, Die);
-                        }
-                        ///
-                    } else {
-                        ctx.fillStyle = "#20242b";
-                    }
-                }
-            }
-        } else if (this.positionFlag == 'RightDown') {
+        }  else if (this.positionFlag == 'RightDown') {
             for (var i = this.maxRow; i >= this.minRow; i--) {
                 var y = this.centerY - i * dieYZoom + ymean * dieYZoom - 0.5 * dieYZoom;
                 for (var j = this.maxCol; j >= this.minCol; j--) {
@@ -674,6 +648,175 @@ if (WaferMapPlotObj.prototype.type == undefined) {
                     }
                 }
             }
+        }else if (this.positionFlag == 'LeftDown') {
+        	
+            for (var i = this.minRow; i <= this.maxRow; i++) {
+                var y = this.centerY - i * dieYZoom + ymean * dieYZoom - 0.5 * dieYZoom;
+                for (var j = this.minCol; j <= this.maxCol; j++) {
+                    var key = j + ":" + i;
+                    var x = this.centerX + j * dieXZoom - xmean * dieXZoom - 0.5 * dieXZoom;
+                    if (this.coordsArray.containsKey(key)) {
+                        dieCount++; ///
+                        var bin = this.coordsArray.getValue(key);
+                        var Die = new Object(); ///
+                        var rect = new Object(); ///
+                       
+                        var subDie = new Object(); /// subdie rect
+                        
+                       // coordinateIdObj
+                        
+                        /*普通分布于色阶分布*/
+                        if(colorOrder === true){
+                            ctx.fillStyle = colorMap.getValue(bin.color); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin.bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }else{
+                    		ctx.fillStyle = colorMap.getValue(bin); //'#e0bf88';
+                            ///
+                            if(vectorMap){
+                                if(!_.isEmpty(filterArr)){
+                                    if(_.indexOf(filterArr, key) > -1 && bin != -1){
+                                        Die.filterFlag = "undisabled";
+                                    }
+                                    else{
+                                        ctx.fillStyle="#ccc";   
+                                        Die.filterFlag = "disabled";
+                                    }
+                                }
+                                else{
+                                    Die.filterFlag = "undisabled";
+                                }
+                            }
+                            ///
+                        }
+                        /*普通分布于色阶分布end*/
+                        ctx.fillRect(x, y, dieXZoom, dieYZoom);
+                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = "black";
+                        ctx.strokeRect(x, y, dieXZoom, dieYZoom);
+                        
+                        //subdie 模拟 
+                        var BBin = bin;
+                        if(colorOrder === true){
+                            BBin = bin.bin;
+                        }
+                        if(subdieFlag){
+                        	if(this.param){
+                        		var currentSubdieList = _.find(this.waferData.waferList, { 'parameter': this.param }).currentSubdieList;
+                        	}
+                        	else{
+                        		var currentSubdieList = this.waferData.waferList.currentSubdieList;
+                        	}
+                          //	console.log("currentSubdieList",currentSubdieList);
+                        	var coordinateIdObj = getCoordinateId(this.waferData.waferDie.currentDieList,currentSubdieList);
+                        	var sScale = dieXZoom / this.dieX;
+                            var subDieInfo = new Object(); /// subdie rect
+                        	var subrectArr = [];
+                        	
+                        	var subdieBin , subcoord;
+                        	for(var sub in this.waferData.subdieConfig){
+                        		if(bin == -1){
+                        			subdieBin = -1;
+                        			subcoord = coordinateIdObj[key][sno].subcoord;
+                        		}
+                        		else{
+                        			for(var sno = 0 ; sno < coordinateIdObj[key].length ; sno++ ){
+                            			if(coordinateIdObj[key][sno].subNo == sub){
+                            				subdieBin = coordinateIdObj[key][sno].bin;
+                            				subcoord = coordinateIdObj[key][sno].subcoord;
+                            				break;
+                            			}
+                            		}
+                        		}
+            					var subDie = this.waferData.subdieConfig[sub];
+            					var sX = Math.abs(subDie[0]);
+            					var sY = Math.abs(subDie[1]);
+            					var sW = Math.abs(subDie[2]);
+            					var sH = Math.abs(subDie[3]);
+            					ctx.beginPath();
+        						ctx.fillStyle = colorMap.getValue(subdieBin);
+        						ctx.fillRect(sScale * sX + x,sScale * sY + y,sScale *sW,sScale *sH);
+            					ctx.closePath();
+            					ctx.beginPath();
+            					ctx.lineWidth = 1;
+        						ctx.strokeStyle = "#7171b8";
+        						ctx.strokeRect(sScale * sX + x,sScale * sY + y,sScale *sW,sScale *sH);
+            					ctx.closePath();
+            					var subRect = new Object(); /// 
+            					if(vectorMap){
+            						 if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 5001){ // 第一次加载  
+                                         mapAddHighLight(ctx,sScale * subDie.sX + x,sScale * subDie.sY + y,sScale *subDie.sW,sScale *subDie.sH);
+                                         isFirst = false;
+                                     }
+                                     subDieInfo.Height = sScale *sH;
+                                     subDieInfo.Width = sScale *sW;
+                                     subDieInfo.X = sScale * sX + x;
+                                     subDieInfo.Y = sScale * sY + y;
+                                     subDieInfo.x = subcoord.split(":")[0];
+                                     subDieInfo.y = subcoord.split(":")[1];
+                                     subDieInfo.Bin = subdieBin;
+                                     subrectArr.push(subDieInfo);
+            					}
+            				}
+                        	if(vectorMap){
+                            	  rect.x = x;
+	                              rect.y = y;
+	                              rect.width = dieXZoom;
+	                              rect.height = dieYZoom;
+	                              Die.Dieno=dieCount;
+	                              Die.Bin = BBin;
+	                              Die.rect = rect;
+	                              Die.subDie = subrectArr;
+	                              coordsArra.add(key, Die);
+                        	}
+
+                        }
+                      //  console.log("coordsArra",coordsArra.getValues());
+                        ///
+                        if(vectorMap && !subdieFlag){
+                            if( _.isEmpty(this.currentDieCoord) && isFirst && Die.filterFlag == "undisabled" && BBin != -1  && BBin != 5001){ // 第一次加载  
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                isFirst = false;
+                                Die.moveFlag = true;
+                                if(isSaveDieCoord === true){
+                                    this.saveDieCoord[0] = key;
+                                }                   
+                            }
+                            else if( this.currentDieCoord == key){
+                                mapAddHighLight(ctx,x,y,dieXZoom,dieYZoom);
+                                Die.moveFlag = true;
+                            }
+                            else{
+                                Die.moveFlag = false;
+                            }
+                            rect.x = x;
+                            rect.y = y;
+                            rect.width = dieXZoom;
+                            rect.height = dieYZoom;
+                            Die.Dieno=dieCount;
+                            Die.Bin = BBin;
+                            Die.rect = rect;
+                            coordsArra.add(key, Die);
+                        }
+                        
+                    } else {
+                        ctx.fillStyle = "#20242b";
+                    }
+                }
+            }
         }
     };
 }
@@ -684,6 +827,13 @@ function renderWaferMapByGetData(obj){
 	var ctx = can.getContext('2d');
 	can.width = obj.width;  
 	can.height = obj.height;
+	console.log("obj.coordsArra",obj)
+	 if(!_.isEmpty(obj.m_DieDataListNew)){
+        var coordsA = changeHash(obj.m_DieDataListNew);
+     }
+	 else{
+		 var coordsA = changeHash(obj.waferData.waferDie.currentDieList);
+	 }
     var newWaferMap = new WaferMapPlotObj({
         /*颜色数据*/
         colorMap: obj.colorMap,
@@ -700,7 +850,7 @@ function renderWaferMapByGetData(obj){
         maxRow: parseFloat(obj.waferData.maxY),
         minCol: parseFloat(obj.waferData.minX),
         maxCol: parseFloat(obj.waferData.maxX),
-        coordsArray: changeHash(obj.m_DieDataListNew), // 晶圆数据
+        coordsArray: coordsA , // 晶圆数据
         positionFlag: ((obj.waferData.DirectionX || obj.waferData.directionX) + (obj.waferData.DirectionY || obj.waferData.directionY)),
         FlatLength: parseFloat(obj.waferData.FlatLength || obj.waferData.flagLength),
         /*色阶图标志*/
@@ -720,7 +870,10 @@ function renderWaferMapByGetData(obj){
         /*矢量图标志*/
         vectorMap: obj.vectorMap,
         /*容器*/
-        container: obj.container
+        container: obj.container,
+        
+        waferData : obj.waferData ,
+        param : obj.param ,
     });
     newWaferMap.plot();
     if(obj.addEvent){
@@ -732,16 +885,31 @@ function renderWaferMapByGetData(obj){
                 obj.curSelectedDie = null;
                 var p = eouluGlobal.S_getEventPosition(e);
                 // debugger;
+                var dieorsubNameStr = "";
                 for (var i = obj.waferData.maxY; i >= obj.waferData.minY; i--) {
                     for (var j = obj.waferData.maxX; j >= obj.waferData.minX; j--) {
                         var key = j + ":" + i;
                         if (obj.coordsArra.containsKey(key)) {
                             var die = obj.coordsArra.getValue(key);
                             if (IsInnerRect(die.rect, p)) {
-                                obj.curSelectedDie = _.cloneDeep(die);
-                                obj.curSelectedDie.x = j;
-                                obj.curSelectedDie.y = i;
-                                break;
+                            	var subDie = die.subDie;
+                            	
+                            	if(IsInSubRec(subDie,p)){
+            						subDie = IsInSubRec(subDie,p);
+            						obj.curSelectedDie = subDie; 
+            						obj.curSelectedDie.x = subDie.x;
+                                    obj.curSelectedDie.y = subDie.y;
+                                    dieorsubNameStr = "SubDie信息"; 
+                                    break;
+            					}
+            					else{
+            						obj.curSelectedDie = _.cloneDeep(die);
+                                    obj.curSelectedDie.x = j;
+                                    obj.curSelectedDie.y = i;
+                                    dieorsubNameStr = "Die信息"; 
+                                    break;
+            					}
+                                
                             }
                         }
                     }
@@ -750,7 +918,7 @@ function renderWaferMapByGetData(obj){
                 if (obj.curSelectedDie !== null) {
                     $("html, body").css("cursor", "pointer");
                     $('#in').fadeIn(50);
-                    $('#in').html('<ul style="list-style:none;"><li>DIE信息</li><li>Coord: (' + obj.curSelectedDie.x + ":" + obj.curSelectedDie.y + ')</li><li>Bin:' + obj.curSelectedDie.Bin + '</li>');
+                    $('#in').html('<ul style="list-style:none;"><li>'+dieorsubNameStr+'</li><li>Coord: (' + obj.curSelectedDie.x + ":" + obj.curSelectedDie.y + ')</li><li>Bin:' + obj.curSelectedDie.Bin + '</li>');
                     $('#in').css({
                         'left': p.x + 10 + 'px',
                         'top': p.y + 10 + 'px',
@@ -1148,7 +1316,9 @@ function getGradientColor (start, end, max, val) {
     return '#' + gR + gG + gB;
 }
 
+
 function buildColorGradation(obj) {
+	console.log("buildColorGradation___obj",obj);
     var colorMap = new HashTable();
     var colorOrder = obj.colorOrder;
     if(colorOrder === true){
@@ -1202,6 +1372,8 @@ function buildColorGradation(obj) {
             width = height = _.sortBy([obj.maxHeight, obj.maxWidth])[0]
         }
     }
+    
+    
     var newRenderWaferMap = renderWaferMapByGetData({
         width: width,
         height: height,
@@ -1224,6 +1396,7 @@ function buildColorGradation(obj) {
         vectorMap: obj.vectorMap,
         clickCallback: obj.clickCallback,
         keydownCallback: obj.keydownCallback,
+        param :  obj.param
     });
     // console.log("obj.m_DieDataListNew", obj.m_DieDataListNew);
     // console.log("colorMap.getKeys", colorMap.getKeys());

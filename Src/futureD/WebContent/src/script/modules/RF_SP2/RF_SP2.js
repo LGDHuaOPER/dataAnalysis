@@ -449,15 +449,22 @@ RF_SP2Store.util.graphStyleHandler = function(obj){
 	callback = obj.callback;
 	if(graphStyle == "XYOfPhase" || graphStyle == "XYOfMagnitude"){
 		$(".signalChart_div_foot").fadeOut(10);
-		var iseries = _.cloneDeep(RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle]),
+		var jdata = RF_SP2Store.stateObj.S2PBigChartSmithData[iclassify][graphStyle];
+		var iseries = _.map(jdata, function(v, i){
+			var item = {};
+			item.name = v.name;
+			item.color = v.color;
+			item.data = _.zip.apply(undefined, v.data)[1];
+			return item;
+		}),
 		xCategories;
 		if(_.isNil(iseries[0])){
 			xCategories = [];
 		}else{
 			RF_SP2Store.util.min_maxHandler({
-				series: _.cloneDeep(iseries)
+				series: _.cloneDeep(jdata)
 			});
-			xCategories = _.zip.apply(undefined, iseries[0].data)[0];
+			xCategories = _.zip.apply(undefined, jdata[0].data)[0];
 		}
 		RF_SP2Store.util.graphStyleDraw({
 			graphStyle: graphStyle,
@@ -554,6 +561,16 @@ RF_SP2Store.util.graphStyleDraw = function(obj){
 			},
 			tooltip: {
 				formatter: function (e) {
+					// this 属性
+					// color: "#DDA0DD"
+					// colorIndex: undefined
+					// key: 21.51
+					// percentage: undefined
+					// point: C {series: e, color: "#DDA0DD", y: 0.05, options: {…}, isNull: false, …}
+					// series: e {chart: a.Chart, userOptions: {…}, tooltipOptions: {…}, stickyTracking: true, zoneAxis: undefined, …}
+					// total: undefined
+					// x: 21.51
+					// y: 0.05
 					return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' '+(_.isEqual(graphStyle, "XYOfPhase") ? "Degrees" : "Magnitude");
 	            },
 	            useHTML: true
@@ -1454,6 +1471,9 @@ $(function(){
 	// key值回显
 	$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
 	RF_SP2Store.stateObj.key_y = RF_SP2Store.stateObj.comfirm_key == "y" ? true : false;
+
+	// 拖动初始化
+	$(".indicatrix_div, .allLegends").draggable({ distance: 5 });
 	return false;
 
 	/*保存Marker后的动作*/
@@ -1726,6 +1746,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 })
 // TCF 左侧li点击
 .on("click", ".g_bodyin_bodyin_bottom_lsub_top .panel>ul>li", function(e){
+	e = e || window.event;
 	var iThat = $(this),
 	iparent = iThat.parent();
 	var waferid = _.toString(iparent.prev().data("waferid")),
@@ -2277,6 +2298,7 @@ $(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
 /*双击4图表*/
 $(document).on("dblclick", ".chartWarp", function(){
 	RF_SP2Store.stateObj.dblclickFlag = true;
+	$(".allLegends").hide();
 	var itargetchart = $(this).data("itargetchart");
 	$(".fourChart_div").fadeOut(200, function(){
 		$(".signalChart_div").fadeIn(200);
@@ -2498,8 +2520,7 @@ $(".indicatrix_footin>.btn-success").click(function(){
 		});
 		/*删除原来的线段结束*/
 		var xCategories = curChartObj.xAxis[0].categories;
-		console.log(xCategories)
-		var diff = (RF_SP2Store.stateObj.indicatrix_min_max[1] - RF_SP2Store.stateObj.indicatrix_min_max[0])*0.05;
+		var diff = (RF_SP2Store.stateObj.indicatrix_min_max[1] - RF_SP2Store.stateObj.indicatrix_min_max[0])*0.02;
 		/*判断低于区间*/
 		_.forEach(RF_SP2Store.stateObj[iclassify].indicatrix_low, function(v, i){
 			var data = [];
@@ -2553,10 +2574,10 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				return true;
 			}
 			// 如果索引值是-1结束
-			data.push([inde1, v[2]-diff]);
+			data.push([inde1, v[2]+diff]);
 			data.push([inde1, v[2]]);
 			data.push([inde2, v[2]]);
-			data.push([inde2, v[2]-diff]);
+			data.push([inde2, v[2]+diff]);
 			curChartObj.addSeries({
 				name: "低于指标#"+i,
 				data: data,
@@ -2700,10 +2721,10 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				return true;
 			}
 			// 如果索引值是-1结束
-			data.push([inde1, v[2]+diff]);
+			data.push([inde1, v[2]-diff]);
 			data.push([inde1, v[2]]);
 			data.push([inde2, v[2]]);
-			data.push([inde2, v[2]+diff]);
+			data.push([inde2, v[2]-diff]);
 			curChartObj.addSeries({
 				name: "高于指标#"+i,
 				data: data,
@@ -2932,4 +2953,25 @@ $.contextMenu({
 			icon: ""
 		}
 	}
+});
+
+// 查看所有图例
+$('#RFSP2SmallLegend').click(function(e){
+	e = e || window.event;
+	$(".allLegends").css({
+		left: e.pageX+"px",
+		top: e.pageY+"px"
+	}).fadeIn(200);
+	var str = '';
+	_.forEach(RF_SP2Store.stateObj.S2PSmallChartSmithData.S11, function(v, i){
+		str+='<div class="row">'+
+					'<div class="col-sm-2 col-md-2 col-lg-2"><p class="legend_color" style="background-color: '+v.color+'"></p></div>'+
+					'<div class="col-sm-10 col-md-10 col-lg-10"><p class="legend_text">'+v.name+'</p></div>'+
+				'</div>';
+	});
+	$(".allLegends_body>.container-fluid").empty().append(str);
+});
+
+$(".allLegends_tit>span").click(function(){
+	$(".allLegends").fadeOut(200);
 });

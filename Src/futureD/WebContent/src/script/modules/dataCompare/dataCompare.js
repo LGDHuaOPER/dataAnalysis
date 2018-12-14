@@ -472,7 +472,7 @@ function draw_map_good_rate(obj){
 			item[k] = v;
 			dieData.push(item);
 		});
-	
+		
 		/*预处理数据end*/
 	
 		buildColorGradation({
@@ -485,6 +485,7 @@ function draw_map_good_rate(obj){
 				x: 0.1,
 				y: 0
 			},
+			param :IDParamObj.param,
 			m_DieDataListNew: dieData,
 			colorGradation: {
 				limitColor: "#FF0000",
@@ -792,7 +793,7 @@ function findParamUpLow(param){
 	return _.cloneDeep(UpLow);
 }
 function buildParameterChartContainer(obj){
-	console.log("obj",obj);
+	//console.log("obj",obj);
 	var classify = obj.classify;
 	var paramsArr = obj.paramsArr;
 	var str = '<div class="container-fluid">';
@@ -891,7 +892,7 @@ function buildParameterChartContainer(obj){
 
 
 function ajax_all_chart(obj){
-	console.log("obj",obj);
+	//console.log("obj",obj);
 	var times = obj.times;
 	var alltimes = obj.alltimes;
 	var whenArr = obj.whenArr;
@@ -1218,7 +1219,7 @@ function dataCompareRenderData(currentPage){
 	       dataType: 'json',
 	       async : false ,
 	       success: function (data) {
-	    	  console.log("data",data);
+	    	  //console.log("data",data);
 	    	   var str = "";
 	    	   data.waferInfo.map(function(v, i, arr){
 		   			var ii = v.wafer_id;

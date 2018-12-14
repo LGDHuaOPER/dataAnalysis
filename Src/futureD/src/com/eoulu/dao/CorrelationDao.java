@@ -23,7 +23,7 @@ public class CorrelationDao {
 
 	
 	public Map<String,Object> getCorrelation(Connection conn,int waferId, String paramX, String paramY, Double minX, Double maxX,
-			Double minY, Double maxY){
+			Double minY, Double maxY,boolean flag){
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<Double> XList = new ArrayList<Double>();
@@ -31,6 +31,9 @@ public class CorrelationDao {
 		String columnX =  new GaussianDao().getParameterColumn(conn, waferId, paramX);
 		String columnY =  new GaussianDao().getParameterColumn(conn, waferId, paramY);
 		String sql = "select "+columnX+","+columnY+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
+		if(flag){
+			sql = "select "+columnX+","+columnY+" from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255)";
+		}
 		System.out.println(sql);
 		PreparedStatement ps;
 		try {

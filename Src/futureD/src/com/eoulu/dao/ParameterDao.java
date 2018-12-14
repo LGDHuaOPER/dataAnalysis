@@ -344,7 +344,7 @@ public class ParameterDao {
 		
 	}
 	
-	public Map<String,Object> getWaferDataParameter(Connection conn,int waferId){
+	public Map<String,Object> getWaferDataParameter(Connection conn,int waferId,boolean flag){
 		String sql = "select concat(parameter_name,'(',parameter_unit,')') parameter,parameter_column,ifnull(upper_limit,'') upper_limit,ifnull(lower_limit,'') lower_limit"
 				+ " from dm_wafer_parameter where wafer_id=?  order by parameter_column ";
 		Map<String,Object> result = new HashMap<>();
@@ -358,6 +358,10 @@ public class ParameterDao {
 				paramList.add(rs.getString(1));
 				upperList.add(rs.getString(3));
 				lowerList.add(rs.getString(4));
+				if(flag){
+					column += ",ifnull(dm_wafer_subdie."+rs.getString(2)+",'')" +rs.getString(2);
+					continue;
+				}
 				column += ",ifnull("+rs.getString(2)+",'')" +rs.getString(2);
 			}
 			

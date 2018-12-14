@@ -56,7 +56,7 @@ public class WaferData extends HttpServlet {
 
 			break;
 		}
-		
+		System.out.println(new Gson().toJson(result));
 		request.setAttribute("result", new Gson().toJson(result));
 		request.setAttribute("webParam", webParam);
 		request.getRequestDispatcher("/WEB-INF/html/dataListDetail.jsp").forward(request, response);
@@ -74,7 +74,7 @@ public class WaferData extends HttpServlet {
 		WaferDataService service = new WaferDataServiceImpl();
 		long time = System.currentTimeMillis();
 //		service.getWaferData(183);
-		System.out.println(new Gson().toJson(service.getWaferData(352)));
+		System.out.println(new Gson().toJson(service.getWaferData(9)));
 //		service.getExportExcel(183, "E:/waferC.xlsx");
 		System.out.println(System.currentTimeMillis()-time);
 		

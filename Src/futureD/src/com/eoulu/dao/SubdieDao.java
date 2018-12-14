@@ -28,7 +28,6 @@ public class SubdieDao {
 	public String insertSubdie(Connection conn,List<Object[]> list,String column,String columnStr){
 		String sql = "insert into dm_wafer_subdie (wafer_id,subdie_alphabet,subdie_x,subdie_y,subdie_number,subdie_bin,test_time,coordinate_id"+column+") values (?,?,?,?,?,?,?,?"+columnStr+")";
 		String flag = "success";
-		System.out.println("sql:"+sql);
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			if(list!=null){
@@ -280,6 +279,16 @@ public class SubdieDao {
 		
 	}
 	
+	/**
+	 * 色阶晶圆
+	 * @param conn
+	 * @param waferId
+	 * @param column
+	 * @param parameter
+	 * @param upper
+	 * @param lower
+	 * @return
+	 */
 	public SubdieDO getColorMap(Connection conn,int waferId,String column,String parameter,double upper,double lower) {
 		SubdieDO subdie = new SubdieDO();
 		subdie.setParameter(parameter);
@@ -336,6 +345,69 @@ public class SubdieDao {
 		return subdie;
 		
 	}
+	
+	
+	/**
+	 * 矢量Map
+	 * @param conn
+	 * @param waferId
+	 * @param subdieName
+	 * @param deviceGroup
+	 * @return
+	 */
+	public SubdieDO getVectorMap(Connection conn,int waferId,String subdieName,String deviceGroup) {
+		SubdieDO subdie = new SubdieDO();
+		subdie.setParameter("Total Yield");
+		String sql = "select subdie_x,subdie_y,subdie_bin,coordinate_id,subdie_number from dm_wafer_subdie where wafer_id=? ";
+		if(!"".equals(subdieName)){
+			sql += " and coordinate_id in (select distinct coordinate_id from dm_wafer_subdie where subdie_number=?) ";
+		}
+		if(!"".equals(deviceGroup)){
+			sql += " and coordinate_id in (select distinct coordinate_id from dm_curve_type where device_group=?) ";
+		}
+		try {
+			int index = 1;
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(index, waferId);
+			if(!"".equals(subdieName)){
+				index++;
+				ps.setString(index, subdieName);
+			}
+			if(!"".equals(deviceGroup)){
+				index++;
+				ps.setString(index, deviceGroup);
+			}
+			Map<String,Object> map = new HashMap<>(),temp=null;
+			int num=0,qualified=0;
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				if(rs.getInt(3)!=-1) {
+					num++;
+					if(rs.getInt(3)==1) {
+						qualified++;
+					}
+					
+				}
+				temp = new HashMap<>();
+				temp.put("subdieBin", rs.getInt(3));
+				temp.put("coordinateId", rs.getInt(4));
+				temp.put("subdieNO", rs.getInt(5));
+				map.put(rs.getInt(1)+":"+rs.getInt(2), temp);
+			}
+			subdie.setCurrentSubdieList(map);
+			subdie.setQualify(qualified);
+			subdie.setUnqulify(num-qualified);
+			if(num == 0 || qualified == 0){
+				subdie.setYield("0.0%");
+			}else{
+				subdie.setYield(new BigDecimal((double)qualified/num*100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return subdie;
+	}
 
 	
 	public Map<Object,Object> getSubdieConfig(Connection conn,String waferNO){
@@ -384,4 +456,66 @@ public class SubdieDao {
 	}
 	
 	
+	
+	public double getYieldPerParameter(Connection conn,int waferId,String upper,String lower,String column){
+		
+		String sql = "select "+column+" from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255)";
+		double yield = 0;
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			ResultSet rs = ps.executeQuery();
+			int count = 0,qualified = 0;
+			while(rs.next()){
+				count++;
+				if("".equals(upper) || "".equals(lower) || (rs.getDouble(1)<=Double.parseDouble(upper) && rs.getDouble(1)>=Double.parseDouble(lower))){
+					qualified++;
+				}
+				
+			}
+			if(count == 0){
+				return 0;
+			}
+			yield = new BigDecimal((double)qualified/count).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return yield;
+	}
+	/**
+	 * 直方图的频次
+	 * @param conn
+	 * @param waferId
+	 * @param condition
+	 * @return
+	 */
+	public int getQuantity(Connection conn,int waferId,String condition){
+		String sql = "select count(*) from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255) " + condition;
+		Object result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferId});
+		return result == null?0:Integer.parseInt(result.toString());
+	}
+	
+	/**
+	 * 高斯分布中位数
+	 * @param conn
+	 * @param waferId
+	 * @param left
+	 * @param right
+	 * @param column
+	 * @return
+	 */
+	public String getMedian(Connection conn,int waferId,double left ,double right,String column){
+		String sql = "select a."+column+" from "
+				+ " (select  "+column+",@rownum:=@rownum + 1 AS  num from (select @rownum:=0)r,dm_wafer_subdie where wafer_id=? and "+column+" between ? and ? order by "+column+") a "
+				+ "where a.num=(select (count(*)+1)div 2 from dm_wafer_subdie where wafer_id=? and "+column+" between ? and ? )";
+		Object result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferId,left,right,waferId,left,right});
+		return result==null?"":result.toString();
+	}
+	
+	public List<Map<String,Object>> getYieldById(Connection conn,int waferId) {
+		String sql = "select (select count(*) from dm_wafer_subdie where wafer_id=? and subdie_bin=1)/count(*) yield,count(*) quantity from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255)";
+		return DataBaseUtil.getInstance().queryToList(conn,sql, new Object[]{waferId,waferId});
+
+	}
 }

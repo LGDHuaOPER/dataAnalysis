@@ -70,11 +70,11 @@ public class GaussianDistribution extends HttpServlet {
 			map.put("left", left);
 			map.put("right", right);
 			map.put("param", paramList.get(j));
-//			System.out.println(service.getGaussian(map));
+
 			paramMap = service.getGaussian(map);
 			result.put(paramList.get(j), paramMap);
 		}
-		System.out.println(new Gson().toJson(result));
+
 		response.getWriter().write(new Gson().toJson(result));
 	
 	}

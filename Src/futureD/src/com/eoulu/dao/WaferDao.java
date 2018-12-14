@@ -321,14 +321,26 @@ public class WaferDao{
 		return result.size()>0?result.get(0):null;
 	}
 	
-	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType){
-		String sql = "select "+("".equals(dieType)?"":"concat('"+dieType+"','') die_type,")+"die_number,bin,alphabetic_coordinate location"+column+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by die_number+0";
-		System.out.println("sql:"+sql);
+	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,String dieType,boolean flag){
+		String sql = "";
+		if(flag){
+			sql= "select "+("".equals(dieType)?"":"concat('"+dieType+"','') type,")
+					+"dm_wafer_coordinate_data.die_number,subdie_number,subdie_bin bin,subdie_alphabet location,subdie_x x,subdie_y y"+column
+					+" from dm_wafer_coordinate_data left join dm_wafer_subdie on dm_wafer_coordinate_data.coordinate_id=dm_wafer_subdie.coordinate_id "
+					+ " where dm_wafer_subdie.wafer_id=? and (subdie_bin=1 or subdie_bin=255) order by dm_wafer_coordinate_data.die_number+0,subdie_number";
+		}else{
+			sql= "select "+("".equals(dieType)?"":"concat('"+dieType+"','') type,")+"die_number,bin,alphabetic_coordinate location,x_coordinate x,y_coordinate y"+column+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by die_number+0";	
+		}
+
 		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	
-	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column){
-		String sql = "select alphabetic_coordinate location"+column+",bin from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by die_number";
+	public List<Map<String,Object>> getWaferData(Connection conn,int waferId,String column,boolean flag){
+		
+		String sql = "select if(alphabetic_coordinate='',concat(x_coordinate,',',y_coordinate),alphabetic_coordinate) location"+column+",bin from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) order by die_number";
+		if(flag){
+			sql = "select if(subdie_alphabet='',concat(subdie_x,',',subdie_y),subdie_alphabet) location"+column+",subdie_bin bin from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255) order by subdie_number";
+		}
 		return DataBaseUtil.getInstance().queryToList(conn, sql, new Object[]{waferId});
 	}
 	
@@ -349,7 +361,7 @@ public class WaferDao{
 	 * @return
 	 */
 	public double getYieldPerParameter(Connection conn,int waferId,String upper,String lower,String column){
-		System.out.println("column:"+column);
+
 		String sql = "select "+column+" from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)";
 		double yield = 0;
 		try {

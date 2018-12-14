@@ -13,9 +13,11 @@ import java.util.Map;
 
 import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.GaussianDao;
+import com.eoulu.dao.SubdieDao;
 import com.eoulu.dao.WaferDao;
 import com.eoulu.dao.YieldDao;
 import com.eoulu.service.YieldService;
+import com.eoulu.transfer.ObjectTable;
 import com.eoulu.util.DataBaseUtil;
 
 /**
@@ -31,22 +33,28 @@ public class YieldServiceImpl implements YieldService{
 		GaussianDao dao = new GaussianDao();
 		WaferDao wafer = new WaferDao();
 		YieldDao yieldDao = new YieldDao();
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
 		Connection conn = new DataBaseUtil().getConnection();
 		List<Double> ls = null;
 		String[] att = waferIdStr.split(",");
+		boolean[] flagAtt = new boolean[att.length];
 		double left = 0,right=0,yield=0;
 		String column = "",parameter="",waferNO="";
 		int waferId = 0;
+		boolean flag = false;
 		Map<String, Object> result = new LinkedHashMap<>(),map  = new LinkedHashMap<>();
 		for(int j=0,length=att.length;j<length;j++){
 			waferId = Integer.parseInt(att[j]);
+			waferNO = yieldDao.getWaferNO(conn, waferId);
+			flag = subdieDao.getSubdieExist(conn, waferNO);
+			flagAtt[j] = flag;
 			if(left == Double.NaN || right == Double.NaN){
 				yield = 1;
 //				System.out.println("总么会");
 			}else{
 				yield = wafer.getYield(conn, waferId);
 			}
-//			waferNO = yieldDao.getWaferNO(conn, waferId);
+			
 			map.put(att[j], yield+"%");
 		}
 		result.put("Total Yield", map);
@@ -56,15 +64,21 @@ public class YieldServiceImpl implements YieldService{
 			for(int j=0,length=att.length;j<length;j++){
 				waferId = Integer.parseInt(att[j]);
 				ls = yieldDao.getUpperAndLowerLimit(waferId, parameter, conn);
-//				System.out.println("ls:"+ls);
+				flag = flagAtt[j];
 				right = ls.get(1);
 				left = ls.get(0);
 				if(Double.isNaN(left) || Double.isNaN(right)){
 					yield = 1;
-//					System.out.println("总么会");
+
 				}else{
 					column = dao.getParameterColumn(conn, waferId, parameter);
-					yield = wafer.getYieldPerParameter(conn, waferId, right+"", left+"", column);
+					if(flag){
+						yield = subdieDao.getYieldPerParameter(conn, waferId, right+"", left+"", column);
+						
+					}else{
+						yield = wafer.getYieldPerParameter(conn, waferId, right+"", left+"", column);
+					}
+					
 				}
 //				waferNO = yieldDao.getWaferNO(conn, waferId);
 				map.put(att[j], yield*100+"%");

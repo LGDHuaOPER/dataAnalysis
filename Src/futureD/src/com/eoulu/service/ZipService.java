@@ -175,7 +175,6 @@ public class ZipService {
 					return status;
 				} else if (!dietypeName.containsKey(Integer.parseInt(data[3]))) {
 					dieType = "DefaultType";
-					System.out.println("dieType");
 				} else {
 					dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
 				}
@@ -328,7 +327,7 @@ public class ZipService {
 			String column = "", columnStr = "";
 			Object[] obj = null;
 			List<Map<String, Double>> upperAndLowerLimit = null;
-			subdie = new ArrayList<>();
+			table = new Hashtable<>();
 			boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
 			try {
 				for (int m = datanum; m < filelist.size(); m++) {
@@ -418,6 +417,7 @@ public class ZipService {
 							obj[5] = str.contains("false") ? "255" : "1";
 						}
 						obj[7] = coordinate.getCoordinate(conn, waferId, data[4]);
+						table.put(data[4] + "," + obj[4], new Object[]{waferId,obj[7]});
 					}else{
 						obj[5] = "-1";
 //						System.out.println("obj:"+obj.length);
@@ -521,13 +521,13 @@ public class ZipService {
 					tempObj = table.get(dieNO + "," + subdieNO);
 					if(tempObj == null){
 						tempObj = table.get(dieNO + ",0" );
-						subdieInfo = new Object[] { tempObj[1], Integer.parseInt(subdieNO), "" ,tempObj[0]};
+						subdieInfo = new Object[] { tempObj[1], Integer.parseInt(subdieNO), tempObj[0]};
 						coordinate.saveSubdie(conn, subdieInfo);
 						table.put(dieNO + "," + subdieNO, tempObj);
 					}
 					waferId = Integer.parseInt(tempObj[0].toString());
 					coordinateId = Integer.parseInt(tempObj[1].toString());
-					subdieId = coordinate.getSubdieId(conn, coordinateId, Integer.parseInt(subdieNO),"");
+					subdieId = coordinate.getSubdieId(conn, coordinateId, Integer.parseInt(subdieNO));
 					List<String> list = util.getFile(curve.getAbsolutePath());
 					if (".S2P".equalsIgnoreCase(su)) {
 						status = saveCurveType(conn, waferId, coordinateId, subdieId, curveType, group, name, 1);

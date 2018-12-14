@@ -225,13 +225,8 @@ public class CoordinateDao {
 		return flag;
 	}
 	
-	public String insertSubdie(Connection conn,Object[] param){
-		String sql = "insert into dm_wafer_subdie (coordinate_id,subdie_number,subdie_name) values (?,?,?)";
-		return db.operate(conn, sql, param)?"success":"添加失败！";
-	}
-	
 	public String saveSubdie(Connection conn,Object[] param){
-		String sql = "insert into dm_wafer_subdie (coordinate_id,subdie_number,subdie_name,wafer_id) values (?,?,?,?)";
+		String sql = "insert into dm_wafer_subdie (coordinate_id,subdie_number,wafer_id) values (?,?,?)";
 		return db.operate(conn, sql, param)?"success":"添加失败！";
 	}
 	
@@ -276,13 +271,9 @@ public class CoordinateDao {
 	 * @param subdieNumber
 	 * @return
 	 */
-	public int  getSubdieId(Connection conn,int coordinateId,int subdieNumber,String subdieName){
+	public int  getSubdieId(Connection conn,int coordinateId,int subdieNumber){
 		String sql = "select subdie_id from dm_wafer_subdie where coordinate_id=? and subdie_number=?";
 		Object[] param = new Object[]{coordinateId,subdieNumber};
-		if(!"".equals(subdieName)){
-			sql = "select subdie_id from dm_wafer_subdie where coordinate_id=? and subdie_name=?";
-			param = new Object[]{coordinateId,subdieName};
-		}
 		Object result = db.queryResult(conn, sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
@@ -514,7 +505,7 @@ public class CoordinateDao {
 		wafer.setParameter("Total Yield");
 		String sql = "select x_coordinate,y_coordinate,bin,coordinate_id from dm_wafer_coordinate_data where wafer_id=? ";
 		if(!"".equals(subdieName)){
-			sql += " and coordinate_id in (select distinct coordinate_id from dm_wafer_subdie where subdie_name=?) ";
+			sql += " and coordinate_id in (select distinct coordinate_id from dm_wafer_subdie where subdie_number=?) ";
 		}
 		if(!"".equals(deviceGroup)){
 			sql += " and coordinate_id in (select distinct coordinate_id from dm_curve_type where device_group=?) ";
@@ -563,7 +554,7 @@ public class CoordinateDao {
 	}
 	
 	public List<String> getSubdie(int waferId){
-		String sql = "select distinct subdie_name from dm_wafer_subdie where wafer_id="+waferId;
+		String sql = "select distinct subdie_number from dm_wafer_subdie where wafer_id="+waferId;
 		return db.queryList(sql, null);
 	}
 	
@@ -594,7 +585,6 @@ public class CoordinateDao {
 		
 		return wafer;
 	}
-	
 	
 	
 }

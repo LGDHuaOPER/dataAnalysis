@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -143,7 +144,7 @@ public class DataBaseUtil{
 			ResultSetMetaData result = rs.getMetaData();
 			int columnCounts  =  result.getColumnCount();
 			while(rs.next()){
-				Map<String,Object> rowdata = new HashMap<>();
+				Map<String,Object> rowdata = new LinkedHashMap();
 				for(int i=1;i<=columnCounts;i++){
 					rowdata.put(result.getColumnLabel(i), rs.getString(i));
 				}

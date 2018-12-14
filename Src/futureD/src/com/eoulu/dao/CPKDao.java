@@ -28,16 +28,19 @@ public class CPKDao {
 	}
 	
 	
-	public List<Map<String, Object>> getData(Connection conn, String column, int waferId,int count) {
+	public List<Map<String, Object>> getData(Connection conn, String column, int waferId,int count,boolean flag) {
 		int length = length(count),size= length==1?1:20;
-		System.out.println("length:"+length);
 		List<Double> datas = null;
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		try {
 			for (int i = 0; i < size; i++) {
 				Map<String, Object> map = new HashMap<String,Object>();
 				String sql1 = "select avg(" + column + ") from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255) and " + column
-						+ " is not null and " + column + " < 9E30 and bin <>-1 limit ?,?";
+						+ " is not null and " + column + " < 9E30  limit ?,?";
+				if(flag){
+					sql1 = "select avg(" + column + ") from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255) and " + column
+							+ " is not null and " + column + " < 9E30  limit ?,?";
+				}
 				PreparedStatement ps1;
 				ps1 = conn.prepareStatement(sql1);
 				ps1.setInt(1, waferId);
@@ -48,7 +51,11 @@ public class CPKDao {
 					map.put("avg", rs1.getDouble(1));
 				}
 				String sql2 = "select " + column + " from dm_wafer_coordinate_data where wafer_id=? and (bin=1 or bin=255)  and " + column
-						+ " is not null and " + column + " < 9E30 and bin <>-1 limit ?,?";
+						+ " is not null and " + column + " < 9E30  limit ?,?";
+				if(flag){
+					sql2 = "select " + column + " from dm_wafer_subdie where wafer_id=? and (subdie_bin=1 or subdie_bin=255)  and " + column
+							+ " is not null and " + column + " < 9E30  limit ?,?";
+				}
 				PreparedStatement ps2 = conn.prepareStatement(sql2);
 				ps2.setInt(1, waferId);
 				ps2.setInt(2, length<2?0:i*length);

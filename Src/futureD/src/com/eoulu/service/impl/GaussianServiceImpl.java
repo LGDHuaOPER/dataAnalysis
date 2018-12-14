@@ -16,9 +16,12 @@ import com.eoulu.dao.CoordinateDao;
 import com.eoulu.dao.GaussianDao;
 import com.eoulu.dao.HistogramDao;
 import com.eoulu.dao.ParameterDao;
+import com.eoulu.dao.SubdieDao;
+import com.eoulu.dao.WaferDao;
 import com.eoulu.service.GaussianService;
 import com.eoulu.service.HistogramService;
 import com.eoulu.transfer.FunctionUtil;
+import com.eoulu.transfer.ObjectTable;
 import com.eoulu.util.DataBaseUtil;
 
 /**
@@ -36,12 +39,14 @@ public class GaussianServiceImpl implements GaussianService{
 			return null;
 		}
 		Map<String,Object> result = new HashMap<>();
-		CoordinateDao coordinate = new CoordinateDao();
+		WaferDao waferDao = (WaferDao) ObjectTable.getObject("WaferDao");
+		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
+		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		GaussianDao dao = new GaussianDao();
 		Connection conn = new DataBaseUtil().getConnection();
-		String column = dao.getParameterColumn(conn, waferId, param);
-		
-		List<Map<String,Object>> functionList = dao.getFunctionData(conn, waferId, column);
+		String column = dao.getParameterColumn(conn, waferId, param),waferNO = waferDao.getWaferNO(conn, waferId),median;
+		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
+		List<Map<String,Object>> functionList = dao.getFunctionData(conn, waferId, column,flag);
 		List<Double> groups = new ArrayList<>(),density = new ArrayList<>();
 		List<Integer> frequencyList = new ArrayList<>();
 		int total = Integer.parseInt(functionList.get(0).get("total").toString()),frequency=0,length=0;
@@ -57,15 +62,19 @@ public class GaussianServiceImpl implements GaussianService{
 				section = max-min,
 				columnCount = map.get("equal")==null?Math.sqrt(total)+1:Double.parseDouble(map.get("equal").toString()),
 						interval = section/(columnCount-1),expectation=0,x=0,rate=0,y=0;
-							String	median = coordinate.getMedian(conn, waferId, min, max,column);
-//							System.out.println("标准差:"+standard +"-----方差:"+variance+"柱数:"+columnCount);
+		if(flag){
+			median = subdieDao.getMedian(conn, waferId, min, max,column);
+		}else{
+			median = coordinate.getMedian(conn, waferId, min, max,column);
+		}
+		
 		length = (int) Math.floor(columnCount);
 		for(int i=0 ;i < length; i ++){
 			if(i==0){
 				x = min+interval/2;
-				frequency =  dao.getCount(conn, waferId, " and "+column+"<="+x);
+				frequency =  dao.getCount(conn, waferId, " and "+column+"<="+x,flag);
 			}else{
-				frequency =  dao.getCount(conn, waferId, " and "+x+"<"+column+" and "+column+"<="+(x+interval));
+				frequency =  dao.getCount(conn, waferId, " and "+x+"<"+column+" and "+column+"<="+(x+interval),flag);
 				x = x + interval;
 			}
 			rate = frequency/total;
