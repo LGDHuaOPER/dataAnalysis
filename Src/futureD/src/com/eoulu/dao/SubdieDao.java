@@ -234,7 +234,7 @@ public class SubdieDao {
 		return result;
 	}
 	
-	public SubdieDO getPerParameter(Connection conn,int waferId,String column,String parameter,double uppper,double lower) {
+	public SubdieDO getPerParameter(Connection conn,int waferId,String column,String parameter,double upper,double lower) {
 		SubdieDO subdie = new SubdieDO();
 		subdie.setParameter(parameter);
 		String sql  = "select subdie_x,subdie_y,subdie_bin,coordinate_id,subdie_number,"+column+" from dm_wafer_subdie where wafer_id=?  order by coordinate_id";
@@ -250,14 +250,14 @@ public class SubdieDao {
 				int bin = rs.getInt(3);//
 				if(rs.getInt(3)!=-1 && rs.getInt(3)!=5000) {
 					num++;
-					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=uppper){
+					if(rs.getDouble(6)>=lower&&rs.getDouble(6)<=upper){
 						bin=1;
 						qualified++;
 					}else {
 						bin=255;
 					}
 				}
-				temp.put("subdieBin", rs.getInt(3));
+				temp.put("subdieBin", bin);
 				temp.put("coordinateId", rs.getInt(4));
 				temp.put("subdieNO", rs.getInt(5));
 				result.put(rs.getInt(1)+":"+rs.getInt(2), temp);
@@ -276,7 +276,6 @@ public class SubdieDao {
 		}
 		
 		return subdie;
-		
 	}
 	
 	/**
@@ -316,7 +315,7 @@ public class SubdieDao {
 				colorMap = new HashMap<>();
 				if(rs.getInt(3)!=-1 && rs.getInt(3)!=5000) {
 					num++;
-					if(rs.getDouble(4)>=lower&&rs.getDouble(4)<=upper){
+					if(rs.getDouble(6)>=lower&&rs.getDouble(6)<=upper){
 						bin=1;
 						qualified++;
 					}else {
@@ -360,7 +359,7 @@ public class SubdieDao {
 		subdie.setParameter("Total Yield");
 		String sql = "select subdie_x,subdie_y,subdie_bin,coordinate_id,subdie_number from dm_wafer_subdie where wafer_id=? ";
 		if(!"".equals(subdieName)){
-			sql += " and coordinate_id in (select distinct coordinate_id from dm_wafer_subdie where subdie_number=?) ";
+			sql += " and subdie_number=? ";
 		}
 		if(!"".equals(deviceGroup)){
 			sql += " and coordinate_id in (select distinct coordinate_id from dm_curve_type where device_group=?) ";
@@ -371,7 +370,7 @@ public class SubdieDao {
 			ps.setInt(index, waferId);
 			if(!"".equals(subdieName)){
 				index++;
-				ps.setString(index, subdieName);
+				ps.setInt(index, Integer.parseInt(subdieName));
 			}
 			if(!"".equals(deviceGroup)){
 				index++;
@@ -426,15 +425,20 @@ public class SubdieDao {
 		return result;
 	}
 	
-	public boolean getSubdieExist(Connection conn,String waferNO){
-		String sql = "select wafer_number from dm_wafer_subdie_config where wafer_number=?";
+	public static boolean getSubdieExist(Connection conn,int waferId){
+		String sql = "select subdie_flag from dm_wafer where wafer_id=?";
 		Object result = null;
 		if(conn == null){
-			result = DataBaseUtil.getInstance().queryResult( sql, new Object[]{waferNO});
+			result = DataBaseUtil.getInstance().queryResult( sql, new Object[]{waferId});
 		}else{
-			result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferNO});
+			result = DataBaseUtil.getInstance().queryResult(conn, sql, new Object[]{waferId});
 		}
-		return result==null?false:true;
+		int flag = 0;
+		if(result != null){
+			flag = Integer.parseInt(result.toString());
+		}
+				
+		return flag==1?true:false;
 	}
 	
 	/**

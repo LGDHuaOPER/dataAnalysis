@@ -32,13 +32,13 @@ public class CorrelationServiceImpl implements CorrelationService{
 		Map<String, Object> map = null;
 		int waferId = 0;
 		boolean flag = false;
-		String waferNO = "";
+	
 		DataBaseUtil db = DataBaseUtil.getInstance();
 		Connection conn = db.getConnection();
 		for(int i=0,length=att.length;i<length;i++){
 			waferId = Integer.parseInt(att[i]);
-			waferNO = waferDao.getWaferNO(conn,waferId);
-			flag = subdieDao.getSubdieExist(conn, waferNO);
+		
+			flag = subdieDao.getSubdieExist(conn, waferId);
 			map = new CorrelationDao().getCorrelation(conn,waferId, paramX, paramY, minX, maxX, minY, maxY,flag);
 			
 			result.put(waferId+"", map);

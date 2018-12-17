@@ -33,8 +33,8 @@ public class WaferDataServiceImpl implements WaferDataService{
 		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
 		ParameterDao paramDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		Connection conn = new DataBaseUtil().getConnection();
-		String dieType = dao.getDieType(conn, waferId),waferNO = dao.getWaferNO(conn, waferId);
-		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
+		String dieType = dao.getDieType(conn, waferId);
+		boolean flag = subdieDao.getSubdieExist(conn, waferId);
 		Map<String,Object> paramMap = paramDao.getWaferDataParameter(conn, waferId,flag);
 		String column = paramMap.get("column").toString();
 		paramMap.remove("column");
@@ -76,8 +76,7 @@ public class WaferDataServiceImpl implements WaferDataService{
 		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
 		ParameterDao paramDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		Connection conn = new DataBaseUtil().getConnection();
-		String waferNO = dao.getWaferNO(conn, waferId);
-		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
+		boolean flag = subdieDao.getSubdieExist(conn, waferId);
 		Map<String,Object> paramMap = paramDao.getWaferDataParameter(conn, waferId,flag);
 		String column = paramMap.get("column").toString();
 		List<Map<String,Object>> dataList = dao.getWaferData(conn, waferId, column,flag),

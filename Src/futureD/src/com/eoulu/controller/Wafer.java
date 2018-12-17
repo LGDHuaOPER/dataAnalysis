@@ -47,7 +47,7 @@ public class Wafer extends HttpServlet {
 		
 		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr").trim(),
 				parameter = request.getParameter("parameter")==null?"":request.getParameter("parameter").trim();
-		double left = request.getParameter("leftRange")==null?0:Double.parseDouble(request.getParameter("leftRange")),right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
+		double left = request.getParameter("leftRange")==null?1000000:Double.parseDouble(request.getParameter("leftRange")),right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
 		int equal = request.getParameter("equal")==null?8:Integer.parseInt(request.getParameter("equal"));	
 		String[] waferAtt = waferIdStr.split(",");
 		Map<String,Object> result = new LinkedHashMap<>();
@@ -95,7 +95,7 @@ public class Wafer extends HttpServlet {
 	
 	public static void main(String[] args) {
 
-		String waferIdStr = "2",
+		String waferIdStr = "29",
 				parameter = "";
 		double left = 0,right=0;
 		int equal = 8;	
@@ -114,6 +114,7 @@ public class Wafer extends HttpServlet {
 			rangeList = new HashMap<>();
 			rangeList.put(parameter, ls);
 			result  =  service.getMapInfo( waferAtt, paramList, rangeList);
+			System.out.println(new Gson().toJson(result));
 			return;
 		}
 		String[] paramAtt = null;
@@ -129,6 +130,7 @@ public class Wafer extends HttpServlet {
 		
 		GaussianService gaussian = new GaussianServiceImpl();
 		rangeList = gaussian.getRangList(paramList,waferIdStr);
+		System.out.println("rangeList:"+rangeList);
 		result = service.getMapInfo( waferAtt, paramList, rangeList);
 		System.out.println(new Gson().toJson(result));
 	}

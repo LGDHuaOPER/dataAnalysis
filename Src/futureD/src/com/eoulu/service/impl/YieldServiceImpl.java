@@ -45,8 +45,8 @@ public class YieldServiceImpl implements YieldService{
 		Map<String, Object> result = new LinkedHashMap<>(),map  = new LinkedHashMap<>();
 		for(int j=0,length=att.length;j<length;j++){
 			waferId = Integer.parseInt(att[j]);
-			waferNO = yieldDao.getWaferNO(conn, waferId);
-			flag = subdieDao.getSubdieExist(conn, waferNO);
+			
+			flag = subdieDao.getSubdieExist(conn, waferId);
 			flagAtt[j] = flag;
 			if(left == Double.NaN || right == Double.NaN){
 				yield = 1;

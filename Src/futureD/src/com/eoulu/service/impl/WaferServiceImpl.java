@@ -182,7 +182,7 @@ public class WaferServiceImpl implements WaferService {
 			}
 			wafer.setArchiveUser(Integer.parseInt(archiveUser));
 			wafer.setTestOperator(Integer.parseInt(operator));
-			
+			wafer.setSubdieFlag(subdieExist?1:0);
 			Map<String, List<Object[]>> parameterList = util.getParameter(filelist, datanum, testerWaferSerialIDnum,
 					limitnum, dieTypeList);
 
@@ -748,33 +748,27 @@ public class WaferServiceImpl implements WaferService {
 
 	@Override
 	public boolean getCompareFile(String fileName, String lastModified) {
-		Map<String,Object> map = new WaferDao().getFile();
+		String lastModifyTime = new WaferDao().getFileTime(fileName);
 		boolean flag = false;
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		if(map.containsKey(fileName)){
-			String time = map.get(fileName).toString();
-			try {
-				Date date = df.parse(time);
-				Date date2 = df.parse(lastModified);
-				if(date.before(date2)){
-					flag = true;
-				}
-			} catch (ParseException e) {
-				e.printStackTrace();
+		Date date;
+		try {
+			date = df.parse(lastModifyTime);
+			Date date2 = df.parse(lastModified);
+			if (date.before(date2)) {
+				flag = true;
 			}
-		}else{
-			flag = true;
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-		
+
 		return flag;
 	}
 
 	@Override
 	public boolean getMapFlag(int waferId) {
 		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
-		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
-		String waferNO = dao.getWaferNO(waferId);
-		if(subdieDao.getSubdieExist(null, waferNO)){
+		if(subdieDao.getSubdieExist(null, waferId)){
 			return subdieDao.getMapFlag(waferId);
 		}
 		return new WaferDao().getMapFlag(waferId);

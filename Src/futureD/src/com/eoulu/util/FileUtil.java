@@ -152,7 +152,7 @@ public class FileUtil {
 		factory.setSizeThreshold(4096); // 设置缓冲区大小，这里是4kb
 		ServletFileUpload upload = new ServletFileUpload(factory);
 		java.util.List<org.apache.commons.fileupload.FileItem> items = null;
-		String productCategory = null, currentUser = null, description = null,filePath = null,editTime=null;
+		String productCategory = null, currentUser = null, description = null,filePath = null,editTime=null,lastModified=null;
 		Map<String,Object> map = new HashMap<>();
 		try {
 			items = upload.parseRequest(request);
@@ -174,6 +174,9 @@ public class FileUtil {
 						}
 						if ("editTime".equals(item.getFieldName())) {
 							editTime = item.getString("utf-8");
+						}
+						if ("lastModified".equals(item.getFieldName())) {
+							lastModified = item.getString("utf-8");
 						}
 
 					} else {
@@ -203,7 +206,7 @@ public class FileUtil {
 		map.put("currentUser", currentUser);
 		map.put("description", description);
 		map.put("editTime", editTime);
-		System.out.println("currentUser:"+map);
+		map.put("lastModified", lastModified);
 		return map;
 	}
 	

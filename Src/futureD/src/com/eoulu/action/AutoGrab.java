@@ -54,7 +54,7 @@ public class AutoGrab extends HttpServlet {
 		Map<String, Object> PathresultMap = util.getPath(),result=null;
 		String temp = (String) PathresultMap.get("temp"), tempPath = (String) PathresultMap.get("tempPath"),
 				fileName = null, filePath = null, productCategory = null, currentUser = null, description = null,
-				status = null, logWafer = null,editTime=null;
+				status = null, logWafer = null,editTime=null,lastModified=null;
 		boolean flag = false;
 		WaferService service = new WaferServiceImpl();
 		File file01 = (File) PathresultMap.get("file01");
@@ -65,27 +65,29 @@ public class AutoGrab extends HttpServlet {
 		currentUser = map.get("currentUser").toString();
 		description = map.get("description").toString();
 		editTime = map.get("editTime").toString();
-		if(!service.getCompareFile(fileName, editTime)){
+		lastModified = map.get("lastModified").toString();
+
+		if(!service.getCompareFile(fileName, lastModified)){
 			response.getWriter().write(new Gson().toJson(status));
 			return;
 		}
-		if(service.getWafer(fileName, editTime)){
-			response.getWriter().write(new Gson().toJson(status));
-			return;
-		}
+//		if(service.getWafer(fileName, editTime)){
+//			response.getWriter().write(new Gson().toJson(status));
+//			return;
+//		}
 		if (fileName.endsWith(".zip") || fileName.endsWith(".rar")) {
-			Map<String,Object> transport = new HashMap<String, Object>();
-			transport.put("filePath", filePath);
-			transport.put("temp", temp);
-			transport.put("fileName", fileName.substring(0, fileName.indexOf(".")));
-			transport.put("productCategory", productCategory);
-			transport.put("description", description);
-			transport.put("currentUser", currentUser);
-			transport.put("sessionId", "null");
-			transport.put("interval", 0);
+//			Map<String,Object> transport = new HashMap<String, Object>();
+//			transport.put("filePath", filePath);
+//			transport.put("fileName", fileName.substring(0, fileName.indexOf(".")));
+//			transport.put("productCategory", productCategory);
+//			transport.put("description", description);
+//			transport.put("currentUser", currentUser);
+			map.put("sessionId", "null");
+			map.put("interval", 0);
+			map.put("temp", temp);
 
 			ZipFileParser zipUtil = new ZipFileParser();
-			result = zipUtil.Zip(transport);
+			result = zipUtil.Zip(map);
 			flag = (Boolean) result.get("flag");
 			status = result.get("status").toString();
 			logWafer = result.get("logWafer").toString();

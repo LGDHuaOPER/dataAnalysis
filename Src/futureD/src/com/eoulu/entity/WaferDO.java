@@ -29,6 +29,7 @@ public class WaferDO {
 	private String gmtCreate;
 	private String gmtModified;
 	private String lastModified;
+	private int subdieFlag;
 	public String getLastModified() {
 		return lastModified;
 	}
@@ -142,6 +143,12 @@ public class WaferDO {
 	}
 	public void setGmtModified(String gmtModified) {
 		this.gmtModified = gmtModified;
+	}
+	public int getSubdieFlag() {
+		return subdieFlag;
+	}
+	public void setSubdieFlag(int subdieFlag) {
+		this.subdieFlag = subdieFlag;
 	}
 	
 	

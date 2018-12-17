@@ -87,7 +87,7 @@ public class HistogramServiceImpl implements HistogramService{
 		double  percent = 0,proportion=0 ,total=0,count=0;
 		int waferId = 0;
 		String[] att = waferIdStr.split(","),limit = null;
-		String column = "",waferNO = "";
+		String column = "";
 		boolean flag = false;
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = att.length; i < length; i++) {
@@ -95,8 +95,8 @@ public class HistogramServiceImpl implements HistogramService{
 			proportion = 0;
 			ls = new ArrayList<>();
 			waferId = Integer.parseInt(att[i]);
-			waferNO = waferDao.getWaferNO(waferId);
-			flag = subdieDao.getSubdieExist(conn, waferNO);
+		
+			flag = subdieDao.getSubdieExist(conn, waferId);
 			column = dao.getColumn(conn,waferId, paramName);
 			if(flag){
 				total = subdieDao.getQuantity(conn,waferId, "");

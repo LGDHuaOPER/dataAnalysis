@@ -53,9 +53,10 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			 waferNO = dao.getWaferNO(conn,waferId);
-			map = getMapParameter(conn, waferNO);
-			flag = subdieDao.getSubdieExist(conn,waferNO);
+			waferNO = dao.getWaferNO(conn, waferId);
+			flag = subdieDao.getSubdieExist(conn,waferId);
+			map = getMapParameter(conn, waferNO,flag);
+			
 			if(flag){
 				map.put("waferDie", coordinate.getAllDie(conn, waferNO));
 				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
@@ -115,9 +116,10 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			waferNO = dao.getWaferNO(conn,waferId);
-			map = getMapParameter(conn, waferNO);
-			flag = subdieDao.getSubdieExist(conn,waferNO);
+			flag = subdieDao.getSubdieExist(conn,waferId);
+			waferNO = dao.getWaferNO(conn, waferId);
+			map = getMapParameter(conn, waferNO,flag);
+			
 			if(flag){
 				map.put("waferDie", coordinate.getAllDie(conn, waferNO));
 				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
@@ -162,7 +164,7 @@ public class WaferMapServiceImpl implements WaferMapService {
 	 * @param waferNO
 	 * @return
 	 */
-	public Map<String, Object> getMapParameter(Connection conn, String waferNO) {
+	public Map<String, Object> getMapParameter(Connection conn, String waferNO,boolean flag) {
 		Map<String, Object> result = new HashMap<>();
 		ParameterDao parameterDao = new ParameterDao();
 		CoordinateDao coordinate = new CoordinateDao();
@@ -175,7 +177,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 			result.put("diameter", map.get(0).get("diameter").toString());
 			result.put("flagLength", map.get(0).get("flatLength").toString());
 		}
-		List<Map<String, Object>> list = coordinate.getCoordinateRange(conn, waferNO);
+		List<Map<String, Object>> list = coordinate.getCoordinateRange(conn, waferNO,flag);
+		System.out.println("list:"+list);
 		if (list.size() > 0) {
 			result.put("minX", list.get(0).get("minX").toString());
 			result.put("maxX", list.get(0).get("maxX").toString());
@@ -194,8 +197,8 @@ public class WaferMapServiceImpl implements WaferMapService {
 		
 		Connection conn = new DataBaseUtil().getConnection();
 		String waferNO = dao.getWaferNO(conn,waferId);
-		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
-		map = getMapParameter(conn, waferNO);
+		boolean flag = subdieDao.getSubdieExist(conn, waferId);
+		map = getMapParameter(conn, waferNO,flag);
 		if(flag){
 			map.put("waferDie", coordinate.getAllDie(conn, waferNO));
 			map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
@@ -221,11 +224,11 @@ public class WaferMapServiceImpl implements WaferMapService {
 		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
 		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
 		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
-		String waferNO = dao.getWaferNO(conn,waferId);
-		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
+	
+		boolean flag = subdieDao.getSubdieExist(conn, waferId);
 		Object result = null;
 		if(flag){
-			result = subdieDao.getVectorMap(conn, waferId, "", "");
+			result = subdieDao.getVectorMap(conn, waferId,  subdieName, deviceGroup);
 		}else{
 			result = coordinate.getVectorMap(conn, waferId, subdieName, deviceGroup);
 		}

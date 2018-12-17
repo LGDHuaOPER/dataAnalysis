@@ -44,8 +44,8 @@ public class GaussianServiceImpl implements GaussianService{
 		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		GaussianDao dao = new GaussianDao();
 		Connection conn = new DataBaseUtil().getConnection();
-		String column = dao.getParameterColumn(conn, waferId, param),waferNO = waferDao.getWaferNO(conn, waferId),median;
-		boolean flag = subdieDao.getSubdieExist(conn, waferNO);
+		String column = dao.getParameterColumn(conn, waferId, param),median;
+		boolean flag = subdieDao.getSubdieExist(conn, waferId);
 		List<Map<String,Object>> functionList = dao.getFunctionData(conn, waferId, column,flag);
 		List<Double> groups = new ArrayList<>(),density = new ArrayList<>();
 		List<Integer> frequencyList = new ArrayList<>();

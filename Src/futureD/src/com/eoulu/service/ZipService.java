@@ -152,6 +152,9 @@ public class ZipService {
 		List<Map<String, Double>> upperAndLowerLimit = null;
 		List<Object[]> list = new ArrayList<>();
 		Object[] subdieInfo = null;
+		if(subdie !=null){
+			subdie = null;
+		}
 		subdie = new ArrayList<>();
 		boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
 		try {
@@ -327,6 +330,9 @@ public class ZipService {
 			String column = "", columnStr = "";
 			Object[] obj = null;
 			List<Map<String, Double>> upperAndLowerLimit = null;
+			if(table != null){
+				table = null;
+			}
 			table = new Hashtable<>();
 			boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
 			try {

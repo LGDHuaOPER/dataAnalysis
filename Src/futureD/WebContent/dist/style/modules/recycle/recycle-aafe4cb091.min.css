@@ -1,0 +1,249 @@
+body {
+	display: -ms-grid;
+	display: grid;
+	-ms-grid-rows: 40px 1fr;
+	grid-template-rows: 40px 1fr;
+	-ms-grid-columns: 40px 1fr;
+	grid-template-columns: 40px 1fr;
+	    grid-template-areas: "g_logo  g_info"
+						"g_menu  g_body";
+	min-height: 100vh;
+	min-width: 1000px;
+}
+
+.g_logo {
+	-ms-grid-row: 1;
+	-ms-grid-column: 1;
+	grid-area: g_logo;
+	height: 40px;
+	line-height: 40px;
+	background-color: #3d89f9;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.g_info {
+	-ms-grid-row: 1;
+	-ms-grid-column: 2;
+	grid-area: g_info;
+	height: 40px;
+	line-height: 40px;
+}
+
+.g_menu {
+	-ms-grid-row: 2;
+	-ms-grid-column: 1;
+	grid-area: g_menu;
+	background-color: rgb(25, 28, 43);
+}
+
+.g_body {
+	-ms-grid-row: 2;
+	-ms-grid-column: 2;
+	grid-area: g_body;
+	padding: 20px;
+	background-color: rgb(245, 245, 245);
+}
+
+.g_info_l {
+	position: absolute;
+	padding-left: 10px;
+    letter-spacing: 2px;
+    width: 215px;
+    color: rgb(53, 140, 245);
+    font-weight: 600;
+}
+
+.g_info_r {
+	padding-left: 215px;
+	text-align: right;
+}
+
+.g_info_r img[data-iicon] {
+	margin-right: 20px;
+}
+
+/* 管理员按钮 */
+.user_dropdown{
+    display: inline-block;
+    margin-right: 20px;
+}
+.user_dropdown>button{
+    border: none;
+    padding:0;
+    background-color:#fff;
+    outline:none;
+}
+.user_dropdown .curusername{
+	text-indent:20px;
+}
+.user_dropdown .divider{
+	margin:0!important;
+}
+.user_dropdown .Information>a,.user_dropdown .AdminOperat>a{
+    height: 35px;
+    line-height: 35px;
+}
+/* 管理员按钮end */
+
+.g_bodyin {
+	height: 100%;
+}
+
+.g_bodyin_tit {
+    margin-bottom: 20px;
+	height: 35px;
+	line-height: 35px;
+}
+
+.g_bodyin_tit_l {
+	position: absolute;
+	width: 30px;
+	border-right: 2px solid #000;
+}
+
+.g_bodyin_tit_r {
+	padding-left: 30px;
+}
+
+.g_bodyin_tit_r .breadcrumb {
+	padding: 0px 15px;
+}
+
+.g_bodyin_body {
+	padding: 15px;
+	height: calc(100% - 55px);
+	background-color: #fff;
+}
+
+.g_bodyin_bodyin {
+	height: 100%;
+}
+
+.g_bodyin_bodyin_tit {
+	height: 40px;
+	line-height: 40px;
+}
+
+.g_bodyin_bodyin_tit_l {
+	position: absolute;
+	width: 110px;
+}
+
+.g_bodyin_bodyin_tit_l img+img {
+	margin-left: 12px;
+}
+
+.g_bodyin_bodyin_tit_r {
+	padding-left: 110px;
+	height: 40px;
+	text-align: right;
+}
+
+.g_bodyin_bodyin_tit_r>div {
+	max-width: 350px;
+    display: inline-block;
+}
+
+.g_bodyin_bodyin_tit_r .form-inline .form-group {
+	display: inline-block;
+	margin-bottom: 0;
+	vertical-align: middle;
+}
+
+.g_bodyin_bodyin_tit_r .form-control-feedback {
+	top: 2px !important;
+	z-index: 3;
+	line-height: 41px;
+	pointer-events: auto;
+}
+
+#search_button {
+	position: relative;
+	top: 1px;
+}
+
+span.glyphicon, img[data-iicon] {
+	cursor: pointer;
+}
+
+.g_bodyin_bodyin_tit_l>.glyphicon-remove-circle {
+	transform:rotate(45deg);
+	-ms-transform:rotate(45deg); 	/* IE 9 */
+	-moz-transform:rotate(45deg); 	/* Firefox */
+	-webkit-transform:rotate(45deg); /* Safari 和 Chrome */
+	-o-transform:rotate(45deg); 	/* Opera */
+}
+
+.g_bodyin_bodyin_body {
+	height: calc(100% - 40px);
+}
+
+.g_bodyin_bodyin_body table {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	border: 1px solid #bebebe;
+}
+
+.g_bodyin_bodyin_body thead tr {
+	background-color: #3d89f9;
+	color: #fff;
+}
+
+.g_bodyin_bodyin_body .table-striped>tbody>tr:nth-of-type(odd) {
+	background: #ececec;
+}
+
+.g_bodyin_bodyin_body tbody>tr>td, .g_bodyin_bodyin_body tfoot>tr>td, .g_bodyin_bodyin_body thead>tr>th {
+	border-top: 0px solid #fff;
+	text-align: center;
+	cursor: pointer;
+}
+
+/* 操作栏单元格 */
+.g_bodyin_bodyin_body tbody td.operate_othertd img+img {
+	margin-left: 6px;
+}
+
+/* 分页 */
+.futureDT2_page_wrapper {
+	text-align: center;
+}
+
+.futureDT2_page {
+	display: inline-block;
+}
+
+.futureDT2_page_span {
+	display: inline-block;
+}
+
+.futureDT2_page_span input[type='text'] {
+	margin-left: 3px;
+	margin-right: 3px;
+	width: 50px;
+}
+
+.pagination .pagination-item .pagination-link {
+	border-radius: 0px;
+}
+
+.pagination .pagination-item .pagination-link.current {
+	background-color: #3d89f9;
+	color: #fff;
+}
+
+#pagelist, .futureDT2_page_span {
+	vertical-align: middle;
+}
+/* 分页 end*/
+
+@media screen and (max-width: 1000px) {
+	
+}
+
+@media screen and (max-height: 500px) {
+    body {
+        min-height: 499px;
+    }
+}

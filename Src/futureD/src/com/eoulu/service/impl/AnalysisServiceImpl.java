@@ -126,10 +126,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 	}
 
 	@Override
-	public Map<String, Object> getMarkerCurve(String[] curveTypeId, String sParameter,int waferId,String module) {
+	public Map<String, Object> getMarkerCurve(String[] curveTypeId, String sParameter,String module) {
 		SmithDao smithDao = new SmithDao();
 		Map<String,Object> curve = new HashMap<>();
-		Map<String,Object> curveValue = new LinkedHashMap<>();
+		Map<String,Object> curveValue = null;
 		DataBaseUtil db = DataBaseUtil.getInstance();
 		Connection conn = db.getConnection();
 		try {
@@ -140,7 +140,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			for(int i=0,length=curveTypeId.length;i<length;i++){
 				id = Integer.parseInt(curveTypeId[i]);
 				ls = smithDao.getGraphStyleData(conn, id, "XYdBOfMagnitude", sParameter, db);
-//				ls = smithDao.getSmithData(conn,id, sParameter,db);
+				curveValue = new HashMap<>();
 				curveValue.put("curveData", ls);
 				//曲线上的marker点
 				list = smithDao.getMarkerByTypeId(conn, id,db);

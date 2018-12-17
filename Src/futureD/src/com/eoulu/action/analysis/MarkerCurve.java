@@ -35,8 +35,8 @@ public class MarkerCurve extends HttpServlet {
 		String[] curveTypeId = request.getParameterValues("curveTypeId[]");
 		String sParameter = request.getParameter("sParameter")==null?"S11":request.getParameter("sParameter"),
 				module = "TCF";
-		int waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
-		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,waferId,module);
+		//int waferId = request.getParameter("waferId")==null?0:Integer.parseInt(request.getParameter("waferId"));
+		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,module);
 		response.getWriter().write(new Gson().toJson(map));
 	}
 

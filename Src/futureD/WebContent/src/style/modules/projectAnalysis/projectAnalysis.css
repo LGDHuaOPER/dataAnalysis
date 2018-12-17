@@ -235,9 +235,18 @@ span.glyphicon {
 	cursor: pointer;
 }
 
-.g_bodyin_body_bottom th:nth-child(1), .g_bodyin_body_bottom td:nth-child(1) {
+.g_bodyin_body_bottom td:nth-child(1) {
 	display: none;
 }
+
+.g_bodyin_bodyin_body tbody .data_trash{
+	display:none;
+}
+.g_bodyin_body_bottom table tr td b {
+	font-weight: normal!important;
+	color:#000!important;
+}
+
 
 /* 翻页组件 */
 .futureDT2_page_wrapper {

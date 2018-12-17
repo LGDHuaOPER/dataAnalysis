@@ -28,7 +28,7 @@ public class BoxPlotDao {
 		String sql = "select parameter_column from dm_wafer_parameter where wafer_id=? and parameter_name=?",sql2 = "";
 		PreparedStatement ps = null,ps2 = null;
 		ResultSet rs = null,rs2 = null;
-		String column ,waferNO;
+		String column ;
 		int waferId;
 		boolean flag = false;
 		List<Double> ls = null;
@@ -48,8 +48,8 @@ public class BoxPlotDao {
 					column = rs.getString(1);
 				}
 				if(!"".equals(column)){
-					waferNO = waferDao.getWaferNO(conn, waferId);
-					flag = subdieDao.getSubdieExist(conn, waferNO);
+					
+					flag = subdieDao.getSubdieExist(conn, waferId);
 					if(flag){
 						sql2 = "select "+column+" from dm_wafer_subdie where wafer_id=? and  (subdie_bin=1 or subdie_bin=255)";
 					}else{

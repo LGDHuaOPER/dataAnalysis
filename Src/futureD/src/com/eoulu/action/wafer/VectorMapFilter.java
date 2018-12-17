@@ -42,5 +42,10 @@ public class VectorMapFilter extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
+	
+	public static void main(String[] args) {
+		WaferMapService service = new WaferMapServiceImpl();
+		System.out.println(new Gson().toJson(service.getVectorMap(29, "2", "")));
+	}
 
 }

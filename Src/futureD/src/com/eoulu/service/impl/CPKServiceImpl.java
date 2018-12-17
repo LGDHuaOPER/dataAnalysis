@@ -40,13 +40,13 @@ public class CPKServiceImpl implements CPKService{
 		List<Object> result = null;
 		List<Double> ls=null,datas=null;
 		double upper = 0,lower=0,avg=0,variance=0,StandardDeviation=0,CPKu=0,CPKI=0,CPK=0;
-		int waferId = 0,count = 0;String waferNO = "";
+		int waferId = 0,count = 0;
 		String att[] = waferIdStr.split(",");
 		boolean flag = false;
 		for(int i=0,length=att.length;i<length;i++){
 			waferId = Integer.parseInt(att[i]);
-			waferNO = waferDao.getWaferNO(conn, waferId);
-			flag = subdieDao.getSubdieExist(conn, waferNO);
+		
+			flag = subdieDao.getSubdieExist(conn, waferId);
 			limit = dao.getLimit(conn, param, waferId);
 		
 			String column = histogram.getColumn(conn, waferId, param);

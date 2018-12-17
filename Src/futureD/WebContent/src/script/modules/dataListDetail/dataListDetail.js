@@ -31,7 +31,8 @@ dataListDetailStore.state = {
 		coordsArray: new HashTable(),
 		waferMapObj: Object.create(null),
 		curSelectedDie: Object.create(null),
-		curveType: ["ID_VD", "OutputCurve", "SP2", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
+//		curveType: ["ID_VD", "OutputCurve", "SP2", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
+		curveType: [],
 		curCurveTypeNo: 0,
 		/*第一次进入矢量图分页*/
 		renderChartByCoordFlag: false,
@@ -234,10 +235,12 @@ function commonCalcLayout(){
 
 /*矢量Map图晶圆图*/
 function renderVectorMapWafer(obj){
+	//console.log("renderVectorMapWafer-obj",obj);
 	var mapInfo = obj.mapInfo;
 	/*预处理数据*/
 	var dieData = [];
-	_.forOwn(mapInfo.waferList.currentDieList, function(v, k){
+	var currentDieList = (mapInfo.containSubdie == true ? mapInfo.waferDie.currentDieList : mapInfo.waferList.currentDieList);
+	_.forOwn(currentDieList, function(v, k){
 		var item = {};
 		item[k] = v.bin;
 		dieData.push(item);
@@ -245,6 +248,7 @@ function renderVectorMapWafer(obj){
 			dataListDetailStore.state.vectorMap.currentDieCoord = k.toString();
 		}*/
 	});
+	
 	/*if(_.isNil(dataListDetailStore.state.vectorMap.currentDieCoord)) dataListDetailStore.state.vectorMap.currentDieCoord = "0:0";*/
 	_.forOwn(mapInfo.otherDieType, function(v, k){
 		var item = {};
@@ -254,6 +258,7 @@ function renderVectorMapWafer(obj){
 	/*预处理数据end*/
 	var maxWidth = ($(".vectorMap_r").innerHeight() - 20)*1.25;
 	var maxHeight = $(".vectorMap_r").innerHeight() - 20;
+	
 	dataListDetailStore.state.vectorMap.waferMapObj = buildColorGradation({
 		/*// 自定义标志
 		custom: {
@@ -292,17 +297,8 @@ function renderVectorMapWafer(obj){
 		callback: function(positionFlag){
 			$(".positionFlag_div>img").attr("src", "assets/img/modules/dataListDetail/"+positionFlag+".png");
 			$(".qualifiedInformation_div .panel-body tbody>tr:eq(1)>td:eq(1)").text(mapInfo.waferList.yield);
-			var countByObj = _.countBy(dieData, function(v, i){
-				var ret;
-				_.forOwn(v, function(vv, kk){
-					ret = vv;
-				});
-				return ret;
-			});
-			var qualifiedNu = countByObj["1"] || 0;
-			var unQualifiedNu = countByObj["255"] || 0;
-			$(".qualifiedInformation_div .panel-body tbody>tr:eq(2)>td:eq(1)").text(qualifiedNu);
-			$(".qualifiedInformation_div .panel-body tbody>tr:eq(3)>td:eq(1)").text(unQualifiedNu);
+			$(".qualifiedInformation_div .panel-body tbody>tr:eq(2)>td:eq(1)").text(mapInfo.waferList.qualify);
+			$(".qualifiedInformation_div .panel-body tbody>tr:eq(3)>td:eq(1)").text(mapInfo.waferList.unqulify);
 			$(".coordinateInformation_div .panel-body tbody>tr:eq(0)>td:eq(1)").text("（"+dataListDetailStore.state.vectorMap.currentDieCoord[0]+"）");
 		},
 		clickCallback: function(cor){
@@ -410,7 +406,8 @@ function renderChartByCoord(obj){
 	$(".row.all_charts_rows").find("div[data-highcharts-chart]").each(function(i, el){
 		$(el).highcharts().destroy();
 	});
-	console.table && console.table(Highcharts.charts);
+	//console.table && console.table(Highcharts.charts);
+	//console.log("ajaxData",ajaxData);
 	$.ajax({
 		type: "GET",
 		url: "VectorCurve",
@@ -801,9 +798,12 @@ function getIDByCoordANDRequ(obj){
 			timer: 1600
 		});
 	}else{
-		var coordinateIdObj = _.find(dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentDieList, function(v, k) {
+		//die -- subdie
+		var currentDieOrSubList = (dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.containSubdie == true ? dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentSubdieList : dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentDieList)
+		var coordinateIdObj = _.find(currentDieOrSubList, function(v, k) {
 			return k == dataListDetailStore.state.vectorMap.currentDieCoord[0];
 		});
+		
 		if(_.isNil(coordinateIdObj)) {
 			eouluGlobal.S_getSwalMixin()({
 				title: "加载曲线提示",
@@ -822,6 +822,7 @@ function getIDByCoordANDRequ(obj){
 			if(_.isNil(deviceGroup) || deviceGroup == "AllGroup") deviceGroup = void(0);
 			if(_.isNil(dieType) || dieType == "AllDieType") dieType = void(0);
 			ajaxData.subdie = subdie;
+			//ajaxData.subdieNO = coordinateIdObj.subdieNO;
 			ajaxData.deviceGroup = deviceGroup;
 			ajaxData.dieType = dieType;
 			renderChartByCoord({
@@ -989,6 +990,7 @@ function buildParameterChartContainer(obj){
 
 /*参数分布统计 Map良率绘制*/
 function draw_map_good_rate(obj){
+	console.log("draw_map_good_rate==obj",obj);
 	var data = obj.data;
 	var waferNO = obj.waferNO;
 	if(_.isNil(waferNO)) return false;
@@ -1035,6 +1037,7 @@ function draw_map_good_rate(obj){
 			floorColor: "#00FF00",
 			nums: 256
 		},
+		param : obj.IDParamObj.param,
 		callback: function(positionFlag, newRenderWaferMap){
 			var uplow = findParamUpLow(IDParamObj.param);
 			var str = '<div class="container-fluid">'+
@@ -1066,6 +1069,7 @@ function draw_map_good_rate(obj){
 
 /*map色阶分布图绘制*/
 function draw_map_color_order_distribution(obj){
+	console.log("draw_map_color_order_distribution",obj);
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
@@ -1074,8 +1078,9 @@ function draw_map_color_order_distribution(obj){
 	var that = $("#"+IDParamObj.id),
 	waferData = _.find(data, function(v, k){
 		return _.toString(k) == _.toString(waferNO);
-	}),
+	})
 	dieData = [],
+	subdieData = [],
 	currentDieItem = _.find(waferData.waferList, function(v, k){
 		return _.toString(v.parameter) == _.toString(IDParamObj.param);
 	}),
@@ -1090,8 +1095,11 @@ function draw_map_color_order_distribution(obj){
 	fourDiff = upper - midder,
 	fiveDiff = theMax - upper,
 	precision = 0;
+	var currentItem_currentList = (waferData.containSubdie ? waferData.waferDie.currentDieList : currentDieItem.currentDieList);
+	var mergeDieType = (waferData.containSubdie ?  [currentItem_currentList] : [currentItem_currentList, waferData.otherDieType] );
 	/*合并有效die和其他器件die*/
-	_.forEach([currentDieItem.currentDieList, waferData.otherDieType], function(val, ind){
+	_.forEach(mergeDieType, function(val, ind){
+		//console.log("val",val);
 		_.forOwn(val, function(v, k){
 			var item = {},
 			iNo,
@@ -1101,12 +1109,11 @@ function draw_map_color_order_distribution(obj){
 			binV;
 			if(_.isObject(v)){
 				percentV = v.percent;
-				binV = v.bin;
+				binV = v.bin ||  v.subdieBin;
 			}else{
 				percentV = v;
 				binV = v;
 			}
-
 			iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
 			var addMat = _.toString(percentV).match(/^\+/);
 			var minusMat = _.toString(percentV).match(/^\-/);
@@ -1205,8 +1212,109 @@ function draw_map_color_order_distribution(obj){
 			dieData.push(item);
 		});
 	});
+	//console.log("dieData",dieData);
+	/*合并有效subdie和其他器件subdie*/
+	var sub_currentItem_currentList = (waferData.containSubdie ? currentDieItem.currentSubdieList : {});
+	var othersubDieType = (waferData.containSubdie ?  waferData.otherSubdieType :  {});
+	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList] : [] );
+	_.forEach(mergesubDieType, function(val, ind){
+		//console.log("val",val);
+		_.forOwn(val, function(v, k){
+			var item = {},
+			iNo,
+			ibin,
+			addNum,
+			percentV,
+			binV;
+			if(_.isObject(v)){
+				percentV = v.percent;
+				binV =  v.subdieBin;
+			}else{
+				percentV = v;
+				binV = v;
+			}
+			iNo = _.round(parseFloat(percentV)*Math.pow(10,precision));
+			var addMat = _.toString(percentV).match(/^\+/);
+			var minusMat = _.toString(percentV).match(/^\-/);
+			if(_.isObject(v)){
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*合格数据*/
+					addNum = 1;
+				}else{
+					if(!_.isNil(addMat)){
+						/*大于上限*/
+						addNum = 100;
+					}
+					if(!_.isNil(minusMat)){
+						/*小于下限*/
+						addNum = -100;
+					}
+				}
+			}else{
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*bin为非负数*/
+					addNum = 0;
+				}else{
+					if(!_.isNil(addMat)){
+						/*bin为正数，+号*/
+						addNum = 2;
+					}
+					if(!_.isNil(minusMat)){
+						/*bin为负数，-号*/
+						addNum = -2;
+					}
+				}
+			}
+			if(addNum > 2){
+				iNo = iNo+(addNum);
+			}
+			ibin = binV;
 
-	// console.table(dieData);
+			/*判断位置*/
+			/*bin 5000 表示未被测试的die  ，bin 5001 表示其他期间类型的die 未被测试的die依然可以显示曲线*/
+			if(ibin == 5000){
+				if(!("5000:" in otherColor)) otherColor["5000:"] = "#FDFDFD";
+				item[k] = {bin: 5000, color: "5000:"};
+			}else if(ibin == 5001){
+				if(!("5001:" in otherColor)) otherColor["5001:"] = "#fff";
+				item[k] = {bin: 5001, color: "5001:"};
+			}else if(ibin == -1){
+				if(!("-1:" in otherColor)) otherColor["-1:"] = "#314067";
+				item[k] = {bin: -1, color: "-1:"};
+			}else{
+				var iiNo = _.round(iNo);
+				if(_.isNil(addMat) && _.isNil(minusMat)){
+					/*合格数据*/
+					if(lowwer<=iNo && iNo<midder){
+						item[k] = {bin: ibin, color: "3:"+iiNo};
+					}else if(midder<=iNo && iNo<=upper){
+						item[k] = {bin: ibin, color: "4:"+iiNo};
+					}
+				}else{
+					if(!_.isNil(addMat)){
+						/*大于上限*/
+						if(upper<=iNo && iNo<theMax){
+							item[k] = {bin: ibin, color: "5:"+iiNo};
+						}else if(theMax<=iNo){
+							iNo = theMax;
+							item[k] = {bin: ibin, color: "6:"+iiNo};
+						}
+					}
+					if(!_.isNil(minusMat)){
+						/*小于下限*/
+						if(iNo<=theMin){
+							iNo = theMin;
+							item[k] = {bin: ibin, color: "1:"+iiNo};
+						}else if(theMin<iNo && iNo<=lowwer){
+							item[k] = {bin: ibin, color: "2:"+iiNo};
+						}
+					}
+				}
+			}
+			/*判断位置end*/
+			subdieData.push(item);
+		});
+	});
 	//
 	var ArraMap = {
 		"1": [],
@@ -1267,8 +1375,11 @@ function draw_map_color_order_distribution(obj){
 		midder: midder,
 		upper: upper,
 		theMax: theMax,
-		otherColor: otherColor
+		otherColor: otherColor,
+		param : obj.IDParamObj.param,
+		subcoordsArray :  subdieData  // subdie的色阶分布
 	});
+	
 	/*色阶标尺*/
 	var colorGradientDom = that.next().find("div.colorGradient");
 	colorGradientDom.width(that.next().width() - 60).height(that.next().height() - 30);
@@ -1798,7 +1909,7 @@ function ajax_all_chart(obj){
 				}
 			});
 		}
-		console.table && console.table(errorArr)
+		//console.table && console.table(errorArr)
 		times++;
 		if(times != alltimes){
 			setTimeout(function(){
@@ -2024,6 +2135,7 @@ $(document).on("click", "div.webParam button", function(){
 	eouluGlobal.S_XHR({
 		status200: function(data){
 			console.log(data);
+			data = data.replace("#", "%23");
 			window.location.href = data;
 		},
 		statusError: function(xhr, statusText){
@@ -2126,6 +2238,7 @@ $(document).on('shown.bs.tab', 'div.g_menu a[data-toggle="tab"]', function(e){
 			},
 			dataType: "json"
 		}).then(function(data){
+			console.log("data",data);
 			/*第一次加载需要全部显示*/
 			/*保存*/
 			dataListDetailStore.mock.vectorMap.waferAjaxData = _.cloneDeep(data);
@@ -2191,7 +2304,9 @@ $(document).on("click", "#filterMap", function(e){
 			$("#swal2-content").text("请求Map数据完成，正在请求曲线数据...");
 			var scrollTopH = $("div.vectorMap_l").scrollTop();
 			/*保存*/
-			dataListDetailStore.mock.vectorMap.filterArr = _.keys(data.currentDieList);
+			dataListDetailStore.mock.vectorMap.filterArr = (dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.containSubdie ? _.keys(data.currentSubdieList) : _.keys(data.currentDieList));  //考虑过滤后subdie
+			console.log("data",data);
+			console.log("vectorMap",dataListDetailStore.mock.vectorMap);
 			renderVectorMapWafer({
 				mapInfo: dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo
 			});

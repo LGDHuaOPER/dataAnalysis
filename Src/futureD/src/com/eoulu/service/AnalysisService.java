@@ -3,7 +3,6 @@
  */
 package com.eoulu.service;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public interface AnalysisService {
 	 * @param module
 	 * @return
 	 */
-	Map<String,Object> getMarkerCurve(String[] curveTypeId,String sParameter,int waferId,String module);
+	Map<String,Object> getMarkerCurve(String[] curveTypeId,String sParameter,String module);
 	
 	/**
 	 * 应用marker到其他die
