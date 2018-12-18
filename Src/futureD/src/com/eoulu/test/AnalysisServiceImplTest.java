@@ -71,7 +71,7 @@ public class AnalysisServiceImplTest {
 		String sParameter = "S11",
 				module = "TCF";
 		int waferId = 188;
-		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,waferId,module);
+		Map<String, Object> map = service.getMarkerCurve(curveTypeId, sParameter,module);
 		System.out.println(new Gson().toJson(map));
 	}
 

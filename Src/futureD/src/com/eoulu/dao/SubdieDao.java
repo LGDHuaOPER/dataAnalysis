@@ -37,7 +37,7 @@ public class SubdieDao {
 				
 				for(int i=0,size=list.size();i<size;i++){
 					params = list.get(i);
-					System.out.println(Arrays.toString(list.get(i)));
+					
 					for(int j=0,length=params.length;j<length;j++){
 						ps.setObject(j+1, params[j]);
 					}

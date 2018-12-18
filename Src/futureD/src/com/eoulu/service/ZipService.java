@@ -157,6 +157,7 @@ public class ZipService {
 		}
 		subdie = new ArrayList<>();
 		boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
+		System.out.println("dieList:"+dieList.size()+"datanum="+datanum);
 		try {
 			for (int m = datanum; m < dieList.size(); m++) {
 				String data[] = dieList.get(m).split(",");//x,y,bin,dieType,dieNO,subdieNo,testTime
@@ -255,8 +256,6 @@ public class ZipService {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println("长度:"+list.size());
-		System.out.println("waferId:"+waferId);
 		
 		status = coordinate.insertCoordinate(conn, list, column, columnStr);
 		
@@ -314,17 +313,15 @@ public class ZipService {
 				}
 				
 			}
-			System.out.println("filelist.size:"+filelist.size());
+		
 			for(String diexy:map.keySet()){
 				value = map.get(diexy);
 				filelist.add(value);
 			}
-//			System.out.println("value:"+value);
 			for(String str:subdieList){
 				filelist.add(str);
-//				System.out.println("str:"+str);
 			}
-			System.out.println("filelist.size:"+filelist.size());
+			
 			String  diepos="", TestTime,dieType,temp = "";  
 			int paramLength = 0 ;
 			String column = "", columnStr = "";
@@ -346,7 +343,6 @@ public class ZipService {
 						}
 						
 					}
-//					System.out.println("data:"+Arrays.toString(data));
 					obj = new Object[paramLength];
 					if (data.length == 0)
 						continue;
@@ -356,7 +352,7 @@ public class ZipService {
 						return status;
 					} else if (!dietypeName.containsKey(Integer.parseInt(data[3]))) {
 						dieType = "DefaultType";
-						System.out.println("dieType");
+						
 					} else {
 						dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
 					}
@@ -411,24 +407,25 @@ public class ZipService {
 					if(!"-1".equals(data[4])){
 						
 						for (int j = 7; j < data.length; j++) {
+							if(data[j] == null || "null".equals(data[j])){
+								continue;
+							}
 							obj[j+1] = data[j];
 							bin = bin && (data[j] == null || "null".equals(data[j]) || "".equals(data[j])
 									|| (Double.parseDouble(data[j]) >= upperAndLowerLimit.get(j - 7).get("lower")
 											&& Double.parseDouble(data[j]) <= upperAndLowerLimit.get(j - 7).get("upper")));
 							str += "," + bin;
 						}
-						if(data.length == 7){
+						if("-1".equals(data[2])){
 							obj[5] = data[2];
 						}else{
 							obj[5] = str.contains("false") ? "255" : "1";
 						}
-						obj[7] = coordinate.getCoordinate(conn, waferId, data[4]);
+						obj[7] = coordinate.getCoordinate(conn,waferNO, data[4]);
 						table.put(data[4] + "," + obj[4], new Object[]{waferId,obj[7]});
 					}else{
 						obj[5] = "-1";
-//						System.out.println("obj:"+obj.length);
-//						System.out.println("data:"+Arrays.toString(data));
-						obj[7] = coordinate.getCoordinateId(conn, waferId, data[7], data[8]);
+						obj[7] = coordinate.getCoordinateId(conn, waferNO, data[7], data[8]);
 					}
 					
 					list.add(obj);

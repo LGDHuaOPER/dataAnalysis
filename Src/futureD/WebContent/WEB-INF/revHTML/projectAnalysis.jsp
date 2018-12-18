@@ -11,6 +11,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="assets/img/common/futureDT2.ico"/>
+	<link rel="bookmark" href="assets/img/common/futureDT2.ico"/>
 	<title>futureD工程分析</title>
 	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
@@ -23,7 +25,7 @@
 	<link rel="stylesheet" href="src/style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
 	<!-- endbuild -->
 </head>
-<body data-curpage="projectAnalysis">
+<body data-curpage="projectAnalysis"  data-curusername="${userName}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -64,11 +66,13 @@
 									<thead>
 										<tr>
 											<th><input type="checkbox" id="checkAll"></th>
+											<th>产品类别</th>
 											<th>产品名称</th>
 											<th>批次编号</th>
 											<th>晶圆编号</th>
-											<th>合格率</th>
-											<th>测试时间</th>
+											<th>器件类型</th>
+											<th>良品率</th>
+											<th>测试完成时间</th>
 											<th>上传者</th>
 											<th>描述</th>
 										</tr>
@@ -89,14 +93,16 @@
 						<table class="table table-striped">
 							<thead>
 								<tr>
-									<th></th>
+									<th>产品类别</th>
 									<th>产品名称</th>
 									<th>批次编号</th>
 									<th>晶圆编号</th>
-									<th>合格率</th>
-									<th>测试时间</th>
+									<th>器件类型</th>
+									<th>良品率</th>
+									<th>测试完成时间</th>
 									<th>上传者</th>
 									<th>描述</th>
+									<th  title="双击全部删除" class="g_bodyin_body_bottom_del_all">删除选中</th>
 								</tr>
 							</thead>
 							<tbody>

@@ -549,6 +549,23 @@ $(document).on("click", ".operate_othertd>[data-iicon='glyphicon-edit']", functi
 	$("div.futureDT2_update_r_bodyin .isRequired").trigger("change");
 });
 
+// 解决冲突
+// function add0(m){return m<10?'0'+m:m }
+// //时间戳转化成时间格式
+// function timeFormat(timestamp){
+// //timestamp是整数，否则要parseInt转换,不会出现少个0的情况
+//   var time = new Date(timestamp);
+//   var year = time.getFullYear();
+//   var month = time.getMonth()+1;
+//   var date = time.getDate();
+//   var hours = time.getHours();
+//   var minutes = time.getMinutes();
+//   var seconds = time.getSeconds();
+//   return year+'-'+add0(month)+'-'+add0(date)+' '+add0(hours)+':'+add0(minutes)+':'+add0(seconds);
+// }
+// 解决冲突结束
+
+
 /*添加修改提交*/
 $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primary").click(function(){
 	var iparent = $(this).parents("[data-iparent]").data("iparent");
@@ -557,12 +574,12 @@ $(".futureDT2_addition_r_foot .btn-primary, .futureDT2_update_r_foot .btn-primar
 		if(_.isNil(dataListStore.addition.file.value)){
 			lastModified = null;
 		}else{
-			lastModified = _.toString(dataListStore.addition.file.value.lastModified);
+			lastModified = moment(dataListStore.addition.file.value.lastModified).format("YYYY-MM-DD HH:mm:ss");
 			if(_.isNil(lastModified) || _.isEmpty(lastModified)){
-				lastModified = _.toString(dataListStore.addition.file.value.lastModifiedDate.getTime());
+				lastModified = moment(dataListStore.addition.file.value.lastModifiedDate.getTime()).format("YYYY-MM-DD HH:mm:ss");
 			}
-			// lastModified = _.toString($("#add_file_Upload").get(0).files[0].lastModified);
 		}
+		console.log("lastModified",lastModified);
 		injectStoreValue({
 			obj: dataListStore.addition,
 			exclude: ["file", "fileName", "filePath"],

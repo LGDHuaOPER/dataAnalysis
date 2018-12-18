@@ -742,7 +742,7 @@ if (WaferMapPlotObj.prototype.type == undefined) {
             					ctx.beginPath();
             					ctx.fillStyle = (colorOrder ? colorMap.getValue(subdieBin.color) :colorMap.getValue(subdieBin.bin));
             					if(!_.isEmpty(filterArr) &&  bin != -1){
-                                    if(_.indexOf(filterArr, key) > -1 ){
+                                    if(_.indexOf(filterArr, subcoord) > -1 ){
                                     	subDie.filterFlag = "undisabled";
                                     }
                                     else{

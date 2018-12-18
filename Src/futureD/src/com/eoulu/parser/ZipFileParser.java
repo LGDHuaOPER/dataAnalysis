@@ -1177,7 +1177,7 @@ public class ZipFileParser {
 			mapParamDO.setStandCoorDieX("");
 			mapParamDO.setStandCoorDieY("");
 		}
-		System.out.println(new Gson().toJson(subdieList));
+	
 		dieMap.put("invalidation", removedList);
 		dieMap.put("validation", validation);
 		resultMap.put("dieMap", dieMap);
