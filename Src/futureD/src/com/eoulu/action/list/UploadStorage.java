@@ -70,7 +70,7 @@ public class UploadStorage extends HttpServlet {
 				currentUser = request.getSession().getAttribute("userName").toString(),
 						sessionId = request.getSession().getId()+fileName+"Progress",
 						temp = pathMap.get("temp").toString(),
-						lastModified = request.getParameter("lastModified").toString(),
+						lastModified = request.getParameter("lastModified")==null?"0000-00-00 00:00:00":request.getParameter("lastModified").toString(),
 						status = null,logWafer="";
 		description = currentUser+":"+description;
 		Map<String,Object> result = null,map=new HashMap<String, Object>();
@@ -130,7 +130,7 @@ public class UploadStorage extends HttpServlet {
 					status="上传失败，zip压缩文件中不包含任何一个CSV或者Excel文件！";
 				}
 			}else if(fileName.endsWith(".xlsx")){
-				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,sessionId,5,false);
+				 status = ExcelParser.getExcelData(null,filePath, productCategory, description, currentUser, dataFormat,sessionId,5,false,lastModified);
 			}else{
 				status="文件格式有误！";
 			}

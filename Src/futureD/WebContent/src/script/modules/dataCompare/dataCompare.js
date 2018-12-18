@@ -45,11 +45,11 @@ dataCompareState.pageSearchObj = {
 	    // 首次不执行
 	    if (!obj.isFirst) {
 	      // do something
-	      	var dataArr = getdataCompareData(dataCompareState.searchObj.searchVal);
-	      	dataCompareRenderData({
-				chunkArr: dataArr,
-				currentPage: dataCompareState.pageSearchObj.currentPage
-			});
+//	      	var dataArr = getdataCompareData(dataCompareState.searchObj.searchVal);
+//	      	dataCompareRenderData({
+//				chunkArr: dataArr,
+//				currentPage: dataCompareState.pageSearchObj.currentPage
+//			});
 	    }
 	  }
 	},
@@ -2159,46 +2159,40 @@ $("#jumpPage").on("click", function(){
 	    $("#jumpText").val('');
 	    return;
 	}else{
-		var dataArr = getdataCompareData(dataCompareState.searchObj.searchVal);
-		if(dataArr !== false){
+//		var dataArr = getdataCompareData(dataCompareState.searchObj.searchVal);
+//		if(dataArr !== false){
 			if(dataCompareState.searchObj.hasSearch){
 				dataCompareState.pageSearchObj.pageOption.curr = iText;
 				dataCompareState.paginationObj.search.goPage(iText);
 				dataCompareState.paginationObj.search.renderPages();
 				dataCompareState.paginationObj.search.options.curr = iText;
 				//console.log(dataCompareState.paginationObj.search);
-	          	dataCompareState.paginationObj.search.options.callback && dataCompareState.paginationObj.search.options.callback({
-	            	curr: dataCompareState.paginationObj.search.pageNumber,
-	            	/*limit: dataCompareState.paginationObj.search.options.limit,*/
-	            	isFirst: false
-	          	});
+				
+				dataCompareRenderData(iText)
 			}else{
 				dataCompareState.pageObj.pageOption.curr = iText;
 				dataCompareState.paginationObj.normal.goPage(iText);
 				dataCompareState.paginationObj.normal.renderPages();
 				dataCompareState.paginationObj.normal.options.curr = iText;
 				//console.log(dataCompareState.paginationObj.normal);
-	          	dataCompareState.paginationObj.normal.options.callback && dataCompareState.paginationObj.normal.options.callback({
-	            	curr: dataCompareState.paginationObj.normal.pageNumber,
-	            	isFirst: false
-	          	});
+				dataCompareRenderData(iText)
 			}
-		}else{
-			dataCompareSwalMixin({
-				title: '出错！',
-				text: "页面将在2秒后刷新",
-				type: 'error',
-				showConfirmButton: false,
-				timer: 2000,
-			}).then(function(result){
-				/*console.log(result.dismiss) // timer*/
-				/*console.log(swal.DismissReason.cancel) // cancel*/
-				/*console.log(result.dismiss == "timer") // true*/
-				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-					window.location.reload();
-				}
-			});
-		}
+//		}else{
+//			dataCompareSwalMixin({
+//				title: '出错！',
+//				text: "页面将在2秒后刷新",
+//				type: 'error',
+//				showConfirmButton: false,
+//				timer: 2000,
+//			}).then(function(result){
+//				/*console.log(result.dismiss) // timer*/
+//				/*console.log(swal.DismissReason.cancel) // cancel*/
+//				/*console.log(result.dismiss == "timer") // true*/
+//				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+//					window.location.reload();
+//				}
+//			});
+//		}
 	}
 });
 /*翻页跳页end*/

@@ -23,7 +23,7 @@
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/RF_SP2/RF_SP2-f7be24dc31.min.css">
+	<link rel="stylesheet" href="dist/style/modules/RF_SP2/RF_SP2-a934703d54.min.css">
 </head>
 <body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -470,7 +470,7 @@
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2-3baf2b393d.min.js"></script>
+	<script src="dist/script/modules/RF_SP2/RF_SP2-5992f33e96.min.js"></script>
 
 	<script src="dist/script/modules/RF_SP2/RF_SP2_render-17c517aa11.min.js"></script>
 </body>

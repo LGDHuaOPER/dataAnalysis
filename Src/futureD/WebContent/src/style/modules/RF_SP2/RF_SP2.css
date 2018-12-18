@@ -758,9 +758,8 @@ span.glyphicon, img[data-iicon] {
 }
 /* 指标线end */
 
-.calcin>div>.row {
+.calcin>div>.row+.row {
 	margin-top: 8px;
-	margin-bottom: 8px;
 }
 
 .calcin>div>.row>div {
@@ -793,6 +792,11 @@ span.glyphicon, img[data-iicon] {
 .calcin>div>.row>div>div.active {
 	background-color: rgb(170, 103, 22);
 	border-radius: 21px 0px 21px 0px;
+}
+
+.calcin>.container-fluid {
+	padding-left: 6px;
+	padding-right: 6px;
 }
 
 .row.toggleRow {

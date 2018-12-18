@@ -174,7 +174,7 @@
 			    		    			</div>
 			    		    			<!-- 信息end -->
 			    		    			<div class="row all_charts_rows">
-			    		    				<div class="col-sm-12 col-md-12 col-lg-12 ID_VD_col">
+			    		    				<!-- <div class="col-sm-12 col-md-12 col-lg-12 ID_VD_col">
 			    		    					<div class="panel panel-info">
 			    		    					  	<div class="panel-heading">
 			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>ID_VD
@@ -183,59 +183,15 @@
 			    		    					    	<div class="panel_chart_body"></div>
 			    		    					    	<div class="panel_chart_foot"></div>
 			    		    					  	</div>
-			    		    					</div><!-- ID_VD end -->
-			    		    				</div>
-			    		    				<div class="col-sm-12 col-md-12 col-lg-12 OutputCurve_col">
-			    		    					<div class="panel panel-info">
-			    		    					  	<div class="panel-heading">
-			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>OutputCurve
-			    		    					  	</div>
-			    		    					  	<div class="panel-body">
-			    		    					    	<div class="panel_chart_body"></div>
-			    		    					    	<div class="panel_chart_foot"></div>
-			    		    					  	</div>
-			    		    					</div><!-- OutputCurve end -->
-			    		    				</div>
-			    		    				<div class="col-sm-12 col-md-12 col-lg-12 SP2_col">
-			    		    					<div class="panel panel-info">
-			    		    					  	<div class="panel-heading">
-			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>SP2
-			    		    					  	</div>
-			    		    					  	<div class="panel-body">
-			    		    					    	<div class="panel_chart_body"></div>
-			    		    					    	<div class="panel_chart_foot"></div>
-			    		    					  	</div>
-			    		    					</div><!-- SP2RF end -->
-			    		    				</div>
-			    		    				<div class="col-sm-12 col-md-12 col-lg-12 MOS_Cgg_Vgs_Vds_ext_col">
-			    		    					<div class="panel panel-info">
-			    		    					  	<div class="panel-heading">
-			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>MOS_Cgg_Vgs_Vds_ext
-			    		    					  	</div>
-			    		    					  	<div class="panel-body">
-			    		    					    	<div class="panel_chart_body"></div>
-			    		    					    	<div class="panel_chart_foot"></div>
-			    		    					  	</div>
-			    		    					</div><!-- MOS_Cgg_Vgs_Vds_ext end -->
-			    		    				</div>
-			    		    				<div class="col-sm-12 col-md-12 col-lg-12 Noise_MOS_Normal_col">
-			    		    					<div class="panel panel-info">
-			    		    					  	<div class="panel-heading">
-			    		    					    	<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>Noise_MOS_Normal
-			    		    					  	</div>
-			    		    					  	<div class="panel-body">
-			    		    					    	<div class="panel_chart_body"></div>
-			    		    					    	<div class="panel_chart_foot"></div>
-			    		    					  	</div>
-			    		    					</div><!-- Noise_MOS_Normal end -->
-			    		    				</div>
+			    		    					</div>
+			    		    				</div> -->
 			    		    			</div>
 			    		    		</div>
 			    		    	</div>
 			    		    	<div class="vectorMap_r">
 			    		    		<!-- 坐标图 -->
 			    		    		<div class="positionFlag_div">
-			    		    			<img src="" alt="坐标图" height="100" width="100">
+			    		    			<img src="" alt="坐标图" height="95" width="95">
 			    		    		</div>
 			    		    		<canvas id="canvas_vectorMap"></canvas>
 			    					<div id="in" style="position: absolute; z-index: 10;"></div>

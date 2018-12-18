@@ -123,7 +123,7 @@ public class ExcelParser {
 	}
 
 	public static String getExcelData(Connection conn,String filepath, String productCategory, String details,
-			String currentUser, String dataFormat,String sessionId,int interval,boolean summation) {
+			String currentUser, String dataFormat,String sessionId,int interval,boolean summation,String lastModified) {
 		boolean limit = false;
 		boolean databool = false;
 		int datanum = 1;
@@ -528,6 +528,8 @@ public class ExcelParser {
 		wafer.setFileName(FileName);
 		wafer.setDeleteStatus(0);
 		wafer.setTotalTestQuantity(0);
+		wafer.setLastModified(lastModified);
+		wafer.setSubdieFlag(0);
 		map.put("operator", Tester);
 		map.put("filepath", filepath);
 		map.put("currentUser", currentUser);

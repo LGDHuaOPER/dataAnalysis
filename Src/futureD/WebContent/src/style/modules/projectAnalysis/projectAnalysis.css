@@ -27,8 +27,8 @@ body {
 	-ms-grid-column: 2;
 	display: -ms-grid;
 	display: grid;
-	-ms-grid-columns: 220px 1fr 185px;
-	grid-template-columns: 220px 1fr 185px;
+	-ms-grid-columns: 220px 1fr 250px;
+	grid-template-columns: 220px 1fr 250px;
 	    grid-template-areas: "g_info_l g_info_m g_info_r";
 	grid-area: g_info;
 	height: 40px;
@@ -44,6 +44,35 @@ body {
   font-weight: 600;
   text-align: center;
 }
+
+
+/*管理员按钮样式  */
+.g_info_r img[data-iicon] {
+    margin-right: 20px;
+    cursor:pointer;
+}
+.user_dropdown{
+    display: inline-block;
+    margin-right: 20px;
+}
+.user_dropdown>button{
+    border: none;
+    padding:0;
+    background-color:#fff;
+    outline:none;
+}
+.user_dropdown .curusername{
+	text-indent:20px;
+}
+.user_dropdown .divider{
+	margin:0!important;
+}
+.user_dropdown .Information>a,.user_dropdown .AdminOperat>a{
+    height: 35px;
+    line-height: 35px;
+}
+
+
 .g_info_m {
   -ms-grid-row: 1;
   -ms-grid-column: 2;

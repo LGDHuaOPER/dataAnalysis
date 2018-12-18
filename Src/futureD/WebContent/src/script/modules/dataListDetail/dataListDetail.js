@@ -31,8 +31,7 @@ dataListDetailStore.state = {
 		coordsArray: new HashTable(),
 		waferMapObj: Object.create(null),
 		curSelectedDie: Object.create(null),
-//		curveType: ["ID_VD", "OutputCurve", "SP2", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"],
-		curveType: [],
+		curveType: [], // ["ID_VD", "OutputCurve", "SP2", "MOS_Cgg_Vgs_Vds_ext", "Noise_MOS_Normal"]
 		curCurveTypeNo: 0,
 		/*第一次进入矢量图分页*/
 		renderChartByCoordFlag: false,
@@ -82,7 +81,8 @@ dataListDetailStore.state = {
 		"参数分布": [$(".g_menu li[role='presentation'][data-iclassify='parameterMap']")]
 	},
 	authorityNull: false,
-	scrollBarWidth: _.get(eouluGlobal.S_getPageAllConfig(), "futureDT2.scrollBarWidth", 7)
+	scrollBarWidth: _.get(eouluGlobal.S_getPageAllConfig(), "futureDT2.scrollBarWidth", 7),
+	containSubdie: (_.isNil($("body").data("result")) || _.isEmpty($("body").data("result"))) ? false : $("body").data("result").containSubdie
 };
 
 /*绘制参数数据分页表格*/
@@ -90,9 +90,9 @@ function renderTheadTbody(obj){
 	var str = '<tr>';
 	if(obj.th){
 		if(obj.name == "位置"){
-			str = '<tr><th>类型</th><th>Die编号</th><th>Quality</th><th>'+obj.name+'</th>';
+			str = '<tr><th>类型</th><th>Die编号</th><th>Quality</th><th>subdie编号</th><th>数字坐标</th><th>'+obj.name+'</th>';
 		}else{
-			str = '<tr><th></th><th></th><th></th><th>'+obj.name+'</th>';
+			str = '<tr><th></th><th></th><th></th><th></th><th></th><th>'+obj.name+'</th>';
 		}
 	}
 	var thead = dataListDetailStore.mock.allDetail.thead;
@@ -106,8 +106,8 @@ function renderTheadTbody(obj){
 				}else{
 					str+='<td style="color: red;">Fail</td>';
 				}
-			}else if(i > 3){
-				if(parseFloat(v) > parseFloat(thead.UpLimit[i-4])  || parseFloat(v) < parseFloat(thead.LowerLimit[i-4])){
+			}else if(i > 5){
+				if(parseFloat(v) > parseFloat(thead.UpLimit[i-6])  || parseFloat(v) < parseFloat(thead.LowerLimit[i-6])){
 					str+='<td style="color: red;" title="'+v+'">'+v+'</td>';
 				}else{
 					str+='<td title="'+v+'">'+v+'</td>';
@@ -126,10 +126,10 @@ function buildSignalTbodyData(data){
 	_.forEach(data, function(v, i){
 		var midArr = [];
 		var midArr2 = [];
-		var die_number;
+		var die_number, subdie_number;
 		_.forOwn(v, function(vv, k){
 			switch (k){
-				case "die_type":
+				case "type":
 					midArr[0] = vv;
 				break;
 				case "die_number":
@@ -139,8 +139,17 @@ function buildSignalTbodyData(data){
 				case "bin":
 					midArr[2] = vv;
 				break;
+				case "subdie_number":
+					// midArr[3] = vv;
+				break;
+				case "x":
+					// midArr[3] = vv;
+				break;
+				case "y":
+					// midArr[3] = vv;
+				break;
 				case "location":
-					midArr[3] = vv;
+					midArr[5] = vv;
 				break;
 				default:
 					var item = {};
@@ -149,11 +158,14 @@ function buildSignalTbodyData(data){
 					midArr2.push(item);
 			}
 		});
+		midArr[3] = dataListDetailStore.state.containSubdie ? v.subdie_number : "0";
+		subdie_number = midArr[3];
+		midArr[4] = v.x + " : " + v.y;
 		midArr2 = _.sortBy(midArr2, function(o) { return o.key; });
 		_.forEach(midArr2, function(vvv, iii){
 			midArr.push(vvv.value);
 		});
-		dataListDetailStore.mock.allDetail.tbody[die_number] = _.cloneDeep(midArr);
+		dataListDetailStore.mock.allDetail.tbody[die_number+":"+subdie_number] = _.cloneDeep(midArr);
 	});
 }
 
@@ -799,7 +811,7 @@ function getIDByCoordANDRequ(obj){
 		});
 	}else{
 		//die -- subdie
-		var currentDieOrSubList = (dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.containSubdie == true ? dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentSubdieList : dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentDieList)
+		var currentDieOrSubList = (dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.containSubdie == true ? dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentSubdieList : dataListDetailStore.mock.vectorMap.waferAjaxData.mapInfo.waferList.currentDieList);
 		var coordinateIdObj = _.find(currentDieOrSubList, function(v, k) {
 			return k == dataListDetailStore.state.vectorMap.currentDieCoord[0];
 		});
@@ -838,21 +850,21 @@ function getIDByCoordANDRequ(obj){
 function calcCoordImgWH(){
 	if($(window).width()>1366){
 		$(".positionFlag_div").css({
-			"width": "108px",
-			"height": "108px"
-		});
-		$(".positionFlag_div>img").attr({
-			"width": "108",
-			"height": "108"
-		});
-	}else{
-		$(".positionFlag_div").css({
 			"width": "100px",
 			"height": "100px"
 		});
 		$(".positionFlag_div>img").attr({
 			"width": "100",
 			"height": "100"
+		});
+	}else{
+		$(".positionFlag_div").css({
+			"width": "95px",
+			"height": "95px"
+		});
+		$(".positionFlag_div>img").attr({
+			"width": "95",
+			"height": "95"
 		});
 	}
 }

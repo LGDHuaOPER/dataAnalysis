@@ -319,12 +319,12 @@ public class ZipFileParser {
 								filelist.add(CSV[j]);
 							}
 							status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
-									currentUser, dataFormat,sessionId,interval,true);
+									currentUser, dataFormat,sessionId,interval,true,lastModified);
 						}
 						// 未找到对应的map文件
 					} else {
 						status = ExcelParser.getExcelData(conn,files1[i].getAbsolutePath(), productCategory, description,
-								currentUser, dataFormat,sessionId,interval,true);
+								currentUser, dataFormat,sessionId,interval,true,lastModified);
 					}
 					failcsv = getReturn(files1[i].getName(), status);
 					if (!"success".equals(failcsv)) {

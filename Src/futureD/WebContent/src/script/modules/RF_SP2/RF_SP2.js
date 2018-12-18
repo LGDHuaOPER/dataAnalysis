@@ -176,7 +176,7 @@ RF_SP2Store.MathMap = {
 RF_SP2Store.allowKeyCode = [8, 37, 38, 39, 40, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 77, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 109, 110, 111, 190];
 RF_SP2Store.search_markerObj = {
 	awesomplete: null,
-	list: null
+	list: []
 };
 
 RF_SP2Store.util = Object.create(null);
@@ -1473,14 +1473,59 @@ $(function(){
 
 	// 拖动初始化
 	$(".indicatrix_div, .allLegends").draggable({ distance: 5 });
-	return false;
-
+	
 	/*保存Marker后的动作*/
-	var saveMarkerFlag = store.get("futureD__RF_SP2__saveMarkerFlag");
+	var saveMarkerFlag = store.get("futureDT2Online__RF_SP2__saveMarkerFlag");
 	if(saveMarkerFlag == "hasSave"){
 		$(".g_bodyin_bodyin_top_wrap_m_in li[data-targetclass='g_bodyin_bodyin_bottom_2']").trigger("click");
-		store.remove("futureD__RF_SP2__saveMarkerFlag");
+		store.remove("futureDT2Online__RF_SP2__saveMarkerFlag");
 	}
+
+	/*自动填充*/
+	RF_SP2Store.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
+		list: RF_SP2Store.search_markerObj.list,
+		minChars: 1,
+		maxItems: 10,
+		autoFirst: true,
+		filter: function (text, input) {
+			var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+			if(input.substring(cp-1, cp) == "M"){
+				return true;
+			}else{
+				return false;
+			}
+			// return text.indexOf(input) === 0;
+		},
+		replace: function(value) {
+			var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+			var s = this.input.value.substring(0, cp - 1) + value.value + this.input.value.substring(cp, this.input.value.length);
+			$("#clac_textarea").val(s);
+			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + value.value.length - 1);
+		}
+	});
+
+	/*计算器里参数自动填充*/
+	/* awesomplete */
+	var comboplete = new Awesomplete('#calc_text', {
+	    minChars: 0,
+	    list: ["TCF_L", "TCF_R", "TCF"]
+	});
+	$('.subAddParam_body button.awesomplete_btn').click(function(){
+	    if (comboplete.ul.childNodes.length === 0) {
+	        comboplete.minChars = 0;
+	        comboplete.evaluate();
+	    }
+	    else if (comboplete.ul.hasAttribute('hidden')) {
+	        comboplete.open();
+	    }
+	    else {
+	        comboplete.close();
+	    }
+	});
+
+	return false;
+
+	
 	/*回显marker*/
 	RF_SP2Store.stateObj.splineSelectedArr = store.get("futureD__RF_SP2__splineSelectedArr");
 	RF_SP2Store.stateObj.splineSelectedCopyArr = store.get("futureD__RF_SP2__splineSelectedArr");
@@ -1530,47 +1575,7 @@ $(function(){
 		}
 	});
 
-	/*自动填充*/
-	RF_SP2Store.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
-		list: RF_SP2Store.search_markerObj.list,
-		minChars: 1,
-		maxItems: 10,
-		autoFirst: true,
-		filter: function (text, input) {
-			var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
-			if(input.substring(cp-1, cp) == "M"){
-				return true;
-			}else{
-				return false;
-			}
-			// return text.indexOf(input) === 0;
-		},
-		replace: function(value) {
-			var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
-			var s = this.input.value.substring(0, cp - 1) + value.value + this.input.value.substring(cp, this.input.value.length);
-			$("#clac_textarea").val(s);
-			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + value.value.length - 1);
-		}
-	});
-
-	/*计算器里参数自动填充*/
-	/* awesomplete */
-	var comboplete = new Awesomplete('#calc_text', {
-	    minChars: 0,
-	    list: ["TCF_L", "TCF_R", "TCF"]
-	});
-	$('.subAddParam_body button.awesomplete_btn').click(function(){
-	    if (comboplete.ul.childNodes.length === 0) {
-	        comboplete.minChars = 0;
-	        comboplete.evaluate();
-	    }
-	    else if (comboplete.ul.hasAttribute('hidden')) {
-	        comboplete.open();
-	    }
-	    else {
-	        comboplete.close();
-	    }
-	});
+	
 });
 
 /*event handler*/
@@ -2007,6 +2012,36 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 					// getTCFDataANDDrawChart({
 					// 	isComfirmKey: false
 					// });
+					
+					// 展示当前晶圆所有参数，结果，公式
+					var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v) {
+						return (v.selected || []).length == 2;
+					});
+					if(!_.isNil(findTCFWafer)){
+						$.ajax({
+							type: "GET",
+							url: "CalculationData",
+							data: {
+								waferId: findTCFWafer.waferid
+							}, 
+							dataType: "json"
+						}).then(function(data){
+							if(_.isNil(data) || _.isEmpty(data)){
+								$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").empty().append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+							}else{
+
+							}
+						});
+					}else{
+						eouluGlobal.S_getSwalMixin()({
+							title: '请求参数数据',
+							text: "异常！未选中曲线",
+							type: 'warning',
+							showConfirmButton: false,
+							showCancelButton: false,
+							timer: 1900
+						});
+					}
 					RF_SP2Store.stateObj.renderSelectCsvSub = true;
 				}
 				$(".reRenderBtnDiv").slideDown(200);

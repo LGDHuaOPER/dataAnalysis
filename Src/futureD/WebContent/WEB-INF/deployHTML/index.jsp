@@ -111,6 +111,6 @@
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 	
-	<script src="dist/script/modules/index/index-41bb25b2aa.min.js"></script>
+	<script src="dist/script/modules/index/index-ad031da1a3.min.js"></script>
 </body>
 </html>

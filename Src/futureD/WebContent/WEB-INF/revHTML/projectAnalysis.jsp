@@ -24,6 +24,7 @@
 	<!-- build:css ../../dist/style/modules/projectAnalysis/projectAnalysis.min.css -->
 	<link rel="stylesheet" href="src/style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
 	<!-- endbuild -->
+
 </head>
 <body data-curpage="projectAnalysis"  data-curusername="${userName}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -43,14 +44,31 @@
 				</div>
 			</div>
 		</div>
-		<div class="g_info_r bootstro" data-bootstro-title="工程分析引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<%-- <div class="g_info_r bootstro" data-bootstro-title="工程分析引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div> --%>
+		<!-- 管理员 -->
+		<div class="g_info_r bootstro" data-bootstro-title="数据对比引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以进行搜索，跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+			<div class="dropdown user_dropdown">
+			  <button id="userLabel"  type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			      <img src="assets/img/common/admin_32px.svg" >
+			  </button>
+			  <ul id="menu1" class="dropdown-menu" aria-labelledby="userLabel">
+		          <li class="curusername"></li>
+		          <li role="separator" class="divider"></li>
+		          <li class="Information"><a href="#">资料与账号</a></li>
+		          <li class="AdminOperat"><a href="#">管理员操作</a></li>
+		       </ul>
+		    </div>
+			<!-- <img src="assets/img/common/admin_32px.svg" data-iicon="glyphicon-user" alt="管理员"> -->
+			<img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引">
+			<img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出">
+		</div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_body_ll">
 			<div class="g_bodyin">
 				<div class="g_bodyin_tit bootstro" data-bootstro-title="工程分析引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
-					<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+					<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 					<div class="g_bodyin_tit_r">
 						<ol class="breadcrumb">
 						  	<li><a href="HomeInterface">系统主页面</a></li>
