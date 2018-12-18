@@ -408,7 +408,7 @@ $(function(){
 		
 		adminSwalMixin({
 		  title: '确定删除吗？',
-		  text: "删除后该用户不再存在，点击刷新按钮可以重置数据！",
+		  text: "删除后该用户不再存在！",
 		  type: 'warning',
 		  showCancelButton: true,
 		  confirmButtonText: '确定，删除！',
@@ -549,6 +549,7 @@ $(document).on("mouseover", ".staffManage_body td", function(){
 	$(this).removeClass("warning");
 	$(this).parent().removeClass("info");
 }).on("click", ".staffManage_body td", function(){
+	if($(this).parent().find(".td__role_id").data("ivalue") == 3) return;
 	$(this).parent().toggleClass("warning info").find("[type='checkbox']").prop("checked", !$(this).parent().find("[type='checkbox']").prop("checked")).change();
 }).on("click", ".staffManage_body tbody [type='checkbox']", function(e){
 	e.stopPropagation();
@@ -715,6 +716,16 @@ $("#staff_addition_email, #staff_update_email").on("input propertychange change"
 	$(this).parent().next().empty().append(str);
 });
 */
+$("#staff_addition_email, #staff_update_email,#staff_addition_telephone, #staff_update_telephone").on("input propertychange change", function(){
+	var iclassify;
+	if($(this).parents(".staff_addition").length){
+		iclassify = "addition";
+	}else if($(this).parents(".staff_update").length){
+		iclassify = "update";
+	}
+	var That = $(this);
+	staffSubmitBtn(That, iclassify);
+})
 // gaixia
 $("#staff_addition_user_name").on("blur", function(){
 	var newUser = $("#staff_addition_user_name").val().trim();
@@ -725,6 +736,7 @@ $("#staff_addition_user_name").on("blur", function(){
 		$(this).parent().next().empty().append(str);
 		return false;
 	}
+	var that = $(this);
 	$.ajax({
        url: 'UserNameQuery', 
        type: 'get',
@@ -736,7 +748,7 @@ $("#staff_addition_user_name").on("blur", function(){
     	   console.log("data",data);
     	   if(!data){
     		   str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
-    		   staffSubmitBtn($(this), "addition");
+    		   staffSubmitBtn(that, "addition");
     	   }
     	   else{
     		   str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"><span>用户名已存在</span></span>';
@@ -1102,17 +1114,22 @@ $("#checkAll2").on({
 			that.prop("checked") ? ($(this).parent().parent().removeClass("info").addClass("warning")) : ($(this).parent().parent().removeClass("warning info"));
 		});
 		adminState.operateSellectObj.selectAll = that.prop("checked");
-		if(that.prop("checked")){
-			adminState.operateSellectObj.selectItem = [];
-			for(var i = 0 ; i < $(".tr_operate").length ; i++){
-				if($(".tr_operate").eq(i).find("input[type='checkbox']").is(':checked')){
+		
+		for(var i = 0 ; i < $(".tr_operate").length ; i++){
+			var checked_tr = $(".tr_operate").eq(i).find("input[type='checkbox']");
+			if(that.prop("checked")){
+				if(checked_tr.is(':checked')  &&adminState.operateSellectObj.selectItem.indexOf(checked_tr.data("ivalue").toString()) < 0){
 					adminState.operateSellectObj.selectItem.push($(".tr_operate").eq(i).find("input[type='checkbox']").data("ivalue").toString());
 				}
 			}
-		}else{
-			adminState.operateSellectObj.selectItem = [];
+			else{
+				if(!checked_tr.is(':checked')  &&adminState.operateSellectObj.selectItem.indexOf(checked_tr.data("ivalue").toString()) >-1){
+					adminState.operateSellectObj.selectItem.splice(adminState.operateSellectObj.selectItem.indexOf(checked_tr.data("ivalue").toString()),1);
+				}
+			}
 		}
-		$("button.export_select").prop("disabled", !that.prop("checked"));
+		
+		$("button.export_select").prop("disabled", adminState.operateSellectObj.selectItem.length == 0);
 	}
 });
 

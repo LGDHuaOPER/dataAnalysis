@@ -466,7 +466,7 @@
 	<!-- 下面一条手动替换，不构建 -->
 	<script src="assets/script/libs/drawingSmith.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-655af31173.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 

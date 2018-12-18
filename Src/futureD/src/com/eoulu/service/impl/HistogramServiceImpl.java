@@ -83,7 +83,7 @@ public class HistogramServiceImpl implements HistogramService{
 		HistogramDao dao = new HistogramDao();
 		List<String> ls = null,proportionList = null;
 		Map<String,Object> result = new HashMap<>();
-		Map<String,List<String>> map = new LinkedHashMap<>();
+		Map<String,List<String>> map = null;
 		double  percent = 0,proportion=0 ,total=0,count=0;
 		int waferId = 0;
 		String[] att = waferIdStr.split(","),limit = null;
@@ -95,7 +95,7 @@ public class HistogramServiceImpl implements HistogramService{
 			proportion = 0;
 			ls = new ArrayList<>();
 			waferId = Integer.parseInt(att[i]);
-		
+			 map = new LinkedHashMap<>();
 			flag = subdieDao.getSubdieExist(conn, waferId);
 			column = dao.getColumn(conn,waferId, paramName);
 			if(flag){

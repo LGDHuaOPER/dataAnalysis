@@ -432,7 +432,8 @@
         C_pageAuthorityCommonHandler: function(obj){
             var authorityJQDomMap = obj.authorityJQDomMap,
             callback = obj.callback,
-            disappear = obj.disappear || "remove";
+            disappear = obj.disappear || "remove",
+            getKey = obj.getKey || 'name';
             var userAuthObj = eouluGlobal.S_getCurPageJudgedAuthority(),
             disappearFun;
             disappearFun = disappear == "hide" ? jQuery().hide : disappear == "remove" ? jQuery().remove : jQuery().detach;
@@ -440,7 +441,7 @@
                 if(userAuthObj.isAll === true){
                     _.forOwn(authorityJQDomMap, function(v, k){
                         var findDOMFlag = _.find(userAuthObj.userAuthority, function(vv, ii){
-                            return vv.name == k; 
+                            return vv[getKey] == k; 
                         });
                         if(_.isNil(findDOMFlag)){
                             if(_.isArray(v)){
@@ -456,7 +457,7 @@
                     });
                 }else if(userAuthObj.isAll === false){
                     _.forOwn(userAuthObj.diff, function(v, k){
-                        var name = _.values(v)[0].name;
+                        var name = _.get(_.values(v)[0], getKey);  // 默认是取name，如果页面有重复name，最好全部换个key，如url，字符串类型的最好
                         var hideObj = authorityJQDomMap[name];
                         if(_.isArray(hideObj)){
                             _.forEach(hideObj, function(vv, ii){

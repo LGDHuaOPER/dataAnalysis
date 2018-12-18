@@ -56,7 +56,7 @@
 	    						    				<button type="button" class="btn btn-info" data-env="offline">访客登录</button>
 	    				</div> -->
 	    				<div class="copy_div">
-	    					<span>版本号：V1.2.0.181217</span>
+	    					<span>版本号：V1.2.1.181218</span>
 	    				</div>
 	    			</div><!-- container-fluid end -->
 	    		</fieldset>
@@ -71,7 +71,7 @@
 	<script src="assets/script/libs/sweetalert2.min.js"></script>
 	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-655af31173.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 	

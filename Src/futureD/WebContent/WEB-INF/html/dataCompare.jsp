@@ -21,9 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	
-	<!-- build:css ../../dist/style/modules/dataCompare/dataCompare.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
-	<!-- endbuild -->
+	<link rel="stylesheet" href="dist/style/modules/dataCompare/dataCompare-d9d60428be.min.css">
 	
 </head>
 <body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" >
@@ -304,20 +302,12 @@
 	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
 	<script src="src/script/modules/common/drawWaferMap.js"></script>
 	
-	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
-	<script src="src/script/modules/common/globalConf.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataCompare/dataCompareRenderChart.min.js -->
-	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataCompare/dataCompare.min.js -->
-	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
-	<!-- endbuild --> 
+	<script src="dist/script/modules/dataCompare/dataCompare-77d920c54a.min.js"></script>
 </body>
 </html>

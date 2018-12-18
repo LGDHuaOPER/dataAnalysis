@@ -2061,9 +2061,30 @@ $(function(){
 		}
 		var titleStr = webParamStr;
 		if(webParamStr.length>80) webParamStr = webParamStr.substr(0, 80)+"...";
-		webParamStr+='<button type="button" class="btn btn-default" aria-label="Left Align">'+
-						  '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出'+
+		// 增加判断导出权限
+		var JudgedAuthority = eouluGlobal.S_getCurPageJudgedAuthority();
+		if(_.isNil(JudgedAuthority) || _.isEmpty(JudgedAuthority)){
+			webParamStr+='';
+		}else{
+			var idiff = JudgedAuthority.diff;
+			if (_.isNil(idiff) || _.isEmpty(idiff)) {
+				webParamStr += '<button type="button" class="btn btn-default" aria-label="Left Align">' +
+					'<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出' +
+					'</button>';
+			} else {
+				var ifind = _.find(idiff, function(v, k){
+					return _.get(_.values(v)[0], 'name') == '导出';
+				});
+				if (_.isNil(ifind)) {
+					webParamStr += '<button type="button" class="btn btn-default" aria-label="Left Align">' +
+						'<span class="glyphicon glyphicon-export" aria-hidden="true"></span> 导出' +
 						'</button>';
+				} else {
+					webParamStr += '';
+				}
+			}
+		}
+		// 增加判断导出权限end
 		$("div.webParam").html(webParamStr).attr("title", titleStr);
 		var waferId = eouluGlobal.S_getUrlPrmt().waferId;
 		var dataFormat = eouluGlobal.S_getUrlPrmt().dataFormat;

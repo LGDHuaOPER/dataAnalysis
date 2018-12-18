@@ -18,9 +18,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
-	<!-- build:css ../../dist/style/modules/dataStatistics/dataStatistics.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataStatistics/dataStatistics.css" type="text/css">
-	<!-- endbuild -->
+	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-b5bda3150b.min.css">
 </head>
 <body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -228,20 +226,12 @@
 	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
 	<script src="src/script/modules/common/drawWaferMap.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
-	<script src="src/script/modules/common/globalConf.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataStatistics/dataStatisticsRender.min.js -->
-	<script src="src/script/modules/dataStatistics/dataStatisticsRender.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-b9292a4fe8.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataStatistics/dataStatistics.min.js -->
-	<script src="src/script/modules/dataStatistics/dataStatistics.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataStatistics/dataStatistics-0b56239e82.min.js"></script>
 </body>
 </html>
