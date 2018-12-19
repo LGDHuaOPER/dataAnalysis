@@ -364,6 +364,7 @@ public class FileUtil {
 					if(  "DeviceID".equals(row.getCell(0).toString().trim()) && "LotID".equals(sheet.getRow(rowIndex+1).getCell(0).toString().trim()) && "WaferID".equals(sheet.getRow(rowIndex+2).getCell(0).toString().trim()))
 					{
 						dataFormat = "0";
+						System.out.println("rowIndex:"+rowIndex);
 						waferID = sheet.getRow(rowIndex+2).getCell(2).toString();
 					}
 					if( "Type".equals(row.getCell(0).toString())){

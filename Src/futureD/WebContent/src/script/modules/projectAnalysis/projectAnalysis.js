@@ -618,14 +618,38 @@ $(".g_body_rr_body_itemin").click(function(e){
 });
 
 $(".g_body_rr_body_btn>input").click(function(){
-	/*var iArr = [];
-	$(".g_bodyin_body_bottom tbody tr").each(function(){
-		iArr.push($(this).find(".not_search [type='checkbox']").data("ivalue").toString());
-	});*/
-	var item = {};
-//	item.selectedItem = projectAnalysisState.sellectObj.selectItem;
-//	item.curveType = $(".g_body_rr_body_item.active").data("icurvetype").toString();
-//	store.set("futureDT2__projectAnalysis__selectedObj", item);
-	window.location.assign("Analysis");
+	var classify = $(".g_body_rr_body_item.active").find(".g_body_rr_body_itemin>div").text();
+	var waferId = [],waferNO = [];
+	for(var trnum = 0 ; trnum < $(".g_bodyin_body_bottom tbody tr").length ;trnum++){
+		waferId.push($(".g_bodyin_body_bottom tbody tr").eq(trnum).find("input[type='checkbox']").data("ivalue"));
+		waferNO.push($(".g_bodyin_body_bottom tbody tr").eq(trnum).find(".wafer_number").data("itext"));
+	}
+	$.ajax({
+	       url: 'ProjectVerification', 
+	       type: 'GET',
+	       data: {
+	    	   classify : classify ,
+	    	   waferId : waferId ,
+	    	   waferNO : waferNO ,
+	       },
+	       dataType: 'json',
+	       success: function (data) {
+	    	  if(data == "success"){
+	    		  eouluGlobal.S_settingURLParam({
+	    			  wafer: waferId,
+	  			}, false, false, false, "Analysis");
+	    	  }
+	       },
+	       error: function (data, status, e) {
+	    	   projectAnalysisSwalMixin({
+	    			title: '异常',
+	    			text: "服务器繁忙！",
+	    			type: 'error',
+	    			showConfirmButton: false,
+	    			timer: 2000,
+	    		})
+	       }
+	  });
+	//window.location.assign("Analysis");
 });
 

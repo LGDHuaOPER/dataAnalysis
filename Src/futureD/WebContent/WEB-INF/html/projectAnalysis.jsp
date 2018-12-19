@@ -21,7 +21,9 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/pagination.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/projectAnalysis/projectAnalysis-29834d8ea0.min.css">
+	<!-- build:css ../../dist/style/modules/projectAnalysis/projectAnalysis.min.css -->
+	<link rel="stylesheet" href="src/style/modules/projectAnalysis/projectAnalysis.css" type="text/css">
+	<!-- endbuild -->
 
 </head>
 <body data-curpage="projectAnalysis"  data-curusername="${userName}" data-userauthority="${userAuthority}">
@@ -169,10 +171,16 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/pagination.min.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/projectAnalysis/projectAnalysis-c4306a48fa.min.js"></script>
+	<!-- build:js ../../dist/script/modules/projectAnalysis/projectAnalysis.min.js -->
+	<script src="src/script/modules/projectAnalysis/projectAnalysis.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

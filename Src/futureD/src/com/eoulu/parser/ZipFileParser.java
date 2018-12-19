@@ -78,7 +78,7 @@ public class ZipFileParser {
 		CSVnum = 0;Mapnum = 0;Excelnum = 0;logWafer = "";
 		StringBuffer errorFile = new StringBuffer("");// 错误格式文件
 		String filename = "";// 上传失败的CSV、Map、Excel文件名
-		String status = "",
+		String status = "success",
 				 filePath = map.get("filePath")==null?"":map.get("filePath").toString(), 
 				 temp = map.get("temp")==null?"":map.get("temp").toString(),  
 				 filename2 = map.get("fileName")==null?"":map.get("fileName").toString(), 

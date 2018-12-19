@@ -143,7 +143,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 				curveValue = new HashMap<>();
 				curveValue.put("curveData", ls);
 				//曲线上的marker点
-				list = smithDao.getMarkerByTypeId(conn, id,db);
+				list = smithDao.getMarkerByTypeId(conn, id,sParameter,db);
 				curveValue.put("markerData", list);
 				curve.put(curveTypeId[i], curveValue);
 			}
@@ -345,7 +345,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			}
 			for (String id : att) {
 				curveTypeId = Integer.parseInt(id);
-				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,db);
+				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,sParameter,db);
 				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
 				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
 				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,db);
@@ -416,7 +416,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			}
 			for (String id : att) {
 				curveTypeId = Integer.parseInt(id);
-				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,db);
+				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,sParameter,db);
 				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
 				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
 				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,db);
@@ -520,9 +520,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 					att = new Double[]{x2,y2};
 					result.add(att);
 				}else if(y1<markerY && y2>markerY){
-					x2 = y2/k;
-					x2 = new BigDecimal(x2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-					att = new Double[]{x2,y2};
+					double b = y2 - k * x2;
+					double pointx = (markerY - b)/k;
+					pointx = new BigDecimal(pointx).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+					att = new Double[]{pointx,markerY};
 					result.add(att);
 				}
 			}
@@ -531,9 +532,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 					att = new Double[]{x2,y2};
 					result.add(att);
 				}else if(y1<markerY && y2>markerY){
-					x2 = y2/k;
-					x2 = new BigDecimal(x2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-					att = new Double[]{x2,y2};
+					double b = y2 - k * x2;
+					double pointx = (markerY - b)/k;
+					pointx = new BigDecimal(pointx).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+					att = new Double[]{pointx,markerY};
 					result.add(att);
 				}
 			}
@@ -569,7 +571,9 @@ public class AnalysisServiceImpl implements AnalysisService{
 		return result;
 	}
 	@Override
-	public boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module){
+	public boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module,String sParameter){
+		
+		
 		SmithDao smithDao = new SmithDao();
 		boolean flag = false;
 		DataBaseUtil db = DataBaseUtil.getInstance();
@@ -580,7 +584,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			Object[] param=null;
 			for(String key:paramMap.keySet()){
 				value = paramMap.get(key);
-				param = new Object[]{waferId,Integer.parseInt(value[0]),module,value[1],value[2],value[3],value[4]};
+				param = new Object[]{waferId,Integer.parseInt(value[0]),module,value[1],value[2],value[3],value[4],sParameter};
 				flag = smithDao.insertMarker(conn, param,db);
 				if(!flag){
 					conn.rollback();
@@ -653,10 +657,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 	
 
 	@Override
-	public boolean deleteMarker(String curveTypeId) {
+	public boolean deleteMarker(String curveTypeId,String sParameter) {
 		SmithDao smithDao = new SmithDao();
 		DataBaseUtil db = DataBaseUtil.getInstance();
-		return smithDao.deleteMarker(curveTypeId,db);
+		return smithDao.deleteMarker(curveTypeId,db,sParameter);
 	}
 
 

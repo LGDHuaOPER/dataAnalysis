@@ -59,6 +59,10 @@ public class AutoGrab extends HttpServlet {
 		WaferService service = new WaferServiceImpl();
 		File file01 = (File) PathresultMap.get("file01");
 		Map<String, Object> map = util.getForm(file01, request, fileName, tempPath);
+		if(map == null || map.get("fileName")==null){
+			response.getWriter().write(new Gson().toJson("连接成功！"));
+			return;
+		}
 		fileName = map.get("fileName").toString();
 		filePath = map.get("filePath").toString();
 		productCategory = map.get("productCategory").toString();
@@ -66,7 +70,7 @@ public class AutoGrab extends HttpServlet {
 		description = map.get("description").toString();
 		editTime = map.get("editTime").toString();
 		lastModified = map.get("lastModified").toString();
-
+System.out.println(fileName+"lastModified:"+lastModified);
 		if(!service.getCompareFile(fileName, lastModified)){
 			response.getWriter().write(new Gson().toJson(status));
 			return;
@@ -88,6 +92,7 @@ public class AutoGrab extends HttpServlet {
 
 			ZipFileParser zipUtil = new ZipFileParser();
 			result = zipUtil.Zip(map);
+			System.out.println("result:"+result);
 			flag = (Boolean) result.get("flag");
 			status = result.get("status").toString();
 			logWafer = result.get("logWafer").toString();
@@ -118,6 +123,7 @@ public class AutoGrab extends HttpServlet {
 		if ("success".equals(status)) {
 			new LogServiceImpl().insertLog(currentUser, "数据列表", "导入了晶圆数据" + logWafer, request.getSession());
 		}
+		System.out.println("status:"+status);
 		response.getWriter().write(new Gson().toJson(status));
 	}
 

@@ -749,6 +749,9 @@ public class WaferServiceImpl implements WaferService {
 	@Override
 	public boolean getCompareFile(String fileName, String lastModified) {
 		String lastModifyTime = new WaferDao().getFileTime(fileName);
+		if(lastModifyTime == null || "".equals(lastModifyTime)){
+			return true;
+		}
 		boolean flag = false;
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date date;

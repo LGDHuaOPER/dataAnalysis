@@ -192,7 +192,7 @@ public class SmithDao {
 	 * @return
 	 */
 	public boolean insertMarker(Connection conn,Object[] param,DataBaseUtil db){
-		String sql = "insert into dm_marker_data (wafer_id,curve_type_id,module,marker_name,point_x,point_y,location_key) value (?,?,?,?,?,?,?)";
+		String sql = "insert into dm_marker_data (wafer_id,curve_type_id,module,marker_name,point_x,point_y,location_key,s_parameter) value (?,?,?,?,?,?,?,?)";
 		return db.operate(conn,sql, param);
 	}
 	
@@ -230,9 +230,9 @@ public class SmithDao {
 	}
 	
 	
-	public boolean deleteMarker(String curveTypeId,DataBaseUtil db){
-		String sql = "delete from dm_marker_data where curve_type_id in ("+curveTypeId+")";
-		return db.operate(sql, null);
+	public boolean deleteMarker(String curveTypeId,DataBaseUtil db,String sParameter){
+		String sql = "delete from dm_marker_data where curve_type_id in ("+curveTypeId+") and s_parameter = ?";
+		return db.operate(sql, new Object[]{sParameter});
 	}
 	
 	public boolean deleteMarkerById(Connection conn,int curveTypeId,DataBaseUtil db){
@@ -240,9 +240,9 @@ public class SmithDao {
 		return db.operate(sql, new Object[]{curveTypeId});
 	}
 	
-	public List<Map<String,Object>> getMarkerByTypeId(Connection conn,int curveTypeId,DataBaseUtil db){
-		String sql = "select marker_name,point_x,point_y,location_key,marker_id  from dm_marker_data where  curve_type_id=?";
-		return db.queryToList(conn,sql, new Object[]{curveTypeId});
+	public List<Map<String,Object>> getMarkerByTypeId(Connection conn,int curveTypeId,String sParameter,DataBaseUtil db){
+		String sql = "select marker_name,point_x,point_y,location_key,marker_id  from dm_marker_data where  curve_type_id=? and s_parameter=?";
+		return db.queryToList(conn,sql, new Object[]{curveTypeId,sParameter});
 	}
 	
 	public boolean getMarkerExsit(Connection conn,int curveTypeId,DataBaseUtil db){

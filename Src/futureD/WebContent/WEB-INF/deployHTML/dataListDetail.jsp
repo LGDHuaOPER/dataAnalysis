@@ -286,7 +286,7 @@
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	<!-- 下面一条手动替换，不构建 -->
 	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
-	<script src="src/script/modules/common/drawWaferMap.js"></script>
+	<script src="assets/script/modules/common/drawWaferMap.js"></script>
 
 	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
 

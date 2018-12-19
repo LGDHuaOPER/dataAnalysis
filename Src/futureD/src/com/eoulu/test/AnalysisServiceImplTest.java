@@ -3,14 +3,13 @@
  */
 package com.eoulu.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
 
 import com.eoulu.service.AnalysisService;
 import com.eoulu.service.impl.AnalysisServiceImpl;
@@ -158,7 +157,7 @@ public class AnalysisServiceImplTest {
 		boolean flag = false;
 		switch (classify) {
 		case "add":
-			flag = service.insertMarker(paramMap, waferId,"TCF");
+			flag = service.insertMarker(paramMap, waferId,"TCF","S11");
 			break;
 
 		case "modify":
@@ -166,7 +165,7 @@ public class AnalysisServiceImplTest {
 			break;
 
 		case "remove":
-			flag = service.deleteMarker(curveTypeId);
+			flag = service.deleteMarker(curveTypeId,"S11");
 			break;
 		}
 		System.out.println(flag);

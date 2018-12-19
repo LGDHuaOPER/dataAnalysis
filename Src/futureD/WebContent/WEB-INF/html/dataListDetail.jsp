@@ -21,7 +21,9 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/dataListDetail/dataListDetail-12702f4941.min.css">
+	<!-- build:css ../../dist/style/modules/dataListDetail/dataListDetail.min.css -->
+	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
+	<!-- endbuild -->
 
 </head>
 <body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}">
@@ -286,14 +288,22 @@
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	<!-- 下面一条手动替换，不构建 -->
 	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
-	<script src="src/script/modules/common/drawWaferMap.js"></script>
+	<script src="assets/script/modules/common/drawWaferMap.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
+	<!-- build:js ../../dist/script/modules/dataCompare/dataCompareRenderChart.min.js -->
+	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/dataListDetail/dataListDetail-ab76880740.min.js"></script>
+	<!-- build:js ../../dist/script/modules/dataListDetail/dataListDetail.min.js -->
+	<script src="src/script/modules/dataListDetail/dataListDetail.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

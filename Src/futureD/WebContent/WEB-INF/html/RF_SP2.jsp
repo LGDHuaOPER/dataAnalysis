@@ -23,7 +23,9 @@
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/RF_SP2/RF_SP2-a934703d54.min.css">
+	<!-- build:css ../../dist/style/modules/RF_SP2/RF_SP2.min.css -->
+	<link rel="stylesheet" href="src/style/modules/RF_SP2/RF_SP2.css" type="text/css">
+	<!-- endbuild -->
 </head>
 <body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -287,6 +289,7 @@
 											<div class="buildMarker_foot">
 												<div class="buildMarker_footin">
 													<input type="button" class="btn btn-primary" value="提交">
+													<input type="button" class="btn btn-success" value="应用到其余die" title="应用到当前晶圆的其余die">
 												</div>
 											</div>
 										</div>
@@ -466,12 +469,20 @@
 	<!-- 下面一条手动替换，不构建 -->
 	<script src="assets/script/libs/drawingSmith.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2-5992f33e96.min.js"></script>
+	<!-- build:js ../../dist/script/modules/RF_SP2/RF_SP2.min.js -->
+	<script src="src/script/modules/RF_SP2/RF_SP2.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2_render-17c517aa11.min.js"></script>
+	<!-- build:js ../../dist/script/modules/RF_SP2/RF_SP2_render.min.js -->
+	<script src="src/script/modules/RF_SP2/RF_SP2_render.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

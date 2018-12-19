@@ -21,7 +21,9 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/admin/admin-28d9e5204b.min.css">
+	<!-- build:css ../../dist/style/modules/admin/admin.min.css -->
+	<link rel="stylesheet" href="src/style/modules/admin/admin.css" type="text/css"> 
+	<!-- endbuild -->
 </head>
 <body data-curpage="admin" data-curusername="${userName}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -337,10 +339,16 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<!-- endbuild -->
 	
-	<script src="dist/script/modules/admin/admin-433a472408.min.js"></script>
+	<!-- build:js ../../dist/script/modules/admin/admin.min.js -->
+	<script src="src/script/modules/admin/admin.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

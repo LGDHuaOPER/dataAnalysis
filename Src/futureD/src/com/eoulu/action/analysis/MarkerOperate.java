@@ -1,11 +1,7 @@
 package com.eoulu.action.analysis;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -48,25 +44,59 @@ public class MarkerOperate extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 		Map<String, String[]> paramMap = request.getParameterMap();
-		String classify = request.getParameter("classify") == null ? "" : request.getParameter("classify").trim(),
-						curveTypeId = request.getParameter("curveTypeId") == null ? "":request.getParameter("curveTypeId");
-		int waferId = request.getParameter("waferId") == null ? 0 : Integer.parseInt(request.getParameter("waferId"));
+	
+		String key = "";
+		String classify = null;
+		int waferId = 0;
+		String curveTypeId = "";
+		String sParameter = "";
+		
+		Map<String,String[]> markerMap = new HashMap<>();
+		for(Map.Entry<String,String[]> entry : paramMap.entrySet()){
+			key = entry.getKey();
+			String[] valueObj = entry.getValue();
+			if(valueObj == null){
+				continue;
+			}
+			if(valueObj.length>1){
+				markerMap.put(key, (String[]) valueObj);	
+			}else{
+				switch (key) {
+				case "classify":
+					classify = valueObj[0];
+					break;
+				case "waferId":
+					waferId = Integer.parseInt(valueObj[0]);
+					break;
+				case "curveTypeId":
+					curveTypeId = valueObj[0];
+					break;
+				case "sParameter":
+					sParameter = valueObj[0];
+					break;
+				default:
+					break;
+				}			
+			}
+			
+		}
 
+	
 		AnalysisService service = new AnalysisServiceImpl();
 		boolean flag = false;
 		switch (classify) {
 		case "add":
-			flag = service.insertMarker(paramMap, waferId,"TCF");
+			flag = service.insertMarker(markerMap, waferId,"TCF",sParameter);
 			response.getWriter().write(new Gson().toJson(flag));
 			break;
 
 		case "modify":
-			flag = service.updateMarker(paramMap, waferId,"TCF");
+			flag = service.updateMarker(markerMap, waferId,"TCF");
 			response.getWriter().write(new Gson().toJson(flag));
 			break;
 
 		case "remove":
-			flag = service.deleteMarker(curveTypeId);
+			flag = service.deleteMarker(curveTypeId,sParameter);
 			response.getWriter().write(new Gson().toJson(flag));
 			break;
 		}

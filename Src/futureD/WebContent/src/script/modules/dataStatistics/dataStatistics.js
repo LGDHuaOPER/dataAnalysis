@@ -8,7 +8,7 @@ var dataStatisticsSwalMixin = swal.mixin({
 });
 
 var dataStatisticsState = new Object();
-dataStatisticsState.mock = {
+/*dataStatisticsState.mock = {
 	curveType: {
 		"DC": ["IL", "BW", "VSWR", "CF"],
 		"RTP": ["IL", "BW", "VSWR", "CF"],
@@ -39,7 +39,7 @@ dataStatisticsState.mock = {
 	RF_SP2: futuredGlobal.S_getRF_SP2(),
 	RF_SP2_MagnitudeDB: futuredGlobal.S_getRF_SP2_MagnitudeDB(),
 	RF_SP2_render: []
-};
+};*/
 dataStatisticsState.csvANDparamSelected = {
 	csv: [],
 	param: []
@@ -136,42 +136,6 @@ function renderSelectCsv(item, flag, insertDOM){
 	insertDOM.empty().append(str2);
 }
 
-/*function renderChartValidate(){
-	$(".g_bodyin_bodyin_bottom_r .thumbnail:not([data-ichart='correlationgraph'])").addClass("cannotclick");
-	var csvLen = $(".g_bodyin_bodyin_bottom_l_itemin_main.active").length;
-	var paramLen = $(".g_bodyin_bodyin_bottom_l_inbottom a.list-group-item-info").length;
-	var item = {};
-	item.csvLen = csvLen;
-	item.paramLen = paramLen;
-	var findChart = [];
-	var notFindChart = {};
-	_.forOwn(dataStatisticsState.stateObj.chartValidate, function(v, k){
-		if(k == "CPK"){
-			if(csvLen == 1){
-				item.csvLen = 1;
-			}
-		}else{
-			if(csvLen >= 1){
-				item.csvLen = "+";
-			}
-		}
-		if(_.isEqual(v, item)){
-			findChart.push(k);
-		}else{
-			notFindChart[k] = eouluGlobal.S_getObjDifference(item, v);
-		}
-	});
-	return {
-		findChart: findChart,
-		notFindChart: notFindChart
-	};
-}
-
-function changeChartCanClick(item){
-	item.findChart.map(function(v, i){
-		$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='"+v+"']").removeClass("cannotclick");
-	});
-}*/
 
 function renderChartCsvANDParam(obj){
 	var str = '';
@@ -302,19 +266,19 @@ $(".g_bodyin_bodyin_bottom_2, .g_bodyin_bodyin_bottom_rsubin").hide().css("opaci
 /*page onload*/
 $(function(){
 	var item = store.get("futureDT2__projectAnalysis__selectedObj");
-	if(_.isEmpty(item) || _.isNil(item)){
-		dataStatisticsSwalMixin({
-			title: '未选中晶圆',
-			text: "请重新选择！",
-			type: 'info',
-			showConfirmButton: false,
-			timer: 2000,
-		}).then(function(result){
-			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-				window.location.assign("projectAnalysis.html");
-			}
-		});
-	}else{
+//	if(_.isEmpty(item) || _.isNil(item)){
+//		dataStatisticsSwalMixin({
+//			title: '未选中晶圆',
+//			text: "请重新选择！",
+//			type: 'info',
+//			showConfirmButton: false,
+//			timer: 2000,
+//		}).then(function(result){
+//			if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
+//				window.location.assign("projectAnalysis.html");
+//			}
+//		});
+//	}else{
 		/*item.selectedItem;
 		item.curveType;*/
 		var curveTypeArr = _.find(dataStatisticsState.mock.curveType, function(o, k){
@@ -351,7 +315,7 @@ $(function(){
 		/*if($(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() > $(".g_bodyin_bodyin_top_wrap_m").innerWidth()){
 			$(".g_bodyin_bodyin_top_wrap_l>span, .g_bodyin_bodyin_top_wrap_r>span").show();
 		}*/
-	}
+	//}
 
 	eleResize();
 	$(window).on("resize", function(){
@@ -360,10 +324,6 @@ $(function(){
 	});
 });
 
-/*event handler*/
-$(".g_info_r>.glyphicon-user").click(function(){
-	window.location.assign("admin.html");
-});
 
 /*数据统计左侧切换*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){

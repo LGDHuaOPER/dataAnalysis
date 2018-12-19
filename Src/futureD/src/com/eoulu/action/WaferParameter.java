@@ -1,13 +1,19 @@
 package com.eoulu.action;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.eoulu.service.GaussianService;
 import com.eoulu.service.WaferService;
+import com.eoulu.service.impl.GaussianServiceImpl;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.google.gson.Gson;
 
@@ -33,7 +39,13 @@ public class WaferParameter extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		String waferIdStr = request.getParameter("waferIdStr")==null?"":request.getParameter("waferIdStr");
 		WaferService service = new WaferServiceImpl();
-		response.getWriter().write(new Gson().toJson(service.getWaferParameter(waferIdStr)));
+		List<String> paramList  = service.getWaferParameter(waferIdStr);
+		GaussianService gaussian = new GaussianServiceImpl();
+		Map<String, List<Double>> rangeList = gaussian.getRangList(paramList,waferIdStr);
+		Map<String,Object> result = new HashMap<>();
+		result.put("paramList", paramList);
+		result.put("rangeList", rangeList);
+		response.getWriter().write(new Gson().toJson(result));
 		
 	}
 

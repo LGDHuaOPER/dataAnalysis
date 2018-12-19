@@ -128,7 +128,7 @@ public interface AnalysisService {
 	 * @param classify
 	 * @return
 	 */
-	boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module);
+	boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module,String sParameter);
 	
 	boolean updateMarker(Map<String,String[]> paramMap,int waferId,String module);
 	/**
@@ -136,7 +136,7 @@ public interface AnalysisService {
 	 * @param param
 	 * @return
 	 */
-	boolean deleteMarker(String curveTypeId);
+	boolean deleteMarker(String curveTypeId,String sParameter);
 	
 	List<Object[]> getMarker(String curveTypeId);
 	
