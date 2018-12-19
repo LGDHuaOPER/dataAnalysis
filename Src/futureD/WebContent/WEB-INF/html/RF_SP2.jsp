@@ -288,7 +288,7 @@
 											</div>
 											<div class="buildMarker_foot">
 												<div class="buildMarker_footin">
-													<input type="button" class="btn btn-primary" value="提交">
+													<input type="button" class="btn btn-primary" value="添加提交" title="添加保存Marker">
 													<input type="button" class="btn btn-success" value="应用到其余die" title="应用到当前晶圆的其余die">
 												</div>
 											</div>

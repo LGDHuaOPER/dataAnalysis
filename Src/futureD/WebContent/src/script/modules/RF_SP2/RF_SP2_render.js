@@ -706,21 +706,14 @@ function saveMarkerANDaddTr(name, x, y, isNew, newIndex){
 			return _.isEqual(v.curvefile, name.split("  ")[1]);
 		}).curvetypeid;
 
-		console.log(JSON.stringify(splineSelectedArr))
 		// 规定是L, 还是R
 		var preMarkerCurCurve = _.find(splineSelectedArr, function(v){
-			console.log(v.sParameter)
-			console.log(_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter))
-			console.log(name)
-			console.log(v.name)
-			console.log(_.isEqual(v.name, name))
 			return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && _.isEqual(v.name, name));
 		}),
 		LR,
 		Numb = _.findIndex(findTCFWafer.selected, function(v){
 			return _.isEqual(v.curvefile, name.split("  ")[1]);
 		})+1;
-		console.log(preMarkerCurCurve)
 		if(_.isNil(preMarkerCurCurve)){
 			LR = 'L';
 		}else{
@@ -753,8 +746,18 @@ function saveMarkerANDaddTr(name, x, y, isNew, newIndex){
 			curvetypeid: curvetypeid,
 			sParameter: findTCFWafer.sParameter
 		});
-		$(".buildMarker_body>.container-fluid tbody").append('<tr data-iflag="'+(name+x)+'" data-curvetypeid="'+curvetypeid+'"><td contenteditable="true" title="点击修改" data-iorigin="'+markerName+'">'+markerName+'</td><td>'+x+'</td><td>'+y+'</td><td>'+RF_SP2Store.stateObj.comfirm_key+'</td></tr>');
+		renderMarkerAddTr();
 	}
+}
+
+function renderMarkerAddTr(){
+	if(_.isNil(RF_SP2Store.stateObj.splineSelectedArr[RF_SP2Store.stateObj.TCFsParameter])) RF_SP2Store.stateObj.splineSelectedArr[RF_SP2Store.stateObj.TCFsParameter] = [];
+	var splineSelectedArr = RF_SP2Store.stateObj.splineSelectedArr[RF_SP2Store.stateObj.TCFsParameter],
+	str = '';
+	_.forEach(splineSelectedArr, function(v){
+		str+='<tr data-iflag="'+(v.name+v.x)+'" data-curvetypeid="'+v.curvetypeid+'" data-imarkername="'+v.markerName+'" data-ix="'+v.x+'"><td contenteditable="true" title="点击修改" data-iorigin="'+v.markerName+'">'+v.markerName+'</td><td>'+v.x+'</td><td>'+v.y+'</td><td>'+v.key+'</td></tr>';
+	});
+	$(".buildMarker_body>.container-fluid tbody").empty().append(str);
 }
 
 function findPointCombinatorial(obj){
