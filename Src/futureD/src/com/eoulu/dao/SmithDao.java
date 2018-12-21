@@ -202,14 +202,15 @@ public class SmithDao {
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
-	public List<Object[]> getMarker(String curveTypeId,DataBaseUtil db){
-		String sql  = "select curve_type_id,marker_id,marker_name,point_x,point_y,location_key from dm_marker_data where curve_type_id in ("+curveTypeId+")";
+	public List<Object[]> getMarker(String curveTypeId,String sParam,DataBaseUtil db){
+		String sql  = "select curve_type_id,marker_id,marker_name,point_x,point_y,location_key from dm_marker_data where curve_type_id in ("+curveTypeId+") and s_parameter = ?";
 		Connection conn = db.getConnection();
 		List<Object[]> ls = new ArrayList<>();
 		String[] att = null;
 		PreparedStatement ps;
 		try {
 			ps = conn.prepareStatement(sql);
+			ps.setString(1, sParam);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				att = new String[]{rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6)};
@@ -232,12 +233,13 @@ public class SmithDao {
 	
 	public boolean deleteMarker(String curveTypeId,DataBaseUtil db,String sParameter){
 		String sql = "delete from dm_marker_data where curve_type_id in ("+curveTypeId+") and s_parameter = ?";
+
 		return db.operate(sql, new Object[]{sParameter});
 	}
 	
-	public boolean deleteMarkerById(Connection conn,int curveTypeId,DataBaseUtil db){
-		String sql = "delete from dm_marker_data where curve_type_id=?";
-		return db.operate(sql, new Object[]{curveTypeId});
+	public boolean deleteMarkerById(Connection conn,int curveTypeId,String sParam,DataBaseUtil db){
+		String sql = "delete from dm_marker_data where curve_type_id=? and s_parameter = ?";
+		return db.operate(sql, new Object[]{curveTypeId,sParam});
 	}
 	
 	public List<Map<String,Object>> getMarkerByTypeId(Connection conn,int curveTypeId,String sParameter,DataBaseUtil db){
@@ -245,9 +247,9 @@ public class SmithDao {
 		return db.queryToList(conn,sql, new Object[]{curveTypeId,sParameter});
 	}
 	
-	public boolean getMarkerExsit(Connection conn,int curveTypeId,DataBaseUtil db){
-		String sql = "select marker_name  from dm_marker_data where  curve_type_id=?";
-		List<String> ls = db.queryList(conn, sql, new Object[]{curveTypeId});
+	public boolean getMarkerExsit(Connection conn,int curveTypeId,String sParam,DataBaseUtil db){
+		String sql = "select marker_name  from dm_marker_data where  curve_type_id=? and s_parameter = ?";
+		List<String> ls = db.queryList(conn, sql, new Object[]{curveTypeId,sParam});
 		return ls.size()>0?true:false;
 	}
 	
@@ -262,12 +264,13 @@ public class SmithDao {
 		return result;
 	}
 	
-	public Map<String,List<String>> getAllMarker(Connection conn,String typeIdStr,DataBaseUtil db){
-		String sql = "select marker_name,point_x,point_y from dm_marker_data where  curve_type_id in ("+typeIdStr+")";
+	public Map<String,List<String>> getAllMarker(Connection conn,String typeIdStr,String sParameter,DataBaseUtil db){
+		String sql = "select marker_name,point_x,point_y from dm_marker_data where  curve_type_id in ("+typeIdStr+") and s_parameter=?";
 		Map<String,List<String>> result = new HashMap<>();
 		List<String> ls = null;
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setString(1, sParameter);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				ls = new ArrayList<>();
@@ -413,7 +416,7 @@ public class SmithDao {
 	}
 	
 	public List<Map<String,Object>> getCalculation(Connection conn,int waferId,String module,DataBaseUtil db){
-		String sql = "select custom_parameter,calculate_formula from dm_marker_calculation where wafer_id=? and module=?";
+		String sql = "select custom_parameter,user_formula from dm_marker_calculation where wafer_id=? and module=?";
 		return db.queryToList(conn,sql, new Object[]{waferId});
 	}
 	

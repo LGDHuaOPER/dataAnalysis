@@ -2,3 +2,4 @@
 /node_modules/
 /dist/
 /Src/futureD/build/classes/.gitignore
+/Release/

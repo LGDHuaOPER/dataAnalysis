@@ -282,13 +282,17 @@
 	<script src="assets/script/libs/histogram-bellcurve.js"></script>
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
-	<script src="assets/script/libs/drawingSmith.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
-	<!-- 下面一条手动替换，不构建 -->
-	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
-	<script src="assets/script/modules/common/drawWaferMap.js"></script>
+	
+	<!-- build:js ../../dist/script/modules/common/drawingSmith.min.js -->
+	<script src="src/script/modules/common/drawingSmith.js"></script>
+	<!-- endbuild -->
+
+	<!-- build:js ../../dist/script/modules/common/drawWaferMap.min.js -->
+	<script src="src/script/modules/common/drawWaferMap.js"></script>
+	<!-- endbuild -->
 
 	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
 	<script src="src/script/modules/common/futureD_config.js"></script>

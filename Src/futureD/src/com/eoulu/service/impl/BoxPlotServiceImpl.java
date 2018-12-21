@@ -115,6 +115,7 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 			Arrays.sort(Nums);
 			min = Nums[0];
 			max = Nums[length - 1];
+			System.out.println("max="+max+"----"+"min="+min);
 			int num = length / 4;
 			if (length % 2 == 0) {
 				median =  (Nums[length / 2 - 1] + Nums[length / 2]) / 2;
@@ -139,12 +140,21 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 			innerIQRmin = firstQuartile - 1.5 * IQR;
 			outerIQRmax = thirdQuartile + 3 * IQR;
 			outerIQRmin = firstQuartile - 3 * IQR;
+			Map<String, List<Double>> outliers = this.getOutliers(Nums);
+			if(outliers != null){
+				List<Double> temp = outliers.get("tempAtt");
+				Double[] tempAtt = temp.toArray(new Double[]{});
+				Arrays.sort(tempAtt);
+				min = tempAtt[0];
+				max = tempAtt[tempAtt.length-1];
+			}
+			System.out.println("max="+max+"----"+"min="+min);
 			map.put("min", min);
 			map.put("firstQuartile", firstQuartile);
 			map.put("median", median);
 			map.put("thirdQuartile", thirdQuartile);
 			map.put("max", max);
-			map.put("outliers", this.getOutliers(Nums));
+			map.put("outliers", outliers);
 			map.put("waferId", waferId);
 			map.put("innerIQRmax", innerIQRmax);
 			map.put("innerIQRmin", innerIQRmin);
@@ -170,20 +180,25 @@ public class BoxPlotServiceImpl implements BoxPlotService{
 	public Map<String, List<Double>> getOutliers(Double Nums[]){
 		Map<String, List<Double>> resultmap=new HashMap<String, List<Double>>();
 		List<Double> SoftOutliers =new ArrayList<Double>();
-		List<Double> ExtremeOutliers =new ArrayList<Double>();
+		List<Double> ExtremeOutliers =new ArrayList<Double>(),temp = new ArrayList<>();
 		IQR=thirdQuartile-firstQuartile;
 		innerIQRmax=thirdQuartile+1.5*IQR;
 		innerIQRmin=firstQuartile-1.5*IQR;
 		outerIQRmax=thirdQuartile+3*IQR;
 		outerIQRmin=firstQuartile-3*IQR;
+		
 		if(Nums!=null){
 		for(int m=0;m<Nums.length;m++){
 			if(Nums[m]>outerIQRmax || Nums[m]<outerIQRmin ){
 				ExtremeOutliers.add(Nums[m]);
-			}else if((Nums[m]>outerIQRmin && Nums[m]<innerIQRmin) || (Nums[m]>innerIQRmax && Nums[m]<outerIQRmax)){
+			}else if((Nums[m]>=outerIQRmin && Nums[m]<innerIQRmin) || (Nums[m]>innerIQRmax && Nums[m]<=outerIQRmax)){
 				SoftOutliers.add(Nums[m]);
+			}else if(Nums[m] >= innerIQRmin && Nums[m] <= innerIQRmax){
+				temp.add(Nums[m]);
 			}
 		}
+		
+		resultmap.put("tempAtt", temp);
 		resultmap.put("soft", SoftOutliers);
 		resultmap.put("extreme", ExtremeOutliers);
 		return resultmap;

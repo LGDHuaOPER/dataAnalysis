@@ -288,7 +288,7 @@
 											</div>
 											<div class="buildMarker_foot">
 												<div class="buildMarker_footin">
-													<input type="button" class="btn btn-primary" value="提交">
+													<input type="button" class="btn btn-primary" value="添加提交" title="添加保存Marker">
 													<input type="button" class="btn btn-success" value="应用到其余die" title="应用到当前晶圆的其余die">
 												</div>
 											</div>
@@ -466,8 +466,10 @@
 	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<script src="assets/script/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.js"></script>
-	<!-- 下面一条手动替换，不构建 -->
-	<script src="assets/script/libs/drawingSmith.js"></script>
+	
+	<!-- build:js ../../dist/script/modules/common/drawingSmith.min.js -->
+	<script src="src/script/modules/common/drawingSmith.js"></script>
+	<!-- endbuild -->
 
 	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
 	<script src="src/script/modules/common/futureD_config.js"></script>

@@ -39,11 +39,17 @@ public class Calculator extends HttpServlet {
 		String calculation = request.getParameter("formula")==null?"":request.getParameter("formula").trim(),userformula = request.getParameter("userformula")==null?"":request.getParameter("userformula").trim();
 		String oldParam = request.getParameter("oldParameter")==null?"":request.getParameter("oldParameter").trim(),
 				customParam = request.getParameter("customParameter")==null?"":request.getParameter("customParameter").trim(),
-				coordinateId = request.getParameter("coordinateId")==null?"":request.getParameter("coordinateId").trim(),
-						waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId").trim(),
+				coordinateId = request.getParameter("coordinateId")==null?"0":request.getParameter("coordinateId").trim(),
+					subdieId = request.getParameter("subdieId")==null?"0":request.getParameter("subdieId"),
+					subdieFlag = request.getParameter("subdieFlag")==null?"":request.getParameter("subdieFlag"),
+						waferId = request.getParameter("waferId")==null?"0":request.getParameter("waferId").trim(),
 								calculationId = request.getParameter("calculationId")==null?"":request.getParameter("calculationId").trim();
 		if("".equals(customParam)){
 			response.getWriter().write(new Gson().toJson("参数不能为空！"));
+		}
+		AnalysisService service = new AnalysisServiceImpl();
+		if(service.getParameterExsit(Integer.parseInt(waferId), customParam,subdieFlag)){
+			response.getWriter().write(new Gson().toJson("自定义参数已存在！"));
 		}
 		String result = "",status = "";
 		Map<String,String> map = null;
@@ -56,9 +62,9 @@ public class Calculator extends HttpServlet {
 			status = e.getMessage();
 		}
 		if("".equals(status) && !"".equals(result)){
-			AnalysisService service = new AnalysisServiceImpl();
 			if("".equals(calculationId)){
-				boolean flag = service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId), customParam, calculation, userformula,Double.parseDouble(result), "TCF");
+				boolean flag =  service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId),Integer.parseInt(subdieId),subdieFlag,customParam, calculation, userformula,Double.parseDouble(result), "TCF");
+				
 				if(flag){
 					int id = service.getCalculationId(Integer.parseInt(waferId), customParam, "TCF");
 					map.put("calculationId", id+"");
@@ -66,7 +72,7 @@ public class Calculator extends HttpServlet {
 					map.put("customParameter", customParam);
 				}
 			}else{
-				boolean flag = service.modifyCalculation(oldParam, customParam, calculation,userformula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId), Integer.parseInt(waferId));
+				boolean flag = service.modifyCalculation(oldParam, customParam, calculation,userformula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId),Integer.parseInt(subdieId),subdieFlag, Integer.parseInt(waferId));
 				map.put("calculationId", calculationId);
 				map.put("formula", userformula);
 				map.put("customParameter", customParam);

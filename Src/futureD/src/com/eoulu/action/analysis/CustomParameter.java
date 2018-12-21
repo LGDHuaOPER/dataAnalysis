@@ -1,6 +1,7 @@
 package com.eoulu.action.analysis;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,12 +30,13 @@ public class CustomParameter extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("urf-8");
+		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 		String waferId = request.getParameter("waferId")==null?"":request.getParameter("waferId").trim(),
-				customParameter = request.getParameter("customParameter")==null?"":request.getParameter("customParameter").trim();
+				customParameter = request.getParameter("customParameter")==null?"":request.getParameter("customParameter").trim(),
+						subdieFlag = request.getParameter("subdieFlag");
 		AnalysisService service = new AnalysisServiceImpl();
-		String str = service.getParameterExsit(Integer.parseInt(waferId), customParameter)?"":"参数已存在！";
+		String str = service.getParameterExsit(Integer.parseInt(waferId), customParameter,subdieFlag)?"参数已存在！":"";
 		response.getWriter().write(new Gson().toJson(str));
 	}
 

@@ -282,6 +282,12 @@ public class ParameterDao {
 		List<Map<String, Object>> ls = db.queryToList(sql, param);
 		return ls.size()>0?true:false;
 	}
+	public boolean getSubdieParameterExsit(Object[] param){
+		String sql = "select subdie_parameter from dm_wafer_subdie_parameter where wafer_id=? and subdie_parameter=?";
+		List<Map<String, Object>> ls = db.queryToList(sql, param);
+		return ls.size()>0?true:false;
+	}
+	
 	/**
 	 * 获取晶圆的最大参数字段值C_max
 	 * @param param
@@ -289,6 +295,18 @@ public class ParameterDao {
 	 */
 	public String getMaxColumn(Connection conn,Object[] param){
 		String sql = "select parameter_column from dm_wafer_parameter where wafer_id=? order by substring(parameter_column,2)+0 desc limit 0,1";
+		Object result = db.queryResult(conn,sql, param);
+		return result==null?"":result.toString();
+	}
+	/**
+	 * subdie最大参数列
+	 * @param conn
+	 * @param param
+	 * @return
+	 */
+	
+	public String getSubdieMaxColumn(Connection conn,Object[] param){
+		String sql = "select subdie_column from dm_wafer_subdie_parameter where wafer_id=? order by substring(subdie_column,2)+0 desc limit 0,1";
 		Object result = db.queryResult(conn,sql, param);
 		return result==null?"":result.toString();
 	}
@@ -301,6 +319,17 @@ public class ParameterDao {
 		String sql = "insert into dm_wafer_parameter (wafer_id,parameter_name,parameter_column) values (?,?,?)";
 		return db.operate(conn,sql, param);
 	}
+	/**
+	 * 添加subdie自定义参数
+	 * @param conn
+	 * @param param
+	 * @return
+	 */
+	
+	public boolean insertSubdieCustomParameter(Connection conn,Object[] param){
+		String sql = "insert into dm_wafer_subdie_parameter (wafer_id,subdie_parameter,subdie_column) values (?,?,?)";
+		return db.operate(conn,sql, param);
+	}
 	
 	
 	public String getColumnByName(Connection conn,String paramName,int waferId){
@@ -310,8 +339,23 @@ public class ParameterDao {
 		return result==null?"":result.toString();
 	}
 	
+	public String getSubdieColumn(Connection conn,String paramName,int waferId){
+		String sql = "select subdie_column from dm_wafer_subdie_parameter where wafer_id=? and subdie_parameter=? ";
+		Object[] param = new Object[]{waferId,paramName};
+		Object result = db.queryResult(conn, sql, param);
+		return result==null?"":result.toString();
+		
+	}
+	
 	public boolean updateParamName(Connection conn,String oldParam,int waferId,String customParam){
 		String sql = "update dm_wafer_parameter set parameter_name=?  where wafer_id=? and parameter_name=? ";
+		Object[] param = new Object[]{customParam,waferId,oldParam};
+		System.out.println(Arrays.toString(param));
+		return db.operate(conn,sql, param);
+	}
+	
+	public boolean updateSubdieParamName(Connection conn,String oldParam,int waferId,String customParam){
+		String sql = "update dm_wafer_subdie_parameter set subdie_parameter=?  where wafer_id=? and subdie_parameter=? ";
 		Object[] param = new Object[]{customParam,waferId,oldParam};
 		System.out.println(Arrays.toString(param));
 		return db.operate(conn,sql, param);

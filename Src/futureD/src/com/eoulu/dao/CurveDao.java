@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +180,8 @@ public class CurveDao {
 	
 	
 	public List<String[]> getCurvFile(Connection conn,int waferId){
-		String sql = "select curve_file_name,curve_type_id,coordinate_id from dm_curve_type where wafer_id=? and curve_file_type=1 order by curve_type_id";
+		String sql = "select curve_file_name,curve_type_id,coordinate_id,subdie_id,subdie_flag from dm_curve_type left join dm_wafer on"
+				+ " dm_curve_type.wafer_id = dm_wafer.wafer_id where dm_curve_type.wafer_id=? and curve_file_type=1 order by curve_type_id";
 		List<String[]> ls = new ArrayList<>();
 		String[] att = null;
 		PreparedStatement ps;
@@ -190,7 +190,7 @@ public class CurveDao {
 			ps.setInt(1, waferId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
-				att = new String[]{rs.getString(1),rs.getString(2),rs.getString(3)};
+				att = new String[]{rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5)};
 				ls.add(att);
 			}
 		} catch (SQLException e) {
@@ -209,6 +209,23 @@ public class CurveDao {
 	public List<Integer> getCoordinateId(Connection conn,int waferId){
 		List<Integer> ls = new ArrayList<>();
 		String sql = "select distinct coordinate_id from dm_curve_type  where wafer_id=?";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, waferId);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				ls.add(rs.getInt(1));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ls;
+	}
+	
+	public List<Integer> getSubdieId(Connection conn,int waferId){
+		List<Integer> ls = new ArrayList<>();
+		String sql = "select distinct subdie_id from dm_curve_type  where wafer_id=?";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, waferId);

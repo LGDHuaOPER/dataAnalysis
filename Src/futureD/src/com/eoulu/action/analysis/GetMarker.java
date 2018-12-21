@@ -1,6 +1,7 @@
 package com.eoulu.action.analysis;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,8 +33,9 @@ public class GetMarker extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html;charset=utf-8");
 		String curveTypeId = request.getParameter("curveTypeId")==null?"":request.getParameter("curveTypeId");
+		String sParameter = request.getParameter("sParameter")==null?"S11":request.getParameter("sParameter");
 		AnalysisService service = new AnalysisServiceImpl();
-		response.getWriter().write(new Gson().toJson(service.getMarker(curveTypeId)));
+		response.getWriter().write(new Gson().toJson(service.getMarker(curveTypeId,sParameter)));
 		
 	}
 

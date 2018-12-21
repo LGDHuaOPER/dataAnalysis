@@ -105,7 +105,7 @@ public class BaseEncrypt {
         System.out.println("加密后的字串是：" + enString);
         String user = BaseEncrypt.Encrypt("admin", cKey);
         System.out.println("加密后的字串是：" + user);
-        String password = BaseEncrypt.Encrypt("EOULU2018", cKey);
+        String password = BaseEncrypt.Encrypt("eoulu2015", cKey);
         System.out.println("加密后的字串是：" + password);
 
         // 解密

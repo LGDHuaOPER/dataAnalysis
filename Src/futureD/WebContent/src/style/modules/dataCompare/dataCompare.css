@@ -293,7 +293,7 @@ body {
   cursor: pointer;
 }
 .home_dataCompare_bottom .left_div table td:nth-child(1),
-.home_dataCompare_bottom .left_div table td:nth-child(7),
+.home_dataCompare_bottom .left_div table td:nth-child(10),
 .home_dataCompare_bottom .left_div table td:nth-child(8),
 .home_dataCompare_bottom .left_div table td:nth-child(9) {
   display: none;

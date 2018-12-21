@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import com.eoulu.dao.CurveDao;
 import com.eoulu.dao.ParameterDao;
 import com.eoulu.dao.SmithDao;
 import com.eoulu.dao.WaferDao;
+import com.eoulu.enums.SubdieFlagEnum;
 import com.eoulu.service.AnalysisService;
 import com.eoulu.util.DataBaseUtil;
 
@@ -159,14 +161,19 @@ public class AnalysisServiceImpl implements AnalysisService{
 	
 	
 	@Override
-	public boolean getParameterExsit(int waferId, String parameter) {
+	public boolean getParameterExsit(int waferId, String parameter,String subdieFlag) {
 
 		Object[] param = new Object[]{waferId,parameter};
-		return new ParameterDao().getParameterExsit(param);
+		if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+			return new ParameterDao().getParameterExsit(param);
+		}else {
+			return new ParameterDao().getSubdieParameterExsit(param);
+		}
+		
 	}
 
 	@Override
-	public boolean saveCalculation(int waferId, int coordinateId, String parameter, String calculationFormula,String userFormula,
+	public boolean saveCalculation(int waferId, int coordinateId,int subdieId,String subdieFlag, String parameter, String calculationFormula,String userFormula,
 			double result,String module) {
 		ParameterDao paramDao = new ParameterDao();
 		SmithDao smithDao = new SmithDao();
@@ -181,22 +188,43 @@ public class AnalysisServiceImpl implements AnalysisService{
 				conn.rollback();
 				return flag;
 			}
-			param = new Object[]{waferId};
-			String column = paramDao.getMaxColumn(conn,param);
-//			System.out.println("column:"+column);
-			column = "C"+(Integer.parseInt(column.substring(1))+1);
-			param = new Object[]{waferId,parameter,column};
-			flag = paramDao.insertCustomParameter(conn,param);
-			if(!flag){
-				conn.rollback();
-				return flag;
+			
+			if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+				param = new Object[]{waferId};
+				String column = paramDao.getMaxColumn(conn,param);
+//				System.out.println("column:"+column);
+				column = "C"+(Integer.parseInt(column.substring(1))+1);
+				param = new Object[]{waferId,parameter,column};
+				flag = paramDao.insertCustomParameter(conn,param);
+				if(!flag){
+					conn.rollback();
+					return flag;
+				}
+				param = new Object[]{result,coordinateId};
+				flag = new CoordinateDao().updateDieParamByMarker(conn,param, column);
+				if(!flag){
+					conn.rollback();
+					return flag;
+				}
+			}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE)){
+				param = new Object[]{waferId};
+				String column = paramDao.getSubdieMaxColumn(conn, param);
+//				System.out.println("column:"+column);
+				column = "C"+(Integer.parseInt(column.substring(1))+1);
+				param = new Object[]{waferId,parameter,column};
+				flag = paramDao.insertSubdieCustomParameter(conn, param);
+				if(!flag){
+					conn.rollback();
+					return flag;
+				}
+				param = new Object[]{result,subdieId};
+				flag = new CoordinateDao().updateSubdieParamByMarker(conn, param, column);
+				if(!flag){
+					conn.rollback();
+					return flag;
+				}
 			}
-			param = new Object[]{result,coordinateId};
-			flag = new CoordinateDao().updateDieParamByMarker(conn,param, column);
-			if(!flag){
-				conn.rollback();
-				return flag;
-			}
+			
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -208,7 +236,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 	
 	@Override
 	public boolean modifyCalculation(String oldParam, String customParam, String formula,String userformula, String result,
-			int calculationId,int coordinateId,int waferId) {
+			int calculationId,int coordinateId,int subdieId,String subdieFlag,int waferId) {
 		SmithDao smithDao = new SmithDao();
 		ParameterDao paramDao = new ParameterDao();
 		DataBaseUtil db = DataBaseUtil.getInstance();
@@ -226,23 +254,40 @@ public class AnalysisServiceImpl implements AnalysisService{
 				}
 			}
 //			System.out.println(flag);
-			param = new Object[]{waferId};
-			String column = paramDao.getColumnByName(conn, oldParam, waferId);
-			if(!oldParam.equals(customParam)){
-				flag = paramDao.updateParamName(conn, oldParam, waferId, customParam);
+			if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+				param = new Object[]{waferId};
+				String column = paramDao.getColumnByName(conn, oldParam, waferId);
+				if(!oldParam.equals(customParam)){
+					flag = paramDao.updateParamName(conn, oldParam, waferId, customParam);
+					if(!flag){
+						conn.rollback();
+						return flag;
+					}
+				}
+				param = new Object[]{Double.parseDouble(result),coordinateId};
+				flag = new CoordinateDao().updateDieParamByMarker(conn,param, column);
+				if(!flag){
+					conn.rollback();
+					return flag;
+				}
+			}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE)){
+				param = new Object[]{waferId};
+				String column = paramDao.getSubdieColumn(conn, oldParam, waferId);
+				if(!oldParam.equals(customParam)){
+					flag = paramDao.updateSubdieParamName(conn, oldParam, waferId, customParam);
+					if(!flag){
+						conn.rollback();
+						return flag;
+					}
+				}
+				param = new Object[]{Double.parseDouble(result),coordinateId};
+				flag = new CoordinateDao().updateSubdieParamByMarker(conn,param, column);
 				if(!flag){
 					conn.rollback();
 					return flag;
 				}
 			}
-			System.out.println(flag);
-			param = new Object[]{Double.parseDouble(result),coordinateId};
-			flag = new CoordinateDao().updateDieParamByMarker(conn,param, column);
-			if(!flag){
-				conn.rollback();
-				return flag;
-			}
-			System.out.println(flag);
+			
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -255,7 +300,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 	}
 	
 	@Override
-	public boolean updateCalculation(int waferId, int coordinateId) {
+	public boolean updateCalculation(int waferId, int coordinateId,int subdieId, String subdieFlag,String sParameter) {
 		CurveDao curveDao = new CurveDao();
 		SmithDao smithDao = new SmithDao();
 		boolean flag = false;
@@ -265,7 +310,12 @@ public class AnalysisServiceImpl implements AnalysisService{
 		DataBaseUtil db = DataBaseUtil.getInstance();
 		Connection conn = db.getConnection();
 		List<Map<String,Object>> calList = smithDao.getCalculation(conn, waferId, "TCF",db);
-		List<Integer> ls = curveDao.getCoordinateId(conn, waferId);
+		List<Integer> ls = null;
+		if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+			ls = curveDao.getCoordinateId(conn, waferId);
+		}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE)){
+			ls = curveDao.getSubdieId(conn, waferId);
+		}
 		Object[] param = null;
 		try {
 			conn.setAutoCommit(false);
@@ -275,10 +325,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 				continue;
 			}
 			typeIdStr = smithDao.getTypeIdStr(conn, dieId,db);
-			map = smithDao.getAllMarker(conn, typeIdStr,db);
+			map = smithDao.getAllMarker(conn, typeIdStr,sParameter,db);
 			for(int j=0,size2=calList.size();j<size2;j++){
 				parameter = calList.get(j).get("custom_parameter").toString();
-			 column =new ParameterDao().getColumnByName(conn, parameter, waferId);
+			 column =new ParameterDao().getColumnByName(conn, parameter, waferId);  //改到这里了---------------------------------------
 				formula = calList.get(j).get("calculate_formula").toString();
 				for(String key:map.keySet()){
 					pointX = map.get(key).get(0);
@@ -348,9 +398,9 @@ public class AnalysisServiceImpl implements AnalysisService{
 				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,sParameter,db);
 				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
 				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
-				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,db);
+				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,sParameter,db);
 				if(exsitFlag){
-					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,db);
+					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,sParameter,db);
 				}
 				smithList = smithDao.getMarkerSmithData(conn, curveTypeId2, sParameter,db);
 				if(list.size()>0){
@@ -358,7 +408,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					markerName = map.get("marker_name").toString();
 					markerId = map.get("marker_id").toString();
 					pointX = Double.parseDouble(map.get("point_x").toString());
-					List<Double[]> markerList = getMarker(smithList, pointX);
+					List<Double[]> markerList = getMarkerX(smithList, pointX);
 					if (markerList.size() < 1) {
 						map.put(markerName, new String[] { "NaN", "NaN" });
 					}
@@ -372,7 +422,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					}
 					String[] markerAtt = (String[]) map.get(markerName);
 					param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0],
-							markerAtt[1], "X" };
+							markerAtt[1], "X",sParameter };
 					flag = smithDao.insertMarker(conn, param,db);
 					if (!flag) {
 						conn.rollback();
@@ -393,7 +443,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 	}
 
 	@Override
-	public boolean saveMarkerByY(int waferId, String module, int coordinateId, String[] att, String sParameter) {
+	public boolean saveMarkerByY(int waferId, String module, int coordinateId,String subdieFlag, String[] att, String sParameter) {
 		boolean flag = false, minFlag = false, maxFlag = false,exsitFlag=false;
 		CurveDao curveDao = new CurveDao();
 		SmithDao smithDao = new SmithDao();
@@ -408,7 +458,13 @@ public class AnalysisServiceImpl implements AnalysisService{
 		double pointY = 0, max = 0, min = 0;
 		try {
 			conn.setAutoCommit(false);
-		List<Integer> ls = curveDao.getCoordinateId(conn, waferId);
+		List<Integer> ls = null;
+		if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+			ls = curveDao.getCoordinateId(conn, waferId);
+		}else {
+			ls = curveDao.getSubdieId(conn, waferId);
+		}
+				
 		for (int i = 0, size = ls.size(); i < size; i++) {
 			dieId = ls.get(i);
 			if (dieId == coordinateId) {
@@ -419,9 +475,9 @@ public class AnalysisServiceImpl implements AnalysisService{
 				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,sParameter,db);
 				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
 				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
-				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,db);
+				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,sParameter,db);
 				if(exsitFlag){
-					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,db);
+					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,sParameter,db);
 				}
 				limit = smithDao.getMaxAndMin(conn, curveTypeId2, sParameter,db);
 				max = Double.parseDouble(limit.get(0));
@@ -431,56 +487,56 @@ public class AnalysisServiceImpl implements AnalysisService{
 				
 				if (list.size() > 1) {
 					map = list.get(0);
-					if (list.size() > 1) {
-						markerName = map.get("marker_name").toString();
-						markerName2 = list.get(1).get("marker_name").toString();
-						if (!"NaN".equals(map.get("point_y").toString())) {
-							pointY = Double.parseDouble(map.get("point_y").toString());
-						} else if (!"NaN".equals(list.get(1).get("point_y").toString())) {
-							pointY = Double.parseDouble(list.get(1).get("point_y").toString());
-						} else {
-							continue;
-						}
-					}
-					maxFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, max + ">=",db);
-					minFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, min + "<=",db);
-					if (maxFlag || minFlag) {
-						List<Double[]> markerList = getMarker(smithList, pointY);
-						if (markerList.size() < 1) {
-							map.put(markerName, new String[] { "NaN", "NaN" });
-							map.put(markerName2, new String[] { "NaN", "NaN" });
-						}
-						if (markerList.size() == 1) {
-							Double[] marker = markerList.get(0);
-							map.put(markerName, new String[] { marker[0] + "", marker[1] + "" });
-							map.put(markerName2, new String[] { "NaN", "NaN" });
-						}
-						if (markerList.size() > 1) {
-							Double[] marker = markerList.get(0);
-							Double[] marker2 = markerList.get(markerList.size() - 1);
-							map.put(markerName, new String[] { marker[0] + "", marker[1] + "" });
-							map.put(markerName2, new String[] { marker2[0] + "", marker2[1] + "" });
-						}
+					markerName = map.get("marker_name").toString();
+					markerName2 = list.get(1).get("marker_name").toString();
+					if (!"NaN".equals(map.get("point_y").toString())) {
+						pointY = Double.parseDouble(map.get("point_y").toString());
+					} else if (!"NaN".equals(list.get(1).get("point_y").toString())) {
+						pointY = Double.parseDouble(list.get(1).get("point_y").toString());
 					} else {
+						continue;
+					}
+				}
+					
+				maxFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, max + ">=",db);
+				minFlag = smithDao.getIntersection(conn, pointY, curveTypeId2, sParameter, min + "<=",db);
+				if (maxFlag || minFlag) {
+					List<Double[]> markerList = getMarker(smithList, pointY);
+					if (markerList.size() < 1) {
 						map.put(markerName, new String[] { "NaN", "NaN" });
 						map.put(markerName2, new String[] { "NaN", "NaN" });
 					}
-					String[] markerAtt = (String[]) map.get(markerName);
-					param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0], markerAtt[1], "Y" };
-					flag = smithDao.insertMarker(conn, param,db);
-					if (!flag) {
-						conn.rollback();
-						return flag;
+					if (markerList.size() == 1) {
+						Double[] marker = markerList.get(0);
+						map.put(markerName, new String[] { marker[0] + "", marker[1] + "" });
+						map.put(markerName2, new String[] { "NaN", "NaN" });
 					}
-					String[] markerAtt2 = (String[]) map.get(markerName2);
-					param = new Object[] { waferId, curveTypeId2, module, markerName2, markerAtt2[0], markerAtt2[1],
-							"Y" };
-					flag = smithDao.insertMarker(conn, param,db);
-					if (!flag) {
-						conn.rollback();
-						return flag;
+					if (markerList.size() > 1) {
+						Double[] marker = markerList.get(0);
+						Double[] marker2 = markerList.get(markerList.size() - 1);
+						map.put(markerName, new String[] { marker[0] + "", marker[1] + "" });
+						map.put(markerName2, new String[] { marker2[0] + "", marker2[1] + "" });
 					}
+				} else {
+					map.put(markerName, new String[] { "NaN", "NaN" });
+					map.put(markerName2, new String[] { "NaN", "NaN" });
 				}
+				String[] markerAtt = (String[]) map.get(markerName);
+				param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0], markerAtt[1], "Y",sParameter };
+				flag = smithDao.insertMarker(conn, param,db);
+				if (!flag) {
+					conn.rollback();
+					return flag;
+				}
+				String[] markerAtt2 = (String[]) map.get(markerName2);
+				param = new Object[] { waferId, curveTypeId2, module, markerName2, markerAtt2[0], markerAtt2[1],
+						"Y",sParameter };
+				flag = smithDao.insertMarker(conn, param,db);
+				if (!flag) {
+					conn.rollback();
+					return flag;
+				}
+				
 
 			}
 		}
@@ -561,7 +617,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 				att = new Double[]{x2,y2};
 				result.add(att);
 			}
-			if(markerX > x1 && markerX < x2){
+			if(markerX > x1 && markerX < x2){            //x拟合？？？？
 				y2 = k*x2;
 				y2 = new BigDecimal(y2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 				att = new Double[]{x2,y2};
@@ -572,7 +628,19 @@ public class AnalysisServiceImpl implements AnalysisService{
 	}
 	@Override
 	public boolean insertMarker(Map<String,String[]> paramMap,int waferId,String module,String sParameter){
-		
+		String curveTypeId1 = null,curveTypeId2 = null;
+		Iterator<String[]> iter = paramMap.values().iterator();
+		while (iter.hasNext()) {
+			String[] item = iter.next();
+			if(curveTypeId1 == null){
+				curveTypeId1 = item[0];
+			}else if(curveTypeId2 == null){
+				curveTypeId2 = item[0];
+			}else{
+				break;
+			}
+	
+		}
 		
 		SmithDao smithDao = new SmithDao();
 		boolean flag = false;
@@ -580,6 +648,8 @@ public class AnalysisServiceImpl implements AnalysisService{
 		Connection conn = db.getConnection();
 		try {
 			conn.setAutoCommit(false);
+			smithDao.deleteMarker(curveTypeId1, db, sParameter);
+			smithDao.deleteMarker(curveTypeId2, db, sParameter);
 			String[] value = null;
 			Object[] param=null;
 			for(String key:paramMap.keySet()){
@@ -632,10 +702,10 @@ public class AnalysisServiceImpl implements AnalysisService{
 	}
 	
 	@Override
-	public List<Object[]> getMarker(String curveTypeId) {
+	public List<Object[]> getMarker(String curveTypeId,String sParameter) {
 		SmithDao smithDao = new SmithDao();
 		DataBaseUtil db = DataBaseUtil.getInstance();
-		return smithDao.getMarker(curveTypeId, db);
+		return smithDao.getMarker(curveTypeId,sParameter,db);
 	}
 	
 
@@ -662,6 +732,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		DataBaseUtil db = DataBaseUtil.getInstance();
 		return smithDao.deleteMarker(curveTypeId,db,sParameter);
 	}
+
 
 
 	

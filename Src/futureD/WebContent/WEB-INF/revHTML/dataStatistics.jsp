@@ -11,6 +11,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<!-- 为移动设备添加 viewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="assets/img/common/futureDT2.ico"/>
+	<link rel="bookmark" href="assets/img/common/futureDT2.ico"/>
 	<title>futureD数据统计</title>
 	<link rel="stylesheet" href="assets/style/common/reset.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/bootstrap.min.css" type="text/css">
@@ -22,17 +24,32 @@
 	<link rel="stylesheet" href="src/style/modules/dataStatistics/dataStatistics.css" type="text/css">
 	<!-- endbuild -->
 </head>
-<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}">
+<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
-		<div class="g_info_r bootstro" data-bootstro-title="数据统计引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span><span class="glyphicon glyphicon-off" aria-hidden="true"></span></div>
+		<div class="g_info_r bootstro" data-bootstro-title="数据统计引导：第二步" data-bootstro-content="<div class='well well-sm'><h4>工具区域</h4><p>在这里您可以跳转管理员页面（如果有权限），再次查看页面引导，或安全退出系统</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="1">
+			<div class="dropdown user_dropdown">
+			  <button id="userLabel"  type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			      <img src="assets/img/common/admin_32px.svg" >
+			  </button>
+			  <ul id="menu1" class="dropdown-menu" aria-labelledby="userLabel">
+		          <li class="curusername"></li>
+		          <li role="separator" class="divider"></li>
+		          <li class="Information"><a href="#">资料与账号</a></li>
+		          <li class="AdminOperat"><a href="#">管理员操作</a></li>
+		       </ul>
+		    </div>
+			<!-- <img src="assets/img/common/admin_32px.svg" data-iicon="glyphicon-user" alt="管理员"> -->
+			<img src="assets/img/common/help_32px.svg" data-iicon="glyphicon-question-sign" alt="操作指引">
+			<img src="assets/img/common/power_32px.svg" data-iicon="glyphicon-off" alt="安全退出">
+		</div>
 	</div>
 	<div class="g_menu"></div>
 	<div class="g_body">
 		<div class="g_bodyin">
 			<div class="g_bodyin_tit bootstro" data-bootstro-title="数据统计引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>路径导航栏</h4><p>在这里您可以跳转系统页面，</p><p>跳转前记得保存信息哟</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">
-				<div class="g_bodyin_tit_l"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></div>
+				<div class="g_bodyin_tit_l"><img src="assets/img/common/home_24px.svg" data-iicon="glyphicon-home" alt="主页"><!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> --></div>
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
@@ -152,49 +169,48 @@
 								</div><!-- g_bodyin_bodyin_bottom_lsub_bottom end -->
 							</div><!-- g_bodyin_bodyin_bottom_lsub end -->
 							<div class="g_bodyin_bodyin_bottom_rsub">
-								<div class="g_bodyin_bodyin_bottom_rsubin" data-ishowchart="histogram">
-									<div class="chartTit">直方图histogram</div>
+								<div class="g_bodyin_bodyin_bottom_rsubin g_bodyin_bodyin_bottom_histogram" data-ishowchart="histogram">
+									<!-- <div class="chartTit">直方图histogram</div> -->
 									<div class="chartBody">
 										<div class="container-fluid">
 											
 										</div>
 									</div>
 								</div>
-								<div class="g_bodyin_bodyin_bottom_rsubin" data-ishowchart="boxlinediagram">
-									<div class="chartTit">箱线图boxlinediagram</div>
+								<div class="g_bodyin_bodyin_bottom_rsubin g_bodyin_bodyin_bottom_boxlinediagram" data-ishowchart="boxlinediagram">
+								<!-- 	<div class="chartTit">箱线图boxlinediagram</div> -->
 									<div class="chartBody">
 										<div class="container-fluid">
 											
 										</div>
 									</div>
 								</div>
-								<div class="g_bodyin_bodyin_bottom_rsubin" data-ishowchart="CPK">
-									<div class="chartTit">CPK</div>
+								<div class="g_bodyin_bodyin_bottom_rsubin g_bodyin_bodyin_bottom_CPK" data-ishowchart="CPK">
+									<!-- <div class="chartTit">CPK</div> -->
 									<div class="chartBody">
 										<div class="container-fluid">
 											
 										</div>
 									</div>
 								</div>
-								<div class="g_bodyin_bodyin_bottom_rsubin" data-ishowchart="correlationgraph">
-									<div class="chartTit">相关性correlationgraph</div>
+								<div class="g_bodyin_bodyin_bottom_rsubin g_bodyin_bodyin_bottom_correlationgraph" data-ishowchart="correlationgraph">
+									<!-- <div class="chartTit">相关性correlationgraph</div> -->
 									<div class="chartBody">
 										<div class="container-fluid">
 											
 										</div>
 									</div>
 								</div>
-								<div class="g_bodyin_bodyin_bottom_rsubin" data-ishowchart="wafermap">
-									<div class="chartTit">晶圆图wafermap
-									</div>
+								<div class="g_bodyin_bodyin_bottom_rsubin g_bodyin_bodyin_bottom_wafermap" data-ishowchart="wafermap">
+									<!-- <div class="chartTit">晶圆图wafermap</div> -->
 									<div class="chartBody">
 										<div class="container-fluid">
 											
 										</div>
 									</div>
 								</div>
-								<div class="g_bodyin_bodyin_bottom_rsubin" data-ishowchart="gaussiandistribution">
-									<div class="chartTit">高斯分布图gaussiandistribution</div>
+								<div class="g_bodyin_bodyin_bottom_rsubin g_bodyin_bodyin_bottom_gaussiandistribution" data-ishowchart="gaussiandistribution">
+									<!-- <div class="chartTit">高斯分布图gaussiandistribution</div> -->
 									<div class="chartBody">
 										<div class="container-fluid">
 											
@@ -223,10 +239,11 @@
 	<!-- highcharts end -->
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
+	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 
-	<!-- 下面一条手动替换，不构建 -->
-	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
-	<script src="assets/script/modules/common/drawWaferMap.js"></script>
+	<!-- build:js ../../dist/script/modules/common/drawWaferMap.min.js -->
+	<script src="src/script/modules/common/drawWaferMap.js"></script>
+	<!-- endbuild -->
 
 	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
 	<script src="src/script/modules/common/futureD_config.js"></script>

@@ -26,7 +26,12 @@ RF_SP2Store.contextObj = {
 	flag: null
 };
 RF_SP2Store.stateObj = {
-	renderSelectCsvSub: false,
+	renderSelectCsvSub: {
+		S11: false,
+		S12: false,
+		S21: false,
+		S22: false
+	},
 	calcTableIndex: -1,
 	splineSelectedArr: {
 		S11: [],
@@ -108,7 +113,9 @@ RF_SP2Store.stateObj = {
 	// RFSP2选中全部复选框
 	RFSP2Checkbox: null,
 	// TCF页面S参数
-	TCFsParameter: "S11"
+	TCFsParameter: "S11",
+	// 是否修改了MarkerName
+	changeMarkerName: false
 };
 RF_SP2Store.MathMap = {
 	"sin": {
@@ -199,7 +206,8 @@ RF_SP2Store.util.renderWaferFile = function(obj){
 				  	'<ul class="list-group">';
 	data = _.sortBy(data, function(o) { return o[2]; });
 	_.forEach(data, function(v, i){
-		str+='<li class="list-group-item" data-waferfile="'+waferFile+'" data-curvefile="'+v[0]+'" data-curvetypeid="'+v[1]+'" data-dieid="'+v[2]+'">'+v[0]+'</li>';
+		var subdieflag = _.eq(_.toNumber(v[4]), 0) ? 'dieid' : 'subdieid';
+		str+='<li class="list-group-item" data-waferfile="'+waferFile+'" data-curvefile="'+v[0]+'" data-curvetypeid="'+v[1]+'" data-dieid="'+v[2]+'" data-subdieid="'+v[3]+'" data-subdieflag="'+subdieflag+'">'+v[0]+'</li>';
 	});
 	str+='</ul></div>';
 	return str;
@@ -963,10 +971,12 @@ RF_SP2Store.util.echoMarker = function(obj){
 		curComfirm_key = RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter][0].key;
 	}
 	if(classify == 'select'){
+		RF_SP2Store.stateObj.key_y = false;
 		if(curComfirm_key == "y"){
-			RF_SP2Store.stateObj.key_y = false;
 			var yArr = _.reduce(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(result, v, i){
-				if(_.indexOf(result, v.y) == -1) result.push(v.y);return result;
+				var pushy = _.toNumber(v.y);
+				if(_.indexOf(result, pushy) == -1) result.push(pushy);
+				return result;
 			}, []);
 			var series0_y = chart.series[0].yData;
 			var series1_y = chart.series[1].yData;
@@ -1052,17 +1062,19 @@ RF_SP2Store.util.echoMarker = function(obj){
 			console.log(chart.series[0].yData);*/
 		}else if(curComfirm_key == "x"){
 			var xArr = _.reduce(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(result, v, i){
-				if(_.indexOf(result, v.x) == -1) result.push(v.x);return result;
+				var pushx = _.toNumber(v.x);
+				if(_.indexOf(result, pushx) == -1) result.push(pushx);
+				return result;
 			}, []);
 			if(xArr.length == 1){
 				RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter].length = 0;
-				chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, _.toNumber(xArr[0]))]);
+				!_.isEqual(xArr[0], NaN) && chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, xArr[0])]);
 			}else if(xArr.length == 2){
 				RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter].length = 0;
-				chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, _.toNumber(xArr[0]))]);
+				chart.series[0].options.point.events.click.call(chart.series[0].points[_.indexOf(chart.xAxis[0].categories, xArr[0])]);
 				setTimeout(function(){
-					chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(chart.xAxis[0].categories, _.toNumber(xArr[1]))]);
-				}, 100);
+					chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(chart.xAxis[0].categories, xArr[1])]);
+				}, 50);
 				/*chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);*/
 			}
 		}
@@ -1072,20 +1084,71 @@ RF_SP2Store.util.echoMarker = function(obj){
 				data: markerData,
 				changeMarkerName: changeMarkerName
 			});
-		}, 150);
+		}, 80);
+	}else if(classify == 'awesomplete'){
+		// 回显的Marker自动填充
+		var iArra = [];
+		_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
+			if(_.isNil(v.x) || _.isEqual(v.x, 'NaN')) v.x = NaN;
+		});
+		_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
+			iArra.push({
+				label: v.markerName+".X: "+v.x,
+				value: v.markerName+".X"
+			});
+			iArra.push({
+				label: v.markerName+".Y: "+v.y,
+				value: v.markerName+".Y"
+			});
+		});
+		RF_SP2Store.search_markerObj.list = _.cloneDeep(iArra);
+		/*Marker值自动填充*/
+		RF_SP2Store.search_markerObj.awesomplete && RF_SP2Store.search_markerObj.awesomplete.destroy();
+		RF_SP2Store.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
+			list: RF_SP2Store.search_markerObj.list,
+			minChars: 1,
+			maxItems: 10,
+			autoFirst: true,
+			filter: function (text, input) {
+				var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+				if(input.substring(cp-1, cp) == "M"){
+					return true;
+				}else{
+					return false;
+				}
+				// return text.indexOf(input) === 0;
+			},
+			replace: function(value) {
+				var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
+				var s = this.input.value.substring(0, cp - 1) + value.value + this.input.value.substring(cp, this.input.value.length);
+				$("#clac_textarea").val(s);
+				eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + value.value.length - 1);
+			}
+		});
 	}
 };
 // 添加markerid
 RF_SP2Store.util.addMarkerId = function(obj) {
 	var data = obj.data,
-	changeMarkerName = obj.changeMarkerName;
+	changeMarkerName = obj.changeMarkerName || false;
 	_.forEach(data, function(v){
-		var tr = $('.buildMarker_body>.container-fluid tbody>tr[data-curvetypeid="'+_.toNumber(v[0])+'"][data-ix="'+_.toNumber(v[3])+'"]');
+		var tr;
+		if(changeMarkerName === true){
+			tr = $('.buildMarker_body>.container-fluid tbody>tr[data-curvetypeid="'+_.toNumber(v[0])+'"][data-ix="'+_.toNumber(v[3])+'"]');
+			RF_SP2Store.stateObj.changeMarkerName = false;
+		}else{
+			tr = $('.buildMarker_body>.container-fluid tbody>tr[data-curvetypeid="'+_.toNumber(v[0])+'"][data-ix="'+_.toNumber(v[3])+'"][data-imarkername="'+v[2]+'"]');
+		}
 		tr.data('markerid', v[1]).addClass('success');
 		changeMarkerName && (tr.data('imarkername', v[2]).children('td:eq(0)').text(v[2]).data('iorigin', v[2]));
 		var findItem = _.find(RF_SP2Store.stateObj.splineSelectedArr[RF_SP2Store.stateObj.TCFsParameter], function(vv){
+			console.log(typeof vv.curvetypeid, vv.curvetypeid)
+			console.log(_.toString(v[0]))
+			console.log(typeof (vv.x === null ? NaN : vv.x), vv.x === null ? NaN : vv.x)
+			console.log(_.toNumber(v[3]))
 			return (_.isEqual(vv.curvetypeid, _.toString(v[0])) && _.isEqual((vv.x === null ? NaN : vv.x), _.toNumber(v[3])));
 		});
+		console.log(findItem)
 		changeMarkerName && (findItem.markerName = v[2]);
 		findItem.markerid = v[1];
 	});
@@ -1105,6 +1168,40 @@ RF_SP2Store.util.addMarkerId = function(obj) {
 			}).markerName = newimarkername;
 		}
 	});
+};
+// TCF当前选中晶圆
+RF_SP2Store.util.curTCFSelectWafer = function(obj){
+	return _.find(RF_SP2Store.waferTCFSelected, function(v) {
+		return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
+	});
+};
+// 判断coordinateId是否唯一
+RF_SP2Store.util.judgeCoordinateId = function(obj){
+	var coordinateId = [],
+	unique,
+	isExist = true,
+	getKey = 'dieid',
+	subdieFlag = '0'; // 默认是die
+	var curTCFSelectWafer = RF_SP2Store.util.curTCFSelectWafer();
+	if(_.isNil(curTCFSelectWafer)){
+		unique = false;
+		isExist = false;
+	}else{
+		isExist = true;
+		getKey = curTCFSelectWafer.selected[0].subdieflag;
+		subdieFlag = _.eq(getKey, 'subdieid') ? '1' : '0';
+		coordinateId = _.reduce(curTCFSelectWafer.selected, function(res, v){
+			if(_.indexOf(res, v[getKey]) == -1) res.push(v[getKey]);
+			return res;
+		}, []);
+		unique = coordinateId.length == 1 ? true : false;
+	}
+	return {
+		coordinateId: coordinateId,
+		unique: unique,
+		isExist: isExist,
+		subdieFlag: subdieFlag
+	};
 };
 
 RF_SP2Store.ajax = Object.create(null);
@@ -1157,7 +1254,8 @@ RF_SP2Store.ajax.GetMarker = function(obj){
 		type: "GET",
 		url: "GetMarker",
 		data: {
-			curveTypeId: curveTypeId
+			curveTypeId: curveTypeId,
+			sParameter: RF_SP2Store.stateObj.TCFsParameter
 		},
 		dataType: "json"
 	}).then(obj.done);
@@ -1405,51 +1503,6 @@ function imsgFun(messag, tt, type, classify){
 	$("#picture"+classify+"bottom .picturebottom_in_m_in ul>li.active").find(".Smith_Msg2").text(messag);
 }
 
-/*TCF获取数据并绘制图形*/
-function getTCFDataANDDrawChart(obj) {
-	var isComfirmKey = obj.isComfirmKey;
-	var oldData1 = _.cloneDeep(RF_SP2Store.mock.RF_SP2[2].curveinfos[2].smithAndCurve.S21);
-	var oldData2 = _.cloneDeep(RF_SP2Store.mock.RF_SP2[_.random(0, 1, false)].curveinfos[2].smithAndCurve.S21);
-	_.forEach(oldData1, function(v, i){
-		v[2] = v[2] - _.round(_.random(0.0004, 0.0009, true), 5);
-	});
-	_.forEach(oldData2, function(v, i){
-		v[2] = v[2] + _.round(_.random(0.0004, 0.0009, true), 5);
-	});
-	/*伪造数据结束*/
-	var ixData = [];
-	ixData[0] = [];
-	ixData[1] = [];
-	var iyData = [];
-	iyData[0] = [];
-	iyData[1] = [];
-	_.forEach(oldData1, function(v, i){
-		ixData[0].push(v[0]/1000000);
-		iyData[0].push(v[2]);
-	});
-	_.forEach(oldData2, function(v, i){
-		ixData[1].push(v[0]/1000000);
-		iyData[1].push(v[2]);
-	});
-	/*构造新数据*/
-	
-	
-	renderSpline({
-		container: "markerChart",
-		title: "marker图",
-		data: {
-			xData: ixData,
-			yData: iyData
-		},
-		name: _.cloneDeep(RF_SP2Store.waferTCFSelected),
-		callback: function(chart){
-			if(!isComfirmKey) {
-				
-			}
-		}
-	});
-}
-
 /*page onload*/
 $(function(){
 	var wafer = $("body").data("wafer");
@@ -1513,7 +1566,6 @@ $(function(){
 
 	// key值回显
 	$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
-	RF_SP2Store.stateObj.key_y = RF_SP2Store.stateObj.comfirm_key == "y" ? true : false;
 
 	// 拖动初始化
 	$(".indicatrix_div, .allLegends").draggable({ distance: 5 });
@@ -1522,34 +1574,7 @@ $(function(){
 	var saveMarkerFlag = store.get("futureDT2Online__RF_SP2__saveMarkerFlag");
 	if(!_.isNil(saveMarkerFlag)){
 		$(".g_bodyin_bodyin_top_wrap_m_in li[data-targetclass='g_bodyin_bodyin_bottom_2']").trigger("click");
-	}
-
-	return false;
-
-	/*计算参数回显*/
-	var tableStr = store.get("futureD__RF_SP2__paramCalc_tableStr");
-	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").html(tableStr);
-	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
-	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").each(function(){
-		var str = $(this).children("td:eq(2)").text().trim();
-		if(_.isEmpty(str)) return true;
-		str = markerJoinCalc(str);
-		str = markerMathCalc(str);
-		var iVal = eval(str);
-		if(_.isNaN(iVal)){
-			/*RF_SP2SwalMixin({
-				title: "公式提示",
-				text: "公式有误",
-				type: "error",
-				timer: 2000
-			});*/
-			$(this).children("td:eq(1)").text("9E+37");
-		}else{
-			$(this).children("td:eq(1)").text(iVal.toFixed(2));
-		}
-	});
-
-	
+	}	
 });
 
 /*event handler*/
@@ -1730,8 +1755,10 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 	var waferid = _.toString(iparent.prev().data("waferid")),
 	waferfile = iThat.data("waferfile"),
 	curvefile = iThat.data("curvefile"),
-	curvetypeid = _.toString(iThat.data("curvetypeid"));
-	dieid = _.toString(iThat.data("dieid"));
+	curvetypeid = _.toString(iThat.data("curvetypeid")),
+	dieid = _.toString(iThat.data("dieid")),
+	subdieid = _.toString(iThat.data("subdieid")),
+	subdieflag = iThat.data("subdieflag");
 	var iKey = waferid+"-"+RF_SP2Store.stateObj.TCFsParameter;
 	if(iThat.hasClass("list-group-item-info")){
 		iThat.removeClass("list-group-item-info");
@@ -1752,7 +1779,9 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 		RF_SP2Store.waferTCFSelected[iKey].selected.push({
 			curvefile: curvefile,
 			curvetypeid: curvetypeid,
-			dieid: dieid
+			dieid: dieid,
+			subdieid: subdieid,
+			subdieflag: subdieflag
 		});
 		// 操作其他csv文件对象
 		_.forEach(RF_SP2Store.waferTCFSelected, function(v, k, obje){
@@ -1773,9 +1802,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 			TCFflag: true
 		});
 	});
-	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v){
-		return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
-	});
+	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer();
 	if(!_.isNil(findTCFWafer)){
 		$(".reRenderBtnDiv").css({
 			"left": (e.pageX + 30)+"px",
@@ -1980,13 +2007,15 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 				/*TCF分页*/
 				var saveMarkerFlag = store.get("futureDT2Online__RF_SP2__saveMarkerFlag");
 				if(_.isNil(saveMarkerFlag)){
-					RF_SP2Store.stateObj.TCFsParameter = RF_SP2Store.stateObj.dblclickFlag === false ? "S11" : RF_SP2Store.stateObj.dblclickFlag;
+					RF_SP2Store.stateObj.TCFsParameter = 'S11';
+					// RF_SP2Store.stateObj.TCFsParameter = RF_SP2Store.stateObj.dblclickFlag === false ? "S11" : RF_SP2Store.stateObj.dblclickFlag;
 				}else{
-					RF_SP2Store.stateObj.TCFsParameter = saveMarkerFlag;
+					RF_SP2Store.stateObj.TCFsParameter = 'S11';
+					// RF_SP2Store.stateObj.TCFsParameter = saveMarkerFlag;
 					store.remove("futureDT2Online__RF_SP2__saveMarkerFlag");
 				}
 				$(".g_info [data-iicon='glyphicon-question-sign']").hide();
-				if(!RF_SP2Store.stateObj.renderSelectCsvSub){
+				if(!RF_SP2Store.stateObj.renderSelectCsvSub[RF_SP2Store.stateObj.TCFsParameter]){
 					/*回显marker*/
 					// RF_SP2Store.stateObj.splineSelectedArr = store.get("futureDT2Online__RF_SP2__splineSelectedArr");
 					// RF_SP2Store.stateObj.splineSelectedCopyArr = store.get("futureDT2Online__RF_SP2__splineSelectedArr");
@@ -2014,15 +2043,15 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 						classify: 2
 					});
 					var lis = $(".g_bodyin_bodyin_bottom_lsub_top>.panel:eq(0)>ul>li");
+					lis.eq(0).removeClass('list-group-item-info');
+					lis.eq(1).removeClass('list-group-item-info');
 					lis.eq(0).trigger("click");
 					lis.eq(1).trigger("click");
 					// 触发点击
 					$(".reRenderBtnDiv").trigger("click");
 					
 					// 展示当前晶圆所有参数，结果，公式
-					var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v) {
-						return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
-					});
+					var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer();
 					if(!_.isNil(findTCFWafer)){
 						$.ajax({
 							type: "GET",
@@ -2032,11 +2061,16 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 							}, 
 							dataType: "json"
 						}).then(function(data){
+							var istr = '';
 							if(_.isNil(data) || _.isEmpty(data)){
-								$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").empty().append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+								istr = '<tr class="canCalc"><td></td><td></td><td></td></tr>';
 							}else{
-
+								_.forEach(data, function(v, i){
+									istr+='<tr class="canCalc" data-oldparameter="'+v.custom_parameter+'" data-olduserformula="'+v.user_formula+'" data-oldformula="'+v.calculate_formula+'"><td>'+v.custom_parameter+'</td><td>'+v.calculation_result+'</td><td>'+v.user_formula+'</td></tr>';
+								});
+								istr += '<tr class="canCalc"><td></td><td></td><td></td></tr>';
 							}
+							$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").empty().append(istr);
 						});
 					}else{
 						eouluGlobal.S_getSwalMixin()({
@@ -2048,59 +2082,8 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 							timer: 1900
 						});
 					}
-					RF_SP2Store.stateObj.renderSelectCsvSub = true;
+					RF_SP2Store.stateObj.renderSelectCsvSub[RF_SP2Store.stateObj.TCFsParameter] = true;
 				}
-
-				// 根据S参数回显
-				if(_.isNil(RF_SP2Store.stateObj.splineSelectedArr)){
-					RF_SP2Store.stateObj.splineSelectedArr = {
-						S11: [],
-						S12: [],
-						S21: [],
-						S22: []
-					};
-				}else{
-					var iArra = [],
-					TCFsParameter = RF_SP2Store.stateObj.TCFsParameter;
-					_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
-						if(_.isNil(v.x)) v.x = NaN;
-					});
-					_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
-						iArra.push({
-							label: v.markerName+".X: "+v.x,
-							value: v.markerName+".X"
-						});
-						iArra.push({
-							label: v.markerName+".Y: "+v.y,
-							value: v.markerName+".Y"
-						});
-					});
-					RF_SP2Store.search_markerObj.list = _.cloneDeep(iArra);
-				}
-
-				/*Marker值自动填充*/
-				RF_SP2Store.search_markerObj.awesomplete && RF_SP2Store.search_markerObj.awesomplete.destroy();
-				RF_SP2Store.search_markerObj.awesomplete = new Awesomplete(document.getElementById("clac_textarea"), {
-					list: RF_SP2Store.search_markerObj.list,
-					minChars: 1,
-					maxItems: 10,
-					autoFirst: true,
-					filter: function (text, input) {
-						var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
-						if(input.substring(cp-1, cp) == "M"){
-							return true;
-						}else{
-							return false;
-						}
-						// return text.indexOf(input) === 0;
-					},
-					replace: function(value) {
-						var cp = eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]);
-						var s = this.input.value.substring(0, cp - 1) + value.value + this.input.value.substring(cp, this.input.value.length);
-						$("#clac_textarea").val(s);
-						eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + value.value.length - 1);
-					}
-				});
 
 				$(".reRenderBtnDiv").slideDown(200);
 				/*判断结束*/
@@ -2115,9 +2098,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 
 /*重新绘制事件*/
 $(".reRenderBtnDiv").click(function(){
-	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v){
-		return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
-	});
+	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer();
 	if(!_.isNil(findTCFWafer)){
 		var curveTypeId = [],
 		waferId = findTCFWafer.waferid,
@@ -2138,6 +2119,9 @@ $(".reRenderBtnDiv").click(function(){
 							container: "markerChart",
 							findData: findTCFWafer
 						});
+						RF_SP2Store.util.echoMarker({
+							classify: 'awesomplete'
+						});
 					}else{
 						RF_SP2Store.ajax.GetMarker({
 							curveTypeId: _.reduce(findTCFWafer.selected, function(res, v) {
@@ -2147,6 +2131,7 @@ $(".reRenderBtnDiv").click(function(){
 								RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter] = [];
 								$(".buildMarker_body>div tbody").empty();
 								if(_.isNil(data1) || _.isEmpty(data1)){
+									RF_SP2Store.stateObj.key_y = false;
 									RF_SP2Store.util.MarkerCurveHandler({
 										data: data,
 										container: "markerChart",
@@ -2179,11 +2164,16 @@ $(".reRenderBtnDiv").click(function(){
 												classify: 'select',
 												chart: chart,
 												markerData: data1,
-												changeMarkerName: true
+												changeMarkerName: RF_SP2Store.stateObj.changeMarkerName
 											});
 										}
 									});
 								}
+								setTimeout(function(){
+									RF_SP2Store.util.echoMarker({
+										classify: 'awesomplete'
+									});
+								}, 100);
 							}
 						});
 					}
@@ -2191,18 +2181,17 @@ $(".reRenderBtnDiv").click(function(){
 			}
 		});
 	}
-	// getTCFDataANDDrawChart({
-	// 	isComfirmKey: false
-	// });
 });
 
 /*数据统计*/
 $(".g_bodyin_tit_r>.glyphicon-stats").click(function(){
 	var  waferNO = [];
-	
+	for(var trnum = 0 ; trnum < $(".g_bodyin_bodyin_bottom_l .panel-heading").length ;trnum++){
+		waferNO.push($(".g_bodyin_bodyin_bottom_l .panel-heading").eq(trnum).data("waferfile"));
+	}
 	eouluGlobal.S_settingURLParam({
 		waferId: $("body").data("wafer"),
-		waferNO: $("body").data("wafer"),
+		waferNO: waferNO,
 	}, false, false, false, "DataStatistics");
 });
 
@@ -2215,59 +2204,151 @@ $(document).on("click", "tr.canCalc", function(){
 }).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
 	$(".RF_SP2_cover, .subAddParam").slideUp(200);
 }).on("click", ".subAddParam_footin>.btn-primary", function(){
-	if(_.isEmpty($("#calc_text").val().trim())){
+	// 公式、参数提交
+	var customParameter = $("#calc_text").val().trim(),
+	str = $("#clac_textarea").val();
+	if(_.isEmpty(customParameter) || _.isEqual(_.trim(str), '')){
 		RF_SP2SwalMixin({
 			title: "公式提示",
-			text: "参数必填",
-			type: "error",
-			timer: 2000
+			text: "参数或公式必填",
+			type: "warning",
+			timer: 1900
 		});
 		return false;
 	}
-	var str = $("#clac_textarea").val();
-	if(str == "" || str.trim() == "") return false;
-	str = markerJoinCalc(str);
-	str = markerMathCalc(str);
-	try{
-		var iVal = eval(str);
-		var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2Store.stateObj.calcTableIndex);
-		if(_.isNaN(iVal)){
-			/*RF_SP2SwalMixin({
-				title: "公式提示",
-				text: "公式有误",
-				type: "error",
-				timer: 2000
-			});*/
-			tr.children().eq(1).text("9E+37");
-		}else{
-			tr.children().eq(1).text(iVal.toFixed(2));
-		}
-		tr.children().eq(0).text($("#calc_text").val());
-		tr.children().eq(2).text($("#clac_textarea").val());
-		var noEmptyLen = 0;
-		$(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").each(function(){
-			var iiiflag = false;
-			$(this).children("td").each(function(){
-				if($(this).text() != ""){
-					iiiflag = true;
-					return false;
-				}
-			});
-			if(iiiflag){
-				noEmptyLen++ ;
-			}
-		});
-		store.set("futureD__RF_SP2__paramCalc_tableStr", $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").html());
-		if(noEmptyLen == $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").length) {
-			$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
-		}
-		$(".subAddParam_footin>.btn-warning").trigger("click");
-	}catch(err){
+	var tr = $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").eq(RF_SP2Store.stateObj.calcTableIndex),
+	oldParameter = _.isNil(tr.data('oldparameter')) ? undefined : tr.data('oldparameter'),
+	olduserformula = tr.data('olduserformula');
+	if(!_.isNil(oldParameter) && _.eq(oldParameter, customParameter) && _.eq(olduserformula, str)){
 		RF_SP2SwalMixin({
 			title: "公式提示",
-			text: "公式有误",
-			type: "error",
-			timer: 2000
+			text: "参数和公式均未做修改",
+			type: "warning",
+			timer: 1900
+		});
+		return false;
+	}
+	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer(),
+	judgeCoordinateId = RF_SP2Store.util.judgeCoordinateId();
+	var subdieFlag = judgeCoordinateId.subdieFlag;
+	if(!_.isNil(findTCFWafer)){
+		$.ajax({
+			type: 'GET',
+			url: 'CustomParameter',
+			data: {
+				waferId: findTCFWafer.waferid,
+				customParameter: customParameter,
+				subdieFlag: subdieFlag
+			},
+			dataType: 'json'
+		}).then(function(data){
+			if(_.isEqual(data, '')){
+				// 参数可用
+				// str = markerJoinCalc(str);
+				// str = markerMathCalc(str);
+				// try{
+				// 	var iVal = eval(str);
+				// }catch(err){
+				// 	RF_SP2SwalMixin({
+				// 		title: "公式提示",
+				// 		text: "公式有误",
+				// 		type: "error",
+				// 		timer: 2000
+				// 	});
+				// }
+				// 
+				var userformula = str,
+				formula = markerJoinCalc(str),
+				coordinateId,
+				subdieId;
+				if(judgeCoordinateId.isExist && judgeCoordinateId.unique){
+					if(_.eq(subdieFlag, '0')){
+						coordinateId = judgeCoordinateId.coordinateId[0];
+						subdieId = undefined;
+					}else if(_.eq(subdieFlag, '1')){
+						coordinateId = undefined;
+						subdieId = judgeCoordinateId.coordinateId[0];
+					}
+					$.ajax({
+						type: 'GET',
+						url: 'Calculator',
+						data: {
+							customParameter: customParameter,
+							coordinateId: coordinateId,
+							waferId: findTCFWafer.waferid,
+							userformula: userformula,
+							formula: formula,
+							subdieId: subdieId,
+							subdieFlag: subdieFlag,
+							oldParameter: oldParameter
+						},
+						dataType: 'json'
+					}).then(function(data1){
+						var result = data1.result;
+						if(_.isNil(result)){
+							RF_SP2SwalMixin({
+								title: "提示",
+								text: "失败",
+								type: "warning",
+								timer: 1900,
+								showConfirmButton: false
+							});
+						}else{
+							RF_SP2SwalMixin({
+								title: "提示",
+								text: "成功",
+								type: "success",
+								timer: 1900,
+								showConfirmButton: false
+							});
+							
+							if(_.isNaN(result)){
+								tr.children().eq(1).text("9E+37");
+							}else{
+								tr.children().eq(1).text(result);
+							}
+							tr.children().eq(0).text(customParameter);
+							tr.children().eq(2).text(str);
+							tr.data('oldparameter', data1.customParameter);
+							tr.data('olduserformula', userformula);
+							// var noEmptyLen = 0;
+							// $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").each(function(){
+							// 	var iiiflag = false;
+							// 	$(this).children("td").each(function(){
+							// 		if($(this).text() != ""){
+							// 			iiiflag = true;
+							// 			return false;
+							// 		}
+							// 	});
+							// 	if(iiiflag){
+							// 		noEmptyLen++ ;
+							// 	}
+							// });
+							// if(noEmptyLen == $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").length) {
+							// 	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+							// }
+							_.isNil(oldParameter) && $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+							$(".subAddParam_footin>.btn-warning").trigger("click");
+						}
+					});
+				}else{
+					RF_SP2SwalMixin({
+						title: "提示",
+						text: "未选中曲线或所选曲线不在同一die",
+						type: "warning",
+						timer: 2000,
+						showConfirmButton: false
+					});
+				}
+
+			}else{
+				RF_SP2SwalMixin({
+					title: "公式提示",
+					text: "参数已存在",
+					type: "warning",
+					timer: 1900
+				});
+			}
 		});
 	}
 });
@@ -2345,72 +2426,53 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 // 切换key
 $("#comfirm_key").click(function(){
 	var key = $(this).parent().prev().children("select").val(),
-	findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v){
-		return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
-	});
+	findTCFWafer = RF_SP2Store.util.curTCFSelectWafer();
 	if(_.isNil(key) || _.isEqual(key, "请选择") || _.isNil(findTCFWafer)) return false;
-	if($(".buildMarker_body>.container-fluid tbody>tr").length == 0){
-		RF_SP2Store.stateObj.comfirm_key = key;
-		store.set("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
-		RF_SP2SwalMixin({
-			title: "Marker确认Key提示",
-			text: "成功，现在可以选点了，请记得保存",
-			type: "success",
-			timer: 1100,
-			showConfirmButton: false
-		}).then(function(re){
-			if(re.dismiss == swal.DismissReason.backdrop || re.dismiss == swal.DismissReason.esc || re.dismiss == swal.DismissReason.timer){
-				RF_SP2Store.stateObj.key_y = false;
-				$(".reRenderBtnDiv").trigger("click");
-			}
-		});
-	}else{
-		$.ajax({
-			type: 'POST',
-			url: 'MarkerOperate',
-			data: {
-				classify: 'remove',
-				sParameter: RF_SP2Store.stateObj.TCFsParameter,
-				curveTypeId: _.reduce(findTCFWafer.selected, function(res, v) {
-					return _.isEmpty(res) ? v.curvetypeid : (res + "," + v.curvetypeid);
-				}, "")
-			},
-			dataType: 'json'
-		}).then(function(data) {
-			if(data === true){
-				RF_SP2Store.stateObj.comfirm_key = key;
-				store.set("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
-				RF_SP2SwalMixin({
-					title: "Marker确认Key提示",
-					text: "成功，现在可以选点了，请记得保存",
-					type: "success",
-					timer: 1100,
-					showConfirmButton: false
-				}).then(function(re){
-					if(re.dismiss == swal.DismissReason.backdrop || re.dismiss == swal.DismissReason.esc || re.dismiss == swal.DismissReason.timer){
-						RF_SP2Store.stateObj.key_y = false;
-						$(".reRenderBtnDiv").trigger("click");
-					}
-				});
-			}else if(data === false){
-				RF_SP2SwalMixin({
-					title: "Marker切换key提示",
-					text: "切换失败，检查是否提交",
-					type: "warning",
-					timer: 1600,
-					showConfirmButton: false
-				});
-			}else{
-				RF_SP2SwalMixin({
-					title: "Marker切换key提示",
-					text: data,
-					type: "info",
-					timer: 1900,
-					showConfirmButton: false
-				});
-			}
-		});
-	}
+	$.ajax({
+		type: 'POST',
+		url: 'MarkerOperate',
+		data: {
+			classify: 'remove',
+			sParameter: RF_SP2Store.stateObj.TCFsParameter,
+			curveTypeId: _.reduce(findTCFWafer.selected, function(res, v) {
+				return _.isEmpty(res) ? v.curvetypeid : (res + "," + v.curvetypeid);
+			}, "")
+		},
+		dataType: 'json'
+	}).then(function(data) {
+		if(data === true){
+			RF_SP2Store.stateObj.comfirm_key = key;
+			store.set("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
+			RF_SP2SwalMixin({
+				title: "Marker确认Key提示",
+				text: "成功，现在可以选点了，请记得保存",
+				type: "success",
+				timer: 1100,
+				showConfirmButton: false
+			}).then(function(re){
+				if(re.dismiss == swal.DismissReason.backdrop || re.dismiss == swal.DismissReason.esc || re.dismiss == swal.DismissReason.timer){
+					RF_SP2Store.stateObj.key_y = false;
+					$(".reRenderBtnDiv").trigger("click");
+				}
+			});
+		}else if(data === false){
+			RF_SP2SwalMixin({
+				title: "Marker切换key提示",
+				text: "切换失败，检查是否提交",
+				type: "warning",
+				timer: 1600,
+				showConfirmButton: false
+			});
+		}else{
+			RF_SP2SwalMixin({
+				title: "Marker切换key提示",
+				text: data,
+				type: "info",
+				timer: 1900,
+				showConfirmButton: false
+			});
+		}
+	});
 });
 
 /*marker点修改*/
@@ -2495,6 +2557,7 @@ $(document).on({
 						}
 					}).then(function(data){
 						if(data === true){
+							RF_SP2Store.stateObj.changeMarkerName = true;
 							RF_SP2SwalMixin({
 								title: "Marker修改提示",
 								text: "修改成功",
@@ -2505,15 +2568,21 @@ $(document).on({
 							_.find(RF_SP2Store.stateObj.splineSelectedArr[RF_SP2Store.stateObj.TCFsParameter], function(v, i){
 								return _.isEqual(_.toString(v.markerid), _.toString(markerid));
 							}).markerName = newMarker;
+							RF_SP2Store.util.echoMarker({
+								classify: 'awesomplete'
+							});
 						}else if(data === false){
+							RF_SP2Store.stateObj.changeMarkerName = false;
+							iThat.text(origin);
 							RF_SP2SwalMixin({
 								title: "Marker修改提示",
 								text: "修改失败",
 								type: "warning",
 								showConfirmButton: false
 							});
-							iThat.text(origin);
 						}else{
+							RF_SP2Store.stateObj.changeMarkerName = false;
+							iThat.text(origin);
 							RF_SP2SwalMixin({
 								title: "Marker修改提示",
 								text: data,
@@ -2539,13 +2608,11 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 	if($(".buildMarker_body>.container-fluid tbody>tr").length == 0) return false;
 	var TCFsParameter = RF_SP2Store.stateObj.TCFsParameter;
 	_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
-		var iText = $(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(v.name+v.x)+"']").children("td").eq(0).text();
+		var iText = $(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(v.name+v.x)+"'][data-imarkername='"+v.markerName+"']").children("td").eq(0).text();
 		v.markerName = iText;
 		v.id = iText.match(/Marker(\S+)/)[1];
 	});
-	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v) {
-		return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
-	});
+	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer();
 	if(!_.isNil(findTCFWafer)){
 		var ajaxData = {};
 		ajaxData.waferId = findTCFWafer.waferid;
@@ -2592,6 +2659,9 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 						RF_SP2Store.util.addMarkerId({
 							data: data1
 						});
+						RF_SP2Store.util.echoMarker({
+							classify: 'awesomplete'
+						});
 					}
 				});
 			}else if(data === false){
@@ -2617,24 +2687,62 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 // marker应用到其他die
 $(".buildMarker_footin>.btn-success").click(function(){
 	if($(".buildMarker_body>.container-fluid tbody>tr").length == 0 || RF_SP2Store.stateObj.comfirm_key == "请选择") return false;
-	var findTCFWafer = _.find(RF_SP2Store.waferTCFSelected, function(v) {
-		return (_.isEqual(RF_SP2Store.stateObj.TCFsParameter, v.sParameter) && (v.selected || []).length == 2);
-	});
+	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer();
 	if(!_.isNil(findTCFWafer)){
-		$.ajax({
-			type: 'POST',
-			url: 'MarkerSave',
-			data: {
-				coordinateId: coordinateId,
-				markerKey: RF_SP2Store.stateObj.comfirm_key,
-				sParameter: findTCFWafer.sParameter,
-				waferId: findTCFWafer.waferid
-			},
-			// contentType: 'application',
-			dataType: 'json'
-		}).then(function(data) {
-
-		});
+		var judgeCoordinateId = RF_SP2Store.util.judgeCoordinateId();
+		var subdieFlag = judgeCoordinateId.subdieFlag;
+		if(judgeCoordinateId.isExist && judgeCoordinateId.unique){
+			var coordinateId,
+			subdieId;
+			if(_.eq(subdieFlag, '0')){
+				coordinateId = judgeCoordinateId.coordinateId[0];
+				subdieId = undefined;
+			}else if(_.eq(subdieFlag, '1')){
+				coordinateId = undefined;
+				subdieId = judgeCoordinateId.coordinateId[0];
+			}
+			$.ajax({
+				type: 'POST',
+				url: 'MarkerSave',
+				data: {
+					coordinateId: coordinateId,
+					markerKey: RF_SP2Store.stateObj.comfirm_key,
+					sParameter: findTCFWafer.sParameter,
+					waferId: findTCFWafer.waferid,
+					subdieId: subdieId,
+					subdieFlag: subdieFlag
+				},
+				dataType: 'json'
+			}).then(function(data) {
+				var messag,
+				type;
+				if(data === true){
+					messag = '应用成功';
+					type = 'success';
+				}else if(data === false){
+					messag = '应用失败';
+					type = 'warning';
+				}else{
+					messag = data;
+					type = 'info';
+				}
+				RF_SP2SwalMixin({
+					title: "marker应用到其他die提示",
+					text: messag,
+					type: type,
+					timer: 1900,
+					showConfirmButton: false
+				});
+			});
+		}else{
+			RF_SP2SwalMixin({
+				title: "marker应用到其他die提示",
+				text: "未选中曲线或所选曲线不在同一die",
+				type: "warning",
+				timer: 2000,
+				showConfirmButton: false
+			});
+		}
 	}
 });
 

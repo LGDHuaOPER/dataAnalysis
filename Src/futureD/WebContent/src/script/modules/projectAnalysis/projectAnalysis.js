@@ -639,6 +639,15 @@ $(".g_body_rr_body_btn>input").click(function(){
 	    			  wafer: waferId,
 	  			}, false, false, false, "Analysis");
 	    	  }
+	    	  else{
+	    		   projectAnalysisSwalMixin({
+		    			title: '提示',
+		    			text: data,
+		    			type: 'warning',
+		    			showConfirmButton: false,
+		    			timer: 2000,
+		    		})
+	    	  }
 	       },
 	       error: function (data, status, e) {
 	    	   projectAnalysisSwalMixin({

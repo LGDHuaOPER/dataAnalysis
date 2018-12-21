@@ -298,16 +298,14 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	
-	<!-- 下面一条手动替换，不构建 -->
-	<!--<script src="assets/script/libs/drawWaferMap.js"></script>-->
-	<script src="assets/script/modules/common/drawWaferMap.js"></script>
+	<script src="dist/script/modules/common/drawWaferMap-3585ae9ee0.min.js"></script>
 	
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<script src="dist/script/modules/dataCompare/dataCompare-77d920c54a.min.js"></script>
+	<script src="dist/script/modules/dataCompare/dataCompare-013ab4a91a.min.js"></script>
 </body>
 </html>

@@ -286,7 +286,8 @@
 											</div>
 											<div class="buildMarker_foot">
 												<div class="buildMarker_footin">
-													<input type="button" class="btn btn-primary" value="提交">
+													<input type="button" class="btn btn-primary" value="添加提交" title="添加保存Marker">
+													<input type="button" class="btn btn-success" value="应用到其余die" title="应用到当前晶圆的其余die">
 												</div>
 											</div>
 										</div>
@@ -463,15 +464,15 @@
 	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<script src="assets/script/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.js"></script>
-	<!-- 下面一条手动替换，不构建 -->
-	<script src="assets/script/libs/drawingSmith.js"></script>
+	
+	<script src="dist/script/modules/common/drawingSmith-42fb909dbf.min.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2-5992f33e96.min.js"></script>
+	<script src="dist/script/modules/RF_SP2/RF_SP2-68543d0b52.min.js"></script>
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2_render-17c517aa11.min.js"></script>
+	<script src="dist/script/modules/RF_SP2/RF_SP2_render-94549f2f9e.min.js"></script>
 </body>
 </html>

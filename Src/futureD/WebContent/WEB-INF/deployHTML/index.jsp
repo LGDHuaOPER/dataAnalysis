@@ -107,7 +107,7 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-76138929d4.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 	

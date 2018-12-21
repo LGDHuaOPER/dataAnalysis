@@ -284,7 +284,7 @@ function renderSpline(option){
 									text: "请先设置Key值并保存",
 									type: 'info',
 									showConfirmButton: false,
-									timer: 2000,
+									timer: 1900,
 								});
 								return false;
 							}
@@ -372,6 +372,7 @@ function renderSpline(option){
 									_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
 										if(!_.isNil(v.isNew)){
 											var iii = _.indexOf(nameArr, v.name);
+											console.log(_.indexOf(chart.xAxis[0].categories, v.x))
 											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(false, true);
 										}
 									});
@@ -381,7 +382,16 @@ function renderSpline(option){
 								}else{
 									/*先前未选中*/
 									/*只可选一次*/
-									if(RF_SP2Store.stateObj.key_y) return false;
+									if(RF_SP2Store.stateObj.key_y) {
+										RF_SP2SwalMixin({
+											title: 'Key值设置提醒',
+											text: "以y为key时，仅可选取一次",
+											type: 'info',
+											showConfirmButton: false,
+											timer: 1900,
+										});
+										return false;
+									}
 									/*第一步，自己曲线找*/
 									var yData1 = chart.series[Number(!ii)].yData;
 									var lastYIndex1 = _.lastIndexOf(yData1, y);
@@ -463,11 +473,11 @@ function renderSpline(option){
 											saveMarkerANDaddTr(name, theOneNewPointArr[1].x, y, true, theOneNewPointArr[1].index+2);
 										}
 									}else if(iindex == lastYIndex1 && iindex != firstYIndex1){
-										console.warn("第一步，自己曲线找", "当前曲线两点都存在，另一点位置在"+firstYIndex1);
+										console.warn("第一步，自己曲线找", "当前曲线两点都存在，点击点位置在"+iindex+"，另一点位置在"+firstYIndex1);
 										saveMarkerANDaddTr(name, x, y, false, iindex);
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[firstYIndex1], y, false, firstYIndex1);
 									}else if(iindex != lastYIndex1 && iindex == firstYIndex1){
-										console.warn("第一步，自己曲线找", "当前曲线两点都存在，另一点位置在"+lastYIndex1);
+										console.warn("第一步，自己曲线找", "当前曲线两点都存在，点击点位置在"+iindex+"，另一点位置在"+lastYIndex1);
 										saveMarkerANDaddTr(name, x, y, false, iindex);
 										// chart.series[Number(!ii)].data[lastYIndex1].select(true, true);
 										saveMarkerANDaddTr(name, chart.xAxis[0].categories[lastYIndex1], y, false, lastYIndex1);

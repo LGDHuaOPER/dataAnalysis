@@ -264,7 +264,7 @@
 														<div class="col-sm-6 col-md-4 col-lg-4">
 															<select id="comfirm_key_sel" class="form-control">
 																<option value="请选择">请选择</option>
-																<option value="x">x</option>
+																<option value="x" disabled="disabled" readonly="readonly">x</option>
 																<option value="y">y</option>
 															</select>
 														</div>
@@ -289,7 +289,7 @@
 											<div class="buildMarker_foot">
 												<div class="buildMarker_footin">
 													<input type="button" class="btn btn-primary" value="添加提交" title="添加保存Marker">
-													<input type="button" class="btn btn-success" value="应用到其余die" title="应用到当前晶圆的其余die">
+													<input type="button" class="btn btn-success" value="应用到其余die" title="应用到当前晶圆的其余die" disabled="disabled">
 												</div>
 											</div>
 										</div>
@@ -340,11 +340,60 @@
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：ln(9)" data-ivalue="ln()" data-ipos="-1">ln</div></div>
 								</div>
 								<div class="row">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sing(3)" data-ivalue="sing()" data-ipos="-1">sin角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cosg(3)" data-ivalue="cosg()" data-ipos="-1">cos角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tang(3)" data-ivalue="tang()" data-ipos="-1">tan角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="以x为底N的对数，规则：log(x,N)" data-ivalue="log(,)" data-ipos="-2">log</div></div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：factorial(3)" data-ivalue="factorial()" data-ipos="-1">!</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="π" data-ipos="0">π</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="e" data-ipos="0">e</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：pow(x,N)" data-ivalue="pow(,)" data-ipos="-2">^</div></div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="(" data-ipos="0">(</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue=")" data-ipos="0">)</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="x的N次方根，规则：sqrt(x,N)" data-ivalue="sqrt(,)" data-ipos="-2">√</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="打开/关闭数组软键盘" data-ivalue="Number">Num</div></div>
+								</div>
+								<div class="row toggleRow">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="0" data-ipos="0">0</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="1" data-ipos="0">1</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="2" data-ipos="0">2</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="3" data-ipos="0">3</div></div>
+								</div>
+								<div class="row toggleRow">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="4" data-ipos="0">4</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="5" data-ipos="0">5</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="6" data-ipos="0">6</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="7" data-ipos="0">7</div></div>
+								</div>
+								<div class="row toggleRow">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="8" data-ipos="0">8</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="9" data-ipos="0">9</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="." data-ipos="0">.</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="退格" data-ipos="0">退格</div></div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="+" data-ipos="0">+</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="-" data-ipos="0">-</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="*" data-ipos="0">*</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="/" data-ipos="0">/</div></div>
+								</div>
+							</div>
+							<!-- <div class="container-fluid">
+								<div class="row">
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3)" data-ivalue="sin()" data-ipos="-1">sin</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3)" data-ivalue="cos()" data-ipos="-1">cos</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3)" data-ivalue="tan()" data-ipos="-1">tan</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：ln(9)" data-ivalue="ln()" data-ipos="-1">ln</div></div>
+								</div>
+								<div class="row">
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3°)" data-ivalue="sin(°)" data-ipos="-2">sin角度</div></div>
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3°)" data-ivalue="cos(°)" data-ipos="-2">cos角度</div></div>
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3°)" data-ivalue="tan(°)" data-ipos="-2">tan角度</div></div>
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：log(3)(9)" data-ivalue="log()()" data-ipos="-3">log</div></div>
-									
 								</div>
 								<div class="row">
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：3!" data-ivalue="()!" data-ipos="-2">!</div></div>
@@ -382,7 +431,7 @@
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="*" data-ipos="0">*</div></div>
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="/" data-ipos="0">/</div></div>
 								</div>
-							</div>
+							</div> -->
 						</div>
 					</div>
 				</div>
@@ -466,8 +515,10 @@
 	<script src="assets/script/libs/jquery-contextMenu/jquery.contextMenu.min.js"></script>
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<script src="assets/script/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.js"></script>
-	<!-- 下面一条手动替换，不构建 -->
-	<script src="assets/script/libs/drawingSmith.js"></script>
+	
+	<!-- build:js ../../dist/script/modules/common/drawingSmith.min.js -->
+	<script src="src/script/modules/common/drawingSmith.js"></script>
+	<!-- endbuild -->
 
 	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
 	<script src="src/script/modules/common/futureD_config.js"></script>

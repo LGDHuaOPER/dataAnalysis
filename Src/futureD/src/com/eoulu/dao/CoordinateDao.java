@@ -8,16 +8,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.catalina.tribes.util.Arrays;
-
 import com.eoulu.transfer.WaferMapDTO;
 import com.eoulu.util.DataBaseUtil;
-import com.google.gson.Gson;
 
 /**
  * @author mengdi
@@ -314,6 +310,18 @@ public class CoordinateDao {
 	 */
 	public boolean updateDieParamByMarker(Connection conn,Object[] param,String column){
 		String sql = "update dm_wafer_coordinate_data set "+column+"=? where coordinate_id=?";
+		return db.operate(conn,sql, param);
+	}
+
+	/**
+	 * 更新subdie对应的自定义参数值
+	 * @param conn
+	 * @param param
+	 * @param column
+	 * @return
+	 */
+	public boolean updateSubdieParamByMarker(Connection conn,Object[] param,String column){
+		String sql = "update dm_wafer_subdie set "+column+"=? where subdie_id=?";
 		return db.operate(conn,sql, param);
 	}
 	

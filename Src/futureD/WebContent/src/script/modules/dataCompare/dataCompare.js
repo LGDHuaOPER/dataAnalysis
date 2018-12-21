@@ -523,7 +523,7 @@ function draw_map_good_rate(obj){
 
 /*map色阶分布图绘制*/
 function draw_map_color_order_distribution(obj){
-	//console.log("draw_map_color_order_distribution",obj);
+	console.log("draw_map_color_order_distribution",obj);
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
@@ -925,7 +925,7 @@ function findParamUpLow(param){
 	return _.cloneDeep(UpLow);
 }
 function buildParameterChartContainer(obj){
-	//console.log("obj",obj);
+	console.log("obj",obj);
 	var classify = obj.classify;
 	var paramsArr = obj.paramsArr;
 	var str = '<div class="container-fluid">';
@@ -1024,7 +1024,7 @@ function buildParameterChartContainer(obj){
 
 
 function ajax_all_chart(obj){
-	//console.log("obj",obj);
+	console.log("obj_aj",obj);
 	var times = obj.times;
 	var alltimes = obj.alltimes;
 	var whenArr = obj.whenArr;

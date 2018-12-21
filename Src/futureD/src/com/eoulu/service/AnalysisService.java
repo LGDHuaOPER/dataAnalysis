@@ -65,14 +65,14 @@ public interface AnalysisService {
 	 */
 	boolean saveMarkerByX(int waferId,String module,int coordinateId,String[] att,String sParameter);
 	
-	boolean saveMarkerByY(int waferId,String module,int coordinateId,String[] att,String sParameter);
+	boolean saveMarkerByY(int waferId,String module,int coordinateId,String subdieFlag,String[] att,String sParameter);
 	/**
 	 * 判断自定义参数是否存在
 	 * @param waferId
 	 * @param parameter
 	 * @return
 	 */
-	boolean getParameterExsit(int waferId,String parameter);
+	boolean getParameterExsit(int waferId,String parameter,String subdieFlag);
 	
 	/**
 	 * 计算公式存储
@@ -85,7 +85,10 @@ public interface AnalysisService {
 	 * @param sParameter
 	 * @return
 	 */
-	boolean saveCalculation(int waferId,int coordinateId,String parameter,String calculationFormula,String userFormula,double result,String module);
+	boolean saveCalculation(int waferId,int coordinateId,int subdieId,String subdieFlag,String parameter,String calculationFormula,String userFormula,double result,String module);
+
+
+	
 	/**
 	 * 获取计算公式主键
 	 * @param waferId
@@ -109,9 +112,12 @@ public interface AnalysisService {
 	 * @param waferId
 	 * @return
 	 */
-	boolean modifyCalculation(String oldParam,String customParam,String formula,String userformula,String result,int calculationId,int coordinateId,int waferId);
+	boolean modifyCalculation(String oldParam,String customParam,String formula,String userformula,String result,int calculationId,int coordinateId,int subdieId,String subdieFlag,int waferId);
 	
-	boolean updateCalculation(int waferId,int coordinateId);
+
+	
+	
+	boolean updateCalculation(int waferId,int coordinateId,int subdeiId,String subdieFlag,String sParameter);
 	
 	/**
 	 * marker是否存在
@@ -138,7 +144,7 @@ public interface AnalysisService {
 	 */
 	boolean deleteMarker(String curveTypeId,String sParameter);
 	
-	List<Object[]> getMarker(String curveTypeId);
+	List<Object[]> getMarker(String curveTypeId,String sParameter);
 	
 	/**
 	 * 计算区域内容
