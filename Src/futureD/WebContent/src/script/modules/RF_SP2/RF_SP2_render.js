@@ -176,7 +176,7 @@ function renderSpline(option){
 		},
 	    xAxis: {
 			title: {
-				text: "Mhz",
+				text: "GHz",
 			}, 
 			categories : option.data.xData[0],
 			gridLineColor: '#197F07',
@@ -215,30 +215,21 @@ function renderSpline(option){
 		tooltip: {
 			formatter: function (e) {
 				if(RF_SP2Store.stateObj.comfirm_key == "y"){
-					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, <b class="underline_b">'+this.y+' dB</b>';
+					return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, <b class="underline_b">'+this.y+' dB</b>';
 				}else if(RF_SP2Store.stateObj.comfirm_key == "x"){
-					return '<b>'+this.series.name+'</b><br><b class="underline_b">'+this.x+' Mhz</b>, '+this.y+' dB';
+					return '<b>'+this.series.name+'</b><br><b class="underline_b">'+this.x+' GHz</b>, '+this.y+' dB';
 				}else{
-					return '<b>'+this.series.name+'</b><br>'+this.x+' Mhz, '+this.y+' dB';
+					return '<b>'+this.series.name+'</b><br>'+this.x+' GHz, '+this.y+' dB';
 				}
             },
             useHTML: true
 			/*headerFormat: '<b>{series.name}</b><br>',
-			pointFormat: option.data.xData[0][point.index]+' MHz, {point.y} db'*/
+			pointFormat: option.data.xData[0][point.index]+' GHz, {point.y} db'*/
 		},
 		plotOptions: {
 			series: {
 				allowPointSelect: false,
 				connectNulls: true,
-				/*dataLabels: {
-					enabled: true,
-					format: '{y} mm'
-				},*/
-				/*events: {
-					click: function(e){
-						console.log("event", e)
-					}
-				},*/
 				marker: {
 					enabled: true,
 					/*fillColor: "#00aeef",*/
@@ -265,11 +256,11 @@ function renderSpline(option){
 							/*console.log(chart.getSelectedPoints());*/
 							var ii = this.colorIndex;
 							if(ii == 0){
-								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(this.series.name+" "+this.category+"Mhz, "+this.y+"dB");
-								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(option.name[1]+" "+this.category+"Mhz, "+option.data.yData[1][this.x]+"dB");
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(this.series.name+" "+this.category+"GHz, "+this.y+"dB");
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(option.name[1]+" "+this.category+"GHz, "+option.data.yData[1][this.x]+"dB");
 							}else{
-								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(this.series.name+" "+this.category+"Mhz, "+this.y+"dB");
-								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(option.name[0]+" "+this.category+"Mhz, "+option.data.yData[0][this.x]+"dB");
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(1).children().text(this.series.name+" "+this.category+"GHz, "+this.y+"dB");
+								$(".g_bodyin_bodyin_bottom_rsubin_foot>.container-fluid>.row").eq(0).children().text(option.name[0]+" "+this.category+"GHz, "+option.data.yData[0][this.x]+"dB");
 							}
 							/*chart.series[ii].data[1].select(true, true);*/
 						},
@@ -290,11 +281,42 @@ function renderSpline(option){
 							}
 							var TCFsParameter = RF_SP2Store.stateObj.TCFsParameter;
 							var ii = !this.colorIndex;
-							var name = this.series.name;
+							var name = this.series.name; // 自己的name
 							var name2 = chart.series[Number(ii)].name;
 							var x = this.category;
 							var y = this.y;
 							var iindex = this.x;
+							// 首先判断当前的选中curve是不是绘图的两个curve
+							var curTCFSelectWafer = RF_SP2Store.util.curTCFSelectWafer();
+							if(_.isNil(curTCFSelectWafer)){
+								RF_SP2SwalMixin({
+									title: 'Key值设置提醒',
+									text: "请检查是否更换选择了曲线文件，但是未重新绘图",
+									type: 'warning',
+									showConfirmButton: false,
+									timer: 2500,
+								});
+								return false;
+							}else{
+								var waferfile = curTCFSelectWafer.waferfile.replace(/\..*$/, "");
+								var true1 = _.some(curTCFSelectWafer.selected, function(valu){
+									return _.eq(waferfile+"  "+valu.curvefile, name);
+								});
+								var true2 = _.some(curTCFSelectWafer.selected, function(valu){
+									return _.eq(waferfile+"  "+valu.curvefile, name2);
+								});
+								if(!true1 || !true2){
+									RF_SP2SwalMixin({
+										title: 'Key值设置提醒',
+										text: "请检查是否更换选择了曲线文件，但是未重新绘图",
+										type: 'warning',
+										showConfirmButton: false,
+										timer: 2500,
+									});
+									return false;
+								}
+							}
+
 							if(RF_SP2Store.stateObj.comfirm_key == "x"){
 								/*以X为Key*/
 								var y2 = chart.series[Number(ii)].yData[iindex];
@@ -341,39 +363,15 @@ function renderSpline(option){
 								if(this.selected){
 									/*选中过*/
 									/*第一步，自己曲线找*/
-									/*var otherx = null;
-									_.pull(RF_SP2Store.stateObj.splineSelectedArr, _.find(RF_SP2Store.stateObj.splineSelectedArr, function(o) { 
-											var flag = false;
-											if(o.name == name && o.y == y){
-												flag = true;
-												if(o.x != x){
-													otherx = o.x;
-												}
-											}
-											return flag;
-										 }));
-									_.pull(RF_SP2Store.stateObj.splineSelectedArr, _.find(RF_SP2Store.stateObj.splineSelectedArr, function(o) { 
-											var flag = false;
-											if(o.name == name && o.y == y){
-												flag = true;
-												if(o.x != x){
-													otherx = o.x;
-												}
-											}
-											return flag;
-										 }));
-									this.select(false,true);
-									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
-									if(!_.isNil(otherx)){
-										$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+otherx)+"']").remove();
-										chart.series[Number(!ii)].data[_.indexOf(chart.xAxis[0].categories, otherx)].select(false, false);
-									}*/
+									
 									/*第二步，另一条曲线找*/
 									_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
 										if(!_.isNil(v.isNew)){
-											var iii = _.indexOf(nameArr, v.name);
-											console.log(_.indexOf(chart.xAxis[0].categories, v.x))
-											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(false, true);
+											var curSeries = chart.series[_.indexOf(nameArr, v.name)];
+											var findInde = _.findIndex(chart.xAxis[0].categories, function(vv, ii){
+												return _.eq(curSeries.yData[ii], v.y) && _.eq(vv, v.x);
+											});
+											!_.eq(findInde, -1) && curSeries.data[findInde].select(false, true);
 										}
 									});
 									RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter] = [];
@@ -622,7 +620,6 @@ function renderSpline(option){
 											});
 											var anotherNewPointArr12 = [];
 											var anotherNewxyData12;
-											console.log(anotherCombinatorial12)
 											_.forEach([_.head(anotherCombinatorial12), _.last(anotherCombinatorial12)], function(qv, wi){
 												var xx1 = anotherXData[qv.index];
 												var xx2 = anotherXData[qv.index + 1];
@@ -635,7 +632,6 @@ function renderSpline(option){
 													index: qv.index
 												}));
 											});
-											console.log(anotherNewPointArr12)
 											anotherNewxyData12 = buildNewxyData({
 												pointArr: anotherNewPointArr12,
 												xData: _.cloneDeep(anotherXData),
@@ -656,10 +652,11 @@ function renderSpline(option){
 									}
 									_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
 										if(!_.isNil(v.isNew)){
-											var iii = _.indexOf(nameArr, v.name);
-											console.log(v.x)
-											console.log(_.indexOf(chart.xAxis[0].categories, v.x))
-											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
+											var curSeries = chart.series[_.indexOf(nameArr, v.name)];
+											var findInde = _.findIndex(chart.xAxis[0].categories, function(vv, ii){
+												return _.eq(curSeries.yData[ii], v.y) && _.eq(vv, v.x);
+											});
+											!_.eq(findInde, -1) && curSeries.data[findInde].select(true, true);
 										}
 									});
 									/*第二步，另一条曲线找end*/
@@ -675,10 +672,6 @@ function renderSpline(option){
 	});
 	_.isFunction(option.callback) && option.callback(chart);
 }
-
-/*$(document).on("mousemove", function(e){
-	console.log("document", e)
-});*/
 
 function judgeIntersect(yData1, iindex, cur, y){
 	var flag1 = false;
@@ -803,10 +796,11 @@ function findPointCombinatorial(obj){
 function getPointXY(obj){
 	var k = (obj.two[1] - obj.one[1]) / obj.two[0] - obj.one[0];
 	var x = obj.two[0] - (obj.two[1] - obj.baseVal) / k;
-	x = Math.floor(x * 100) / 100;
-	console.log(obj.one[0])
-	console.log(obj.two[0])
-	console.log(x)
+	console.log("1", x)
+	x = _.round(x * 1000) / 1000;
+	console.log("2", obj.one[0])
+	console.log("3", obj.two[0])
+	console.log("4", x)
 	return {
 		x: x,
 		y: obj.baseVal,
@@ -816,7 +810,7 @@ function getPointXY(obj){
 
 function buildNewxyData(obj){
 	_.forEach(obj.pointArr, function(v, i){
-		obj.xData.splice(v.index+i+1, 0, v.x*1.001); // 不能和x一样
+		obj.xData.splice(v.index+i+1, 0, v.x); // 不能和x一样
 		obj.yData.splice(v.index+i+1, 0, v.y);
 		obj.yData2.splice(v.index+i+1, 0, obj.yData2[v.index+i]);
 	});

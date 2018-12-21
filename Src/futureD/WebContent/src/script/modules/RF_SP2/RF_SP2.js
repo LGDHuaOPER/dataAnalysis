@@ -45,7 +45,7 @@ RF_SP2Store.stateObj = {
 		S21: [],
 		S22: []
 	},
-	comfirm_key: store.get("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key") || "请选择",
+	comfirm_key: "请选择",
 	key_y: false,
 	/*awesomeX坐标备选*/
 	smithSXCategories: [],
@@ -601,10 +601,6 @@ RF_SP2Store.util.graphStyleDraw = function(obj){
 						events: {
 							mouseOver: function (ev) {
 								var point = this;
-								/*var x = xCategories[this.x] ;
-								var y = this.y ;
-								var str = y+" dB,"+x+" GHz" ;
-								msgDom && msgDom.find(".Smith_Msg2").text(str);*/
 								_.isFunction(obj.pointMouseOverCallback) && obj.pointMouseOverCallback(point, chart, ev);
 							}
 						}
@@ -945,9 +941,6 @@ RF_SP2Store.util.MarkerCurveHandler = function(obj){
 		xData.push(zipArr[0]);
 		yData.push(zipArr[1]);
 	});
-	console.log(xData)
-	console.log(yData)
-	console.log(nameArr)
 	renderSpline({
 		container: container,
 		title: title,
@@ -987,7 +980,7 @@ RF_SP2Store.util.echoMarker = function(obj){
 			}else if(_.indexOf(series1_y, yArr[0]) > -1){
 				chart.series[1].options.point.events.click.call(chart.series[1].points[_.indexOf(series1_y, yArr[0])]);
 			}else{
-				console.log("兩條曲綫都沒有真實點");
+				console.warn("Marker点回显", "兩條曲綫都沒有真實點");
 				var y11, y22, y33, y44, x11, x22, x33, x44, inde1, inde2, copyx, copyy1, copyy2;
 				_.forEach(series0_y, function(v, i, arr){
 					if(v > yArr[0]){
@@ -1666,8 +1659,6 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_intop .panel>.panel-heading, 
 								graphStyle: iflag
 							});
 						}
-						// console.assert(dblid=="S11_chart_S", "no S11_chart_S");
-						// console.assert(dblclassify=="S11", "no S11");
 					}
 				}
 			}
@@ -2102,8 +2093,7 @@ $(".reRenderBtnDiv").click(function(){
 	if(!_.isNil(findTCFWafer)){
 		var curveTypeId = [],
 		waferId = findTCFWafer.waferid,
-		TCFsParameter = RF_SP2Store.stateObj.TCFsParameter,
-		comfirm_key = RF_SP2Store.stateObj.comfirm_key;
+		TCFsParameter = RF_SP2Store.stateObj.TCFsParameter;
 		_.forEach(findTCFWafer.selected, function(v, i){
 			curveTypeId.push(v.curvetypeid);
 		});
@@ -2114,6 +2104,29 @@ $(".reRenderBtnDiv").click(function(){
 			done: function(data){
 				if(!_.isNil(data)){
 					// 取返回值的comfirm_key
+					var comfirm_keyArr = [];
+					_.forOwn(data, function(dv){
+						if(!_.isNil(dv.markerData) && !_.isEmpty(dv.markerData)){
+							comfirm_keyArr.push(dv.markerData[0].location_key);
+						}
+					});
+					comfirm_keyArr = _.uniq(comfirm_keyArr);
+					RF_SP2Store.stateObj.comfirm_key = comfirm_keyArr.length == 1 ? comfirm_keyArr[0] : "请选择";
+					var comfirm_key = RF_SP2Store.stateObj.comfirm_key;
+					$("#comfirm_key_sel").val(comfirm_key);
+					if(comfirm_keyArr.length == 2){
+						eouluGlobal.S_getSwalMixin()({
+							title: 'key值异常',
+							text: "选中曲线有不一样的key，请先切换key删除原来的Marker点",
+							type: 'warning',
+							showConfirmButton: false,
+							showCancelButton: false,
+							timer: 2500
+						});
+						return false;
+					}
+					// 取返回值的comfirm_key end
+					
 					if(_.isNil(comfirm_key) || _.isEqual(comfirm_key, "请选择")){
 						RF_SP2Store.util.MarkerCurveHandler({
 							data: data,
@@ -2396,10 +2409,10 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 		if($next.data("imouseenter") == "enter") return false;
 		$next.toggleClass("clicked");
 		if($next.hasClass("clicked")){
-			$next.slideDown(600);
+			$next.slideDown(400);
 			$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 关闭Marker设置');
 		}else{
-			$next.slideUp(600);
+			$next.slideUp(400);
 			$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 打开Marker设置');
 		}
 	},
@@ -2407,7 +2420,7 @@ $(".g_bodyin_bodyin_bottom_rsubin_tit>button").on({
 		var $next = $(this).next();
 		if($next.hasClass("clicked")) return false;
 		$next.data("imouseenter", "enter");
-		$next.addClass("clicked").slideDown(600, function(){
+		$next.addClass("clicked").slideDown(400, function(){
 			$next.data("imouseenter", "leave");
 		});
 		$(this).html('<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 关闭Marker设置');
@@ -2443,7 +2456,7 @@ $("#comfirm_key").click(function(){
 	}).then(function(data) {
 		if(data === true){
 			RF_SP2Store.stateObj.comfirm_key = key;
-			store.set("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
+			// store.set("futureDT2Online__"+$("body").data("curusername")+"__ProjectAnalysis__comfirm_key", RF_SP2Store.stateObj.comfirm_key);
 			RF_SP2SwalMixin({
 				title: "Marker确认Key提示",
 				text: "成功，现在可以选点了，请记得保存",
@@ -3208,7 +3221,6 @@ $(".indicatrix_footin>.btn-success").click(function(){
 				},
 				events: {
 					mouseOver: function(){
-						/*console.log(this); // series对象*/
 						var curSeriesArr = _.find(RF_SP2Store.stateObj.indicatrix_state_arr, (function(v, i){
 							return this.name == v.name;
 						}).bind(this));
