@@ -46,21 +46,32 @@ public class WaferMapServiceImpl implements WaferMapService {
 		Map<String, Object> result = new LinkedHashMap<>(), map = null;
 		List<WaferMapDTO> waferList = null;
 		List<SubdieDO> waferSubdie = null;
+		List<String> lsStr = null;
 		int waferId = 0;
 		double upper=0,lower=0;
-		String column = "",waferNO="";
+		String column = "",waferNO="",str = "";
 		boolean flag = false;
 		Connection conn = new DataBaseUtil().getConnection();
 		for (int i = 0, length = waferAtt.length; i < length; i++) {
 			waferId = Integer.parseInt(waferAtt[i]);
-			waferNO = dao.getWaferNO(conn, waferId);
+			Map<String,Object> condition = dao.getCondition(conn, waferId);
+			 waferNO = condition.get("wafer_number")==null?"":condition.get("wafer_number").toString();
+			String device = condition.get("device_number")==null?"":condition.get("device_number").toString();
+			String lot = condition.get("lot_number")==null?"":condition.get("lot_number").toString();
 			flag = subdieDao.getSubdieExist(conn,waferId);
 			map = getMapParameter(conn, waferNO,flag);
 			
 			if(flag){
-				map.put("waferDie", coordinate.getAllDie(conn, waferNO));
-				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
-				map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO));
+				lsStr = subdieDao.getSubdieNO(conn, waferNO, device, lot);
+				if(lsStr != null){
+					for(int k=0,size=lsStr.size();k<size;k++){
+						str += ","+lsStr.get(k);
+					}
+					str = str.substring(1);
+				}
+				map.put("waferDie", coordinate.getAllDie(conn, waferNO,device,lot));
+				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO,str));
+				map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO,device,lot));
 				waferSubdie = new ArrayList<SubdieDO>();
 				waferSubdie.add(subdieDao.getTotalYield(conn, waferId));
 				for (String param : paramList) {
@@ -107,10 +118,11 @@ public class WaferMapServiceImpl implements WaferMapService {
 		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		Map<String, Object> result = new LinkedHashMap<>(), map = null;
+		List<String> lsStr = null;
 		int waferId = 0;
 		boolean flag = false;
 		double upper=0,lower=0;
-		String column = "",waferNO = "";
+		String column = "",waferNO = "",str = "";
 		List<WaferMapDTO> waferList = null;
 		List<SubdieDO> waferSubdie = null;
 		Connection conn = new DataBaseUtil().getConnection();
@@ -119,11 +131,21 @@ public class WaferMapServiceImpl implements WaferMapService {
 			flag = subdieDao.getSubdieExist(conn,waferId);
 			waferNO = dao.getWaferNO(conn, waferId);
 			map = getMapParameter(conn, waferNO,flag);
-			
+			Map<String,Object> condition = dao.getCondition(conn, waferId);
+			 waferNO = condition.get("wafer_number")==null?"":condition.get("wafer_number").toString();
+			String device = condition.get("device_number")==null?"":condition.get("device_number").toString();
+			String lot = condition.get("lot_number")==null?"":condition.get("lot_number").toString();
 			if(flag){
-				map.put("waferDie", coordinate.getAllDie(conn, waferNO));
-				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
-				map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO));
+				lsStr = subdieDao.getSubdieNO(conn, waferNO, device, lot);
+				if(lsStr != null){
+					for(int k=0,size=lsStr.size();k<size;k++){
+						str += ","+lsStr.get(k);
+					}
+					str = str.substring(1);
+				}
+				map.put("waferDie", coordinate.getAllDie(conn, waferNO,device,lot));
+				map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO,str));
+				map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO,device,lot));
 				waferSubdie = new ArrayList<SubdieDO>();
 				for (String param : paramList) {
 					List<Double> ls = rangeList.get(param);
@@ -194,15 +216,27 @@ public class WaferMapServiceImpl implements WaferMapService {
 		SubdieDao subdieDao = (SubdieDao) ObjectTable.getObject("SubdieDao");
 		CoordinateDao coordinate = (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		Map<String, Object> map = new HashMap<>();
-		
+		List<String> ls = null;
 		Connection conn = new DataBaseUtil().getConnection();
-		String waferNO = dao.getWaferNO(conn,waferId);
+		
+		Map<String,Object> condition = dao.getCondition(conn, waferId);
+		String waferNO = condition.get("wafer_number")==null?"":condition.get("wafer_number").toString();
+		String device = condition.get("device_number")==null?"":condition.get("device_number").toString();
+		String lot = condition.get("lot_number")==null?"":condition.get("lot_number").toString(),str="";
 		boolean flag = subdieDao.getSubdieExist(conn, waferId);
 		map = getMapParameter(conn, waferNO,flag);
 		if(flag){
-			map.put("waferDie", coordinate.getAllDie(conn, waferNO));
-			map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO));
-			map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO));
+			ls = subdieDao.getSubdieNO(conn, waferNO, device, lot);
+			if(ls != null){
+				for(int i=0,size=ls.size();i<size;i++){
+					str += ","+ls.get(i);
+				}
+				str = str.substring(1);
+			}
+			System.out.println("str:"+str);
+			map.put("waferDie", coordinate.getAllDie(conn, waferNO,device,lot));
+			map.put("subdieConfig", subdieDao.getSubdieConfig(conn, waferNO,str));
+			map.put("otherSubdieType",subdieDao.getOtherSubdie(conn, waferId, waferNO,device,lot));
 			map.put("waferList", subdieDao.getVectorMap(conn, waferId, "", ""));
 			map.put("containSubdie", flag);
 		}else{

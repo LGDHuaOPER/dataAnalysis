@@ -39,6 +39,7 @@ import com.eoulu.service.ReadPMSFileService;
 import com.eoulu.service.WaferService;
 import com.eoulu.service.impl.WaferServiceImpl;
 import com.eoulu.transfer.FileFilterTool;
+import com.eoulu.transfer.ObjectTable;
 import com.eoulu.transfer.ProgressSingleton;
 import com.eoulu.util.DataBaseUtil;
 import com.eoulu.util.FileUtil;
@@ -843,7 +844,8 @@ public class ZipFileParser {
 		public static Map<String, Object> getMapFile(String file){
 			Map<String, Object> MapFileResult=new HashMap<String, Object>();
 			//存放所有文件
-			List<String> filelist1=new ArrayList<String>();
+			List<String> filelist1=new ArrayList<String>(), convertParam = new ArrayList<String>();
+			MapParameterDO mapParamDO =  new MapParameterDO();
 			FileInputStream fis = null;
 			String status="success";//map文件标志信息
 			String waferNO="",fileEncode = FileCode.getEncode(file);
@@ -882,34 +884,77 @@ public class ZipFileParser {
 				e.printStackTrace();
 			}
 			String s = "",xZeroPosition = "", yZeroPosition = "";
+			int flagnum=0;
 			for(int i=0;i<filelist1.size();i++){
 				s = filelist1.get(i);
 				if(filelist1.get(i).contains("WaferID=")){
 					waferNO=s.substring(s.indexOf("=")+1);
+					mapParamDO.setWaferNumber(waferNO);
 					continue;
 				}
 				if(s.contains("Diameter=")&&!s.contains("NotchDiameter=")){
 					diameter=Double.parseDouble(s.substring(s.indexOf("=")+1));
+					mapParamDO.setDiameter(diameter);
 					continue;
 				}
 				if(filelist1.get(i).contains("DieSizeX=")){
 					dieSizeX=Double.parseDouble(s.substring(s.indexOf("=")+1));
+					mapParamDO.setDieXMax(dieSizeX);
 					continue;
 				}
 				if(filelist1.get(i).contains("DieSizeY=")){
 					dieSizeY=Double.parseDouble(s.substring(s.indexOf("=")+1));
+					mapParamDO.setDieYMax(dieSizeY);
 					continue;
 				}
 				if(filelist1.get(i).contains("XZeroPosition=")){
 					xZeroPosition = s.substring(s.indexOf("=")+1);
+					mapParamDO.setDirectionX(xZeroPosition);
 					continue;
 				}
 				if(filelist1.get(i).contains("YZeroPosition=")){
 					yZeroPosition = s.substring(s.indexOf("=")+1);
+					mapParamDO.setDirectionY(yZeroPosition);
 					continue;
 				}
 				if(filelist1.get(i).contains("FlatLength=")){
 					flatLength=Double.parseDouble(s.substring(s.indexOf("=")+1));
+					mapParamDO.setCuttingEdgeLength(flatLength);
+					break;
+				}
+				
+				if (filelist1.get(i).contains("[IndexTranslation]") && !filelist.get(i + 1).contains("[Printing]")) {
+					flagnum = i;
+					continue;
+				}
+				if (flagnum > 0  &&  i  >= flagnum + 2 && i < flagnum + 10) {
+					if (i >= filelist1.size() || "".equals(filelist1.get(i))
+							|| filelist1.get(i).contains("[Printing]")) {
+						/*if (i == flagnum + 2) {
+							status = "上传失败，文件中缺失编号坐标X轴增长方向！";
+						} else if (i == flagnum + 3) {
+							status = "上传失败，文件中缺失编号坐标Y轴增长方向！";
+						} else if (i == flagnum + 4) {
+							status = "上传失败，文件中缺失晶圆图坐标X轴增长方向！";
+						} else if (i == flagnum + 5) {
+							status = "上传失败，文件中缺失晶圆图坐标Y轴增长方向！";
+						} else if (i == flagnum + 6) {
+							status = "上传失败，文件中缺失晶圆图参考Die的X坐标！";
+						} else if (i == flagnum + 7) {
+							status = "上传失败，文件中缺失晶圆图参考Die的Y坐标！";
+						} else if (i == flagnum + 8) {
+							status = "上传失败，文件中缺失晶圆图参考Die编号的X坐标！";
+						} else {
+							status = "上传失败，文件中缺失晶圆图参考Die编号的Y坐标！";
+						}
+						MapFileResult.put("status", status);
+						return MapFileResult;*/
+						
+					} else {
+						convertParam.add(filelist1.get(i));
+					}
+				}
+				if(filelist1.get(i).contains("[Printing]")){
 					break;
 				}
 				
@@ -954,6 +999,31 @@ public class ZipFileParser {
 				status="上传失败，文件中的YZeroPosition为空值！";
 				MapFileResult.put("status", status);
 				return MapFileResult;
+			}
+			if(convertParam.size()>0){
+				mapParamDO.setDirectionX(convertParam.get(0));
+				mapParamDO.setDirectionY(convertParam.get(1));
+				mapParamDO.setSetCoorX(convertParam.get(2));
+				mapParamDO.setSetCoorY(convertParam.get(3));
+				mapParamDO.setSetCoorDieX(Integer.parseInt(convertParam.get(4)));
+				mapParamDO.setSetCoorDieY(Integer.parseInt(convertParam.get(5)));
+				mapParamDO.setStandCoorDieX(convertParam.get(6));
+				mapParamDO.setStandCoorDieY(convertParam.get(7));
+				
+			}else{
+				mapParamDO.setSetCoorX("");
+				mapParamDO.setSetCoorY("");
+				mapParamDO.setSetCoorDieX(0);
+				mapParamDO.setSetCoorDieY(0);
+				mapParamDO.setStandCoorDieX("");
+				mapParamDO.setStandCoorDieY("");
+			}
+			System.out.println("mapParamDO:"+new Gson().toJson(mapParamDO));
+			ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
+			if(parameterDao.getMapParameter( mapParamDO.getWaferNumber())){
+				status = parameterDao.updateMapParameter( mapParamDO);
+			}else{
+				status = parameterDao.insertMapParameter(mapParamDO);
 			}
 			mapfilelist.put(waferNO, file);
 			MapFileResult.put("status", status);

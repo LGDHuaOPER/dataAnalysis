@@ -206,14 +206,16 @@ public class SubdieDao {
 		return subdie;
 	}
 	
-	public Map<String,Object> getOtherSubdie(Connection conn,int waferId,String waferNO){
-		String sql = "select subdie_x,subdie_y,subdie_bin,coordinate_id,subdie_number from dm_wafer_subdie where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status<>2) order by coordinate_id ";
+	public Map<String,Object> getOtherSubdie(Connection conn,int waferId,String waferNO,String device,String lot){
+		String sql = "select subdie_x,subdie_y,subdie_bin,coordinate_id,subdie_number from dm_wafer_subdie where wafer_id in (select wafer_id from dm_wafer where wafer_number=?  and wafer_id<>? and delete_status<>2 and device_number=? and lot_number=?) order by coordinate_id ";
 		Map<String,Object> result = new HashMap<>(),temp = null;
 		PreparedStatement ps;
 		try {
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, waferNO);
 			ps.setInt(2, waferId);
+			ps.setString(3, device);
+			ps.setString(4, lot);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				temp = new HashMap<>();
@@ -409,8 +411,11 @@ public class SubdieDao {
 	}
 
 	
-	public Map<Object,Object> getSubdieConfig(Connection conn,String waferNO){
-		String sql = "select subdie_number,offset_x,offset_y,subdie_size_x,subdie_size_y from dm_wafer_subdie_config where wafer_number=?";
+	public Map<Object,Object> getSubdieConfig(Connection conn,String waferNO,String str){
+		String sql = "select subdie_number,offset_x,offset_y,subdie_size_x,subdie_size_y from dm_wafer_subdie_config where wafer_number=? ";
+		if(!"".equals(str)){
+			sql += " and subdie_number in ("+str+")";
+		}
 		Map<Object,Object> result = new HashMap<>();
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -423,6 +428,12 @@ public class SubdieDao {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	public List<String> getSubdieNO(Connection conn,String waferNO,String device,String lot){
+		String sql = "select distinct subdie_number from dm_wafer_subdie where wafer_id in (select wafer_id from dm_wafer where wafer_number=? and delete_status<>2 and device_number=? and lot_number=?)";
+		List<String> ls = DataBaseUtil.getInstance().queryList(conn, sql, new Object[]{waferNO,device,lot});
+		return ls;
 	}
 	
 	public static boolean getSubdieExist(Connection conn,int waferId){

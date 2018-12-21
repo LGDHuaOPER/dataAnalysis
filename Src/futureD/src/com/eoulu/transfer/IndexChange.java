@@ -721,7 +721,7 @@ public class IndexChange {
             }
             //#endregion
         }
-        System.out.println("那种都不是！");
+//        System.out.println("那种都不是！");
         return DieXandDieY;
     }
 

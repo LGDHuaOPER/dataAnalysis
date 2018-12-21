@@ -244,9 +244,9 @@ public class CoordinateDao {
 		return coordinateId;
 	}
 	
-	public int getCoordinate(Connection conn,String waferNO,String dieNumber){
-		String sql = "select coordinate_id from dm_wafer_coordinate_data where die_number=? and wafer_id in (select wafer_id from dm_wafer where wafer_number=? and delete_status=0)";
-		Object[] param = new Object[]{dieNumber,waferNO};
+	public int getCoordinate(Connection conn,String waferNO,String dieNumber,String device,String lot){
+		String sql = "select coordinate_id from dm_wafer_coordinate_data where die_number=? and wafer_id in (select wafer_id from dm_wafer where wafer_number=? and delete_status=0  and device_number=? and lot_number=?)";
+		Object[] param = new Object[]{dieNumber,waferNO,device,lot};
 		List<Map<String,Object>> ls = db.queryToList(conn, sql, param);
 		int coordinateId = 0;
 		if(ls.size()>0){
@@ -271,9 +271,9 @@ public class CoordinateDao {
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
-	public int getCoordinateId(Connection conn,String waferNO,String dieX,String dieY){
-		String sql = "select coordinate_id from dm_wafer_coordinate_data where x_coordinate=? and y_coordinate=? and wafer_id in (select wafer_id from dm_wafer where wafer_number=? and delete_status=0)";
-		Object[] param = new Object[]{dieX,dieY,waferNO};
+	public int getCoordinateId(Connection conn,String waferNO,String dieX,String dieY,String device,String lot){
+		String sql = "select coordinate_id from dm_wafer_coordinate_data where x_coordinate=? and y_coordinate=? and wafer_id in (select wafer_id from dm_wafer where wafer_number=? and delete_status=0  and device_number=? and lot_number=?)";
+		Object[] param = new Object[]{dieX,dieY,waferNO,device,lot};
 		Object result = db.queryResult(conn, sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
@@ -285,9 +285,9 @@ public class CoordinateDao {
 	 * @param subdieNumber
 	 * @return
 	 */
-	public int  getSubdieId(Connection conn,int coordinateId,int subdieNumber){
-		String sql = "select subdie_id from dm_wafer_subdie where coordinate_id=? and subdie_number=?";
-		Object[] param = new Object[]{coordinateId,subdieNumber};
+	public int  getSubdieId(Connection conn,int coordinateId,int subdieNumber,int waferId){
+		String sql = "select subdie_id from dm_wafer_subdie where coordinate_id=? and subdie_number=? and wafer_id=?";
+		Object[] param = new Object[]{coordinateId,subdieNumber,waferId};
 		Object result = db.queryResult(conn, sql, param);
 		return result==null?0:Integer.parseInt(result.toString());
 	}
@@ -590,14 +590,16 @@ public class CoordinateDao {
 	}
 	
 	
-	public WaferMapDTO getAllDie(Connection conn,String waferNO){
+	public WaferMapDTO getAllDie(Connection conn,String waferNO,String device,String lot){
 		WaferMapDTO wafer = new WaferMapDTO();
-		String sql  = "select x_coordinate,y_coordinate,bin,coordinate_id from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?) ";
+		String sql  = "select x_coordinate,y_coordinate,bin,coordinate_id from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=? and device_number=? and lot_number=?) ";
 		Map<String,Object> result = new HashMap<>(),map = null;
 		PreparedStatement ps;
 		try {
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, waferNO);
+			ps.setString(2, device);
+			ps.setString(3, lot);
 			ResultSet rs = ps.executeQuery();
 			int bin = 0,coordinate_id=0;
 			while(rs.next()){

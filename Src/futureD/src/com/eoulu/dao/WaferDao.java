@@ -78,6 +78,13 @@ public class WaferDao{
 		return result==null?0:Integer.parseInt(result.toString());
 	}
 	
+	public int getWaferID(Connection conn,String waferNumber,String dieType,String device,String lot){
+		String sql = "select wafer_id from dm_wafer where wafer_number=? and die_type=? and delete_status=0 and  device_number=? and lot_number=?";
+		Object[] param = new Object[]{waferNumber,dieType,device,lot};		
+		Object result = DataBaseUtil.getInstance().queryResult(conn,sql, param);
+		return result==null?0:Integer.parseInt(result.toString());
+	}
+	
 	public int getMaxWaferID(Connection conn,String waferNumber){
 		String sql = "select max(wafer_id) wafer_id from dm_wafer where wafer_number=? and delete_status=0";
 		Object[] param = new Object[]{waferNumber};		
@@ -202,6 +209,12 @@ public class WaferDao{
 		String sql = "select wafer_number from dm_wafer where wafer_id=?";
 		Object result = DataBaseUtil.getInstance().queryResult(conn,sql, new Object[]{waferId});
 		return result==null?"":result.toString();
+		
+	}
+	public Map<String,Object> getCondition(Connection conn,int waferId){
+		String sql = "select wafer_number,device_number,lot_number from dm_wafer where wafer_id=?";
+		List<Map<String,Object>> result = DataBaseUtil.getInstance().queryToList(conn,sql, new Object[]{waferId});
+		return result==null?null:result.get(0);
 		
 	}
 	public String getWaferNO( int waferId){

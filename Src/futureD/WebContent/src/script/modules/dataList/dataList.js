@@ -1084,15 +1084,27 @@ $(".isRequired").on("input propertychange change", function(){
 	var str;
 	var classify = $(this).parents("[data-iparent]").data("iparent");
 	if(_.isNil(iVal)){
-		str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+		str = "info";
 	}else{
 		if(iVal.trim() == ""){
-			str = '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
+			str = "info";
 		}else{
-			str = '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>';
+			if($(this).is("#futureDT2_update_testEndDate")){
+				if(/^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/.test(iVal)){
+					if(iVal.trim() > moment().format('YYYY-MM-DD')){
+						str = "info";
+					}else{
+						str = "ok";
+					}
+				}else{
+					str = "info";
+				}
+			}else{
+				str = "ok";
+			}
 		}
 	}
-	$(this).parents("div.row").find("div.info_div").empty().append(str);
+	$(this).parents("div.row").find("div.info_div").empty().append('<span class="glyphicon glyphicon-'+str+'-sign" aria-hidden="true"></span>');
 	additionUpdateIsSubmit(classify);
 });
 

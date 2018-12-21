@@ -133,13 +133,13 @@ public class ExcelService {
 		return "success";
 	}
 	
-	public String updateYield(Connection conn,List<String> typeList,String waferNO,boolean subdieExist,SubdieDao subdieDao){
+	public String updateYield(Connection conn,List<String> typeList,String waferNO,String device,String lot,boolean subdieExist,SubdieDao subdieDao){
 		WaferDao dao = (WaferDao) ObjectTable.getObject("WaferDao");
 		CoordinateDao coordinate =  (CoordinateDao) ObjectTable.getObject("CoordinateDao");
 		int waferId=0;
 		double yield = 0;
 		for(int i=0,size=typeList.size();i<size;i++){
-			waferId = dao.getWaferID(conn, waferNO, typeList.get(i));
+			waferId = dao.getWaferID(conn, waferNO, typeList.get(i),device,lot);
 			if(subdieExist){
 				yield = subdieDao.getYield(conn, waferId)*100;
 			}else{

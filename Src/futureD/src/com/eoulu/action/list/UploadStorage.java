@@ -149,8 +149,8 @@ public class UploadStorage extends HttpServlet {
 	
 	
 	public static void main(String[] args) {
-		String filePath = "C:\\Users\\zuo\\Desktop\\测试文件\\20181217.zip";
-		String fileName = "20181217.zip";
+		String filePath = "C:\\Users\\zuo\\Desktop\\测试文件\\index.zip";
+		String fileName = "index.zip";
 		String temp = "E:/test";
 		File file = new File(temp);
 		if(!file.exists()){
@@ -158,7 +158,7 @@ public class UploadStorage extends HttpServlet {
 		}
 		String filename2 = fileName.substring(0, fileName.indexOf("."));//zip压缩文件名
 		String productCatagory="1";
-		String description="20181217.zip";
+		String description="index.zip";
 		String currentUser="TEST";
 		String dataFormat = "0";
 		Map<String,Object> result = null,map=new HashMap<String, Object>();

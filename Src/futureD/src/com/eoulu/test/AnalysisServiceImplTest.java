@@ -77,7 +77,7 @@ public class AnalysisServiceImplTest {
 	@Ignore
 	public void testGetParameterExsit() {
 		String customParameter = "S-P2";
-		System.out.println(new Gson().toJson(service.getParameterExsit(waferId, customParameter)));
+//		System.out.println(new Gson().toJson(service.getParameterExsit(waferId, customParameter)));
 		
 	}
 
@@ -169,7 +169,7 @@ public class AnalysisServiceImplTest {
 			break;
 		}
 		System.out.println(flag);
-		System.out.println(new Gson().toJson(service.getMarker(curveTypeId)));
+//		System.out.println(new Gson().toJson(service.getMarker(curveTypeId)));
 	}
 
 	/**

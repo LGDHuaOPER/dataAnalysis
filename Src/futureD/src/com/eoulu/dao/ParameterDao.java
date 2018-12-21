@@ -153,10 +153,31 @@ public class ParameterDao {
 		flag = db.operate(conn,sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
+	public String insertMapParameter(MapParameterDO map){
+		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String flag = "success";
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		flag = db.operate(sql, param)?flag:"晶圆的Map参数添加失败！";
+		return flag;
+	}
+	
+	public String updateMapParameter(MapParameterDO map){
+		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=?";
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		String flag = "success";
+		flag = db.operate(sql, param)?flag:"晶圆的Map参数添加失败！";
+		return flag;
+	}
 	
 	public boolean getMapParameter(Connection conn,String waferNO){
 		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? ";
 		Object result = db.queryResult(conn, sql,new Object[]{waferNO});
+		return result==null?false:true;
+		
+	}
+	public boolean getMapParameter(String waferNO){
+		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? ";
+		Object result = db.queryResult( sql,new Object[]{waferNO});
 		return result==null?false:true;
 		
 	}
@@ -215,7 +236,7 @@ public class ParameterDao {
 	
 	
 	public static List<String> getEightParameter(String waferNumber){
-		String	sql = "select direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,diameter,die_x_max,die_y_max,cutting_edge_length from dm_wafer_map_parameter where wafer_id=0 and wafer_number='"+waferNumber+"'";
+		String	sql = "select direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,diameter,die_x_max,die_y_max,cutting_edge_length from dm_wafer_map_parameter where wafer_number='"+waferNumber+"'";
 	
 		List<String> Parameter=new ArrayList<>();
 		String DirectionX=null,DirectionY=null,SetCoorX=null,SetCoorY=null,StandCoorDieX=null,StandCoorDieY = null ;

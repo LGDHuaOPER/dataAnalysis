@@ -145,7 +145,7 @@ public class ZipService {
 		for(String str:invalidationList){
 			dieList.add(str);
 		}
-		String status = null, diepos="", TestTime,dieType,temp = "",waferNO = transfer.get("waferNO").toString(); 
+		String status = null, diepos="", TestTime,dieType,temp = "",waferNO = transfer.get("waferNO").toString(),device = transfer.get("device").toString(),lot = transfer.get("lot").toString(); 
 		int paramLength = 0 , waferId = 0;
 		String column = "", columnStr = "";
 		Object[] obj = null;
@@ -183,7 +183,7 @@ public class ZipService {
 					dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
 				}
 				if (!temp.equals(dieType)) {
-					waferId = dao.getWaferID(conn, waferNO, dieType);
+					waferId = dao.getWaferID(conn, waferNO, dieType,device,lot);
 					upperAndLowerLimit = parameterDao.getUpperAndLowerLimit(waferId, conn);
 					temp = dieType;
 				}
@@ -274,7 +274,7 @@ public class ZipService {
 		Object[] subdieInfo = null;
 		String[] att = null;
 		int waferId =0 , coordinateId;
-		String dieNO = "", subdieNO = "",status = "",waferNO = transfer.get("waferNO").toString();
+		String dieNO = "", subdieNO = "",status = "",waferNO = transfer.get("waferNO").toString(),device = transfer.get("device").toString(),lot = transfer.get("lot").toString(); 
 		List<Object[]> list = new ArrayList<>();
 		boolean subdieExist = (boolean) transfer.get("subdieExist");
 		if(subdieExist){
@@ -357,7 +357,7 @@ public class ZipService {
 						dieType = (String) dietypeName.get(Integer.parseInt(data[3]));
 					}
 					if (!temp.equals(dieType)) {
-						waferId = dao.getWaferID(conn, waferNO, dieType);
+						waferId = dao.getWaferID(conn, waferNO, dieType,device,lot);
 						upperAndLowerLimit = parameterDao.getUpperAndLowerLimit(waferId, conn);
 						temp = dieType;
 					}
@@ -421,11 +421,11 @@ public class ZipService {
 						}else{
 							obj[5] = str.contains("false") ? "255" : "1";
 						}
-						obj[7] = coordinate.getCoordinate(conn,waferNO, data[4]);
+						obj[7] = coordinate.getCoordinate(conn,waferNO, data[4],device,lot);
 						table.put(data[4] + "," + obj[4], new Object[]{waferId,obj[7]});
 					}else{
 						obj[5] = "-1";
-						obj[7] = coordinate.getCoordinateId(conn, waferNO, data[7], data[8]);
+						obj[7] = coordinate.getCoordinateId(conn, waferNO, data[7], data[8],device,lot);
 					}
 					
 					list.add(obj);
@@ -530,7 +530,7 @@ public class ZipService {
 					}
 					waferId = Integer.parseInt(tempObj[0].toString());
 					coordinateId = Integer.parseInt(tempObj[1].toString());
-					subdieId = coordinate.getSubdieId(conn, coordinateId, Integer.parseInt(subdieNO));
+					subdieId = coordinate.getSubdieId(conn, coordinateId, Integer.parseInt(subdieNO),waferId);
 					List<String> list = util.getFile(curve.getAbsolutePath());
 					if (".S2P".equalsIgnoreCase(su)) {
 						status = saveCurveType(conn, waferId, coordinateId, subdieId, curveType, group, name, 1);

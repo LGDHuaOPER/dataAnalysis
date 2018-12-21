@@ -387,7 +387,7 @@ public class ExcelParser {
 					if (row.getCell(1) == null || !row.getCell(1).toString().contains("/")) {
 						continue;
 					}
-					System.out.println("paramNum:"+paramNum);
+//					System.out.println("paramNum:"+paramNum);
 					if(coordinateFlag){
 						att = new Object[6+paramNum];
 						att[0] = row.getCell(1).toString().trim();

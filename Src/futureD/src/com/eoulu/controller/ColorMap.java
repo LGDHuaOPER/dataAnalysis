@@ -89,7 +89,7 @@ public class ColorMap extends HttpServlet {
 	}
 	
 	public static void main(String[] args) {
-		String waferIdStr = "355",
+		String waferIdStr = "205",
 				parameter = "";
 		double left = -20,right=20;
 		int equal = 8;	

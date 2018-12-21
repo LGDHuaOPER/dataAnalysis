@@ -215,6 +215,8 @@ public class WaferServiceImpl implements WaferService {
 			transfer.put("dietypeName", dietypeName);
 			transfer.put("convertParam", convertParam);
 			transfer.put("waferNO", waferNO);
+			transfer.put("device", wafer.getDeviceNumber());
+			transfer.put("lot", wafer.getLotNumber());
 			transfer.put("dieMap", dieMap);
 			transfer.put("subdieExist", subdieExist);
 //			List<String> mapparameters = parameterDao.getEightParameter(conn, waferID);
@@ -231,7 +233,7 @@ public class WaferServiceImpl implements WaferService {
 				return status;
 			}
 			
-			status = excelUtil.updateYield(conn, dieTypeList, waferNO,subdieExist,subdieDao);
+			status = excelUtil.updateYield(conn, dieTypeList, waferNO,wafer.getDeviceNumber(),wafer.getLotNumber(),subdieExist,subdieDao);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;

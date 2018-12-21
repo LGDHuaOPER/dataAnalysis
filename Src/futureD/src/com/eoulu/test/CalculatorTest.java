@@ -59,26 +59,26 @@ public class CalculatorTest {
 			e.printStackTrace();
 			status = e.getMessage();
 		}
-		if("".equals(status) && !"".equals(result)){
-			AnalysisService service = new AnalysisServiceImpl();
-			if("".equals(calculationId)){
-				boolean flag = service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId), customParam, formula, userFormula,Double.parseDouble(result), "TCF");
-				if(flag){
-					int id = service.getCalculationId(Integer.parseInt(waferId), customParam, "TCF");
-					map.put("calculationId", id+"");
-					map.put("formula", userFormula);
-					map.put("customParameter", customParam);
-				}
-			}else{
-				boolean flag = service.modifyCalculation(oldParam, customParam, formula,userFormula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId), Integer.parseInt(waferId));
-				System.out.println(flag);
-				map.put("calculationId", calculationId);
-				map.put("formula", userFormula);
-				map.put("customParameter", customParam);
-			}
-			
-		}
-		System.out.println(new Gson().toJson(map));
+//		if("".equals(status) && !"".equals(result)){
+//			AnalysisService service = new AnalysisServiceImpl();
+//			if("".equals(calculationId)){
+////				boolean flag = service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId), customParam, formula, userFormula,Double.parseDouble(result), "TCF");
+//				if(flag){
+//					int id = service.getCalculationId(Integer.parseInt(waferId), customParam, "TCF");
+//					map.put("calculationId", id+"");
+//					map.put("formula", userFormula);
+//					map.put("customParameter", customParam);
+//				}
+//			}else{
+//				boolean flag = service.modifyCalculation(oldParam, customParam, formula,userFormula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId), Integer.parseInt(waferId));
+//				System.out.println(flag);
+//				map.put("calculationId", calculationId);
+//				map.put("formula", userFormula);
+//				map.put("customParameter", customParam);
+//			}
+//			
+//		}
+//		System.out.println(new Gson().toJson(map));
 //		System.out.println(Math.sin(Math.PI*30/180));
 //      List<BigDecimal> param1List = new ArrayList<BigDecimal>();
 //      param1List.add(new BigDecimal("1"));
