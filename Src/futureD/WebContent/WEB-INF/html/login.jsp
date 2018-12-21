@@ -20,7 +20,9 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css" />
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css" />
 
-	<link rel="stylesheet" href="dist/style/modules/login/login-4a28ca53f2.min.css">
+	<!-- build:css ../../dist/style/modules/login/login.min.css -->
+	<link rel="stylesheet" href="src/style/modules/login/login.css" type="text/css">
+	<!-- endbuild -->
 </head>
 <body>
 	<div class="container-fluid">
@@ -71,10 +73,16 @@
 	<script src="assets/script/libs/sweetalert2.min.js"></script>
 	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<!-- endbuild -->
 	
-	<script src="dist/script/modules/login/login-93e45bd16c.min.js"></script>
+	<!-- build:js ../../dist/script/modules/login/login.min.js -->
+	<script src="src/script/modules/login/login.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

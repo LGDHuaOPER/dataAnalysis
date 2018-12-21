@@ -23,7 +23,9 @@
 	<link rel="stylesheet" href="assets/style/libs/awesomplete_all.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/common/futureDT2AddUpdate.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/dataList/dataList-4b49b129c5.min.css">
+	<!-- build:css ../../dist/style/modules/dataList/dataList.min.css -->
+	<link rel="stylesheet" href="src/style/modules/dataList/dataList.css" type="text/css">
+	<!-- endbuild -->
 </head>
 <body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}">
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -293,10 +295,16 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
+	<script src="src/script/modules/common/futureD_config.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
+	<script src="src/script/modules/common/globalConf.js"></script>
+	<!-- endbuild -->
 
-	<script src="dist/script/modules/dataList/dataList-db55025530.min.js"></script>
+	<!-- build:js ../../dist/script/modules/dataList/dataList.min.js -->
+	<script src="src/script/modules/dataList/dataList.js"></script>
+	<!-- endbuild -->
 </body>
 </html>
