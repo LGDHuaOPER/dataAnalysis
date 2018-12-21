@@ -24,7 +24,7 @@
 }*/
 
 function dataCompareRenderChart(obj){
-	console.log("correlationgraph",obj);
+	//console.log("correlationgraph",obj);
 		var chart;
 		var baseOption = {
 			chart: {
@@ -264,7 +264,7 @@ function draw_other_chart(obj){
 			});
 			
 			series = iserise;
-			console.log("histogram",series);
+			//console.log("histogram",series);
 		break;
 
 		case "boxlinediagram":
@@ -300,6 +300,19 @@ function draw_other_chart(obj){
 					tooltip: {
 						headerFormat: '<em>参数： {point.key}</em><br/>'
 					}
+				},{
+					name: '温和异常值',
+					color: Highcharts.getOptions().colors[1],
+					type: 'scatter',
+					data: data_soft,
+					marker: {
+						fillColor: '#ccc',
+						lineWidth: 1,
+						lineColor: Highcharts.getOptions().colors[1]
+					},
+					tooltip: {
+						pointFormat: '温和异常值: {point.y}'
+					}
 				}, {
 					name: '极端异常值',
 					color: Highcharts.getOptions().colors[0],
@@ -314,21 +327,8 @@ function draw_other_chart(obj){
 					tooltip: {
 						pointFormat: '极端异常值: {point.y}'
 					}
-				}, {
-					name: '温和异常值',
-					color: Highcharts.getOptions().colors[1],
-					type: 'scatter',
-					data: data_soft,
-					marker: {
-						fillColor: '#ccc',
-						lineWidth: 1,
-						lineColor: Highcharts.getOptions().colors[1]
-					},
-					tooltip: {
-						pointFormat: '温和异常值: {point.y}'
-					}
-				}];
-			console.log("boxlinediagram",series);
+				},];
+			//console.log("boxlinediagram",series);
 		break;
 		case "CPK":
 			var CPK_data = [];
@@ -374,7 +374,7 @@ function draw_other_chart(obj){
 				}
 			};
 			series = CPK_data;
-			console.log("CPK",series);
+			//console.log("CPK",series);
 		break;
 		case "correlationgraph":
 			title_text = "相关性图-"+iparam;
@@ -391,23 +391,23 @@ function draw_other_chart(obj){
 			xAxis = {
 				title: {
 					enabled: true,
-					text: $(".right_div .list-group-item-info").eq(0).data("iparam"),
-					style:{"fontSize":"16px","fontFamily":"arial","float":"top"}
+					text:  obj.curParam[0],
+					style:{"fontFamily":"arial","float":"top"}
 				},
 				lineWidth:1,
 				startOnTick: true,
 				endOnTick: true,
 				showLastLabel: true,
 				labels: {
-            	useHTML: true,
-                formatter: function () {
-                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
-            	}
-            },
+	            	useHTML: true,
+	                formatter: function () {
+	                    return '<a href="javascript:alert(\'hello\')" style="font-size:11px;color:#666666;">' + this.value + '</a>';
+	            	},
+	            },
 			};
 			yAxis = {
 				title: {
-					text: $(".right_div .list-group-item-info").eq(1).data("iparam")
+					text: obj.curParam[1]
 				}
 			};
     		var item = {};
@@ -422,12 +422,11 @@ function draw_other_chart(obj){
 			
 			item.data = seriesData;
 			series = [item];
-			console.log("correlationgraph",series);
 		break;
 		case "gaussiandistribution":
 			var iiiindata = _.find(data, function(v, k){
 				return _.toString(k) == _.toString(iparam);
-			});
+			})[curWaferId[0]];
 			title_text = "高斯分布图-"+iparam;
 			xAxis = [{
 				categories: _.map(iiiindata.groupX, function(v){
@@ -569,40 +568,48 @@ function ajax_all_chart(obj){
 	var whenArrItem = whenArr[0];
 	var curWaferID = obj.curWaferID;
 	var curParam= obj.curParam;
-	if(whenArrItem.classify === "correlationgraph"){
+	if(!curParam){  //初次加载 显示所有参数
 		var ajax_data = {
 			waferIdStr: curWaferID.join(","),
-			paramX : $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("iparam") ,
-			paramY : $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(1).data("iparam"),
-			minX :  $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("min"),
-			minY :  $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(1).data("min") ,
-			maxX : $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("max") ,
-			maxY : $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(1).data("max") ,
-		}
-	}
-	else if(whenArrItem.classify === "wafermap"){
-		var ajax_data = {
-			waferIdStr: curWaferID.join(","),
-			paramAtt : curParam.join(""),
-			leftRange :  $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("min"),
-			rightRange : $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("max") ,
-		}
-	}
-	else if(whenArrItem.classify === "gaussiandistribution" || whenArrItem.classify === "histogram"){
-		var ajax_data = {
-			waferIdStr: curWaferID.join(","),
-			paramAtt : curParam.join(""),
-			leftRange :  $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("min"),
-			rightRange : $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(0).data("max") ,
-			equal : 8
 		}
 	}
 	else{
-		var ajax_data = {
-			waferIdStr: curWaferID.join(","),
-			paramAtt : curParam.join("")
+		if(whenArrItem.classify === "correlationgraph"){
+			var ajax_data = {
+				waferIdStr: curWaferID.join(","),
+				paramX : curParam[0] ,
+				paramY : curParam[1] ,
+				minX : obj.leftrange[0],
+				minY : obj.leftrange[1] ,
+				maxX : obj.rightrange[0] ,
+				maxY : obj.rightrange[1] ,
+			}
+		}
+		else if(whenArrItem.classify === "wafermap"){
+			var ajax_data = {
+				waferIdStr: curWaferID.join(","),
+				parameter : curParam.join(""),
+				leftRange :  obj.leftrange[0],
+				rightRange : obj.rightrange[0] ,
+			}
+		}
+		else if(whenArrItem.classify === "gaussiandistribution" || whenArrItem.classify === "histogram"){
+			var ajax_data = {
+				waferIdStr: curWaferID.join(","),
+				parameter : curParam.join(""),
+				leftRange :  obj.leftrange[0],
+				rightRange : obj.rightrange[0] ,
+				equal :  obj.equal[0]
+			}
+		}
+		else{
+			var ajax_data = {
+				waferIdStr: curWaferID.join(","),
+				parameter : curParam.join("")
+			}
 		}
 	}
+	
 	$.ajax({
 		type: "GET",
 		url: whenArrItem.chartAjaxUrl,
@@ -624,9 +631,14 @@ function ajax_all_chart(obj){
 				message: "数据为空"
 			});
 		}else{
+			
+			
 			var paramsArr;
 			if(["wafermap"].indexOf(whenArrItem.classify) > -1){
-				var paramsArr = curParam;
+				paramsArr = [];
+				for(var _p = 0 ; _p<data[curWaferID[0]].waferList.length ; _p++){
+					paramsArr.push(data[curWaferID[0]].waferList[_p].parameter);
+				}
 			}
 			else{
 				if(["correlationgraph"].indexOf(whenArrItem.classify) > -1){
@@ -655,16 +667,17 @@ function ajax_all_chart(obj){
 				waferArr: _.cloneDeep(waferArr),
 				curWaferName : curWaferName,
 			});
-			
+			//console.log(IDParamObjArr)
 			/*画图*/
 			_.forEach(IDParamObjArr, function(v, i){
+				
 				if(whenArrItem.classify == "wafermap"){
 					/*map色阶分布图绘制*/
 					draw_map_color_order_distribution({
 						data: _.cloneDeep(data),
 						IDParamObj: v,
 						curWaferName : curWaferName,
-						paramsArr : paramsArr
+						paramsArr : paramsArr,
 					});
 				}else{
 					errorArr = draw_other_chart({
@@ -675,10 +688,18 @@ function ajax_all_chart(obj){
 						data: _.cloneDeep(data),
 						curWaferId: curWaferID,
 						errorArr: errorArr,
-						curWaferName : curWaferName
+						curWaferName : curWaferName,
+						curParam :curParam
 					});
 				}
 			});
+			eouluGlobal.S_getSwalMixin()({
+				title: "加载提示",
+				text: "数据请求完成",
+				type: "info",
+				showConfirmButton: false,
+				timer: 1200
+			})
 		}
 	}, function(){
 		// errorArr.push(whenArrItem.chartCNName);
@@ -706,7 +727,7 @@ function buildParameterChartContainer(obj){
 	var str = '';
 	var returnIDArr = [];
 	var inStr = '';
-	 if(["histogram", "boxlinediagram", "CPK","correlationgraph","gaussiandistribution"].indexOf(classify) > -1){
+	 if(["histogram", "boxlinediagram", "CPK","gaussiandistribution","wafermap"].indexOf(classify) > -1){
 		if(["histogram"].indexOf(classify) > -1) paramsArr = _.pull(paramsArr, "sectionX");
 		if(_.indexOf(["gaussiandistribution"], classify) > -1){
 			inStr = '<table class="table table-striped table-bordered table-condensed">'+
@@ -744,10 +765,10 @@ function buildParameterChartContainer(obj){
 		}
 		
 		_.forEach(paramsArr, function(v, i, arr){
-			//if(i%2 == 0){
+			if(i%2 == 0){
 				str+='<div class="row">';
-			//}
-				str+='<div class="col-sm-24 col-md-12 col-lg-12">';
+			}
+				str+='<div class="col-sm-12 col-md-6 col-lg-6">';
 				str+='<div class="panel panel-info">'+
 					  	'<div class="panel-heading">'+
 					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+v+
@@ -761,66 +782,46 @@ function buildParameterChartContainer(obj){
 					  	'</div>'+
 					'</div>';
 				str+='</div>';
-			//if(i%2 == 1 || (i%2 == 0 && i == arr.length-1)){
+			if(i%2 == 1 || (i%2 == 0 && i == arr.length-1)){
 				str+='</div>';
-			//}
+			}
 			returnIDArr.push({
 				id: (classify+dataStatisticsState.stateObj.curChartContainerNum),
 				param: v,
-				isAll: false
+				isAll: false,
+				wafer :  obj.waferArr[0]
 			});
 			dataStatisticsState.stateObj.curChartContainerNum++;
 		});
-		//str+='</div>';  //单一参数
+	//	str+='</div>';  //单一参数
 	}
-	 else if(["wafermap"].indexOf(classify) > -1){
-		//for(var num = 0 ; num < obj.waferArr.length ; num++){
-		for(var num = 0 ; num < paramsArr.length ; num++){
-			str += '<div class="panel panel-info">'+
-					  	'<div class="panel-heading">'+
-					    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+paramsArr[num]+
-					  	'</div>'+
-					  	'<div class="panel-body">'+
-					  		'<div class="container-fluid">';
-			for(var p = 0 ; p < obj.waferArr.length ; p++){
-				//if(p%2 == 0){
-					str+='<div class="row">';
-				//}
+	 else if(["correlationgraph"].indexOf(classify) > -1){
+			_.forEach(paramsArr, function(v, i, arr){
 					str+='<div class="col-sm-24 col-md-12 col-lg-12">';
 					str+='<div class="panel panel-info">'+
 						  	'<div class="panel-heading">'+
-						    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+obj.curWaferName[obj.waferArr[p]]+
+						    	'<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>'+v+
 						  	'</div>'+
 						  	'<div class="panel-body">'+
 						    	'<div class="container-fluid">'+
 						    		'<div class="chart_title"></div>'+
-						    		'<div class="chart_body"><div id="'+(classify+dataStatisticsState.stateObj.curChartContainerNum)+'" data-iparam="'+paramsArr[num][p]+'"></div></div>'+
+						    		'<div class="chart_body"><div id="'+(classify+dataStatisticsState.stateObj.curChartContainerNum)+'" data-iparam="'+v+'"></div></div>'+
 						    		'<div class="chart_foot">'+inStr+'</div>'+
 						    	'</div>'+
 						  	'</div>'+
 						'</div>';
 					str+='</div>';
-					
-				//if(p%2 == 1 || (p%2 == 0 && p ==  obj.waferArr.length-1)){
-					str+='</div>';
-				//}
 				returnIDArr.push({
 					id: (classify+dataStatisticsState.stateObj.curChartContainerNum),
-					param: paramsArr[num],
+					param: v,
 					isAll: false,
-					wafer :  obj.waferArr[p]
+					wafer :  obj.waferArr[0]
 				});
 				dataStatisticsState.stateObj.curChartContainerNum++;
-			}
-			
-			str+='</div></div></div>';
-		} 
-		//str+='</div>';
-		
-	 }
-	 console.log("str",str);
+			});
+			//str+='</div>';  //单一参数
+		}
 	$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+classify+"']>.chartBody>.container-fluid").empty().append(str);
-	
 	return returnIDArr;
 }
 
@@ -841,6 +842,7 @@ function draw_map_color_order_distribution(obj){
 	waferData = _.find(data, function(v, k){
 		return _.toString(k) == _.toString(waferNO);
 	})
+	console.log("waferData",waferData);
 	dieData = [],
 	subdieData = [],
 	currentDieItem = _.find(waferData.waferList, function(v, k){
@@ -1188,7 +1190,7 @@ function draw_map_color_order_distribution(obj){
 		});
 		return retur;
 	});
-	var tableStr = '<table class="table table-striped table-bordered table-condensed">'+
+	var tableStr = '<table class="table table-striped table-bordered table-condensed colorinterval">'+
 		'<thead><tr><th></th><th></th><th></th><th></th><th></th><th></th><th>合格数</th><th>不合格数</th><th>良率</th></tr></thead>'+
 		'<tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="qualify_tt" data-ipara="qualify">0</td><td class="unqulify_tt" data-ipara="unqulify">0</td><td class="yield_tt" data-ipara="yield">0%</td></tr></tbody></table>';
 	$(tableStr).appendTo(that.parent().next());

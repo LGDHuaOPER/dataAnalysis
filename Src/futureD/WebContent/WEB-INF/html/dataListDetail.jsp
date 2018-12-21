@@ -21,9 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 
-	<!-- build:css ../../dist/style/modules/dataListDetail/dataListDetail.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
-	<!-- endbuild -->
+	<link rel="stylesheet" href="dist/style/modules/dataListDetail/dataListDetail-12702f4941.min.css">
 
 </head>
 <body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}">
@@ -286,28 +284,16 @@
 	<script src="assets/script/libs/jquery-contextMenu/jquery.ui.position.min.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	
-	<!-- build:js ../../dist/script/modules/common/drawingSmith.min.js -->
-	<script src="src/script/modules/common/drawingSmith.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/drawingSmith-42fb909dbf.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/drawWaferMap.min.js -->
-	<script src="src/script/modules/common/drawWaferMap.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
-	<script src="src/script/modules/common/globalConf.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataCompare/dataCompareRenderChart.min.js -->
-	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataListDetail/dataListDetail.min.js -->
-	<script src="src/script/modules/dataListDetail/dataListDetail.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataListDetail/dataListDetail-17107e4b66.min.js"></script>
 </body>
 </html>

@@ -260,6 +260,19 @@ function draw_other_chart(obj){
 						headerFormat: '<em>参数： {point.key}</em><br/>'
 					}
 				}, {
+					name: '温和异常值',
+					color: Highcharts.getOptions().colors[1],
+					type: 'scatter',
+					data: data_soft,
+					marker: {
+						fillColor: '#ccc',
+						lineWidth: 1,
+						lineColor: Highcharts.getOptions().colors[1]
+					},
+					tooltip: {
+						pointFormat: '温和异常值: {point.y}'
+					}
+				}, {
 					name: '极端异常值',
 					color: Highcharts.getOptions().colors[0],
 					type: 'scatter',
@@ -272,19 +285,6 @@ function draw_other_chart(obj){
 					},
 					tooltip: {
 						pointFormat: '极端异常值: {point.y}'
-					}
-				}, {
-					name: '温和异常值',
-					color: Highcharts.getOptions().colors[1],
-					type: 'scatter',
-					data: data_soft,
-					marker: {
-						fillColor: '#ccc',
-						lineWidth: 1,
-						lineColor: Highcharts.getOptions().colors[1]
-					},
-					tooltip: {
-						pointFormat: '温和异常值: {point.y}'
 					}
 				}];
 			console.log("boxlinediagram",series);
@@ -351,7 +351,7 @@ function draw_other_chart(obj){
 				title: {
 					enabled: true,
 					text: $(".right_div .list-group-item-info").eq(0).data("iparam"),
-					style:{"fontSize":"16px","fontFamily":"arial","float":"top"}
+					style:{"fontSize":"12px","fontFamily":"arial","float":"top"}
 				},
 				lineWidth:1,
 				startOnTick: true,
@@ -360,7 +360,7 @@ function draw_other_chart(obj){
 				labels: {
             	useHTML: true,
                 formatter: function () {
-                    return '<a href="javascript:alert(\'hello\')">' + this.value + '</a>';
+                	return '<a href="javascript:alert(\'hello\')" style="font-size:11px;color:#666666;">' + this.value + '</a>';
             	}
             },
 			};
@@ -670,7 +670,7 @@ function draw_map_color_order_distribution(obj){
 	/*合并有效subdie和其他器件subdie*/
 	var sub_currentItem_currentList = (waferData.containSubdie ? currentDieItem.currentSubdieList : {});
 	var othersubDieType = (waferData.containSubdie ?  waferData.otherSubdieType :  {});
-	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList] : [] );
+	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList,othersubDieType] : [] );
 	_.forEach(mergesubDieType, function(val, ind){
 		//console.log("val",val);
 		_.forOwn(val, function(v, k){
@@ -872,8 +872,8 @@ function draw_map_color_order_distribution(obj){
 	colorGradientDom.append("<span class='colorGradientSpan fiveSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
-	
-	var countObj = _.countBy(dieData, function(v, i){
+	var countByData = (waferData.containSubdie ?  subdieData : dieData);
+	var countObj = _.countBy(countByData, function(v, i){
 		var retur;
 		_.forOwn(v, function(vv, k){
 			retur = vv.color.split(":")[0];

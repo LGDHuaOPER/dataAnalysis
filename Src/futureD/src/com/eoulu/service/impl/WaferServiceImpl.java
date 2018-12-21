@@ -369,8 +369,8 @@ public class WaferServiceImpl implements WaferService {
 				return status;
 			}
 			ProgressSingleton.put(sessionId, summation?interval:(interval+=2));
-			exsit = parameterDao.getMapParameter(conn, wafer.getWaferNumber());
-			status = excelUtil.saveMap(conn, wafer.getWaferNumber(), exsit,sizeX,sizeY);
+			exsit = parameterDao.getMapParameter(conn, wafer.getWaferNumber(),wafer.getDeviceNumber(),wafer.getLotNumber());
+			status = excelUtil.saveMap(conn, wafer.getWaferNumber(),wafer.getDeviceNumber(),wafer.getLotNumber(), exsit,sizeX,sizeY);
 			if (!"success".equals(status)) {
 				conn.rollback();
 				return status;

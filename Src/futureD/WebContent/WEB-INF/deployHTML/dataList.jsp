@@ -293,10 +293,10 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<script src="dist/script/modules/dataList/dataList-1f31ea82e2.min.js"></script>
+	<script src="dist/script/modules/dataList/dataList-db55025530.min.js"></script>
 </body>
 </html>

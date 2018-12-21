@@ -85,7 +85,7 @@ public class ZipService {
 	 */
 	public String saveMapParameter(Connection conn,MapParameterDO mapParamDO,ParameterDao parameterDao){
 		String status = "success";
-		if(parameterDao.getMapParameter(conn, mapParamDO.getWaferNumber())){
+		if(parameterDao.getMapParameter(conn, mapParamDO.getWaferNumber(),mapParamDO.getDeviceNO(),mapParamDO.getLotNO())){
 			status = parameterDao.updateMapParameter(conn, mapParamDO);
 		}else{
 			status = parameterDao.insertMapParameter(conn, mapParamDO);
@@ -283,10 +283,12 @@ public class ZipService {
 							configList = (List<String>) transfer.get("configList");
 			for(int i=0,size=configList.size();i<size;i++){
 				att = configList.get(i).split(",");
-				subdieInfo = new Object[]{Integer.parseInt(att[0])+1,att[1],att[2],att[3],att[4],waferNO};
+				subdieInfo = new Object[]{Integer.parseInt(att[0])+1,att[1],att[2],att[3],att[4],waferNO,device,lot};
 				list.add(subdieInfo);
 			}
+			subdieDao.deleteSubdieConfig(conn, waferNO, device, lot);
 			status = subdieDao.insertSubdieConfig(conn, list);
+			
 			if(!"success".equals(status)){
 				return status;
 			}
@@ -297,6 +299,7 @@ public class ZipService {
 			int datanum = Integer.parseInt(transfer.get("datanum").toString());
 			List<String> subdieList = (List<String>) subdieMap.get("subdieList");
 			Map<String,String> map = (Map<String, String>) subdieMap.get("subdieMap");
+			
 			String key = "",value = "";
 			String attCsv[] = null,attMap[] = null;
 			for(int m = datanum;m < filelist.size();m++){
@@ -332,6 +335,7 @@ public class ZipService {
 			}
 			table = new Hashtable<>();
 			boolean convertFlag = convertParam.size()>0?true:false;//map文件中存在字母/数字坐标转换的数据时才进行转换
+
 			try {
 				for (int m = datanum; m < filelist.size(); m++) {
 					String data[] = filelist.get(m).split(",");//x,y,bin,dieType,dieNO,subdieNo,testTime
@@ -405,7 +409,7 @@ public class ZipService {
 					String str = "";
 					
 					if(!"-1".equals(data[4])){
-						
+						obj[5] = data[2];
 						for (int j = 7; j < data.length; j++) {
 							if(data[j] == null || "null".equals(data[j])){
 								continue;
@@ -416,9 +420,7 @@ public class ZipService {
 											&& Double.parseDouble(data[j]) <= upperAndLowerLimit.get(j - 7).get("upper")));
 							str += "," + bin;
 						}
-						if("-1".equals(data[2])){
-							obj[5] = data[2];
-						}else{
+						if(!"".equals(str)){
 							obj[5] = str.contains("false") ? "255" : "1";
 						}
 						obj[7] = coordinate.getCoordinate(conn,waferNO, data[4],device,lot);

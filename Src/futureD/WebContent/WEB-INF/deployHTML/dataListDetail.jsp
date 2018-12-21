@@ -286,14 +286,14 @@
 	
 	<script src="dist/script/modules/common/drawingSmith-42fb909dbf.min.js"></script>
 
-	<script src="dist/script/modules/common/drawWaferMap-3585ae9ee0.min.js"></script>
+	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<script src="dist/script/modules/dataListDetail/dataListDetail-ab76880740.min.js"></script>
+	<script src="dist/script/modules/dataListDetail/dataListDetail-17107e4b66.min.js"></script>
 </body>
 </html>

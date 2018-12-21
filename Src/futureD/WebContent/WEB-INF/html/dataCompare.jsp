@@ -21,9 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	
-	<!-- build:css ../../dist/style/modules/dataCompare/dataCompare.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
-	<!-- endbuild -->
+	<link rel="stylesheet" href="dist/style/modules/dataCompare/dataCompare-1f951df78e.min.css">
 	
 </head>
 <body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" >
@@ -300,24 +298,14 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	
-	<!-- build:js ../../dist/script/modules/common/drawWaferMap.min.js -->
-	<script src="src/script/modules/common/drawWaferMap.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 	
-	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
-	<script src="src/script/modules/common/globalConf.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataCompare/dataCompareRenderChart.min.js -->
-	<script src="src/script/modules/dataCompare/dataCompareRenderChart.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataCompare/dataCompare.min.js -->
-	<script src="src/script/modules/dataCompare/dataCompare.js"></script>
-	<!-- endbuild --> 
+	<script src="dist/script/modules/dataCompare/dataCompare-912e4f00ae.min.js"></script>
 </body>
 </html>

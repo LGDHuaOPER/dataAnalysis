@@ -117,7 +117,15 @@ public interface AnalysisService {
 
 	
 	
-	boolean updateCalculation(int waferId,int coordinateId,int subdeiId,String subdieFlag,String sParameter);
+	boolean updateCalculation(int waferId,int coordinateId,String sParameter);
+	/**
+	 * 更新subdie其他die公式值
+	 * @param waferId
+	 * @param subdieId
+	 * @param sParameter
+	 * @return
+	 */
+	boolean updateSubdieCalculation(int waferId,int subdieId,String sParameter);
 	
 	/**
 	 * marker是否存在

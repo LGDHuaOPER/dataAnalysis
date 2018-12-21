@@ -179,7 +179,7 @@ public class ExcelService {
 	 * @param waferNumber
 	 * @return
 	 */
-	public String saveMap(Connection conn,String waferNumber,boolean exsit,double sizeX,double sizeY){
+	public String saveMap(Connection conn,String waferNumber,String deviceNO,String lotNO,boolean exsit,double sizeX,double sizeY){
 		ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
 		double diameter = 200;
 		double flatLength = 50;
@@ -197,6 +197,8 @@ public class ExcelService {
 		map.setStandCoorDieX("A");
 		map.setStandCoorDieY("A");
 		map.setWaferNumber(waferNumber);
+		map.setDeviceNO(deviceNO);
+		map.setLotNO(lotNO);
 		String status = "";
 		if(exsit){
 			status = parameterDao.updateMapParameter(conn, map);

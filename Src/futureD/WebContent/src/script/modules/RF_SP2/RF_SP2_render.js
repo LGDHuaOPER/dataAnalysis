@@ -613,7 +613,7 @@ function renderSpline(option){
 												flag: "first",
 											});
 										}else if(anotherjudge1 && anotherjudge2){
-											console.warn("第二步，另一条曲线找", "另一条曲存在两极点");
+											console.warn("第二步，另一条曲线找", "另一条曲线存在两极点");
 											var anotherCombinatorial12 = findPointCombinatorial({
 												fromIndex: 0,
 												Arr: anotherYData,
@@ -622,6 +622,7 @@ function renderSpline(option){
 											});
 											var anotherNewPointArr12 = [];
 											var anotherNewxyData12;
+											console.log(anotherCombinatorial12)
 											_.forEach([_.head(anotherCombinatorial12), _.last(anotherCombinatorial12)], function(qv, wi){
 												var xx1 = anotherXData[qv.index];
 												var xx2 = anotherXData[qv.index + 1];
@@ -634,6 +635,7 @@ function renderSpline(option){
 													index: qv.index
 												}));
 											});
+											console.log(anotherNewPointArr12)
 											anotherNewxyData12 = buildNewxyData({
 												pointArr: anotherNewPointArr12,
 												xData: _.cloneDeep(anotherXData),
@@ -655,6 +657,8 @@ function renderSpline(option){
 									_.forEach(RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter], function(v, i){
 										if(!_.isNil(v.isNew)){
 											var iii = _.indexOf(nameArr, v.name);
+											console.log(v.x)
+											console.log(_.indexOf(chart.xAxis[0].categories, v.x))
 											chart.series[iii].data[_.indexOf(chart.xAxis[0].categories, v.x)].select(true, true);
 										}
 									});
@@ -800,6 +804,9 @@ function getPointXY(obj){
 	var k = (obj.two[1] - obj.one[1]) / obj.two[0] - obj.one[0];
 	var x = obj.two[0] - (obj.two[1] - obj.baseVal) / k;
 	x = Math.floor(x * 100) / 100;
+	console.log(obj.one[0])
+	console.log(obj.two[0])
+	console.log(x)
 	return {
 		x: x,
 		y: obj.baseVal,
@@ -809,7 +816,7 @@ function getPointXY(obj){
 
 function buildNewxyData(obj){
 	_.forEach(obj.pointArr, function(v, i){
-		obj.xData.splice(v.index+i+1, 0, v.x);
+		obj.xData.splice(v.index+i+1, 0, v.x*1.001); // 不能和x一样
 		obj.yData.splice(v.index+i+1, 0, v.y);
 		obj.yData2.splice(v.index+i+1, 0, obj.yData2[v.index+i]);
 	});

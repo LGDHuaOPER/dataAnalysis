@@ -264,6 +264,17 @@ public class SmithDao {
 		return result;
 	}
 	
+	public String getSubdieTypeIdStr(Connection conn,int subdieId,DataBaseUtil db){
+		String sql = "select curve_type_id from dm_curve_type where subdieId=?";
+		List<String> ls = db.queryList(conn, sql, new Object[]{subdieId});
+		String result = "";
+		for(String str:ls){
+			result += ","+str;
+		}
+		result = result.substring(1);
+		return result;
+	}
+	
 	public Map<String,List<String>> getAllMarker(Connection conn,String typeIdStr,String sParameter,DataBaseUtil db){
 		String sql = "select marker_name,point_x,point_y from dm_marker_data where  curve_type_id in ("+typeIdStr+") and s_parameter=?";
 		Map<String,List<String>> result = new HashMap<>();
@@ -437,6 +448,23 @@ public class SmithDao {
 		
 	}
 	/**
+	 * 获取subdie对应文件的位置
+	 * @param conn
+	 * @param coordinateId
+	 * @param curveTypeId
+	 * @param db
+	 * @return
+	 */
+	public int getSubdieRowNumber(Connection conn,int subdieId,int curveTypeId,DataBaseUtil db){
+		String sql = "select c.rowno from "
+				+ "(select dm_curve_type.curve_type_id ,(@rowno:=@rowno+1) as rowno from dm_curve_type,(select (@rowno:=0)) b "
+				+ "where subdie_id=? and curve_file_type=1 order  by curve_type_id)c where c.curve_type_id=?";
+		Object[] param = new Object[]{subdieId,curveTypeId};
+		Object result = db.queryResult(conn, sql,param);
+		return result==null?0:Integer.parseInt(result.toString());
+		
+	}
+	/**
 	 * 获取对应位置的文件，曲线类型主键
 	 * 用于更新marker
 	 * @param conn
@@ -449,6 +477,23 @@ public class SmithDao {
 				+ "(select dm_curve_type.curve_type_id ,(@rowno:=@rowno+1) as rowno from dm_curve_type,(select (@rowno:=0)) b "
 				+ "where coordinate_id=? and curve_file_type=1 order  by curve_type_id)c where c.rowno=?";
 		Object[] param = new Object[]{coordinateId,rowNO};
+		Object result = db.queryResult(conn, sql,param);
+		return result==null?0:Integer.parseInt(result.toString());
+		
+	}
+	/**
+	 * 获取subdie对应位置的文件，曲线类型主键
+	 * @param conn
+	 * @param coordinateId
+	 * @param rowNO
+	 * @param db
+	 * @return
+	 */
+	public int getSubdieCurveTypeId(Connection conn,int subdieId,int rowNO,DataBaseUtil db){
+		String sql = "select c.curve_type_id from "
+				+ "(select dm_curve_type.curve_type_id ,(@rowno:=@rowno+1) as rowno from dm_curve_type,(select (@rowno:=0)) b "
+				+ "where subdie_id=? and curve_file_type=1 order  by curve_type_id)c where c.rowno=?";
+		Object[] param = new Object[]{subdieId,rowNO};
 		Object result = db.queryResult(conn, sql,param);
 		return result==null?0:Integer.parseInt(result.toString());
 		

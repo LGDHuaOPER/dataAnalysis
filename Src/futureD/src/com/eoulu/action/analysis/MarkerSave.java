@@ -54,6 +54,7 @@ public class MarkerSave extends HttpServlet {
 		String curveTypeStr[] = request.getParameterValues("curveTypeStr[]");
 
 		boolean flag = false;
+		boolean flag2 = false;
 		AnalysisService service = new AnalysisServiceImpl();
 		if ("X".equals(markerKey)) {    //暂时禁用功能
 			flag = service.saveMarkerByX(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId), curveTypeStr, sParam);
@@ -61,13 +62,17 @@ public class MarkerSave extends HttpServlet {
 		if ("Y".equals(markerKey)) {
 			if(subdieFlag.equals(SubdieFlagEnum.DIE)){
 				flag = service.saveMarkerByY(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId),subdieFlag,curveTypeStr, sParam);
+				
+				flag2 = service.updateCalculation(Integer.parseInt(waferId),Integer.parseInt(coordinateId),sParam);
+
 			}else{
 				flag = service.saveMarkerByY(Integer.parseInt(waferId), module, Integer.parseInt(subdieId),subdieFlag,curveTypeStr, sParam);
+				
+				flag2 = service.updateSubdieCalculation(Integer.parseInt(waferId),Integer.parseInt(subdieId),sParam);
+
 			}
 		}
-		
-		boolean flag2 = service.updateCalculation(Integer.parseInt(waferId),Integer.parseInt(coordinateId),Integer.parseInt(subdieId),subdieFlag,sParam);
-		
+				
 		response.getWriter().write(new Gson().toJson(flag && flag2));
 	}
 

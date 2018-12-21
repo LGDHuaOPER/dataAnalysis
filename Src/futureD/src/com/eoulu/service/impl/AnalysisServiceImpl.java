@@ -299,10 +299,17 @@ public class AnalysisServiceImpl implements AnalysisService{
 		return flag;
 	}
 	
+
+	
+	
+	
 	@Override
-	public boolean updateCalculation(int waferId, int coordinateId,int subdieId, String subdieFlag,String sParameter) {
+	public boolean updateCalculation(int waferId, int coordinateId,String sParameter) {
+	
+	
 		CurveDao curveDao = new CurveDao();
 		SmithDao smithDao = new SmithDao();
+		ParameterDao paramDao = new ParameterDao();
 		boolean flag = false;
 		int dieId=0;
 		String typeIdStr = "",parameter="",formula="",result = "",pointX="",pointY="",column="";
@@ -311,11 +318,9 @@ public class AnalysisServiceImpl implements AnalysisService{
 		Connection conn = db.getConnection();
 		List<Map<String,Object>> calList = smithDao.getCalculation(conn, waferId, "TCF",db);
 		List<Integer> ls = null;
-		if(subdieFlag.equals(SubdieFlagEnum.DIE)){
-			ls = curveDao.getCoordinateId(conn, waferId);
-		}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE)){
-			ls = curveDao.getSubdieId(conn, waferId);
-		}
+
+		ls = curveDao.getCoordinateId(conn, waferId);
+		
 		Object[] param = null;
 		try {
 			conn.setAutoCommit(false);
@@ -328,8 +333,8 @@ public class AnalysisServiceImpl implements AnalysisService{
 			map = smithDao.getAllMarker(conn, typeIdStr,sParameter,db);
 			for(int j=0,size2=calList.size();j<size2;j++){
 				parameter = calList.get(j).get("custom_parameter").toString();
-			 column =new ParameterDao().getColumnByName(conn, parameter, waferId);  //改到这里了---------------------------------------
-				formula = calList.get(j).get("calculate_formula").toString();
+				column = paramDao.getColumnByName(conn,parameter, waferId);
+				formula = calList.get(j).get("user_formula").toString();
 				for(String key:map.keySet()){
 					pointX = map.get(key).get(0);
 					pointY = map.get(key).get(1);
@@ -346,6 +351,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 				param = new Object[]{Double.parseDouble(result),dieId};
 				flag = new CoordinateDao().updateDieParamByMarker(conn,param, column);
 				if(!flag){
+					conn.rollback();
 					break;
 				}
 			}
@@ -361,6 +367,72 @@ public class AnalysisServiceImpl implements AnalysisService{
 		return false;
 	}
 	
+	@Override
+	public boolean updateSubdieCalculation(int waferId, int subdieId,String sParameter) {
+	
+	
+		CurveDao curveDao = new CurveDao();
+		SmithDao smithDao = new SmithDao();
+		ParameterDao paramDao = new ParameterDao();
+		boolean flag = false;
+		int dieId=0;
+		String typeIdStr = "",parameter="",formula="",result = "",pointX="",pointY="",column="";
+		Map<String,List<String>> map = null;
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		List<Map<String,Object>> calList = smithDao.getCalculation(conn, waferId, "TCF",db);
+		List<Integer> ls = null;
+
+		ls = curveDao.getSubdieId(conn, waferId);
+		
+		Object[] param = null;
+		try {
+			conn.setAutoCommit(false);
+		for (int i = 0, size = ls.size(); i < size; i++) {
+			dieId = ls.get(i);
+			if (dieId == subdieId) {
+				continue;
+			}
+			typeIdStr = smithDao.getSubdieTypeIdStr(conn, dieId,db);
+			map = smithDao.getAllMarker(conn, typeIdStr,sParameter,db);
+			for(int j=0,size2=calList.size();j<size2;j++){
+				parameter = calList.get(j).get("custom_parameter").toString();
+				column = paramDao.getSubdieColumn(conn,parameter, waferId);
+				formula = calList.get(j).get("user_formula").toString();
+				for(String key:map.keySet()){
+					pointX = map.get(key).get(0);
+					pointY = map.get(key).get(1);
+					pointX = "NaN".equals(pointX)?"9E37":pointX;
+					pointY = "NaN".equals(pointY)?"9E37":pointY;
+					if(formula.contains(key+".X")){
+						formula = formula.replaceAll(key+".X", pointX);
+					}
+					if(formula.contains(key+".Y")){
+						formula = formula.replaceAll(key+".Y", pointY);
+					}
+				}
+				result = NumericalCalculator.cal(formula).get("result").toString();
+				param = new Object[]{Double.parseDouble(result),dieId};
+				flag = new CoordinateDao().updateSubdieParamByMarker(conn,param, column);
+				if(!flag){
+					conn.rollback();
+					break;
+				}
+			}
+		}
+		conn.commit();
+		} catch (ExpressionFormatException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			db.close(conn);
+		}
+		return false;
+	}
+	
+
+
 	@Override
 	public boolean getMarkerExsit(int waferId, String markerName, String module, String sParameter) {
 		DataBaseUtil db = DataBaseUtil.getInstance();
@@ -473,8 +545,15 @@ public class AnalysisServiceImpl implements AnalysisService{
 			for (String id : att) {
 				curveTypeId = Integer.parseInt(id);
 				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,sParameter,db);
-				num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
-				curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
+				if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+					num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
+					curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
+				}else {
+					num = smithDao.getSubdieRowNumber(conn, coordinateId, curveTypeId,db);
+					curveTypeId2 = smithDao.getSubdieCurveTypeId(conn, dieId, num,db);
+				}
+				
+				
 				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,sParameter,db);
 				if(exsitFlag){
 					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,sParameter,db);

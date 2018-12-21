@@ -2113,6 +2113,7 @@ $(".reRenderBtnDiv").click(function(){
 			sParameter: TCFsParameter,
 			done: function(data){
 				if(!_.isNil(data)){
+					// 取返回值的comfirm_key
 					if(_.isNil(comfirm_key) || _.isEqual(comfirm_key, "请选择")){
 						RF_SP2Store.util.MarkerCurveHandler({
 							data: data,

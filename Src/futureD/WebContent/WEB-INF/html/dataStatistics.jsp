@@ -20,9 +20,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
-	<!-- build:css ../../dist/style/modules/dataStatistics/dataStatistics.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataStatistics/dataStatistics.css" type="text/css">
-	<!-- endbuild -->
+	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-91dee9a140.min.css">
 </head>
 <body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -53,6 +51,8 @@
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
+					  	<li><a href="ProjectAnalysis">工程分析</a></li>
+					  	<li><a class="RF_SP2" >RF-SP2分析</a></li>
 					  	<li class="active">数据统计</li>
 					</ol>
 					<span class="glyphicon glyphicon glyphicon-share-alt" aria-hidden="true" title="返回" data-ipage="g_bodyin_bodyin_bottom_1"></span>
@@ -241,24 +241,14 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/drawWaferMap.min.js -->
-	<script src="src/script/modules/common/drawWaferMap.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/futureD_config.min.js -->
-	<script src="src/script/modules/common/futureD_config.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/common/globalConf.min.js -->
-	<script src="src/script/modules/common/globalConf.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataStatistics/dataStatisticsRender.min.js -->
-	<script src="src/script/modules/dataStatistics/dataStatisticsRender.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-cdfa6fd38b.min.js"></script>
 
-	<!-- build:js ../../dist/script/modules/dataStatistics/dataStatistics.min.js -->
-	<script src="src/script/modules/dataStatistics/dataStatistics.js"></script>
-	<!-- endbuild -->
+	<script src="dist/script/modules/dataStatistics/dataStatistics-21f1b89cf0.min.js"></script>
 </body>
 </html>

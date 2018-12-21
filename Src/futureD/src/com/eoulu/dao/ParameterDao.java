@@ -139,45 +139,45 @@ public class ParameterDao {
 	 * @return
 	 */
 	public String insertMapParameter(Connection conn,MapParameterDO map){
-		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number,device_number,lot_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		String flag = "success";
-		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber(),map.getDeviceNO(),map.getLotNO()};
 		flag = db.operate(conn,sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
 	
 	public String updateMapParameter(Connection conn ,MapParameterDO map){
-		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=?";
-		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=?  and device_number=? and lot_number=?";
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber(),map.getDeviceNO(),map.getLotNO()};
 		String flag = "success";
 		flag = db.operate(conn,sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
 	public String insertMapParameter(MapParameterDO map){
-		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String sql = "insert into dm_wafer_map_parameter (diameter,cutting_edge_length,die_x_max,die_y_max,direction_x,direction_y,set_coor_x,set_coor_y,set_coor_die_x,set_coor_die_y,stand_coor_die_x,stand_coor_die_y,wafer_number,device_number,lot_number) value (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		String flag = "success";
-		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber(),map.getDeviceNO(),map.getLotNO()};
 		flag = db.operate(sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
 	
 	public String updateMapParameter(MapParameterDO map){
-		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=?";
-		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber()};
+		String sql = "update dm_wafer_map_parameter set diameter=?,cutting_edge_length=?,die_x_max=?,die_y_max=?,direction_x=?,direction_y=?,set_coor_x=?,set_coor_y=?,set_coor_die_x=?,set_coor_die_y=?,stand_coor_die_x=?,stand_coor_die_y=?  where wafer_number=? and device_number=? and lot_number=? ";
+		Object[] param = new Object[]{map.getDiameter(),map.getCuttingEdgeLength(),map.getDieXMax(),map.getDieYMax(),map.getDirectionX(),map.getDirectionY(),map.getSetCoorX(),map.getSetCoorY(),map.getSetCoorDieX(), map.getSetCoorDieY(),map.getStandCoorDieX(),map.getStandCoorDieY(),map.getWaferNumber(),map.getDeviceNO(),map.getLotNO()};
 		String flag = "success";
 		flag = db.operate(sql, param)?flag:"晶圆的Map参数添加失败！";
 		return flag;
 	}
 	
-	public boolean getMapParameter(Connection conn,String waferNO){
-		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? ";
-		Object result = db.queryResult(conn, sql,new Object[]{waferNO});
+	public boolean getMapParameter(Connection conn,String waferNO,String deviceNO,String lotID){
+		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? and device_number=? and lot_number=?";
+		Object result = db.queryResult(conn, sql,new Object[]{waferNO,deviceNO,lotID});
 		return result==null?false:true;
 		
 	}
-	public boolean getMapParameter(String waferNO){
-		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? ";
-		Object result = db.queryResult( sql,new Object[]{waferNO});
+	public boolean getMapParameter(String waferNO,String deviceNO,String lotID){
+		String sql = "select wafer_number from dm_wafer_map_parameter where wafer_number=? and device_number=? and lot_number=? ";
+		Object result = db.queryResult( sql,new Object[]{waferNO,deviceNO,lotID});
 		return result==null?false:true;
 		
 	}
@@ -403,9 +403,9 @@ public class ParameterDao {
 		return db.queryList(conn,sql, new Object[]{waferId,waferId});
 	}
 	
-	public List<Map<String,Object>> getMapInfo(Connection conn,String waferNO){
-		String sql = "select direction_x directionX,direction_y directionY,die_x_max dieSizeX,die_y_max dieSizeY,diameter,cutting_edge_length flatLength from dm_wafer_map_parameter where wafer_number=?";
-		return db.queryToList(sql, new Object[]{waferNO});
+	public List<Map<String,Object>> getMapInfo(Connection conn,String waferNO,String deviceNO,String lotID){
+		String sql = "select direction_x directionX,direction_y directionY,die_x_max dieSizeX,die_y_max dieSizeY,diameter,cutting_edge_length flatLength from dm_wafer_map_parameter where wafer_number=? and device_number=? and lot_number=?";
+		return db.queryToList(sql, new Object[]{waferNO,deviceNO, lotID});
 		
 	}
 	

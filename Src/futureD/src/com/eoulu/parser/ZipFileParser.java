@@ -883,13 +883,23 @@ public class ZipFileParser {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			String s = "",xZeroPosition = "", yZeroPosition = "";
+			String s = "",xZeroPosition = "", yZeroPosition = "",deviceNO="",lotID="";
 			int flagnum=0;
 			for(int i=0;i<filelist1.size();i++){
 				s = filelist1.get(i);
 				if(filelist1.get(i).contains("WaferID=")){
 					waferNO=s.substring(s.indexOf("=")+1);
 					mapParamDO.setWaferNumber(waferNO);
+					continue;
+				}
+				if (filelist1.get(i).contains("ProductID=")) {
+					deviceNO =  s.substring(s.indexOf("=") + 1);
+					mapParamDO.setDeviceNO(deviceNO);
+					continue;
+				}
+				if (filelist1.get(i).contains("LotID=")) {
+					lotID =  s.substring(s.indexOf("=") + 1);
+					mapParamDO.setLotNO(lotID);
 					continue;
 				}
 				if(s.contains("Diameter=")&&!s.contains("NotchDiameter=")){
@@ -1020,7 +1030,7 @@ public class ZipFileParser {
 			}
 			System.out.println("mapParamDO:"+new Gson().toJson(mapParamDO));
 			ParameterDao parameterDao = (ParameterDao) ObjectTable.getObject("ParameterDao");
-			if(parameterDao.getMapParameter( mapParamDO.getWaferNumber())){
+			if(parameterDao.getMapParameter( mapParamDO.getWaferNumber(),mapParamDO.getDeviceNO(),mapParamDO.getLotNO())){
 				status = parameterDao.updateMapParameter( mapParamDO);
 			}else{
 				status = parameterDao.insertMapParameter(mapParamDO);
@@ -1076,13 +1086,23 @@ public class ZipFileParser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String s, dieno, diexy, str = "",indexFlag="1",xZeroPosition = "", yZeroPosition = "";
+		String s, dieno, diexy, str = "",indexFlag="1",xZeroPosition = "", yZeroPosition = "",deviceNO="",lotID="";
 		String[] diexdiey;
 		boolean dieFlag = false,subdieFlag = false,configFlag = false,subdieExist = false;
 		for (int i = 0; i < filelist.size(); i++) {
 			s = filelist.get(i);
 			if(filelist.get(i).contains("[Printing]")){
 				break;
+			}
+			if (filelist.get(i).contains("ProductID=")) {
+				deviceNO =  s.substring(s.indexOf("=") + 1);
+				mapParamDO.setDeviceNO(deviceNO);
+				continue;
+			}
+			if (filelist.get(i).contains("LotID=")) {
+				lotID =  s.substring(s.indexOf("=") + 1);
+				mapParamDO.setLotNO(lotID);
+				continue;
 			}
 			if (s.contains("Diameter=") && !s.contains("NotchDiameter=")) {
 				diameter = Double.parseDouble(s.substring(s.indexOf("=") + 1));
@@ -1094,6 +1114,7 @@ public class ZipFileParser {
 				mapParamDO.setDieXMax(dieSizeX);
 				continue;
 			}
+			
 			if (filelist.get(i).contains("DieSizeY=")) {
 				dieSizeY = Double.parseDouble(s.substring(s.indexOf("=") + 1));
 				mapParamDO.setDieYMax(dieSizeY);

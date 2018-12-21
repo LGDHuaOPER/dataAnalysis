@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-0dc96714c9.min.css">
+	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-91dee9a140.min.css">
 </head>
 <body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -51,6 +51,8 @@
 				<div class="g_bodyin_tit_r">
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
+					  	<li><a href="ProjectAnalysis">工程分析</a></li>
+					  	<li><a class="RF_SP2" >RF-SP2分析</a></li>
 					  	<li class="active">数据统计</li>
 					</ol>
 					<span class="glyphicon glyphicon glyphicon-share-alt" aria-hidden="true" title="返回" data-ipage="g_bodyin_bodyin_bottom_1"></span>
@@ -239,14 +241,14 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 
-	<script src="dist/script/modules/common/drawWaferMap-3585ae9ee0.min.js"></script>
+	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-9f88673584.min.js"></script>
+	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-cdfa6fd38b.min.js"></script>
 
-	<script src="dist/script/modules/dataStatistics/dataStatistics-d20db5636c.min.js"></script>
+	<script src="dist/script/modules/dataStatistics/dataStatistics-21f1b89cf0.min.js"></script>
 </body>
 </html>

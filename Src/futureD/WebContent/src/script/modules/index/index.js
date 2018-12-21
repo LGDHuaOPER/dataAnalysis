@@ -7,7 +7,7 @@ indexStore.authorityJQDomMap = {
 };
 
 $(".section_in .thumbnail").on("click", function(){
-	/*if($(this).data("ipage") == "ProjectAnalysis"){
+	if($(this).data("ipage") == "ProjectAnalysis"){
 		eouluGlobal.S_getSwalMixin()({
 			title: '温馨提示',
 			text: "工程分析正在开发...",
@@ -16,9 +16,9 @@ $(".section_in .thumbnail").on("click", function(){
 			showCancelButton: false,
 			timer: 1900
 		});
-	}else{*/
+	}else{
 		window.location.assign($(this).data("ipage"));
-	//}
+	}
 	// window.location.assign($(this).data("ipage"));
 });
 

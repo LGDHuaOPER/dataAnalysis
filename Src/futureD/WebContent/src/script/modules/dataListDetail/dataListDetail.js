@@ -1032,6 +1032,7 @@ function draw_map_good_rate(obj){
 		item[k] = v;
 		dieData.push(item);
 	});
+	
 	/*预处理数据end*/
 	buildColorGradation({
 		width: inH,
@@ -1204,31 +1205,15 @@ function draw_map_color_order_distribution(obj){
 						}
 					}
 				}
-				// if(iNo<theMin){
-				// 	iNo = theMin;
-				// 	item[k] = {bin: ibin, color: "1:"+iiNo};
-				// }else if(theMin<=iNo && iNo<lowwer){
-				// 	item[k] = {bin: ibin, color: "2:"+iiNo};
-				// }else if(lowwer<=iNo && iNo<midder){
-				// 	item[k] = {bin: ibin, color: "3:"+iiNo};
-				// }else if(midder<=iNo && iNo<=upper){
-				// 	item[k] = {bin: ibin, color: "4:"+iiNo};
-				// }else if(upper<iNo && iNo<theMax){
-				// 	item[k] = {bin: ibin, color: "5:"+iiNo};
-				// }else if(theMax<=iNo){
-				// 	iNo = theMax;
-				// 	item[k] = {bin: ibin, color: "6:"+iiNo};
-				// }
 			}
 			/*判断位置end*/
 			dieData.push(item);
 		});
 	});
-	//console.log("dieData",dieData);
 	/*合并有效subdie和其他器件subdie*/
 	var sub_currentItem_currentList = (waferData.containSubdie ? currentDieItem.currentSubdieList : {});
 	var othersubDieType = (waferData.containSubdie ?  waferData.otherSubdieType :  {});
-	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList] : [] );
+	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList,othersubDieType] : [] );
 	_.forEach(mergesubDieType, function(val, ind){
 		//console.log("val",val);
 		_.forOwn(val, function(v, k){
@@ -1430,13 +1415,15 @@ function draw_map_color_order_distribution(obj){
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	
-	var countObj = _.countBy(dieData, function(v, i){
+	var countByData = (waferData.containSubdie ?  subdieData : dieData);
+	var countObj = _.countBy(countByData, function(v, i){
 		var retur;
 		_.forOwn(v, function(vv, k){
 			retur = vv.color.split(":")[0];
 		});
 		return retur;
 	});
+	
 	var tableStr = '<table class="table table-striped table-bordered table-condensed">'+
 		'<thead><tr><th></th><th></th><th></th><th></th><th></th><th></th><th>合格数</th><th>不合格数</th><th>良率</th></tr></thead>'+
 		'<tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="qualify_tt" data-ipara="qualify">0</td><td class="unqulify_tt" data-ipara="unqulify">0</td><td class="yield_tt" data-ipara="yield">0%</td></tr></tbody></table>';
@@ -1511,7 +1498,7 @@ function draw_other_chart(obj){
 		case "gaussiandistribution":
 			var curParamData = _.find(data, function(v, k){
 				return _.toString(k) == _.toString(iparam);
-			});
+			})[waferNO];
 			if(_.indexOf(_.keys(curParamData), "status") > -1){
 				var errorArrItem2 = _.find(errorArr, function(v, i){
 					return v.chartCNName == "高斯分布图";
@@ -1635,6 +1622,19 @@ function draw_other_chart(obj){
 						headerFormat: '<em>参数： {point.key}</em><br/>'
 					}
 				}, {
+					name: '温和异常值',
+					color: Highcharts.getOptions().colors[1],
+					type: 'scatter',
+					data: iindata.soft,
+					marker: {
+						fillColor: '#ccc',
+						lineWidth: 1,
+						lineColor: Highcharts.getOptions().colors[1]
+					},
+					tooltip: {
+						pointFormat: '温和异常值: {point.y}'
+					}
+				}, {
 					name: '极端异常值',
 					color: Highcharts.getOptions().colors[0],
 					type: 'scatter',
@@ -1647,19 +1647,6 @@ function draw_other_chart(obj){
 					},
 					tooltip: {
 						pointFormat: '极端异常值: {point.y}'
-					}
-				}, {
-					name: '温和异常值',
-					color: Highcharts.getOptions().colors[1],
-					type: 'scatter',
-					data: iindata.soft,
-					marker: {
-						fillColor: '#ccc',
-						lineWidth: 1,
-						lineColor: Highcharts.getOptions().colors[1]
-					},
-					tooltip: {
-						pointFormat: '温和异常值: {point.y}'
 					}
 				}];
 		break;
@@ -1702,7 +1689,7 @@ function draw_other_chart(obj){
 		case "gaussiandistribution":
 			var iiiindata = _.find(data, function(v, k){
 				return _.toString(k) == _.toString(iparam);
-			});
+			})[waferNO];
 			title_text = "高斯分布图-"+iparam;
 			xAxis = [{
 				categories: _.map(iiiindata.groupX, function(v){

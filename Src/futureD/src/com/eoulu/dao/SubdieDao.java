@@ -60,7 +60,7 @@ public class SubdieDao {
 	
 	
 	public String insertSubdieConfig(Connection conn,List<Object[]> list){
-		String sql = "insert into dm_wafer_subdie_config (subdie_number,offset_x,offset_y,subdie_size_x,subdie_size_y,wafer_number) values (?,?,?,?,?,?)";
+		String sql = "insert into dm_wafer_subdie_config (subdie_number,offset_x,offset_y,subdie_size_x,subdie_size_y,wafer_number,device_number,lot_number) values (?,?,?,?,?,?,?,?)";
 		String flag = "success";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -90,6 +90,18 @@ public class SubdieDao {
 		}
 		return flag;
 		
+	}
+	
+	public boolean deleteSubdieConfig(Connection conn,String waferNO,String deviceNO,String lotID){
+		String sql = "delete from dm_wafer_subdie_config where wafer_number=? and device_number=? and lot_number=?";
+		Object result = DataBaseUtil.getInstance().operate(conn, sql, new Object[]{waferNO, deviceNO, lotID});
+		return result==null?false:true;	
+	}
+	
+	public boolean getSubdieConfig(Connection conn,String waferNO,String deviceNO,String lotID){
+		String sql = "select wafer_number from dm_wafer_subdie_config where wafer_number=? and device_number=? and lot_number=?";
+		List<String> result = DataBaseUtil.getInstance().queryList(conn, sql, new Object[]{waferNO, deviceNO, lotID});
+		return result.size()==0?false:true;	
 	}
 	
 	/*
@@ -416,6 +428,7 @@ public class SubdieDao {
 		if(!"".equals(str)){
 			sql += " and subdie_number in ("+str+")";
 		}
+		System.out.println("sql===:"+sql);
 		Map<Object,Object> result = new HashMap<>();
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);

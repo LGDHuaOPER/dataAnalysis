@@ -8,47 +8,10 @@ var dataStatisticsSwalMixin = swal.mixin({
 });
 
 var dataStatisticsState = new Object();
-/*dataStatisticsState.mock = {
-	curveType: {
-		"DC": ["IL", "BW", "VSWR", "CF"],
-		"RTP": ["IL", "BW", "VSWR", "CF"],
-		"RF-S2P": ["IL", "BW", "VSWR", "CF"]
-	},
-	selectedItem: [
-		{
-			"WaferID01.csv": ["1-0-RF.S2P"],
-			"from": 1,
-			"times": 5
-		},
-		{
-			"WaferID02.csv": ["2-0-RF.S2P"],
-			"from": 2,
-			"times": 3
-		},
-		{
-			"WaferID03.csv": ["3-0-RF.S2P"],
-			"from": 3,
-			"times": 4
-		},
-		{
-			"WaferID04.csv": ["4-0-RF.S2P"],
-			"from": 4,
-			"times": 5
-		}
-	],
-	RF_SP2: futuredGlobal.S_getRF_SP2(),
-	RF_SP2_MagnitudeDB: futuredGlobal.S_getRF_SP2_MagnitudeDB(),
-	RF_SP2_render: []
-};*/
 dataStatisticsState.csvANDparamSelected = {
 	csv: [],
 	param: []
 };
-/*dataStatisticsState.contextObj = {
-	classify: null,
-	flag: null,
-	flagArr: ["initial", "change"]
-};*/
 dataStatisticsState.stateObj = {
 	renderSelectCsvSub: false,
 	chartValidate: {
@@ -64,10 +27,6 @@ dataStatisticsState.stateObj = {
 			csvLen: 1,
 			paramLen: 1
 		},
-		/*"correlationgraph": {
-			csvLen: 0,
-			paramLen: 0
-		},*/
 		"wafermap": {
 			csvLen: "+",
 			paramLen: 1
@@ -125,7 +84,7 @@ function renderSelectCsv(item, flag, insertDOM,waferid){
 	for(var i = 0 ; i < item.length ; i++){
 		str2+='<div class="g_bodyin_bodyin_bottom_l'+flag+'_item">'+
 		'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin">'+
-		'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_main" data-icsv="'+item[i]+'"  data-iwaferid="'+waferid[i]+'">'+item[i]+'</div>'+
+		'<div class="g_bodyin_bodyin_bottom_l'+flag+'_itemin_main " data-icsv="'+item[i]+'"  data-iwaferid="'+waferid[i]+'">'+item[i]+'</div>'+
 		'</div></div>';
 	}
 	
@@ -134,35 +93,46 @@ function renderSelectCsv(item, flag, insertDOM,waferid){
 
 
 function renderChartCsvANDParam(obj){
+	console.log("objP",obj);
 	var str = '';
+	var total_param_dom = $(".g_bodyin_bodyin_bottom_1 .g_bodyin_bodyin_bottom_l_inbottom .list-group .list-group-item");
 	if(obj.classify == "csv"){
 		obj.csv.map(function(v, i){
+			var iwaferid = $(".g_bodyin_bodyin_bottom_l_intop .g_bodyin_bodyin_bottom_l_itemin_main[data-icsv='"+v+"'] ").data("iwaferid");
 			str+='<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_item">'+
 						'<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_itemin">'+
-							'<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_itemin_main">'+v+'</div>'+
+							'<div class="g_bodyin_bodyin_bottom_l'+obj.flag+'_itemin_main" data-iwaferid="'+iwaferid+'">'+v+'</div>'+
 						'</div>'+
 					'</div>';
 		});
 	}else if(obj.classify == "table"){
 		str+='<table class="table table-striped table-bordered table-hover table-condensed"><thead><tr><th>参数名称</th><th>下限</th><th>上限</th><th>等分数</th></tr></thead><tbody>';
-		obj.param.map(function(v, i){
+		for(var v= 0 ; v < total_param_dom.length ; v++){
+			var cur_class = (_.indexOf(obj.param, total_param_dom.eq(v).data("iparam")) > -1 ? "info" : "");//判断选中参数
 			var id = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
-			str+='<tr data-chartcurid="'+id+'" data-ishowchartparam="'+v+'"><td>'+v+'</td><td>0.32</td><td>1.4</td><td>8</td></tr>';
-		});
+			str+='<tr class="'+cur_class+'" data-chartcurid="'+id+'" data-ishowchartparam="'+total_param_dom.eq(v).data("iparam")+'">'+
+				'<td  class="g_bodyin_bodyin_bottom_lsub_mid_iparam" title="'+total_param_dom.eq(v).data("iparam")+'">'+total_param_dom.eq(v).data("iparam")+'</td>'+
+				'<td class="g_bodyin_bodyin_bottom_lsub_mid_min" title="'+total_param_dom.eq(v).data("min")+'"><input type="text" value="'+total_param_dom.eq(v).data("min")+'" ></td>'+
+				'<td class="g_bodyin_bodyin_bottom_lsub_mid_max" title="'+total_param_dom.eq(v).data("max")+'"><input type="text" value="'+total_param_dom.eq(v).data("max")+'" ></td>'+
+				'<td class="g_bodyin_bodyin_bottom_lsub_mid_equal"  title="8"><input type="text" value="8"></td>'+
+			'</tr>';
+		}
 		str+='</tbody></table>';
 	}else if(obj.classify == "ul"){
 		str+='<ul class="list-group">';
-		obj.param.map(function(v, i){
+		for(var v= 0 ; v < total_param_dom.length ; v++){
+			var cur_class = (_.indexOf(obj.param, total_param_dom.eq(v).data("iparam")) > -1 ? "list-group-item-info info" : "");//判断选中参数
+			console.log(cur_class);
 			var id2 = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
-			str+='<li class="list-group-item" data-chartcurid="'+id2+'" data-ishowchartparam="'+v+'"><span class="badge">参数</span>'+v+'</li>';
-		});
+			str+='<li class="list-group-item '+cur_class+'" data-chartcurid="'+id2+'" data-min="'+total_param_dom.eq(v).data("min")+'" data-max="'+total_param_dom.eq(v).data("max")+'" data-ishowchartparam="'+total_param_dom.eq(v).data("iparam")+'"><span class="badge">参数</span>'+total_param_dom.eq(v).data("iparam")+'</li>';
+		}
 		str+='</ul>';
 	}
 	obj.insertDOM.empty().append(str);
 }
 
 
-function changeChartCanClick(){
+/*function changeChartCanClick(){
 	var len = $(".g_bodyin_bodyin_bottom_l_inbottom .list-group .list-group-item.list-group-item-info").length;
 	$(".g_bodyin_bodyin_bottom_r .thumbnail").removeClass("cannotclick");
 	if(!len || len == 0){
@@ -178,12 +148,11 @@ function changeChartCanClick(){
 	else{
 		$(".g_bodyin_bodyin_bottom_r .thumbnail").addClass("cannotclick");
 	}
-}
+}*/
 
 function renderParam(waferIdStr){
 	if(waferIdStr == ""){
 		$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group").empty();
-		changeChartCanClick()
 		return;
 	}
 	var istr = '';
@@ -195,11 +164,20 @@ function renderParam(waferIdStr){
 		},
 		dataType: "json",
 		success: function(data){
+			if(data.paramList.length == 0){
+				$(".g_bodyin_bodyin_bottom_r .thumbnail").addClass("cannotclick");
+				$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group").empty();
+				return;
+			}
+			else if(data.paramList.length <2){
+				$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='correlationgraph']").addClass("cannotclick");
+			}
 			_.forOwn(data.paramList, function(value,i) {
-				istr+='<a href="javascript:;" class="list-group-item" data-iparam="'+value+'" data-iparam="'+value+'" data-min="'+data.rangeList[value][0]+'" data-max="'+data.rangeList[value][1]+'"><span class="badge">选中</span>'+value+'</a>';
+				istr+='<a href="javascript:;" class="list-group-item" data-iparam="'+value+'" data-iparam="'+value+'" data-min="'+data.rangeList[value][0]+'" data-max="'+data.rangeList[value][1]+'">'+value+'</a>';
 			});
 			$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group").empty().append(istr);
-			changeChartCanClick()
+			$(".g_bodyin_bodyin_bottom_r .thumbnail").removeClass("cannotclick");
+			
 		},
 		error : function(){
 			dataStatisticsSwalMixin({
@@ -227,11 +205,9 @@ $(function(){
 	var selectwaferNO = $("body").data("wafer").waferNO;
 	/*主页面csv文件渲染*/
 	renderSelectCsv(selectwaferNO, '', $(".g_bodyin_bodyin_bottom_l_intop"),selectwaferId);
-	$(".g_bodyin_bodyin_bottom_l_item .g_bodyin_bodyin_bottom_l_itemin_main").trigger("click");
-	
-		
-	//renderParam(selectwaferId.join(",")); //加载参数
-	changeChartCanClick(); 
+	renderParam(selectwaferId[0]); //加载参数
+	$(".g_bodyin_bodyin_bottom_l_item .g_bodyin_bodyin_bottom_l_itemin_main").eq(0).trigger("click");
+
 	eleResize();
 	$(window).on("resize", function(){
 		eleResize();
@@ -244,8 +220,10 @@ $(function(){
 $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	$(this).toggleClass("selected");
 }).on("click", ".g_bodyin_bodyin_bottom_l_itemin_main", function(){
-	$(this).toggleClass("active");
+	if($(this).hasClass("active")) return ;
+	$(this).addClass("active").parent().parent().siblings().find(".g_bodyin_bodyin_bottom_l_itemin_main").removeClass("active");
 	var csv = $(this).data("icsv").toString();
+	dataStatisticsState.csvANDparamSelected.csv = [];
 	$(this).hasClass("active") ? dataStatisticsState.csvANDparamSelected.csv.push(csv) : _.pull(dataStatisticsState.csvANDparamSelected.csv, csv);
 	var waferIdStr = [];
 	if($(".g_bodyin_bodyin_bottom_l_intop .active").length == 0){
@@ -260,53 +238,6 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	renderParam(waferIdStr.join(",")); //加载参数
 });
 
-/*上部分左右移动*/
-/*$(".g_bodyin_bodyin_top_wrap_l>span").click(function(){
-	var oldLeft = parseFloat($(".g_bodyin_bodyin_top_wrap_m_in").css("left"));
-	var width = $(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() - $(".g_bodyin_bodyin_top_wrap_m").innerWidth();
-	var newLeft = oldLeft + 60;
-	if(oldLeft>=0){
-		newLeft = 0;
-	}
-	$(".g_bodyin_bodyin_top_wrap_m_in").animate({
-		"left": newLeft+"px"
-	}, {
-		speed: "slow",
-		easing: "swing",
-		queue: false
-	});
-});
-
-$(".g_bodyin_bodyin_top_wrap_r>span").click(function(){
-	var oldLeft = parseFloat($(".g_bodyin_bodyin_top_wrap_m_in").css("left"));
-	var width = $(".g_bodyin_bodyin_top_wrap_m_in").innerWidth() - $(".g_bodyin_bodyin_top_wrap_m").innerWidth();
-	var newLeft = oldLeft - 60;
-	if(Math.abs(oldLeft)>=width){
-		newLeft = -width;
-	}
-	$(".g_bodyin_bodyin_top_wrap_m_in").animate({
-		"left": newLeft+"px"
-	}, {
-		speed: "slow",
-		easing: "swing",
-		queue: false
-	});
-});*/
-
-/*$(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
-	var target = $(this).data("targetclass");
-	if(target == "add"){
-		dataStatisticsSwalMixin({
-			title: '敬请期待',
-			text: "功能尚未开发",
-			type: 'info',
-			showConfirmButton: false,
-			timer: 2000,
-		});
-	}else{
-		$(this).addClass("active").siblings().removeClass("active");
-	}
-});*/
 
 /*chart左侧*/
 $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_main", function(){
@@ -350,14 +281,17 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 			/*分发chart*/
 			$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']").delay(50).fadeIn(200, function(){
 				
-				var curWaferID = [],curParam=[],curWaferName = {};
+				var curWaferID = [],curParam=[],curWaferName = {},leftrange=[],rightrange=[],equal=[];;
 				for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_l_intop .active").length ; _i++){
 					curWaferID.push( $(".g_bodyin_bodyin_bottom_l_intop .active").eq(_i).data("iwaferid"));
 					curWaferName[$(".g_bodyin_bodyin_bottom_l_intop .active").eq(_i).data("iwaferid")] =$(".g_bodyin_bodyin_bottom_l_intop .active").eq(_i).data("icsv") ;
 				}
-				for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").length ; _i++){
-					curParam.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item-info").eq(_i).data("iparam"));
-				}
+//				for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").length ; _i++){
+//					curParam.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").eq(_i).data("iparam"));
+//					leftrange.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").eq(_i).data("min"));
+//					rightrange.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").eq(_i).data("max"));
+//					equal.push(8);
+//				}
 				
 				eouluGlobal.S_getSwalMixin()({
 	  				title: '加载数据',
@@ -382,39 +316,9 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 						whenArr: _.cloneDeep(whenArr),
 						curWaferName : curWaferName,
 						curWaferID : curWaferID,
-						curParam : curParam,
 					});
 	  			}, 50);
 				
-				
-				
-				/*画图*/
-//				buildChartContainer({
-//					ishowchart: ichart
-//				});
-//				$(".g_bodyin_bodyin_bottom_rsubin[data-ishowchart='"+ichart+"']>.chartBody>.container-fluid [data-initrenderchart]").each(function(i, el){
-//					var container = $(this).attr("id");
-//					var curLine = $(".g_bodyin_bodyin_bottom_lsub_mid [data-chartcurid='"+container+"']");
-//					var subtitle;
-//					if(classify == "table"){
-//						subtitle = "等分数"+curLine.children("td:eq(3)").text();
-//					}else if(classify == "ul"){
-//						subtitle = "";
-//					}
-//					/*分流逻辑*/
-//					var type = _.find(dataStatisticsState.chartMap, function(o, k){
-//						return k == ichart;
-//					});
-//					var yAxis = {};
-//					var xAxis = {};
-//					var chart = {};
-//					if(type == "wafermap"){
-//						/*Map色阶分布*/
-//		  				/*1区域，theMin #0000FF，2区域，lowwer #00FFFF，3区域，midder #00FF00，4区域，upper #FFFF00，5区域，theMax #FF0000，6区域*/
-//					}else{
-//						var series = null;
-//					}
-//				});
 			});
 		}else{
 			$(".g_bodyin_tit_r>span").hide();
@@ -422,17 +326,99 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 	});
 });
 
-/*参数选中*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_l_inbottom>.list-group>a", function(){
-	$(this).toggleClass("list-group-item-info");
-	var that = $(this);
-	var param = that.data("iparam").toString();
-	that.hasClass("list-group-item-info") ? dataStatisticsState.csvANDparamSelected.param.push(param) : _.pull(dataStatisticsState.csvANDparamSelected.param, param);
-	var a = ["选中", "取消选中"];
-	$(this).children("span").text(a[Number(that.hasClass("list-group-item-info"))]);
-	changeChartCanClick();
-	/*var item = renderChartValidate();
-	changeChartCanClick(item);*/
+$(document).on("click", ".g_bodyin_bodyin_bottom_lsub_bottom>input", function(){
+	var ichart = $(".g_bodyin_bodyin_bottom_rsub>div:visible").data("ishowchart");
+	var curWaferID = [],curParam=[],curWaferName = {},leftrange=[],rightrange=[],equal=[];
+	for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_lsub_top .active").length ; _i++){
+		curWaferID.push( $(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).data("iwaferid"));
+		curWaferName[$(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).data("iwaferid")] =$(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).text() ;
+	}
+	
+	for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_lsub_mid .info").length ; _i++){
+		if(ichart == "correlationgraph"||ichart =="boxlinediagram"||ichart =="CPK"){
+			curParam.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("ishowchartparam"));
+			leftrange.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("min"));
+			rightrange.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("max"));
+			equal.push(8);
+		}
+		else{
+			curParam.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).data("ishowchartparam"));
+			leftrange.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_min").attr("title"));
+			rightrange.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_max").attr("title"));
+			equal.push(8);
+		}
+	}
+	console.log("curParam",curParam);
+	console.log("leftrange",leftrange);
+	console.log("rightrange",rightrange);
+	console.log("equal",equal);
+		eouluGlobal.S_getSwalMixin()({
+			title: '加载数据',
+			text: "数据加载绘制图形中...",
+			type: 'info',
+			showConfirmButton: false,
+			showCancelButton: false,
+		});
+	setTimeout(function(){
+		var chartType = dataStatisticsState.chartMap[ichart];
+		var chartAjaxUrl = dataStatisticsState.ajaxurl[ichart];
+		var chartCNName = dataStatisticsState.chartCNNameMap[ichart];
+		var whenArr = [];
+		whenArr.push({
+			chartType: chartType,
+			chartAjaxUrl: chartAjaxUrl,
+			chartCNName: chartCNName,
+			classify: ichart
+		});
+		
+		ajax_all_chart({
+			whenArr: _.cloneDeep(whenArr),
+			curWaferName : curWaferName,
+			curWaferID : curWaferID,
+			curParam : curParam,
+			leftrange : leftrange,
+			rightrange : rightrange,
+			equal : equal,
+		});
+		}, 50);
 });
 
+$(".g_bodyin_tit_r .RF_SP2").click(function(){
+	 eouluGlobal.S_settingURLParam({
+		  wafer: $("body").data("wafer").waferId,
+	}, false, false, false, "Analysis");
+})
 
+/*参数切换*/
+$(document).on("blur", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr td:not(.g_bodyin_bodyin_bottom_lsub_mid_iparam) input", function(){
+	var val = $(this).parent().attr("title");
+	if($(this).val() == ""){
+		$(this).val(val);
+	};
+	$(this).parent().attr("title",$(this).val());
+});
+$(document).on("click", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item", function(){
+	var ichart = $(".g_bodyin_bodyin_bottom_rsub>div:visible").data("ishowchart");
+	if(ichart == "correlationgraph"){   //相关性 只能选中两个
+		$(this).toggleClass("list-group-item-info info");
+		if($(".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item-info").length > 2){
+			$(".g_bodyin_bodyin_bottom_lsub_bottom>input").attr("disabled",true);
+		}
+		else{
+			$(".g_bodyin_bodyin_bottom_lsub_bottom>input").attr("disabled",false);
+		}
+	}
+	else{
+		$(this).addClass("list-group-item-info info").siblings().removeClass("list-group-item-info info");
+	}
+});
+
+$(document).on("click", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr .g_bodyin_bodyin_bottom_lsub_mid_iparam", function(){
+	$(this).parent().toggleClass("info");
+	$(this).parent().find("input").toggleClass("mid_newbg");
+});
+
+$(document).on("focus", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr input", function(){
+	$(this).parent().parent().addClass("info");
+	$(this).parent().parent().find("input").addClass("mid_newbg");
+});

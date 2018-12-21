@@ -332,14 +332,14 @@ public class CoordinateDao {
 	 * @param waferNO
 	 * @return
 	 */
-	public List<Map<String, Object>> getCoordinateRange(Connection conn, String waferNO,boolean flag) {
-		String sql = "select min(x_coordinate) minX,max(x_coordinate) maxX,min(y_coordinate) minY,max(y_coordinate) maxY from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=?) and x_coordinate is not null and y_coordinate is not null";
+	public List<Map<String, Object>> getCoordinateRange(Connection conn, String waferNO,boolean flag,String deviceNO,String lotID) {
+		String sql = "select min(x_coordinate) minX,max(x_coordinate) maxX,min(y_coordinate) minY,max(y_coordinate) maxY from dm_wafer_coordinate_data where wafer_id in (select wafer_id from dm_wafer where wafer_number=? and device_number=? and lot_number=?) and x_coordinate is not null and y_coordinate is not null";
 		
 		if(flag){
-			sql = "select min(subdie_x) minX,max(subdie_x) maxX,min(subdie_y) minY,max(subdie_y) maxY from dm_wafer_subdie where wafer_id in (select wafer_id from dm_wafer where wafer_number=?)  and subdie_x is not null and subdie_y is not null";
+			sql = "select min(subdie_x) minX,max(subdie_x) maxX,min(subdie_y) minY,max(subdie_y) maxY from dm_wafer_subdie where wafer_id in (select wafer_id from dm_wafer where wafer_number=? and device_number=? and lot_number=?)  and subdie_x is not null and subdie_y is not null";
 		}
 		
-		return db.queryToList(conn, sql, new Object[] {waferNO});
+		return db.queryToList(conn, sql, new Object[] {waferNO, deviceNO, lotID});
 
 	}
 	

@@ -24,8 +24,22 @@ public class MapParameterDO {
 	private String standCoorDieX;
 	private String standCoorDieY;
 	private String waferNumber;
+	private String deviceNO;
+	private String lotNO;
 	
 	
+	public String getDeviceNO() {
+		return deviceNO;
+	}
+	public void setDeviceNO(String deviceNO) {
+		this.deviceNO = deviceNO;
+	}
+	public String getLotNO() {
+		return lotNO;
+	}
+	public void setLotNO(String lotNO) {
+		this.lotNO = lotNO;
+	}
 	public String getWaferNumber() {
 		return waferNumber;
 	}

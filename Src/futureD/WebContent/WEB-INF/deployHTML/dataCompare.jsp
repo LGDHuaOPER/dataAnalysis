@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	
-	<link rel="stylesheet" href="dist/style/modules/dataCompare/dataCompare-d9d60428be.min.css">
+	<link rel="stylesheet" href="dist/style/modules/dataCompare/dataCompare-1f951df78e.min.css">
 	
 </head>
 <body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" >
@@ -298,14 +298,14 @@
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 	<script src="assets/script/libs/numeral/numeral.min.js"></script>
 	
-	<script src="dist/script/modules/common/drawWaferMap-3585ae9ee0.min.js"></script>
+	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 	
-	<script src="dist/script/modules/common/futureD_config-57502b8b75.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<script src="dist/script/modules/dataCompare/dataCompare-013ab4a91a.min.js"></script>
+	<script src="dist/script/modules/dataCompare/dataCompare-912e4f00ae.min.js"></script>
 </body>
 </html>
