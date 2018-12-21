@@ -306,6 +306,6 @@
 
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<script src="dist/script/modules/dataCompare/dataCompare-912e4f00ae.min.js"></script>
+	<script src="dist/script/modules/dataCompare/dataCompare-c9110ba05c.min.js"></script>
 </body>
 </html>

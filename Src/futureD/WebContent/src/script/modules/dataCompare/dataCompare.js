@@ -1578,6 +1578,7 @@ function renderCommonParameter(){
 		    	   waferIdStr : waferIdStr ,
 		       },
 		       dataType: 'json',
+		       async : false ,
 		       success: function (data) {
 		    	   //console.log("data",data);
 		    	   var str = "";
@@ -2061,6 +2062,7 @@ $("#checkAll").on({
 			}
 			
 			dataCompareState.sellectObj.selectAll = that.prop("checked");
+			//dataCompareState.sellectObj.selectItem = [];
 			renderCommonParameter();
 			groupJudgeRenderNav("wafer");
 	}
