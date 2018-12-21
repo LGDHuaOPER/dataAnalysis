@@ -1873,7 +1873,12 @@ function ajax_all_chart(obj){
 						returnV = _.toNumber(vv.match(/\d+/)[0]);
 					}
 					return returnV;
+				}, function(vvv){
+					if(_.toString(vvv).replace(/\s/g, "").toLowerCase() == "totalyield" || _.toString(vvv).replace(/\s/g, "").toLowerCase() == "all") return "A";
+					return _.identity(vvv);
 				});
+				// _.sortBy(["我", "a", "A", 1])
+				// 	=> ["A", "a", "我", 1]
 			}
 			var IDParamObjArr = buildParameterChartContainer({
 				classify: whenArrItem.classify,

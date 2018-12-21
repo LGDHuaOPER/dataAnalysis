@@ -163,13 +163,33 @@ function SaveSelectedToLocal(){
 	localStorage.setItem(key_id,v_id.join(","));
 	localStorage.setItem(key_item,v_item.join("ee_&oo&_uu"));
 }
-function GetSelectedFromLocal(){
+function GetSelectedFromLocal_item(){
 	var eoulu_projectAnalysis_select_item = localStorage.getItem("eoulu_projectAnalysis_select_item");
-	var eoulu_projectAnalysis_select_id = localStorage.getItem("eoulu_projectAnalysis_select_id");
 	if(!eoulu_projectAnalysis_select_item || eoulu_projectAnalysis_select_item == "")return;
 	var s_item = eoulu_projectAnalysis_select_item.split("ee_&oo&_uu");
-	var s_id = eoulu_projectAnalysis_select_id.split(",");
+	for(var e_num = 0 ; e_num <s_item.length ;e_num++ ){
+		$(".g_bodyin_body_bottom  tbody").append("<tr>"+s_item[e_num]+"</tr>");
+	}
 }
+function GetSelectedFromLocal_id(){
+	var eoulu_projectAnalysis_select_id = localStorage.getItem("eoulu_projectAnalysis_select_id");
+	if(!eoulu_projectAnalysis_select_id || eoulu_projectAnalysis_select_id == "")return;
+	var s_id = eoulu_projectAnalysis_select_id.split(",");
+	projectAnalysisState.sellectObj.selectItem = s_id;
+	for(var e_num = 0 ; e_num <s_id.length ;e_num++ ){
+		for(var e_id = 0 ; e_id <$(".g_bodyin_bodyin_body  tbody tr").length ;e_id++ ){
+			if(s_id[e_num] == $(".g_bodyin_bodyin_body  tbody tr").eq(e_id).find("input[type='checkbox']").data("ivalue")){
+				$(".g_bodyin_bodyin_body tbody tr").eq(e_id).find("input[type='checkbox']").attr("checked",true);
+				$(".g_bodyin_bodyin_body tbody tr").eq(e_id).addClass("warning");
+				break;
+			}
+		}
+	}
+}
+
+
+
+
 
 
 function analyzeBtn(){
@@ -201,7 +221,8 @@ $(function(){
 		$(".g_bodyin_body_top").height(($(".g_bodyin_body").height())/2);
 		$(".g_bodyin_body_bottom").height(($(".g_bodyin_body").height())/2 - 30);
 	});
-
+	
+	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	
 	/*判断是否有选中*/
@@ -234,26 +255,14 @@ $(function(){
 			    if (!obj.isFirst) {
 			      // do something
 			      	projectAnalysisRenderData( projectAnalysisState.pageObj.currentPage);
+			      	GetSelectedFromLocal_id();  //加载上次选中
 			    }
-//			    var allData = getProjectAnalysisData(null, false, true);
-//			    if(projectAnalysisState.sellectObj.selectItem.length > projectAnalysisState.pageObj.itemLength){
-//			    	$("#checkAll").prop("checked", true);
-//			    	allData.map(function(v, i){
-//			    		if(v.delete_status.value == "1"){
-//			    			var ii = v.wafer_id.value;
-//			    			if(_.indexOf(projectAnalysisState.sellectObj.selectItem, ii) > -1){
-//			    				_.pull(projectAnalysisState.sellectObj.selectItem, ii.toString());
-//			    			}
-//			    		}
-//			    	});
-//			    }else if(projectAnalysisState.sellectObj.selectItem.length == projectAnalysisState.pageObj.itemLength){
-//			    	$("#checkAll").prop("checked", true);
-//			    }
 		  	}
 		};
 		// 初始化分页器
 		projectAnalysisState.paginationObj.normal = new Pagination(projectAnalysisState.pageObj.selector, projectAnalysisState.pageObj.pageOption);
-
+		GetSelectedFromLocal_item();  //加载上次选中
+		GetSelectedFromLocal_id();  //加载上次选中
 });
 
 /*event handler*/

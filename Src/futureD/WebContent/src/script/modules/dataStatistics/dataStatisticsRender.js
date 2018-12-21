@@ -199,6 +199,55 @@ function draw_other_chart(obj){
 	series,
 	callback = null;
 
+	/*错误数组增加*/
+	switch(classify) {
+		case "CPK":
+			var curDataItem = _.find(_.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
+			}), function(vv, kk){
+				return _.toString(kk) == _.toString(curWaferId);
+			});
+			if(curDataItem.length<20){
+				var errorArrItem = _.find(errorArr, function(v, i){
+					return v.chartCNName == "CPK图";
+				});
+				if(_.isNil(errorArrItem)){
+					errorArr.push({
+						chartCNName: "CPK图",
+						errorParamArr: [iparam],
+						classify: classify,
+						message: "参数数据不足"
+					});
+				}else{
+					errorArrItem.errorParamArr.push(iparam);
+				}
+				return errorArr;
+			}
+		break;
+		case "gaussiandistribution":
+			var curParamData = _.find(data, function(v, k){
+				return _.toString(k) == _.toString(iparam);
+			})[curWaferId];
+			if(_.indexOf(_.keys(curParamData), "status") > -1){
+				var errorArrItem2 = _.find(errorArr, function(v, i){
+					return v.chartCNName == "高斯分布图";
+				});
+				if(_.isNil(errorArrItem2)){
+					errorArr.push({
+						chartCNName: "高斯分布图",
+						errorParamArr: [iparam],
+						classify: classify,
+						message: curParamData.status
+					});
+				}else{
+					errorArrItem2.errorParamArr.push(iparam);
+				}
+				return errorArr;
+			}
+		break;
+	}
+	/*错误数组增加end*/
+	
 	switch(classify){
 		case "histogram":
 			/*处理数据*/
@@ -391,7 +440,7 @@ function draw_other_chart(obj){
 			xAxis = {
 				title: {
 					enabled: true,
-					text:  obj.curParam[0],
+					text:  ndata.parameter[0],
 					style:{"fontFamily":"arial","float":"top"}
 				},
 				lineWidth:1,
@@ -407,7 +456,7 @@ function draw_other_chart(obj){
 			};
 			yAxis = {
 				title: {
-					text: obj.curParam[1]
+					text:  ndata.parameter[1]
 				}
 			};
     		var item = {};
@@ -588,24 +637,24 @@ function ajax_all_chart(obj){
 		else if(whenArrItem.classify === "wafermap"){
 			var ajax_data = {
 				waferIdStr: curWaferID.join(","),
-				parameter : curParam.join(""),
-				leftRange :  obj.leftrange[0],
-				rightRange : obj.rightrange[0] ,
+				paramAtt : curParam,
+				leftRange :  obj.leftrange,
+				rightRange : obj.rightrange ,
 			}
 		}
 		else if(whenArrItem.classify === "gaussiandistribution" || whenArrItem.classify === "histogram"){
 			var ajax_data = {
 				waferIdStr: curWaferID.join(","),
-				parameter : curParam.join(""),
-				leftRange :  obj.leftrange[0],
-				rightRange : obj.rightrange[0] ,
-				equal :  obj.equal[0]
+				paramAtt : curParam,
+				leftRange :  obj.leftrange,
+				rightRange : obj.rightrange,
+				equal :  obj.equal
 			}
 		}
 		else{
 			var ajax_data = {
 				waferIdStr: curWaferID.join(","),
-				parameter : curParam.join("")
+				paramAtt : curParam
 			}
 		}
 	}
@@ -631,8 +680,6 @@ function ajax_all_chart(obj){
 				message: "数据为空"
 			});
 		}else{
-			
-			
 			var paramsArr;
 			if(["wafermap"].indexOf(whenArrItem.classify) > -1){
 				paramsArr = [];
@@ -650,7 +697,7 @@ function ajax_all_chart(obj){
 				}
 				else{
 					paramsArr = _.keys(data);
-					paramsArr = _.sortBy(paramsArr, function(vv, ii){
+					/*paramsArr = _.sortBy(paramsArr, function(vv, ii){
 						var returnV;
 						if(_.isNil(vv.match(/\d+/))) {
 							returnV = 0;
@@ -658,7 +705,7 @@ function ajax_all_chart(obj){
 							returnV = _.toNumber(vv.match(/\d+/)[0]);
 						}
 						return returnV;
-					});
+					});*/
 				}
 			}	
 			var IDParamObjArr = buildParameterChartContainer({
@@ -699,7 +746,48 @@ function ajax_all_chart(obj){
 				type: "info",
 				showConfirmButton: false,
 				timer: 1200
-			})
+			}).then(function(){
+				if(_.isEmpty(errorArr)){
+				}else{
+					var iiistr = '以下图表请求/绘制失败';
+					iiistr+='<div class="container-fluid">'+
+								'<table class="table table-striped table-bordered table-hover table-condensed">'+
+									'<thead>'+
+										'<tr><th style="font-size:14px;width: 80px;text-align:center;">图表名字</th><th style="font-size:14px;text-align:center;">参数及原因</th></tr>'+
+									'</thead><tbody>';
+					_.forEach(errorArr, function(v){
+						iiistr+='<tr>'+
+									'<td style="vertical-align: top;font-size:14px;width: 80px;">'+v.chartCNName+'</td><td style="vertical-align: top;font-size:14px;">';
+						if(_.isEmpty(v.errorParamArr)){
+							iiistr+=v.message;
+							setTimeout(function(){
+								$("div.panel.panel_"+v.classify).data("icontextual", "danger").removeClass("panel-info panel-success panel-warning").addClass("panel-danger").children(".panel-heading").children("span.glyphicon").trigger("click");
+							}, 20);
+						}else{
+							var $curClassify = $("div.panel.panel_"+v.classify);
+							$curClassify.data("icontextual", "warning").removeClass("panel-info panel-success panel-danger").addClass("panel-warning");
+							_.forEach(v.errorParamArr, function(vv){
+								iiistr+=vv+"："+v.message+"<br/>";
+								$curClassify.find(".panel-body div.panel[data-contextualparam='"+vv+"']").data("icontextual", "warning").children(".panel-heading").children("span.glyphicon").trigger("click");
+							});
+							if($curClassify.find(".panel-body div.panel[data-contextualparam]").length == v.errorParamArr.length){
+								$curClassify.children(".panel-heading").children("span.glyphicon").trigger("click");
+							}
+						}
+						iiistr+='</td></tr>';
+					});
+					iiistr+='</tbody></table></div>';
+					eouluGlobal.S_getSwalMixin()({
+						title: "加载提示",
+						html: iiistr,
+						// type: "info",
+						showConfirmButton: true,
+					});
+				}
+				//$("body").data("iglobalerror", "unallow");
+				//dataListDetailStore.state.parameterMap.hasRender = true;
+			});
+		
 		}
 	}, function(){
 		// errorArr.push(whenArrItem.chartCNName);

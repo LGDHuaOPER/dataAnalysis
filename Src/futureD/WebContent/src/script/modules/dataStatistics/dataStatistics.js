@@ -39,6 +39,9 @@ dataStatisticsState.stateObj = {
 	chartRenderCurID: 0,
 	curChartContainerNum :0
 };
+dataStatisticsState.chooseParam = {};
+
+
 dataStatisticsState.chartMap = {
 	"histogram": "column",
 	"boxlinediagram": "boxplot",
@@ -77,6 +80,8 @@ function eleResize(){
 function eleResize2(){
 	$(".g_bodyin_bodyin_bottom_lsub, .g_bodyin_bodyin_bottom_rsub").height($(".g_bodyin_bodyin_bottom").height());
 	$(".g_bodyin_bodyin_bottom_lsub_top, .g_bodyin_bodyin_bottom_lsub_mid").innerHeight(($(".g_bodyin_bodyin_bottom_lsub").innerHeight() - 46) / 2);
+	
+	//$(".g_bodyin_bodyin_bottom_r .thumbnail img").css("margin-top",Math.abs($(".g_bodyin_bodyin_bottom_r .thumbnail").height() - $(".g_bodyin_bodyin_bottom_r .thumbnail .caption").height() - $(".g_bodyin_bodyin_bottom_r .thumbnail img").height() ) /2 +"px" )
 }
 
 function renderSelectCsv(item, flag, insertDOM,waferid){
@@ -93,7 +98,7 @@ function renderSelectCsv(item, flag, insertDOM,waferid){
 
 
 function renderChartCsvANDParam(obj){
-	console.log("objP",obj);
+	//console.log("objP",obj);
 	var str = '';
 	var total_param_dom = $(".g_bodyin_bodyin_bottom_1 .g_bodyin_bodyin_bottom_l_inbottom .list-group .list-group-item");
 	if(obj.classify == "csv"){
@@ -106,7 +111,8 @@ function renderChartCsvANDParam(obj){
 					'</div>';
 		});
 	}else if(obj.classify == "table"){
-		str+='<table class="table table-striped table-bordered table-hover table-condensed"><thead><tr><th>参数名称</th><th>下限</th><th>上限</th><th>等分数</th></tr></thead><tbody>';
+		var showorhide = (obj.ishowchart == "gaussiandistribution" ||obj.ishowchart == "wafermap" ? "display:none" : "");
+		str+='<table class="table table-striped table-bordered table-hover table-condensed"><thead><tr><th>参数名称</th><th>下限</th><th>上限</th><th style="'+showorhide+'">等分数</th></tr></thead><tbody>';
 		for(var v= 0 ; v < total_param_dom.length ; v++){
 			var cur_class = (_.indexOf(obj.param, total_param_dom.eq(v).data("iparam")) > -1 ? "info" : "");//判断选中参数
 			var id = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
@@ -114,7 +120,7 @@ function renderChartCsvANDParam(obj){
 				'<td  class="g_bodyin_bodyin_bottom_lsub_mid_iparam" title="'+total_param_dom.eq(v).data("iparam")+'">'+total_param_dom.eq(v).data("iparam")+'</td>'+
 				'<td class="g_bodyin_bodyin_bottom_lsub_mid_min" title="'+total_param_dom.eq(v).data("min")+'"><input type="text" value="'+total_param_dom.eq(v).data("min")+'" ></td>'+
 				'<td class="g_bodyin_bodyin_bottom_lsub_mid_max" title="'+total_param_dom.eq(v).data("max")+'"><input type="text" value="'+total_param_dom.eq(v).data("max")+'" ></td>'+
-				'<td class="g_bodyin_bodyin_bottom_lsub_mid_equal"  title="8"><input type="text" value="8"></td>'+
+				'<td class="g_bodyin_bodyin_bottom_lsub_mid_equal"  title="8"  style="'+showorhide+'"><input type="text" value="8"></td>'+
 			'</tr>';
 		}
 		str+='</tbody></table>';
@@ -122,7 +128,6 @@ function renderChartCsvANDParam(obj){
 		str+='<ul class="list-group">';
 		for(var v= 0 ; v < total_param_dom.length ; v++){
 			var cur_class = (_.indexOf(obj.param, total_param_dom.eq(v).data("iparam")) > -1 ? "list-group-item-info info" : "");//判断选中参数
-			console.log(cur_class);
 			var id2 = obj.ishowchart + String(dataStatisticsState.stateObj.chartRenderCurID++);
 			str+='<li class="list-group-item '+cur_class+'" data-chartcurid="'+id2+'" data-min="'+total_param_dom.eq(v).data("min")+'" data-max="'+total_param_dom.eq(v).data("max")+'" data-ishowchartparam="'+total_param_dom.eq(v).data("iparam")+'"><span class="badge">参数</span>'+total_param_dom.eq(v).data("iparam")+'</li>';
 		}
@@ -130,25 +135,6 @@ function renderChartCsvANDParam(obj){
 	}
 	obj.insertDOM.empty().append(str);
 }
-
-
-/*function changeChartCanClick(){
-	var len = $(".g_bodyin_bodyin_bottom_l_inbottom .list-group .list-group-item.list-group-item-info").length;
-	$(".g_bodyin_bodyin_bottom_r .thumbnail").removeClass("cannotclick");
-	if(!len || len == 0){
-		$(".g_bodyin_bodyin_bottom_r .thumbnail").addClass("cannotclick");
-	}
-	else if(len == 1){
-		$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='correlationgraph']").addClass("cannotclick");
-	}
-	else if(len == 2){
-		$(".g_bodyin_bodyin_bottom_r .thumbnail").addClass("cannotclick");
-		$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='correlationgraph']").removeClass("cannotclick");
-	}
-	else{
-		$(".g_bodyin_bodyin_bottom_r .thumbnail").addClass("cannotclick");
-	}
-}*/
 
 function renderParam(waferIdStr){
 	if(waferIdStr == ""){
@@ -190,11 +176,6 @@ function renderParam(waferIdStr){
 		},
 	})
 }
-
-
-
-/*map色阶分布图绘制*/
-
 
 /*preload*/
 $(".g_bodyin_bodyin_bottom_2, .g_bodyin_bodyin_bottom_rsubin").hide().css("opacity", 1);
@@ -238,15 +219,10 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_l_itemin_subin", function(){
 	renderParam(waferIdStr.join(",")); //加载参数
 });
 
-
-/*chart左侧*/
-$(document).on("click", ".g_bodyin_bodyin_bottom_lsub_itemin_main", function(){
-	$(this).toggleClass("active");
-});
-
 /*主页面与图表切换*/
 $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbnail", function(){
 	if($(this).hasClass("cannotclick")) return false;
+	dataStatisticsState.chooseParam = {};
 	var target = $(this).data("ipage");
 	var ichart = $(this).data("ichart");
 	$("."+target).siblings().fadeOut(200);
@@ -273,7 +249,7 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 				insertDOM: $(".g_bodyin_bodyin_bottom_lsub_mid"),
 				ishowchart: ichart
 			});
-			$(".g_bodyin_bodyin_bottom_lsub_item .g_bodyin_bodyin_bottom_lsub_itemin_main").trigger("click");
+			$(".g_bodyin_bodyin_bottom_lsub_item .g_bodyin_bodyin_bottom_lsub_itemin_main").addClass("active");
 			if(!dataStatisticsState.stateObj.renderSelectCsvSub){
 				eleResize2();
 				dataStatisticsState.stateObj.renderSelectCsvSub = true;
@@ -286,12 +262,6 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 					curWaferID.push( $(".g_bodyin_bodyin_bottom_l_intop .active").eq(_i).data("iwaferid"));
 					curWaferName[$(".g_bodyin_bodyin_bottom_l_intop .active").eq(_i).data("iwaferid")] =$(".g_bodyin_bodyin_bottom_l_intop .active").eq(_i).data("icsv") ;
 				}
-//				for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").length ; _i++){
-//					curParam.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").eq(_i).data("iparam"));
-//					leftrange.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").eq(_i).data("min"));
-//					rightrange.push($(".g_bodyin_bodyin_bottom_l_inbottom .list-group  .list-group-item").eq(_i).data("max"));
-//					equal.push(8);
-//				}
 				
 				eouluGlobal.S_getSwalMixin()({
 	  				title: '加载数据',
@@ -333,8 +303,16 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_bottom>input", function(){
 		curWaferID.push( $(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).data("iwaferid"));
 		curWaferName[$(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).data("iwaferid")] =$(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).text() ;
 	}
+	//console.log("delete dataStatisticsState.chooseParam",dataStatisticsState.chooseParam);
 	
-	for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_lsub_mid .info").length ; _i++){
+	_.forOwn(dataStatisticsState.chooseParam, function(value, key) {
+		curParam.push(key);
+		leftrange.push(dataStatisticsState.chooseParam[key].leftRange);
+		rightrange.push(dataStatisticsState.chooseParam[key].rightRange);
+		equal.push(dataStatisticsState.chooseParam[key].equal);
+	});
+	
+	/*for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_lsub_mid .info").length ; _i++){
 		if(ichart == "correlationgraph"||ichart =="boxlinediagram"||ichart =="CPK"){
 			curParam.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("ishowchartparam"));
 			leftrange.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("min"));
@@ -345,20 +323,16 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_bottom>input", function(){
 			curParam.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).data("ishowchartparam"));
 			leftrange.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_min").attr("title"));
 			rightrange.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_max").attr("title"));
-			equal.push(8);
+			equal.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_equal").attr("title"));
 		}
-	}
-	console.log("curParam",curParam);
-	console.log("leftrange",leftrange);
-	console.log("rightrange",rightrange);
-	console.log("equal",equal);
-		eouluGlobal.S_getSwalMixin()({
-			title: '加载数据',
-			text: "数据加载绘制图形中...",
-			type: 'info',
-			showConfirmButton: false,
-			showCancelButton: false,
-		});
+	}*/
+	eouluGlobal.S_getSwalMixin()({
+		title: '加载数据',
+		text: "数据加载绘制图形中...",
+		type: 'info',
+		showConfirmButton: false,
+		showCancelButton: false,
+	});
 	setTimeout(function(){
 		var chartType = dataStatisticsState.chartMap[ichart];
 		var chartAjaxUrl = dataStatisticsState.ajaxurl[ichart];
@@ -399,23 +373,44 @@ $(document).on("blur", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_m
 });
 $(document).on("click", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item", function(){
 	var ichart = $(".g_bodyin_bodyin_bottom_rsub>div:visible").data("ishowchart");
+	var chooseParamObj = {}
+	if($(this).hasClass("list-group-item-info info")){
+		$(this).removeClass("list-group-item-info info");
+		delete dataStatisticsState.chooseParam[$(this).data("ishowchartparam")];
+	}
+	else{
+		$(this).addClass("list-group-item-info info");
+		chooseParamObj.leftRange = $(this).data("min");
+		chooseParamObj.rightRange = $(this).data("max");
+		chooseParamObj.equal = $(this).data("equal");
+		dataStatisticsState.chooseParam[$(this).data("ishowchartparam")] = chooseParamObj;
+	}
+	
 	if(ichart == "correlationgraph"){   //相关性 只能选中两个
-		$(this).toggleClass("list-group-item-info info");
-		if($(".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item-info").length > 2){
+		if($(".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item-info").length != 2 && $(".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item-info").length != 0){
 			$(".g_bodyin_bodyin_bottom_lsub_bottom>input").attr("disabled",true);
 		}
 		else{
 			$(".g_bodyin_bodyin_bottom_lsub_bottom>input").attr("disabled",false);
 		}
 	}
-	else{
-		$(this).addClass("list-group-item-info info").siblings().removeClass("list-group-item-info info");
-	}
 });
 
 $(document).on("click", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr .g_bodyin_bodyin_bottom_lsub_mid_iparam", function(){
-	$(this).parent().toggleClass("info");
+	//$(this).parent().toggleClass("info");
 	$(this).parent().find("input").toggleClass("mid_newbg");
+	var chooseParamObj = {}
+	if($(this).parent().hasClass("info")){
+		$(this).parent().removeClass("info");
+		delete dataStatisticsState.chooseParam[$(this).parent().data("ishowchartparam")];
+	}
+	else{
+		$(this).parent().addClass("info");
+		chooseParamObj.leftRange = $(this).parent().find(".g_bodyin_bodyin_bottom_lsub_mid_min").attr("title");
+		chooseParamObj.rightRange = $(this).parent().find(".g_bodyin_bodyin_bottom_lsub_mid_max").attr("title");
+		chooseParamObj.equal = $(this).parent().find(".g_bodyin_bodyin_bottom_lsub_mid_equal").attr("title");
+		dataStatisticsState.chooseParam[$(this).parent().data("ishowchartparam")] = chooseParamObj;
+	}
 });
 
 $(document).on("focus", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr input", function(){

@@ -140,7 +140,7 @@ dataListDetailStore.state = {
 
 /*参数分布统计 其他图表绘制*/
 function draw_other_chart(obj){
-	console.log("draw_other_chart",obj);
+	//console.log("draw_other_chart",obj);
 	/*参数获取*/
 	var chartType = obj.chartType;
 	var classify = obj.classify;
@@ -223,7 +223,7 @@ function draw_other_chart(obj){
 				})
 			});*/
 			series = iserise;
-			console.log("histogram",series);
+			//console.log("histogram",series);
 		break;
 
 		case "boxlinediagram":
@@ -287,7 +287,7 @@ function draw_other_chart(obj){
 						pointFormat: '极端异常值: {point.y}'
 					}
 				}];
-			console.log("boxlinediagram",series);
+			//console.log("boxlinediagram",series);
 		break;
 		case "CPK":
 			var CPK_data = [];
@@ -333,7 +333,7 @@ function draw_other_chart(obj){
 				}
 			};
 			series = CPK_data;
-			console.log("CPK",series);
+			//console.log("CPK",series);
 		break;
 		case "correlationgraph":
 			title_text = "相关性图-"+iparam;
@@ -381,7 +381,7 @@ function draw_other_chart(obj){
 			
 			item.data = seriesData;
 			series = [item];
-			console.log("correlationgraph",series);
+			//console.log("correlationgraph",series);
 		break;
 		/*良品率图*/
 		default:
@@ -415,7 +415,7 @@ function draw_other_chart(obj){
 		        },
 			};
 			series = [item];
-			console.log("良品率图",series);
+			//console.log("良品率图",series);
 	}
 	/*画图*/
 	dataCompareRenderChart({
@@ -441,7 +441,7 @@ function draw_other_chart(obj){
 
 /*参数分布统计 Map良率绘制*/
 function draw_map_good_rate(obj){
-	//console.log("draw_map_good_rate",obj);
+	////console.log("draw_map_good_rate",obj);
 	var data = obj.data;
 	var waferNO = obj.IDParamObj.wafer;
 	if(_.isNil(waferNO)) return false;
@@ -461,7 +461,7 @@ function draw_map_good_rate(obj){
 		var currentDieItem = _.find(waferData.waferList, function(v, k){
 			return _.toString(v.parameter) == _.toString(IDParamObj.param);
 		});
-		//console.log("map_currentDieItem=====",currentDieItem);
+		////console.log("map_currentDieItem=====",currentDieItem);
 		_.forOwn(currentDieItem.currentDieList, function(v, k){
 			var item = {};
 			item[k] = v;
@@ -523,7 +523,7 @@ function draw_map_good_rate(obj){
 
 /*map色阶分布图绘制*/
 function draw_map_color_order_distribution(obj){
-	console.log("draw_map_color_order_distribution",obj);
+	//console.log("draw_map_color_order_distribution",obj);
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
@@ -553,7 +553,7 @@ function draw_map_color_order_distribution(obj){
 	var mergeDieType = (waferData.containSubdie ?  [currentItem_currentList] : [currentItem_currentList, waferData.otherDieType] );
 	/*合并有效die和其他器件die*/
 	_.forEach(mergeDieType, function(val, ind){
-		//console.log("val",val);
+		////console.log("val",val);
 		_.forOwn(val, function(v, k){
 			var item = {},
 			iNo,
@@ -666,13 +666,13 @@ function draw_map_color_order_distribution(obj){
 			dieData.push(item);
 		});
 	});
-	//console.log("dieData",dieData);
+	////console.log("dieData",dieData);
 	/*合并有效subdie和其他器件subdie*/
 	var sub_currentItem_currentList = (waferData.containSubdie ? currentDieItem.currentSubdieList : {});
 	var othersubDieType = (waferData.containSubdie ?  waferData.otherSubdieType :  {});
 	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList,othersubDieType] : [] );
 	_.forEach(mergesubDieType, function(val, ind){
-		//console.log("val",val);
+		////console.log("val",val);
 		_.forOwn(val, function(v, k){
 			var item = {},
 			iNo,
@@ -769,7 +769,7 @@ function draw_map_color_order_distribution(obj){
 			subdieData.push(item);
 		});
 	});
-	// console.table(dieData);
+	// //console.table(dieData);
 	//
 	var ArraMap = {
 		"1": [],
@@ -844,7 +844,7 @@ function draw_map_color_order_distribution(obj){
 	var multip = _.floor((theMax-theMin)/200);
 	if($("body").innerWidth()<1920) multip = multip+0.5;
 	if($("body").innerWidth()<1366) multip = multip+0.5;
-	//console.log("multip", multip);
+	////console.log("multip", multip);
 	colorGradientDom.append("<span class='colorGradientSpan oneSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	_.times(twoDiff, function(ii){
@@ -925,7 +925,7 @@ function findParamUpLow(param){
 	return _.cloneDeep(UpLow);
 }
 function buildParameterChartContainer(obj){
-	console.log("obj",obj);
+	//console.log("obj",obj);
 	var classify = obj.classify;
 	var paramsArr = obj.paramsArr;
 	var str = '<div class="container-fluid">';
@@ -1010,7 +1010,7 @@ function buildParameterChartContainer(obj){
 		
 	 }
 	 if(obj.controls == "all_statistics"){
-		 //console.log("classify",classify);
+		 ////console.log("classify",classify);
 		 $("#all_statistics .panel_"+classify+">.panel-body").append(str);
 	 }
 	 else{
@@ -1024,7 +1024,7 @@ function buildParameterChartContainer(obj){
 
 
 function ajax_all_chart(obj){
-	console.log("obj_aj",obj);
+	//console.log("obj_aj",obj);
 	var times = obj.times;
 	var alltimes = obj.alltimes;
 	var whenArr = obj.whenArr;
@@ -1054,6 +1054,15 @@ function ajax_all_chart(obj){
 			maxY : $(".home_dataCompare_bottom .right_div  li.list-group-item-info").eq(1).data("max") ,
 		}
 	}
+	else if(whenArrItem.classify === "histogram"){
+		var ajax_data = {
+			waferIdStr: curWaferID.join(","),
+			paramAtt : curParam_nototal,
+			leftRange : obj.leftRange,
+			rightRange : obj.rightRange,
+			equal : obj.equal
+		}
+	}
 	else{
 		var ajax_data = {
 			waferIdStr: curWaferID.join(","),
@@ -1071,7 +1080,7 @@ function ajax_all_chart(obj){
 			$("#swal2-content").text("正在请求"+whenArrItem.chartCNName+"数据，绘图进度 "+(times+1)+"/"+alltimes);
 		}
 	}).then(function(data){
-		//console.log("ajaxdata",data);
+		////console.log("ajaxdata",data);
 		var waferArr = curWaferID;
 		if(_.isEmpty(data) || _.isNil(data)) {
 			errorArr.push({
@@ -1118,7 +1127,7 @@ function ajax_all_chart(obj){
 				curWaferName : curWaferName,
 				controls : obj.controls
 			});
-			//console.log("IDParamObjArr===",IDParamObjArr);
+			////console.log("IDParamObjArr===",IDParamObjArr);
 			/*画图*/
 			_.forEach(IDParamObjArr, function(v, i){
 				if(whenArrItem.classify == "map_good_rate_distribution"){
@@ -1151,7 +1160,7 @@ function ajax_all_chart(obj){
 				}
 			});
 		}
-		//console.table(errorArr)
+		////console.table(errorArr)
 		times++;
 		if(times != alltimes){
 			setTimeout(function(){
@@ -1230,12 +1239,18 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 	if($(this).parent().attr("ischange") == "true") return true;
 	$(this).parent().attr("ischange", "true");
 	
-	
 	var curWaferID = [];var curWaferName = {};
 	for(var _i = 0 ; _i < $(".home_dataCompare_bottom table tbody tr").length ; _i++){
 		curWaferID.push( $(".home_dataCompare_bottom table tbody  tr").eq(_i).find("input[type='checkbox']").data("ivalue"));
 		curWaferName[$(".home_dataCompare_bottom table tbody  tr").eq(_i).find("input[type='checkbox']").data("ivalue")] =$(".home_dataCompare_bottom table tbody  tr").eq(_i).find(".wafer_number").text();
 	}
+	var leftRange = [],rightRange = [],equal = [];
+	for(var _j = 0 ; _j < $(".right_div  #home_param_ul .list-group-item-info").length ; _j++){
+		leftRange.push( $(".right_div  #home_param_ul .list-group-item-info").eq(_j).data("min"));
+		rightRange.push( $(".right_div  #home_param_ul .list-group-item-info").eq(_j).data("max"));
+		equal.push(8);
+	}
+	
   	var curParam = dataCompareState.stateObj.curParam;
   	var controls = $(e.target).attr("aria-controls");
   	$(".g_info_m, .g_info_r .glyphicon-search, .g_info .glyphicon-question-sign").hide();
@@ -1286,7 +1301,10 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
   					alltimes: whenArr.length,
   					whenArr: _.cloneDeep(whenArr),
   					curWaferName : curWaferName,
-  					controls : "all_statistics"
+  					controls : "all_statistics",
+  					leftRange : leftRange,
+  					rightRange : rightRange,
+  					equal : equal,
   				});
   			}, 50);
   		}
@@ -1322,7 +1340,10 @@ $(document).on('shown.bs.tab', 'div.g_bodyin_bodyin_top_wrap a[data-toggle="tab"
 					alltimes: whenArr.length,
 					whenArr: _.cloneDeep(whenArr),
 					curWaferName : curWaferName,
-					controls : "single_statistics"
+					controls : "single_statistics",
+					leftRange : leftRange,
+  					rightRange : rightRange,
+  					equal : equal,
 				});
   			}, 50);
   		}
@@ -1351,7 +1372,7 @@ function dataCompareRenderData(currentPage){
 	       dataType: 'json',
 	       async : false ,
 	       success: function (data) {
-	    	  //console.log("data",data);
+	    	  ////console.log("data",data);
 	    	   var str = "";
 	    	   data.waferInfo.map(function(v, i, arr){
 		   			var ii = v.wafer_id;
@@ -1377,11 +1398,11 @@ function dataCompareRenderData(currentPage){
 				dataCompareState.pageObj.itemLength = data.totalCount;
 				dataCompareState.pageObj.data =data.waferInfo;
 				
-				//console.log("dataCompareState.searchObj.hasSearch",dataCompareState.searchObj.hasSearch);
+				////console.log("dataCompareState.searchObj.hasSearch",dataCompareState.searchObj.hasSearch);
 				//修改为全选当前页
 				if(dataCompareState.searchObj.hasSearch){
 					dataCompareState.searchObj.searchVal = searchVal;
-					//console.log("selectSearchItem",dataCompareState.sellectObj.selectItem)	
+					////console.log("selectSearchItem",dataCompareState.sellectObj.selectItem)	
 					$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
 						if(_.indexOf(dataCompareState.sellectObj.selectItem, $(this).data("ivalue").toString()) > -1){
 							$(this).prop("checked", true).parent().parent().addClass("warning").removeClass("info");
@@ -1393,7 +1414,7 @@ function dataCompareRenderData(currentPage){
 						var iHtml = iText.replace(new RegExp(dataCompareState.searchObj.searchVal, 'g'), ireplace);
 						$(this).empty().html(iHtml);
 					});
-					//console.log("searchVal",dataCompareState.pageSearchObj)	
+					////console.log("searchVal",dataCompareState.pageSearchObj)	
 					$("#checkAll").prop("checked", dataCompareState.pageObj.itemLength == dataCompareState.sellectObj.selectItem.length);
 				}else{
 					$(".home_dataCompare_top tbody [type='checkbox']").each(function(){
@@ -1536,7 +1557,7 @@ function judgeNav(obj){
 }
 
 function renderNav(mapArr){
-	//console.log("mapArr",mapArr);
+	////console.log("mapArr",mapArr);
 	if(mapArr !== false){
 		var str = '<li role="presentation" class="active" ischange ="false"><a href="#home_dataCompare" aria-controls="home_dataCompare" role="tab" data-toggle="tab">主页面</a></li>';
 		var a_diff = eouluGlobal.S_getCurPageJudgedAuthority().diff;
@@ -1580,7 +1601,7 @@ function renderCommonParameter(){
 		       dataType: 'json',
 		       async : false ,
 		       success: function (data) {
-		    	   //console.log("data",data);
+		    	   ////console.log("data",data);
 		    	   var str = "";
 		    	   if(data.paramList.length != 0){
 		    		   str = '<li class="list-group-item" data-iparam="Total Yield"><span class="badge">选中</span>Total Yield</li>';
@@ -1908,7 +1929,7 @@ $(document).on("mouseover", ".home_dataCompare_top td", function(){
 }).on("change", ".home_dataCompare_top tbody [type='checkbox']", function(){
 	var ID = $(this).data("ivalue").toString();
 	var curDataExamine = true;
-	//console.log('$(this).prop("checked")',$(this).prop("checked"));
+	////console.log('$(this).prop("checked")',$(this).prop("checked"));
 	if($(this).prop("checked")){
 		$.ajax({
 		       url: 'Examine', 
@@ -2168,7 +2189,7 @@ $("#jumpPage").on("click", function(){
 				dataCompareState.paginationObj.search.goPage(iText);
 				dataCompareState.paginationObj.search.renderPages();
 				dataCompareState.paginationObj.search.options.curr = iText;
-				//console.log(dataCompareState.paginationObj.search);
+				////console.log(dataCompareState.paginationObj.search);
 				
 				dataCompareRenderData(iText)
 			}else{
@@ -2176,7 +2197,7 @@ $("#jumpPage").on("click", function(){
 				dataCompareState.paginationObj.normal.goPage(iText);
 				dataCompareState.paginationObj.normal.renderPages();
 				dataCompareState.paginationObj.normal.options.curr = iText;
-				//console.log(dataCompareState.paginationObj.normal);
+				////console.log(dataCompareState.paginationObj.normal);
 				dataCompareRenderData(iText)
 			}
 //		}else{
@@ -2187,9 +2208,9 @@ $("#jumpPage").on("click", function(){
 //				showConfirmButton: false,
 //				timer: 2000,
 //			}).then(function(result){
-//				/*console.log(result.dismiss) // timer*/
-//				/*console.log(swal.DismissReason.cancel) // cancel*/
-//				/*console.log(result.dismiss == "timer") // true*/
+//				/*//console.log(result.dismiss) // timer*/
+//				/*//console.log(swal.DismissReason.cancel) // cancel*/
+//				/*//console.log(result.dismiss == "timer") // true*/
 //				if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
 //					window.location.reload();
 //				}
