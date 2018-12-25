@@ -77,7 +77,8 @@ $(".button_div>button").click(function(){
 		url: "Login",
 		data: {
 			userName: userName,
-			password: password
+			password: password,
+			loginStatus: $(".save_login_div>input").is(":checked")
 		},
 		dataType: "json"
 	}).then(function(data){
@@ -89,9 +90,9 @@ $(".button_div>button").click(function(){
 				callback: function(){
 				  	try{
 				  		if($(".save_login_div>input").is(":checked")){
-				  			window.sessionStorage.setItem("futureDT2__login_"+userName+"_safe", "safe");
+				  			window.sessionStorage.setItem("futureDT2Online__login_"+userName+"_safe", "safe");
 				  		}else{
-				  			window.sessionStorage.setItem("futureDT2__login_"+userName+"_safe", "none");
+				  			window.sessionStorage.setItem("futureDT2Online__login_"+userName+"_safe", "none");
 				  		}
 				  	}catch(err){
 				  		login_prompt({
@@ -100,6 +101,8 @@ $(".button_div>button").click(function(){
 				  			type: "info"
 				  		});
 				  	}
+				  	localStorage.removeItem("eoulu_projectAnalysis_select_id");
+				  	localStorage.removeItem("eoulu_projectAnalysis_select_item");
 				  	store.set("futureDOnline__curUserName", userName);
 				  	eouluGlobal.C_btnDisabled(iThat, true, "正在跳转...");
 					window.location.assign("HomeInterface");

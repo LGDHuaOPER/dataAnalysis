@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="assets/style/libs/sweetalert2.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
-	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-91dee9a140.min.css">
+	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-0dd084159d.min.css">
 </head>
 <body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
@@ -247,8 +247,8 @@
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-cdfa6fd38b.min.js"></script>
+	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-b6de4d9760.min.js"></script>
 
-	<script src="dist/script/modules/dataStatistics/dataStatistics-21f1b89cf0.min.js"></script>
+	<script src="dist/script/modules/dataStatistics/dataStatistics-10f713afe9.min.js"></script>
 </body>
 </html>

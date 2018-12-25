@@ -26,7 +26,7 @@
 	<!-- endbuild -->
 
 </head>
-<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}">
+<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

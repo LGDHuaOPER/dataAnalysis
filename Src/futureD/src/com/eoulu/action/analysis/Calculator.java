@@ -73,6 +73,7 @@ public class Calculator extends HttpServlet {
 				}
 			}else{
 				boolean flag = service.modifyCalculation(oldParam, customParam, calculation,userformula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId),Integer.parseInt(subdieId),subdieFlag, Integer.parseInt(waferId));
+				System.out.println("flag==="+flag);
 				map.put("calculationId", calculationId);
 				map.put("formula", userformula);
 				map.put("customParameter", customParam);

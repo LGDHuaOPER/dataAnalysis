@@ -3,6 +3,7 @@ package com.eoulu.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class GaussianDistribution extends HttpServlet {
 				right=request.getParameter("rightRange")==null?0:Double.parseDouble(request.getParameter("rightRange"));
 		int equal = request.getParameter("equal")==null?8:Integer.parseInt(request.getParameter("equal"));
 			String	waferIdStr = request.getParameter("waferIdStr")==null?"0":request.getParameter("waferIdStr");
-		Map<String,Object> result = new HashMap<>(),map = null,paramMap=null,waferMap=null;
+		Map<String,Object> result = new LinkedHashMap<>(),map = null,paramMap=null,waferMap=null;
 		List<String> paramList = null;
 		String[] waferAtt = waferIdStr.split(",");
 

@@ -2,7 +2,6 @@ package com.eoulu.action.login;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.eoulu.action.Log.iPLocation;
 import com.eoulu.service.UserService;
 import com.eoulu.service.impl.LogServiceImpl;
 import com.eoulu.service.impl.UserServiceImpl;
@@ -67,7 +65,7 @@ public class Login extends HttpServlet {
 			session.setAttribute("loginStatus", loginStatus);
 			List<String> userAuthority =  service.getAuthority(userName);
 			session.setAttribute("userAuthority", userAuthority);
-			new iPLocation().getIPAndCity(request);
+//			new iPLocation().getIPAndCity(request);
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			service.updateLoginDate(userName, df.format(new Date()));
 		}else{

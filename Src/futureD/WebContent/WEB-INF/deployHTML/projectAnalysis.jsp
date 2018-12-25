@@ -173,6 +173,6 @@
 
 	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
 
-	<script src="dist/script/modules/projectAnalysis/projectAnalysis-13c232bc85.min.js"></script>
+	<script src="dist/script/modules/projectAnalysis/projectAnalysis-12efaf26df.min.js"></script>
 </body>
 </html>

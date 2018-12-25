@@ -164,7 +164,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 	public boolean getParameterExsit(int waferId, String parameter,String subdieFlag) {
 
 		Object[] param = new Object[]{waferId,parameter};
-		if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+		if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 			return new ParameterDao().getParameterExsit(param);
 		}else {
 			return new ParameterDao().getSubdieParameterExsit(param);
@@ -188,12 +188,15 @@ public class AnalysisServiceImpl implements AnalysisService{
 				conn.rollback();
 				return flag;
 			}
-			
-			if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+			//System.out.println("subdie=============="+SubdieFlagEnum.DIE.getCode());
+			if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 				param = new Object[]{waferId};
 				String column = paramDao.getMaxColumn(conn,param);
-//				System.out.println("column:"+column);
-				column = "C"+(Integer.parseInt(column.substring(1))+1);
+				if(column.equals("")){
+					column = "C1";
+				}else{
+					column = "C"+(Integer.parseInt(column.substring(1))+1);
+				}
 				param = new Object[]{waferId,parameter,column};
 				flag = paramDao.insertCustomParameter(conn,param);
 				if(!flag){
@@ -206,11 +209,14 @@ public class AnalysisServiceImpl implements AnalysisService{
 					conn.rollback();
 					return flag;
 				}
-			}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE)){
+			}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE.getCode())){
 				param = new Object[]{waferId};
 				String column = paramDao.getSubdieMaxColumn(conn, param);
-//				System.out.println("column:"+column);
-				column = "C"+(Integer.parseInt(column.substring(1))+1);
+				if(column.equals("")){
+					column = "C1";
+				}else{
+					column = "C"+(Integer.parseInt(column.substring(1))+1);
+				}
 				param = new Object[]{waferId,parameter,column};
 				flag = paramDao.insertSubdieCustomParameter(conn, param);
 				if(!flag){
@@ -245,16 +251,13 @@ public class AnalysisServiceImpl implements AnalysisService{
 		try {
 			conn.setAutoCommit(false);
 			Object[] param = null;
-			if(!oldParam.equals(customParam)){
-				param = new Object[]{customParam,userformula,formula,result,calculationId};
-				 flag = smithDao.updateCalculation(conn, param,db);
-				if(!flag){
-					conn.rollback();
-					return flag;
-				}
+			param = new Object[]{customParam,userformula,formula,result,calculationId};
+			 flag = smithDao.updateCalculation(conn, param,db);
+			if(!flag){
+				conn.rollback();
+				return flag;
 			}
-//			System.out.println(flag);
-			if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+			if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 				param = new Object[]{waferId};
 				String column = paramDao.getColumnByName(conn, oldParam, waferId);
 				if(!oldParam.equals(customParam)){
@@ -270,7 +273,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					conn.rollback();
 					return flag;
 				}
-			}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE)){
+			}else if(subdieFlag.equals(SubdieFlagEnum.SUBDIE.getCode())){
 				param = new Object[]{waferId};
 				String column = paramDao.getSubdieColumn(conn, oldParam, waferId);
 				if(!oldParam.equals(customParam)){
@@ -531,7 +534,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		try {
 			conn.setAutoCommit(false);
 		List<Integer> ls = null;
-		if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+		if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 			ls = curveDao.getCoordinateId(conn, waferId);
 		}else {
 			ls = curveDao.getSubdieId(conn, waferId);
@@ -545,7 +548,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			for (String id : att) {
 				curveTypeId = Integer.parseInt(id);
 				list = smithDao.getMarkerByTypeId(conn,  curveTypeId,sParameter,db);
-				if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+				if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 					num = smithDao.getRowNumber(conn, coordinateId, curveTypeId,db);
 					curveTypeId2 = smithDao.getCurveTypeId(conn, dieId, num,db);
 				}else {
@@ -809,6 +812,11 @@ public class AnalysisServiceImpl implements AnalysisService{
 	public boolean deleteMarker(String curveTypeId,String sParameter) {
 		SmithDao smithDao = new SmithDao();
 		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		Map<String, List<String>> map = smithDao.getAllMarker(conn, curveTypeId, sParameter, db);
+		if(map.isEmpty()){
+			return true;
+		}
 		return smithDao.deleteMarker(curveTypeId,db,sParameter);
 	}
 

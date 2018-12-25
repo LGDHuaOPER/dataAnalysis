@@ -328,58 +328,62 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-sm-4 col-md-2 col-lg-2">表达式</div>
+					<div class="col-sm-4 col-md-2 col-lg-2">表达式
+						<br/>
+						<span class="preview_span">*预览值</span>
+						<div id="preview"></div>
+					</div>
 					<div class="col-sm-8 col-md-4 col-lg-4"><textarea id="clac_textarea" rows="10" class="form-control"></textarea></div>
 					<div class="col-sm-12 col-md-6 col-lg-6">
 						<div class="calcin">
 							<div class="container-fluid">
 								<div class="row">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3)" data-ivalue="sin()" data-ipos="-1">sin</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3)" data-ivalue="cos()" data-ipos="-1">cos</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3)" data-ivalue="tan()" data-ipos="-1">tan</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：ln(9)" data-ivalue="ln()" data-ipos="-1">ln</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3)" data-backvalue="sin()" data-ivalue="sin()" data-ipos="-1">sin</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3)" data-backvalue="cos()" data-ivalue="cos()" data-ipos="-1">cos</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3)" data-backvalue="tan()" data-ivalue="tan()" data-ipos="-1">tan</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：ln(9)" data-backvalue="ln()" data-ivalue="ln()" data-ipos="-1">ln</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sing(3)" data-ivalue="sing()" data-ipos="-1">sin角度</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cosg(3)" data-ivalue="cosg()" data-ipos="-1">cos角度</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tang(3)" data-ivalue="tang()" data-ipos="-1">tan角度</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="以x为底N的对数，规则：log(x,N)" data-ivalue="log(,)" data-ipos="-2">log</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：sin(3°)" data-backvalue="sing()" data-ivalue="sin(°)" data-ipos="-2">sin角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：cos(3°)" data-backvalue="cosg()" data-ivalue="cos(°)" data-ipos="-2">cos角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：tan(3°)" data-backvalue="tang()" data-ivalue="tan(°)" data-ipos="-2">tan角度</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="以x为底N的对数，规则：log(x,N)" data-backvalue="log(,)" data-ivalue="log(,)" data-ipos="-2">log</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：factorial(3)" data-ivalue="factorial()" data-ipos="-1">!</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="π" data-ipos="0">π</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="e" data-ipos="0">e</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：pow(x,N)" data-ivalue="pow(,)" data-ipos="-2">^</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：factorial(3)" data-backvalue="factorial()" data-ivalue="()!" data-ipos="-2">!</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="π" data-ivalue="π" data-ipos="0">π</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="e" data-ivalue="e" data-ipos="0">e</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="规则：(3)^(4)" data-backvalue="pow(,)" data-ivalue="()^()" data-ipos="-4">^</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="(" data-ipos="0">(</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue=")" data-ipos="0">)</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="x的N次方根，规则：sqrt(x,N)" data-ivalue="sqrt(,)" data-ipos="-2">√</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="打开/关闭数组软键盘" data-ivalue="Number">Num</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="(" data-ivalue="(" data-ipos="0">(</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue=")" data-ivalue=")" data-ipos="0">)</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="x的N次方根，规则：(N)√(x)" data-backvalue="sqrt(,)" data-ivalue="()√()" data-ipos="-4">√</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="打开/关闭数组软键盘" data-backvalue="Number">Num</div></div>
 								</div>
 								<div class="row toggleRow">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="0" data-ipos="0">0</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="1" data-ipos="0">1</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="2" data-ipos="0">2</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="3" data-ipos="0">3</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="0" data-ivalue="0" data-ipos="0">0</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="1" data-ivalue="1" data-ipos="0">1</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="2" data-ivalue="2" data-ipos="0">2</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="3" data-ivalue="3" data-ipos="0">3</div></div>
 								</div>
 								<div class="row toggleRow">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="4" data-ipos="0">4</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="5" data-ipos="0">5</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="6" data-ipos="0">6</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="7" data-ipos="0">7</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="4" data-ivalue="4" data-ipos="0">4</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="5" data-ivalue="5" data-ipos="0">5</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="6" data-ivalue="6" data-ipos="0">6</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="7" data-ivalue="7" data-ipos="0">7</div></div>
 								</div>
 								<div class="row toggleRow">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="8" data-ipos="0">8</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="9" data-ipos="0">9</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="." data-ipos="0">.</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="退格" data-ipos="0">退格</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="8" data-ivalue="8" data-ipos="0">8</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="9" data-ivalue="9" data-ipos="0">9</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="." data-ivalue="." data-ipos="0">.</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="退格" data-ivalue="退格" data-ipos="0">退格</div></div>
 								</div>
 								<div class="row">
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="+" data-ipos="0">+</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="-" data-ipos="0">-</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="*" data-ipos="0">*</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-ivalue="/" data-ipos="0">/</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="+" data-ivalue="+" data-ipos="0">+</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="-" data-ivalue="-" data-ipos="0">-</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="*" data-ivalue="*" data-ipos="0">*</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="/" data-ivalue="/" data-ipos="0">/</div></div>
 								</div>
 							</div>
 							<!-- <div class="container-fluid">

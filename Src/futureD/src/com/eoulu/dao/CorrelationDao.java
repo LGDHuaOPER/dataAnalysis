@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class CorrelationDao {
 	public Map<String,Object> getCorrelation(Connection conn,int waferId, String paramX, String paramY, Double minX, Double maxX,
 			Double minY, Double maxY,boolean flag){
 		
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new LinkedHashMap();
 		List<Double> XList = new ArrayList<Double>();
 		List<Double> YList = new ArrayList<Double>();
 		String columnX =  new GaussianDao().getParameterColumn(conn, waferId, paramX);
@@ -49,7 +50,7 @@ public class CorrelationDao {
 			}
 			map.put("X", XList);
 			map.put("Y", YList);
-			
+			map.put("parameter", new String[]{paramX,paramY});
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -181,5 +181,14 @@
 		eouluGlobal.S_settingURLParam({}, false, false, false, "UserInstall");
 	});
 	$(".g_info_r .curusername").text($("body").data("curusername"));
+
+	// 安全
+	var loginstatus = $("body").data("loginstatus");
+	if(_.eq(loginstatus, true) || _.eq(loginstatus, "true")){
+		var loginsafe = window.sessionStorage.getItem("futureDT2Online__login_"+eouluGlobal.S_getCurUserName()+"_safe");
+		if(_.isNil(loginsafe)){
+			eouluGlobal.S_settingURLParam({}, false, false, false, futureDT2LoginPage);
+		}
+	}
 	
 })();

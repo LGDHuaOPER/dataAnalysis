@@ -115,7 +115,9 @@ RF_SP2Store.stateObj = {
 	// TCF页面S参数
 	TCFsParameter: "S11",
 	// 是否修改了MarkerName
-	changeMarkerName: false
+	changeMarkerName: false,
+	changeKey: false,
+	indicatrix_awesomplete: false
 };
 RF_SP2Store.MathMap = {
 	"sin": {
@@ -144,10 +146,10 @@ RF_SP2Store.MathMap = {
 	},
 	"log": {
 		"replace": "Math.log(##2)/Math.log(##1)",
-		"reg": /log\(\d+\)\(\d+\)/g,
-		"reg1": /log\((\d+)\)\((\d+)\)/,
+		"reg": /log\(([1-9]\d*|0)(\.\d+)?,([1-9]\d*|0)(\.\d+)?\)/g,
+		"reg1": /log\((([1-9]\d*|0)(\.\d+)?),(([1-9]\d*|0)(\.\d+)?)\)/,
 		"fun": "match",
-		"index": [1, 2]
+		"index": [1, 4]
 	},
 	"!": {
 		"replace": "S_factorial(##1)",
@@ -170,17 +172,17 @@ RF_SP2Store.MathMap = {
 	},
 	"^": {
 		"replace": "Math.pow(##1, ##2)",
-		"reg": /\(\d+\)\^\(\d+\)/,
-		"reg1": /\((\d+)\)\^\((\d+)\)/,
+		"reg": /\(-?([1-9]\d*|0)(\.\d+)?\)\^\(-?([1-9]\d*|0)(\.\d+)?\)/g,
+		"reg1": /\((-?([1-9]\d*|0)(\.\d+)?)\)\^\((-?([1-9]\d*|0)(\.\d+)?)\)/,
 		"fun": "match",
-		"index": [1, 2]
+		"index": [1, 4]
 	},
 	"√": {
-		"replace": "Math.sqrt(##1)",
-		"reg": /√\(\d+\)/g,
-		"reg1": /√\((\d+)\)/,
+		"replace": "(Math.pow(##2, 1/##1))",
+		"reg": /\(-?([1-9]\d*|0)(\.\d+)?\)√\(-?([1-9]\d*|0)(\.\d+)?\)/g,
+		"reg1": /\((-?([1-9]\d*|0)(\.\d+)?)\)√\((-?([1-9]\d*|0)(\.\d+)?)\)/,
 		"fun": "match",
-		"index": 1
+		"index": [1, 4]
 	},
 	"°": {
 		"replace": "*Math.PI/180",
@@ -190,6 +192,104 @@ RF_SP2Store.MathMap = {
 		"index": -1
 	}
 };
+RF_SP2Store.MathMapBack = [
+	{
+		"replace": "sin",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 1,
+		"name": "Math.sin"
+	},
+	{
+		"replace": "cos",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 1,
+		"name": "Math.cos"
+	},
+	{
+		"replace": "tan",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 1,
+		"name": "Math.tan"
+	},
+	{
+		"replace": "",
+		"reg": /Math\.[sincota]+\(-?([1-9]\d*|0)(\.\d+)?\*Math\.PI\/180\)/g,
+		"reg1": /Math\.([sincota]+)\((-?([1-9]\d*|0)(\.\d+)?)\*Math\.PI\/180\)/,
+		"fun": "match",
+		"index": [1, 2],
+		"priority": 0,
+		"name": "##1g(##2)"
+	},
+	// (Math.log(9)/Math.log(8))
+	{
+		"replace": "",
+		"reg": /\(Math.log\(([1-9]\d*|0)(\.\d+)?\)\/Math.log\(([1-9]\d*|0)(\.\d+)?\)\)/g,
+		"reg1": /\(Math.log\((([1-9]\d*|0)(\.\d+)?)\)\/Math.log\((([1-9]\d*|0)(\.\d+)?)\)\)/,
+		"fun": "match",
+		"index": [1, 4],
+		"priority": 2,
+		"name": "log(##2, ##1)"
+	},
+	{
+		"replace": "ln",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 3,
+		"name": "Math.log"
+	},
+	// (S_factorial(1))
+	{
+		"replace": "",
+		"reg": /\(S_factorial\(\d+\)\)/g,
+		"reg1": /\(S_factorial\((\d+)\)\)/,
+		"fun": "match",
+		"index": 1,
+		"priority": 4,
+		"name": "factorial(##1)"
+	},
+	{
+		"replace": "π",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 7,
+		"name": "Math.PI"
+	},
+	{
+		"replace": "e(1)",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 7,
+		"name": "Math.E"
+	},
+	// ((Math.pow(2, 1/12)))
+	{
+		"replace": "",
+		"reg": /\(\(Math.pow\(-?([1-9]\d*|0)(\.\d+)?,\s*\d+\/?\d*\)\)\)/g,
+		"reg1": /\(\(Math.pow\((-?([1-9]\d*|0)(\.\d+)?),\s*(\d+\/?\d*)\)\)\)/,
+		"fun": "match",
+		"index": [1, 4],
+		"priority": 5,
+		"name": "sqrt(##1, 1/(##2))"
+	},
+	// (Math.pow(12, 2))
+	{
+		"replace": "pow",
+		"reg": null,
+		"fun": null,
+		"index": -1,
+		"priority": 6,
+		"name": "Math.pow"
+	}
+];
 RF_SP2Store.allowKeyCode = [8, 37, 38, 39, 40, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 77, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 109, 110, 111, 190];
 RF_SP2Store.search_markerObj = {
 	awesomplete: null,
@@ -923,6 +1023,46 @@ RF_SP2Store.util.min_maxHandler = function(obj){
 	RF_SP2Store.stateObj.indicatrix_min_max[0] = min_maxArr[0];
 	RF_SP2Store.stateObj.indicatrix_min_max[1] = min_maxArr[1];
 };
+// 判断指标线是否可以应用
+RF_SP2Store.util.judgeIndicatrixApply = function(obj) {
+	obj = obj || {};
+	var noeqCallback = obj.noeqCallback,
+	eqCallback = obj.eqCallback,
+	eqZeroCallback = obj.eqZeroCallback;
+	var uphasOk = $("#upflag_table tbody tr.hasOk").length,
+	lowhasOk = $("#lowflag_table tbody tr.hasOk").length,
+	upTr = $("#upflag_table tbody tr").length,
+	lowTr = $("#lowflag_table tbody tr").length,
+	disabledFlag;
+	if(uphasOk != upTr || lowhasOk != lowTr){
+		_.isFunction(noeqCallback) && noeqCallback({
+			uphasOk: uphasOk,
+			lowhasOk: lowhasOk,
+			upTr: upTr,
+			lowTr: lowTr
+		});
+		disabledFlag = true;
+	}else{
+		if(uphasOk === 0 && lowhasOk === 0){
+			_.isFunction(eqZeroCallback) && eqZeroCallback({
+				uphasOk: uphasOk,
+				lowhasOk: lowhasOk,
+				upTr: upTr,
+				lowTr: lowTr
+			});
+			disabledFlag = true;
+		}else{
+			_.isFunction(eqCallback) && eqCallback({
+				uphasOk: uphasOk,
+				lowhasOk: lowhasOk,
+				upTr: upTr,
+				lowTr: lowTr
+			});
+			disabledFlag = false;
+		}
+	}
+	$(".indicatrix_footin>.btn-success").prop("disabled", disabledFlag);
+};
 // TCF曲线获取数据后处理
 RF_SP2Store.util.MarkerCurveHandler = function(obj){
 	var data = obj.data,
@@ -1030,7 +1170,7 @@ RF_SP2Store.util.echoMarker = function(obj){
 							two: [x22, y22],
 							baseVal: yArr[0],
 						});
-						console.log(newPoint2)
+						// console.log(newPoint2)
 						copyx = _.cloneDeep(chart.xAxis[0].categories);
 						copyy1 = _.cloneDeep(series0_y);
 						copyy2 = _.cloneDeep(series1_y);
@@ -1161,6 +1301,7 @@ RF_SP2Store.util.addMarkerId = function(obj) {
 			}).markerName = newimarkername;
 		}
 	});
+	RF_SP2Store.util.applyOtherDieBtn();
 };
 // TCF当前选中晶圆
 RF_SP2Store.util.curTCFSelectWafer = function(obj){
@@ -1195,6 +1336,19 @@ RF_SP2Store.util.judgeCoordinateId = function(obj){
 		isExist: isExist,
 		subdieFlag: subdieFlag
 	};
+};
+// TCF应用到其他die按钮可点与不可点
+RF_SP2Store.util.applyOtherDieBtn = function(obj) {
+	var curParameMarker = RF_SP2Store.stateObj.splineSelectedArr[RF_SP2Store.stateObj.TCFsParameter],
+	markeridArr = [];
+	_.forEach(curParameMarker, function(v){
+		if(!_.isNil(v.markerid)) markeridArr.push(v.markerid);
+	});
+	if(markeridArr.length>0){
+		$(".buildMarker_footin>.btn-success").prop("disabled", false);
+	}else{
+		$(".buildMarker_footin>.btn-success").prop("disabled", true);
+	}
 };
 
 RF_SP2Store.ajax = Object.create(null);
@@ -1289,6 +1443,35 @@ function markerMathCalc(str){
 			}else if(_.isArray(v.index)){
 				_.forEach(delayArr, function(vv, ii){
 					var replaceStr = "("+v.replace+")";
+					var num1 = vv.match(v.reg1)[v.index[0]];
+					var num2 = vv.match(v.reg1)[v.index[1]];
+					replaceStr = replaceStr.replace("##1", num1);
+					replaceStr = replaceStr.replace("##2", num2);
+					str = str.replace(vv, replaceStr);
+				});
+			}
+		}
+	});
+	return str;
+}
+function markerBackMathCalc(str){
+	_.forOwn(_.sortBy(RF_SP2Store.MathMapBack, function(o) { return o.priority; }), function(v){
+		if(v.reg === null){
+			var ireg = new RegExp(v.name, "g");
+			str = _.replace(str, ireg, v.replace);
+		}else{
+			var delayArr = str.match(v.reg);
+			if(_.isNil(delayArr)) return true;
+			if(_.isNumber(v.index)){
+				_.forEach(delayArr, function(vv, ii){
+					var replaceStr = v.name;
+					var num = vv.match(v.reg1)[v.index];
+					replaceStr = replaceStr.replace("##1", num);
+					str = str.replace(vv, replaceStr);
+				});
+			}else if(_.isArray(v.index)){
+				_.forEach(delayArr, function(vv, ii){
+					var replaceStr = v.name;
 					var num1 = vv.match(v.reg1)[v.index[0]];
 					var num2 = vv.match(v.reg1)[v.index[1]];
 					replaceStr = replaceStr.replace("##1", num1);
@@ -2057,7 +2240,7 @@ $(document).on("click", ".g_bodyin_bodyin_top_wrap_m_in li", function(){
 								istr = '<tr class="canCalc"><td></td><td></td><td></td></tr>';
 							}else{
 								_.forEach(data, function(v, i){
-									istr+='<tr class="canCalc" data-oldparameter="'+v.custom_parameter+'" data-olduserformula="'+v.user_formula+'" data-oldformula="'+v.calculate_formula+'"><td>'+v.custom_parameter+'</td><td>'+v.calculation_result+'</td><td>'+v.user_formula+'</td></tr>';
+									istr+='<tr class="canCalc" data-ivalue="'+v.calculationId+'" data-oldparameter="'+v.custom_parameter+'" data-olduserformula="'+v.user_formula+'" data-oldformula="'+v.calculate_formula+'"><td>'+v.custom_parameter+'</td><td>'+v.calculation_result+'</td><td>'+v.user_formula+'</td></tr>';
 								});
 								istr += '<tr class="canCalc"><td></td><td></td><td></td></tr>';
 							}
@@ -2103,30 +2286,34 @@ $(".reRenderBtnDiv").click(function(){
 			sParameter: TCFsParameter,
 			done: function(data){
 				if(!_.isNil(data)){
-					// 取返回值的comfirm_key
-					var comfirm_keyArr = [];
-					_.forOwn(data, function(dv){
-						if(!_.isNil(dv.markerData) && !_.isEmpty(dv.markerData)){
-							comfirm_keyArr.push(dv.markerData[0].location_key);
-						}
-					});
-					comfirm_keyArr = _.uniq(comfirm_keyArr);
-					RF_SP2Store.stateObj.comfirm_key = comfirm_keyArr.length == 1 ? comfirm_keyArr[0] : "请选择";
-					var comfirm_key = RF_SP2Store.stateObj.comfirm_key;
-					$("#comfirm_key_sel").val(comfirm_key);
-					if(comfirm_keyArr.length == 2){
-						eouluGlobal.S_getSwalMixin()({
-							title: 'key值异常',
-							text: "选中曲线有不一样的key，请先切换key删除原来的Marker点",
-							type: 'warning',
-							showConfirmButton: false,
-							showCancelButton: false,
-							timer: 2500
+					var comfirm_key;
+					if(RF_SP2Store.stateObj.changeKey){
+						RF_SP2Store.stateObj.changeKey = false;
+					}else{
+						// 取返回值的comfirm_key
+						var comfirm_keyArr = [];
+						_.forOwn(data, function(dv){
+							if(!_.isNil(dv.markerData) && !_.isEmpty(dv.markerData)){
+								comfirm_keyArr.push(dv.markerData[0].location_key);
+							}
 						});
-						return false;
+						comfirm_keyArr = _.uniq(comfirm_keyArr);
+						RF_SP2Store.stateObj.comfirm_key = comfirm_keyArr.length == 1 ? comfirm_keyArr[0] : "请选择";
+						$("#comfirm_key_sel").val(RF_SP2Store.stateObj.comfirm_key);
+						if(comfirm_keyArr.length == 2){
+							eouluGlobal.S_getSwalMixin()({
+								title: 'key值异常',
+								text: "选中曲线有不一样的key，请先切换key删除原来的Marker点",
+								type: 'warning',
+								showConfirmButton: false,
+								showCancelButton: false,
+								timer: 2500
+							});
+							return false;
+						}
+						// 取返回值的comfirm_key end
 					}
-					// 取返回值的comfirm_key end
-					
+					comfirm_key = RF_SP2Store.stateObj.comfirm_key;
 					if(_.isNil(comfirm_key) || _.isEqual(comfirm_key, "请选择")){
 						RF_SP2Store.util.MarkerCurveHandler({
 							data: data,
@@ -2149,7 +2336,10 @@ $(".reRenderBtnDiv").click(function(){
 									RF_SP2Store.util.MarkerCurveHandler({
 										data: data,
 										container: "markerChart",
-										findData: findTCFWafer
+										findData: findTCFWafer,
+										callback: function(){
+											RF_SP2Store.util.applyOtherDieBtn();
+										}
 									});
 								}else{
 									_.forEach(data1, function(v, i){
@@ -2210,15 +2400,26 @@ $(".g_bodyin_tit_r>.glyphicon-stats").click(function(){
 });
 
 /*点击出现计算器*/
-$(document).on("click", "tr.canCalc", function(){
-	$(".RF_SP2_cover, .subAddParam").slideDown(200);
-	$("#calc_text").val($(this).children("td:eq(0)").text());
-	$("#clac_textarea").val($(this).children("td:eq(2)").text());
-	RF_SP2Store.stateObj.calcTableIndex = $(this).index();
-}).on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
+$(document).on({
+	click: function() {
+		$(".RF_SP2_cover, .subAddParam").slideDown(200);
+		var oldparameter = $(this).children("td:eq(0)").text();
+		$("#calc_text").val(oldparameter).data("oldparameter", oldparameter);
+		$("#clac_textarea").val($(this).children("td:eq(2)").text());
+		// 回显预览值
+		$("#clac_textarea").trigger("input");
+		var parammessage = _.eq(_.trim(oldparameter), '') ? '' : '参数可用';
+		$("div.parammessage").text(parammessage).data("parammessage", parammessage);
+		RF_SP2Store.stateObj.calcTableIndex = $(this).index();
+	}
+}, "tr.canCalc")
+.on("click", ".subAddParam_tit>span, .subAddParam_footin>.btn-warning", function(){
 	$(".RF_SP2_cover, .subAddParam").slideUp(200);
-}).on("click", ".subAddParam_footin>.btn-primary", function(){
+})
+.on("click", ".subAddParam_footin>.btn-primary", function(){
 	// 公式、参数提交
+	var frontformula = $("#preview").data("frontformula");
+	if(_.isNil(frontformula) || _.eq(frontformula, "未填公式") || _.eq(frontformula, "公式有误")) return false;
 	var customParameter = $("#calc_text").val().trim(),
 	str = $("#clac_textarea").val();
 	if(_.isEmpty(customParameter) || _.isEqual(_.trim(str), '')){
@@ -2245,125 +2446,150 @@ $(document).on("click", "tr.canCalc", function(){
 	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer(),
 	judgeCoordinateId = RF_SP2Store.util.judgeCoordinateId();
 	var subdieFlag = judgeCoordinateId.subdieFlag;
-	if(!_.isNil(findTCFWafer)){
+	if(_.isNil(findTCFWafer)){
+		RF_SP2SwalMixin({
+			title: "参数提示",
+			text: "未选择曲线或选择出错",
+			type: "warning",
+			timer: 1900
+		});
+		return false;
+	}
+	var parammessage = $("div.parammessage").data("parammessage");
+	if(_.isNil(parammessage) || _.eq(parammessage, '') || _.eq(parammessage, '参数已存在')){
+		RF_SP2SwalMixin({
+			title: "参数提示",
+			text: "未填写参数或参数已存在",
+			type: "warning",
+			timer: 1900
+		});
+		return false;
+	}
+	// 参数可用
+	// str = markerJoinCalc(str);
+	// str = markerMathCalc(str);
+	// try{
+	// 	var iVal = eval(str);
+	// }catch(err){
+	// 	RF_SP2SwalMixin({
+	// 		title: "公式提示",
+	// 		text: "公式有误",
+	// 		type: "error",
+	// 		timer: 2000
+	// 	});
+	// }
+	// 
+	var calculationId = tr.data("ivalue"),
+	userformula = str,
+	formula = markerBackMathCalc(frontformula),
+	coordinateId,
+	subdieId;
+	var addorupdate = _.isNil(oldParameter) ? "添加" : "修改";
+	if(judgeCoordinateId.isExist && judgeCoordinateId.unique){
+		if(_.eq(subdieFlag, '0')){
+			coordinateId = judgeCoordinateId.coordinateId[0];
+			subdieId = undefined;
+		}else if(_.eq(subdieFlag, '1')){
+			coordinateId = undefined;
+			subdieId = judgeCoordinateId.coordinateId[0];
+		}
+		$.ajax({
+			type: 'GET',
+			url: 'Calculator',
+			data: {
+				customParameter: customParameter,
+				coordinateId: coordinateId,
+				calculationId: calculationId,
+				waferId: findTCFWafer.waferid,
+				userformula: userformula,
+				formula: formula,
+				subdieId: subdieId,
+				subdieFlag: subdieFlag,
+				oldParameter: oldParameter
+			},
+			dataType: 'json'
+		}).then(function(data1){
+			var result = data1.result;
+			if(_.isNil(result)){
+				RF_SP2SwalMixin({
+					title: addorupdate+"提示",
+					text: addorupdate+"失败",
+					type: "warning",
+					timer: 1900,
+					showConfirmButton: false
+				});
+			}else{
+				RF_SP2SwalMixin({
+					title: addorupdate+"提示",
+					text: addorupdate+"成功",
+					type: "success",
+					timer: 1900,
+					showConfirmButton: false
+				});
+				
+				if(_.isNaN(result)){
+					tr.children().eq(1).text("9E+37");
+				}else{
+					tr.children().eq(1).text(result);
+				}
+				tr.children().eq(0).text(customParameter);
+				tr.children().eq(2).text(str);
+				tr.data({
+					'oldparameter': data1.customParameter,
+					'olduserformula': userformula,
+					'ivalue': data1.calculationId
+				});
+				_.isNil(oldParameter) && $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+				$(".subAddParam_footin>.btn-warning").trigger("click");
+			}
+		});
+	}else{
+		RF_SP2SwalMixin({
+			title: addorupdate+"提示",
+			text: "未选中曲线或所选曲线不在同一die",
+			type: "warning",
+			timer: 2000,
+			showConfirmButton: false
+		});
+	}
+});
+
+// 验证自定义参数
+$("#calc_text").on("blur", function(){
+	var findTCFWafer = RF_SP2Store.util.curTCFSelectWafer(),
+	judgeCoordinateId = RF_SP2Store.util.judgeCoordinateId();
+	var subdieFlag = judgeCoordinateId.subdieFlag;
+	if(_.isNil(findTCFWafer)){
+		RF_SP2SwalMixin({
+			title: "参数提示",
+			text: "未选择曲线或选择出错",
+			type: "warning",
+			timer: 1900
+		});
+		return false;
+	}
+
+	var oldparameter = _.toString($(this).data("oldparameter")),
+	newparameter = $(this).val().trim();
+	if(!_.eq(oldparameter, newparameter)){
 		$.ajax({
 			type: 'GET',
 			url: 'CustomParameter',
 			data: {
 				waferId: findTCFWafer.waferid,
-				customParameter: customParameter,
+				customParameter: newparameter,
 				subdieFlag: subdieFlag
 			},
 			dataType: 'json'
 		}).then(function(data){
 			if(_.isEqual(data, '')){
-				// 参数可用
-				// str = markerJoinCalc(str);
-				// str = markerMathCalc(str);
-				// try{
-				// 	var iVal = eval(str);
-				// }catch(err){
-				// 	RF_SP2SwalMixin({
-				// 		title: "公式提示",
-				// 		text: "公式有误",
-				// 		type: "error",
-				// 		timer: 2000
-				// 	});
-				// }
-				// 
-				var userformula = str,
-				formula = markerJoinCalc(str),
-				coordinateId,
-				subdieId;
-				if(judgeCoordinateId.isExist && judgeCoordinateId.unique){
-					if(_.eq(subdieFlag, '0')){
-						coordinateId = judgeCoordinateId.coordinateId[0];
-						subdieId = undefined;
-					}else if(_.eq(subdieFlag, '1')){
-						coordinateId = undefined;
-						subdieId = judgeCoordinateId.coordinateId[0];
-					}
-					$.ajax({
-						type: 'GET',
-						url: 'Calculator',
-						data: {
-							customParameter: customParameter,
-							coordinateId: coordinateId,
-							waferId: findTCFWafer.waferid,
-							userformula: userformula,
-							formula: formula,
-							subdieId: subdieId,
-							subdieFlag: subdieFlag,
-							oldParameter: oldParameter
-						},
-						dataType: 'json'
-					}).then(function(data1){
-						var result = data1.result;
-						if(_.isNil(result)){
-							RF_SP2SwalMixin({
-								title: "提示",
-								text: "失败",
-								type: "warning",
-								timer: 1900,
-								showConfirmButton: false
-							});
-						}else{
-							RF_SP2SwalMixin({
-								title: "提示",
-								text: "成功",
-								type: "success",
-								timer: 1900,
-								showConfirmButton: false
-							});
-							
-							if(_.isNaN(result)){
-								tr.children().eq(1).text("9E+37");
-							}else{
-								tr.children().eq(1).text(result);
-							}
-							tr.children().eq(0).text(customParameter);
-							tr.children().eq(2).text(str);
-							tr.data('oldparameter', data1.customParameter);
-							tr.data('olduserformula', userformula);
-							// var noEmptyLen = 0;
-							// $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").each(function(){
-							// 	var iiiflag = false;
-							// 	$(this).children("td").each(function(){
-							// 		if($(this).text() != ""){
-							// 			iiiflag = true;
-							// 			return false;
-							// 		}
-							// 	});
-							// 	if(iiiflag){
-							// 		noEmptyLen++ ;
-							// 	}
-							// });
-							// if(noEmptyLen == $(".g_bodyin_bodyin_bottom_lsub_bottom tbody>tr").length) {
-							// 	$(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
-							// }
-							_.isNil(oldParameter) && $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
-							$(".subAddParam_footin>.btn-warning").trigger("click");
-						}
-					});
-				}else{
-					RF_SP2SwalMixin({
-						title: "提示",
-						text: "未选中曲线或所选曲线不在同一die",
-						type: "warning",
-						timer: 2000,
-						showConfirmButton: false
-					});
-				}
-
+				$("div.parammessage").text("参数可用").data("parammessage", "参数可用");
 			}else{
-				RF_SP2SwalMixin({
-					title: "公式提示",
-					text: "参数已存在",
-					type: "warning",
-					timer: 1900
-				});
+				$("div.parammessage").text("参数已存在").data("parammessage", "参数已存在");
 			}
 		});
+	}else{
+		$("div.parammessage").text("参数可用").data("parammessage", "参数可用");
 	}
 });
 
@@ -2381,6 +2607,8 @@ $(".calcin>div>.row>div>div").on({
 			$("#clac_textarea").val(s);
 			var correctPos = Number($(this).data("ipos"));
 			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp + k.toString().length + correctPos);
+			// 回显预览值
+			$("#clac_textarea").trigger("input");
 		}else if(k == "Number"){
 			$(".row.toggleRow").slideToggle(150);
 			eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], cp);
@@ -2391,7 +2619,7 @@ $(".calcin>div>.row>div>div").on({
 		}
 	}
 });
-
+// 公式内容框
 $("#clac_textarea").on("keydown", function(e){
 	var i = e.keyCode || e.which || e.charCode;
 	if(_.indexOf(RF_SP2Store.allowKeyCode, i) == -1) return false;
@@ -2400,6 +2628,24 @@ $("#clac_textarea").on("keydown", function(e){
 	old = old.replace(/[\u4e00-\u9fa5]+/g, "");
 	$("#clac_textarea").val(old);
 	eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]));
+	// 预览值
+	if(old == "" || old.trim() == ""){
+		$("#preview").attr("title","未填公式").text("未填公式").data("frontformula", "未填公式");
+	}else{
+		old = markerJoinCalc(old);
+		old = markerMathCalc(old);
+		try{
+			var iVal = eval(old);
+			if(_.isNaN(iVal)){
+				$("#preview").attr("title","9E+37").text("9E+37");
+			}else{
+				$("#preview").attr("title",iVal).text(iVal.toFixed(2));
+			}
+			$("#preview").data("frontformula", old);
+		}catch(err){
+			$("#preview").attr("title","公式有误").text("公式有误").data("frontformula", "公式有误");
+		}
+	}
 });
 
 /*显示marker设置*/
@@ -2466,6 +2712,7 @@ $("#comfirm_key").click(function(){
 			}).then(function(re){
 				if(re.dismiss == swal.DismissReason.backdrop || re.dismiss == swal.DismissReason.esc || re.dismiss == swal.DismissReason.timer){
 					RF_SP2Store.stateObj.key_y = false;
+					RF_SP2Store.stateObj.changeKey = true;
 					$(".reRenderBtnDiv").trigger("click");
 				}
 			});
@@ -2661,8 +2908,6 @@ $(".buildMarker_footin>.btn-primary").click(function(){
 					// console.log(swal.DismissReason.esc) // esc
 					// console.log(swal.DismissReason.timer) // timer
 					if(result.dismiss == swal.DismissReason.backdrop || result.dismiss == swal.DismissReason.esc || result.dismiss == swal.DismissReason.timer){
-						// store.set("futureDT2Online__RF_SP2__saveMarkerFlag", TCFsParameter);
-						// window.location.reload();
 					}
 				});
 				RF_SP2Store.ajax.GetMarker({
@@ -2724,7 +2969,11 @@ $(".buildMarker_footin>.btn-success").click(function(){
 					sParameter: findTCFWafer.sParameter,
 					waferId: findTCFWafer.waferid,
 					subdieId: subdieId,
-					subdieFlag: subdieFlag
+					subdieFlag: subdieFlag,
+					curveTypeStr: _.reduce(findTCFWafer.selected, function(rest, v){
+						rest.push(v.curvetypeid);
+						return rest;
+					}, [])
 				},
 				dataType: 'json'
 			}).then(function(data) {
@@ -2758,12 +3007,6 @@ $(".buildMarker_footin>.btn-success").click(function(){
 			});
 		}
 	}
-});
-
-/*marker搜索*/
-$(document).on("click", "div.awesomplete ul[role='listbox']>li", function(){
-	// alert($(this).text())
-	/*$("#clac_textarea").val($("#clac_textarea").val()+$("#search_marker").val().trim());*/
 });
 
 /*双击4图表*/
@@ -2845,7 +3088,7 @@ $(".signalChart_div_tit>.open_del_indicatrix").click(function(){
 			list: RF_SP2Store.stateObj.smithSXCategories,
 			minChars: 1,
 			maxItems: 15,
-			autoFirst: true
+			autoFirst: false
 		});
 	});
 });
@@ -2908,47 +3151,48 @@ $(document).on("click", "#upflag_table>tbody .glyphicon-remove, #lowflag_table>t
 	/*var legendDom = $(this).parent().parent().parent().parent().prev().children("span");*/
 	/*删除DOM*/
 	$(this).parent().parent().remove();
-	/*判断是否可以应用*/
-	var uphasOk = $("#upflag_table tbody tr.hasOk").length;
-	var lowhasOk = $("#lowflag_table tbody tr.hasOk").length;
-	var upTr = $("#upflag_table tbody tr").length;
-	var lowTr = $("#lowflag_table tbody tr").length;
-	if(uphasOk === 0 && lowhasOk === 0){
-		var iflag = $("[id$=_chart_S]:visible").data("iflag");
-		if(iflag == "initial"){
-			getDataBuildBigS12S21({
-				iclassify: iclassify,
-				itargetchart: id
-			});
-		}else if(iflag == "XYOfPhase"){
-			RF_SP2Store.util.graphStyleHandler({
-				iclassify: iclassify,
-				itargetchart: id,
-				contextFlag: true,
-				graphStyle: iflag
-			});
-		}else if(iflag == "XYOfMagnitude"){
-			RF_SP2Store.util.graphStyleHandler({
-				iclassify: iclassify,
-				itargetchart: id,
-				contextFlag: true,
-				graphStyle: iflag
-			});
-		}else if(iflag == "XYdBOfMagnitude"){
-			getDataBuildBigS12S21({
-				iclassify: iclassify,
-				itargetchart: id,
-				contextFlag: true,
-				graphStyle: iflag
-			});
+
+	RF_SP2Store.util.judgeIndicatrixApply({
+		noeqCallback: null,
+		eqCallback: null,
+		eqZeroCallback: function(){
+			var iflag = $("[id$=_chart_S]:visible").data("iflag");
+			if(iflag == "initial"){
+				getDataBuildBigS12S21({
+					iclassify: iclassify,
+					itargetchart: id
+				});
+			}else if(iflag == "XYOfPhase"){
+				RF_SP2Store.util.graphStyleHandler({
+					iclassify: iclassify,
+					itargetchart: id,
+					contextFlag: true,
+					graphStyle: iflag
+				});
+			}else if(iflag == "XYOfMagnitude"){
+				RF_SP2Store.util.graphStyleHandler({
+					iclassify: iclassify,
+					itargetchart: id,
+					contextFlag: true,
+					graphStyle: iflag
+				});
+			}else if(iflag == "XYdBOfMagnitude"){
+				getDataBuildBigS12S21({
+					iclassify: iclassify,
+					itargetchart: id,
+					contextFlag: true,
+					graphStyle: iflag
+				});
+			}
 		}
-		$(".indicatrix_footin>.btn-success").prop("disabled", true);
-	}else{
-		$(".indicatrix_footin>.btn-success").prop("disabled", false);
-	}
-	var uplegend = $("#upflag_table").prev().children("span");
-	var lowlegend = $("#lowflag_table").prev().children("span");
-	
+	});
+
+	var uplegend = $("#upflag_table").prev().children("span"),
+	lowlegend = $("#lowflag_table").prev().children("span"),
+	uphasOk = $("#upflag_table tbody tr.hasOk").length,
+	lowhasOk = $("#lowflag_table tbody tr.hasOk").length,
+	upTr = $("#upflag_table tbody tr").length,
+	lowTr = $("#lowflag_table tbody tr").length;
 	if(upTr === 0 || upTr === uphasOk){
 		uplegend.fadeIn(100);
 	}else{
@@ -3310,10 +3554,11 @@ $(".indicatrix_body legend>span").click(function(){
 			list: RF_SP2Store.stateObj.smithSXCategories,
 			minChars: 1,
 			maxItems: 15,
-			autoFirst: true
+			autoFirst: false
 		});
 	});
 	$(this).fadeOut(100);
+	$(".indicatrix_footin>.btn-success").prop("disabled", true);
 });
 
 $(document).on("click", ".indicatrix_body tbody span.glyphicon-ok", function(){
@@ -3321,10 +3566,10 @@ $(document).on("click", ".indicatrix_body tbody span.glyphicon-ok", function(){
 	if(_.isNil(id)) return false;
 	var iclassify = id.replace("_chart_S", "");
 	/*验证*/
-	var tr = $(this).parent().parent();
-	var input_X1 = tr.find(".input_X1").val().trim();
-	var input_X2 = tr.find(".input_X2").val().trim();
-	var input_Y0 = tr.find(".input_Y0").val().trim();
+	var tr = $(this).parent().parent(),
+	input_X1 = tr.find(".input_X1").val().trim(),
+	input_X2 = tr.find(".input_X2").val().trim(),
+	input_Y0 = tr.find(".input_Y0").val().trim();
 	if(_.isEmpty(input_X1) || _.isEmpty(input_X2) || _.isEmpty(input_Y0)) return false;
 	var indicatrixArr;
 	if($(this).parents().is("#upflag_table")){
@@ -3334,9 +3579,9 @@ $(document).on("click", ".indicatrix_body tbody span.glyphicon-ok", function(){
 		indicatrixArr = RF_SP2Store.stateObj[iclassify].indicatrix_low;
 		/*indicatrix_copyArr = RF_SP2Store.stateObj.indicatrix_copy.low;*/
 	}
-	var X1 = Math.min(Number(input_X1), Number(input_X2));
-	var X2 = Math.max(Number(input_X1), Number(input_X2));
-	var Y0 = Number(input_Y0);
+	var X1 = Math.min(Number(input_X1), Number(input_X2)),
+	X2 = Math.max(Number(input_X1), Number(input_X2)),
+	Y0 = Number(input_Y0);
 	if(judgeLineSegmentIntersect(X1, X2, _.concat(RF_SP2Store.stateObj[iclassify].indicatrix_up, RF_SP2Store.stateObj[iclassify].indicatrix_low))){
 		RF_SP2SwalMixin({
 			title: '选择区间提示',
@@ -3349,9 +3594,9 @@ $(document).on("click", ".indicatrix_body tbody span.glyphicon-ok", function(){
 		indicatrixArr.push([X1, X2, Y0]);
 		/*indicatrix_copyArr.push([X1, X2, Y0]);*/
 		tr.find(".input_Y0").val(Y0);
-		$(".indicatrix_footin>.btn-success").prop("disabled", false);
 		$(this).fadeOut(100).parent().parent().parent().parent().prev().children("span").fadeIn(100);
 		tr.addClass("hasOk").find("input[type='text']").prop("disabled", true);
+		RF_SP2Store.util.judgeIndicatrixApply();
 	}
 })
 /*Y0验证数字*/
@@ -3380,6 +3625,27 @@ $(".indicatrix_footin>.btn-danger").click(function(){
 		iclassify: iclassify,
 		itargetchart: id
 	});
+});
+
+/*指标线值搜索*/
+$(document).on("mouseenter", ".indicatrix_div div.awesomplete ul[role='listbox']>li", function(e){
+	e.stopPropagation();
+	var curFocus = $("input.AwesompleteX:focus"),
+	selectText = $(this).text(),
+	iThat = $(this).parent();
+	if(!iThat.is("[hidden]") && !RF_SP2Store.stateObj.indicatrix_awesomplete){
+		curFocus.val(selectText);
+	}else if(RF_SP2Store.stateObj.indicatrix_awesomplete){
+		RF_SP2Store.stateObj.indicatrix_awesomplete = false;
+	}
+}).on("keydown", "input.AwesompleteX:focus", function(e){
+	var i = e.keyCode || e.which || e.charCode;
+	if(i == 8){
+		RF_SP2Store.stateObj.indicatrix_awesomplete = true;
+		// _.debounce(function(){
+		// 	RF_SP2Store.stateObj.indicatrix_awesomplete = false;
+		// }, 10)();
+	}
 });
 
 /*右键切换开始*/

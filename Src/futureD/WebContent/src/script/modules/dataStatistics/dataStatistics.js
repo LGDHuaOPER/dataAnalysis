@@ -120,7 +120,8 @@ function renderChartCsvANDParam(obj){
 				'<td  class="g_bodyin_bodyin_bottom_lsub_mid_iparam" title="'+total_param_dom.eq(v).data("iparam")+'">'+total_param_dom.eq(v).data("iparam")+'</td>'+
 				'<td class="g_bodyin_bodyin_bottom_lsub_mid_min" title="'+total_param_dom.eq(v).data("min")+'"><input type="text" value="'+total_param_dom.eq(v).data("min")+'" ></td>'+
 				'<td class="g_bodyin_bodyin_bottom_lsub_mid_max" title="'+total_param_dom.eq(v).data("max")+'"><input type="text" value="'+total_param_dom.eq(v).data("max")+'" ></td>'+
-				'<td class="g_bodyin_bodyin_bottom_lsub_mid_equal"  title="8"  style="'+showorhide+'"><input type="text" value="8"></td>'+
+				'<td class="g_bodyin_bodyin_bottom_lsub_mid_equal"  title="8"  style="'+showorhide+'">'+
+					'<input type="text" value="8"  placeholder="正整数"></td>'+
 			'</tr>';
 		}
 		str+='</tbody></table>';
@@ -158,7 +159,16 @@ function renderParam(waferIdStr){
 			else if(data.paramList.length <2){
 				$(".g_bodyin_bodyin_bottom_r .thumbnail[data-ichart='correlationgraph']").addClass("cannotclick");
 			}
-			_.forOwn(data.paramList, function(value,i) {
+			var paramListArr = _.sortBy(data.paramList, function(vv, ii){
+				var returnV;
+				if(_.isNil(vv.match(/\d+/))) {
+					returnV = 0;
+				}else{
+					returnV = _.toNumber(vv.match(/\d+/)[0]);
+				}
+				return returnV;
+			});
+			_.forOwn(paramListArr, function(value,i) {
 				istr+='<a href="javascript:;" class="list-group-item" data-iparam="'+value+'" data-iparam="'+value+'" data-min="'+data.rangeList[value][0]+'" data-max="'+data.rangeList[value][1]+'">'+value+'</a>';
 			});
 			$(".g_bodyin_bodyin_bottom_l_inbottom>.list-group").empty().append(istr);
@@ -238,9 +248,9 @@ $(document).on("click", ".g_bodyin_tit_r>span, .g_bodyin_bodyin_bottom_r .thumbn
 				ishowchart: ichart
 			});
 			var classify;
-			if(ichart == "histogram" || ichart == "wafermap" || ichart == "gaussiandistribution"){
+			if(ichart == "histogram" || ichart == "wafermap" ){
 				classify = "table";
-			}else if(ichart == "boxlinediagram" || ichart == "CPK" || ichart == "correlationgraph"){
+			}else if(ichart == "boxlinediagram" || ichart == "CPK" || ichart == "correlationgraph"|| ichart == "gaussiandistribution"){
 				classify = "ul";
 			}
 			renderChartCsvANDParam({
@@ -303,7 +313,7 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_bottom>input", function(){
 		curWaferID.push( $(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).data("iwaferid"));
 		curWaferName[$(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).data("iwaferid")] =$(".g_bodyin_bodyin_bottom_lsub_top .active").eq(_i).text() ;
 	}
-	//console.log("delete dataStatisticsState.chooseParam",dataStatisticsState.chooseParam);
+	console.log(" dataStatisticsState.chooseParam",dataStatisticsState.chooseParam);
 	
 	_.forOwn(dataStatisticsState.chooseParam, function(value, key) {
 		curParam.push(key);
@@ -312,20 +322,6 @@ $(document).on("click", ".g_bodyin_bodyin_bottom_lsub_bottom>input", function(){
 		equal.push(dataStatisticsState.chooseParam[key].equal);
 	});
 	
-	/*for(var _i = 0 ; _i < $(".g_bodyin_bodyin_bottom_lsub_mid .info").length ; _i++){
-		if(ichart == "correlationgraph"||ichart =="boxlinediagram"||ichart =="CPK"){
-			curParam.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("ishowchartparam"));
-			leftrange.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("min"));
-			rightrange.push($(".g_bodyin_bodyin_bottom_lsub_mid .list-group .info").eq(_i).data("max"));
-			equal.push(8);
-		}
-		else{
-			curParam.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).data("ishowchartparam"));
-			leftrange.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_min").attr("title"));
-			rightrange.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_max").attr("title"));
-			equal.push($(".g_bodyin_bodyin_bottom_lsub_mid table .info").eq(_i).find(".g_bodyin_bodyin_bottom_lsub_mid_equal").attr("title"));
-		}
-	}*/
 	eouluGlobal.S_getSwalMixin()({
 		title: '加载数据',
 		text: "数据加载绘制图形中...",
@@ -364,13 +360,13 @@ $(".g_bodyin_tit_r .RF_SP2").click(function(){
 })
 
 /*参数切换*/
-$(document).on("blur", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr td:not(.g_bodyin_bodyin_bottom_lsub_mid_iparam) input", function(){
-	var val = $(this).parent().attr("title");
-	if($(this).val() == ""){
-		$(this).val(val);
-	};
-	$(this).parent().attr("title",$(this).val());
-});
+//$(document).on("blur", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr td:not(.g_bodyin_bodyin_bottom_lsub_mid_iparam) input", function(){
+//	var val = $(this).parent().attr("title");
+//	if($(this).val() == ""){
+//		$(this).val(val);
+//	};
+//	$(this).parent().attr("title",$(this).val());
+//});
 $(document).on("click", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid .list-group .list-group-item", function(){
 	var ichart = $(".g_bodyin_bodyin_bottom_rsub>div:visible").data("ishowchart");
 	var chooseParamObj = {}
@@ -417,3 +413,21 @@ $(document).on("focus", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_
 	$(this).parent().parent().addClass("info");
 	$(this).parent().parent().find("input").addClass("mid_newbg");
 });
+$(document).on("blur", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_mid tbody tr input", function(){
+	var val = $(this).parent().attr("title");
+	if($(this).val() == ""){
+		$(this).val(val);
+	};
+	$(this).parent().attr("title",$(this).val());
+	var chooseParamObj = {}
+	chooseParamObj.leftRange = $(this).parent().parent().find(".g_bodyin_bodyin_bottom_lsub_mid_min").attr("title");
+	chooseParamObj.rightRange = $(this).parent().parent().find(".g_bodyin_bodyin_bottom_lsub_mid_max").attr("title");
+	chooseParamObj.equal = $(this).parent().parent().find(".g_bodyin_bodyin_bottom_lsub_mid_equal").attr("title");
+	delete dataStatisticsState.chooseParam[$(this).parent().parent().data("ishowchartparam")];
+	dataStatisticsState.chooseParam[$(this).parent().parent().data("ishowchartparam")] = chooseParamObj;
+});
+$(document).on("keyup", ".g_bodyin_bodyin_bottom_lsub_mid_equal input", function(){
+	$(this).val($(this).val().replace(/^(0+)|[^\d]+/g,''));
+});
+
+

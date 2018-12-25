@@ -60,7 +60,7 @@ public class MarkerSave extends HttpServlet {
 			flag = service.saveMarkerByX(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId), curveTypeStr, sParam);
 		}
 		if ("Y".equals(markerKey)) {
-			if(subdieFlag.equals(SubdieFlagEnum.DIE)){
+			if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 				flag = service.saveMarkerByY(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId),subdieFlag,curveTypeStr, sParam);
 				
 				flag2 = service.updateCalculation(Integer.parseInt(waferId),Integer.parseInt(coordinateId),sParam);

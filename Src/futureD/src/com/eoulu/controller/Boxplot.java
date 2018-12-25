@@ -3,6 +3,7 @@ package com.eoulu.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.map.LinkedMap;
 
 import com.eoulu.service.BoxPlotService;
 import com.eoulu.service.HistogramService;
@@ -58,7 +61,7 @@ public class Boxplot extends HttpServlet {
 			paramList.add(parameter);
 		}
 		BoxPlotService boxService = new BoxPlotServiceImpl();
-		Map<String,Object> result = new Hashtable<>();
+		Map<String,Object> result = new LinkedHashMap<>();
 		for(int i=0,size=paramList.size();i<size;i++){
 			result.put(paramList.get(i),boxService.getBoxPlot(paramList.get(i), waferIdStr));
 		}

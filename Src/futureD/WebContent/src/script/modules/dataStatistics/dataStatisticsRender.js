@@ -697,7 +697,7 @@ function ajax_all_chart(obj){
 				}
 				else{
 					paramsArr = _.keys(data);
-					/*paramsArr = _.sortBy(paramsArr, function(vv, ii){
+					paramsArr = _.sortBy(paramsArr, function(vv, ii){
 						var returnV;
 						if(_.isNil(vv.match(/\d+/))) {
 							returnV = 0;
@@ -705,7 +705,7 @@ function ajax_all_chart(obj){
 							returnV = _.toNumber(vv.match(/\d+/)[0]);
 						}
 						return returnV;
-					});*/
+					});
 				}
 			}	
 			var IDParamObjArr = buildParameterChartContainer({
@@ -1068,7 +1068,7 @@ function draw_map_color_order_distribution(obj){
 	/*合并有效subdie和其他器件subdie*/
 	var sub_currentItem_currentList = (waferData.containSubdie ? currentDieItem.currentSubdieList : {});
 	var othersubDieType = (waferData.containSubdie ?  waferData.otherSubdieType :  {});
-	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList] : [] );
+	var mergesubDieType = (waferData.containSubdie ?  [sub_currentItem_currentList,othersubDieType] : [] );
 	_.forEach(mergesubDieType, function(val, ind){
 		//console.log("val",val);
 		_.forOwn(val, function(v, k){
@@ -1271,7 +1271,8 @@ function draw_map_color_order_distribution(obj){
 	colorGradientDom.append("<span class='colorGradientSpan splitSpan' style='height: "+itemHeight+"px; width: "+itemWidth*multip+"px;'></span>");
 	colorGradientDom.append("<span class='colorGradientSpan sixSpan outSpan'><span style='height: "+itemHeight+"px; width: "+itemWidth+"px'></span></span>");
 	
-	var countObj = _.countBy(dieData, function(v, i){
+	var countByData = (waferData.containSubdie ?  subdieData : dieData);
+	var countObj = _.countBy(countByData, function(v, i){
 		var retur;
 		_.forOwn(v, function(vv, k){
 			retur = vv.color.split(":")[0];

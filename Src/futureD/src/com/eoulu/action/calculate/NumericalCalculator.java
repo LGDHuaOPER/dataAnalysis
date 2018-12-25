@@ -196,6 +196,8 @@ public class NumericalCalculator {
 	            firstValue = dataStack.pop();
 	        } else {
 	            secondValue = dataStack.pop();
+	            System.out.println("op=========="+op);
+	            System.out.println("secondValue=========="+secondValue);
 	            firstValue = dataStack.pop();
 	        }
 //System.out.println("firstValue"+firstValue);

@@ -336,6 +336,7 @@ function renderSpline(option){
 										 }));
 									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name+x)+"']").remove();
 									$(".buildMarker_body>.container-fluid tbody>tr[data-iflag='"+(name2+x)+"']").remove();
+									RF_SP2Store.util.applyOtherDieBtn();
 								}else{
 									/*以前未选中*/
 									var serise1 = 0;
@@ -348,7 +349,7 @@ function renderSpline(option){
 										RF_SP2SwalMixin({
 											title: "Marker打点提示",
 											text: "以x为Key时一条曲线最多打2个点",
-											type: "error",
+											type: "warning",
 											timer: 2500
 										});
 										return false;
@@ -377,6 +378,7 @@ function renderSpline(option){
 									RF_SP2Store.stateObj.splineSelectedArr[TCFsParameter] = [];
 									$(".buildMarker_body>.container-fluid tbody").empty();
 									RF_SP2Store.stateObj.key_y = false;
+									RF_SP2Store.util.applyOtherDieBtn();
 								}else{
 									/*先前未选中*/
 									/*只可选一次*/
@@ -404,7 +406,7 @@ function renderSpline(option){
 											RF_SP2SwalMixin({
 												title: "Marker打点提示",
 												text: "以y为Key时，当前曲线另一点不存在",
-												type: "error",
+												type: "warning",
 												timer: 2000
 											});
 											// this.select(true,true);
@@ -561,7 +563,7 @@ function renderSpline(option){
 											RF_SP2SwalMixin({
 												title: "Marker打点提示",
 												text: "以y为Key时，另一条曲线两点都不存在",
-												type: "error",
+												type: "warning",
 												timer: 2000
 											});
 											saveMarkerANDaddTr(name2, NaN, y, null, -1);

@@ -1,3 +1,10 @@
+// pre preload
+eouluGlobal.S_getSwalMixin()({
+	title: "加载提示",
+	text: "正在加载数据",
+	type: "info",
+	showConfirmButton: false
+});
 /*variable defined*/
 var dataListDetailStore = Object.create(null);
 dataListDetailStore.mock = Object.create(null);
@@ -1496,10 +1503,11 @@ function draw_other_chart(obj){
 			}
 		break;
 		case "gaussiandistribution":
+			// 分两种，一种为参数下数据为空，一种为ID下数据为空
 			var curParamData = _.find(data, function(v, k){
 				return _.toString(k) == _.toString(iparam);
-			})[waferNO];
-			if(_.indexOf(_.keys(curParamData), "status") > -1){
+			});
+			if(_.isNil(curParamData) || _.isEmpty(curParamData)){
 				var errorArrItem2 = _.find(errorArr, function(v, i){
 					return v.chartCNName == "高斯分布图";
 				});
@@ -1508,12 +1516,30 @@ function draw_other_chart(obj){
 						chartCNName: "高斯分布图",
 						errorParamArr: [iparam],
 						classify: classify,
-						message: curParamData.status
+						message: "参数整体数据为空"
 					});
 				}else{
 					errorArrItem2.errorParamArr.push(iparam);
 				}
 				return errorArr;
+			}else{
+				var currIDData = curParamData[waferNO];
+				if(_.indexOf(_.keys(currIDData), "status") > -1){
+					var errorArrItem3 = _.find(errorArr, function(v, i){
+						return v.chartCNName == "高斯分布图";
+					});
+					if(_.isNil(errorArrItem3)){
+						errorArr.push({
+							chartCNName: "高斯分布图",
+							errorParamArr: [iparam],
+							classify: classify,
+							message: currIDData.status
+						});
+					}else{
+						errorArrItem3.errorParamArr.push(iparam);
+					}
+					return errorArr;
+				}
 			}
 		break;
 	}
@@ -1999,12 +2025,6 @@ function ajax_all_chart(obj){
 /*page preload*/
 $(".tab-content div[role='tabpanel']").innerWidth($(".tab-content").innerWidth()).innerHeight($(".tab-content").innerHeight());
 $(".vectorMap_l, .vectorMap_r").innerHeight($("#vectorMap").innerHeight());
-eouluGlobal.S_getSwalMixin()({
-	title: "加载提示",
-	text: "正在加载数据",
-	type: "info",
-	showConfirmButton: false
-});
 
 /*page onload*/
 $(function(){
@@ -2154,6 +2174,11 @@ $(document).on("click", "div.webParam button", function(){
 		});
 		return false;
 	}
+	console.log({
+				waferId: $("body").data("waferid"),
+				dataFormat: $("body").data("dataformat"),
+				waferNO: waferNO,
+			})
 	var iThat = $(this);
 	eouluGlobal.C_btnDisabled(iThat, false);
 	/*新方法*/
@@ -2303,7 +2328,7 @@ $(document).on("click", "#filterMap", function(e){
 		text: "正在请求过滤后Map数据...",
 		type: 'info',
 		showConfirmButton: false,
-		showCancelButton: false,
+		showCancelButton: false
 	});
 	var ajaxData = {},
 	subdie = $("#SubdieSel").val(),
@@ -2323,7 +2348,14 @@ $(document).on("click", "#filterMap", function(e){
 		dataType: "json"
 	}).then(function(data){
 		if(_.isNil(data) || _.isEmpty(data)){
-
+			eouluGlobal.S_getSwalMixin()({
+				title: '加载数据',
+				text: "过滤后的Map数据为空",
+				type: 'warning',
+				showConfirmButton: false,
+				showCancelButton: false,
+				timer: 1900
+			});
 		}else{
 			/*提示框修改text*/
 			$("#swal2-content").text("请求Map数据完成，正在请求曲线数据...");
@@ -2350,35 +2382,35 @@ $(document).on("click", "#filterMap", function(e){
 });
 
 /*右键切换开始*/
-$.contextMenu({
-	selector: "div.vectorMap_l div.panel[data-dbcurveandsmith]>.panel-body",
-	callback: function(key, options) {
-		alert(key+"图功能正在开发");
-		// window.console && console.log(m) || alert(m);
-	},
-	items: {
-		"Smith": {
-			name: "Smith",
-			icon: ""
-		},
-		"Polar": {
-			name: "Polar",
-			icon: ""
-		},
-		"XYOfPhase": {
-			name: "XYOfPhase",
-			icon: ""
-		},
-		"XYOfMagnitude": {
-			name: "XYOfMagnitude",
-			icon: ""
-		},
-		"XYdBOfMagnitude": {
-			name: "XYdBOfMagnitude",
-			icon: ""
-		}
-	}
-});
+// $.contextMenu({
+// 	selector: "div.vectorMap_l div.panel[data-dbcurveandsmith]>.panel-body",
+// 	callback: function(key, options) {
+// 		alert(key+"图功能正在开发");
+// 		// window.console && console.log(m) || alert(m);
+// 	},
+// 	items: {
+// 		"Smith": {
+// 			name: "Smith",
+// 			icon: ""
+// 		},
+// 		"Polar": {
+// 			name: "Polar",
+// 			icon: ""
+// 		},
+// 		"XYOfPhase": {
+// 			name: "XYOfPhase",
+// 			icon: ""
+// 		},
+// 		"XYOfMagnitude": {
+// 			name: "XYOfMagnitude",
+// 			icon: ""
+// 		},
+// 		"XYdBOfMagnitude": {
+// 			name: "XYdBOfMagnitude",
+// 			icon: ""
+// 		}
+// 	}
+// });
 /*$.contextMenu({
 	selector: '.Mos_Vg_Vd_Id0_col',
 	callback: function(key, options) {

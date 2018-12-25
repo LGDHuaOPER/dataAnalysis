@@ -422,7 +422,7 @@ public class SmithDao {
 	}
 	
 	public List<Map<String,Object>> getCalculation(int waferId,String module,DataBaseUtil db){
-		String sql = "select custom_parameter,calculation_result,calculate_formula,user_formula from dm_marker_calculation where wafer_id=? and module=?";
+		String sql = "select marker_id calculationId,custom_parameter,calculation_result,calculate_formula,user_formula from dm_marker_calculation where wafer_id=? and module=?";
 		return db.queryToList(sql, new Object[]{waferId,module});
 	}
 	

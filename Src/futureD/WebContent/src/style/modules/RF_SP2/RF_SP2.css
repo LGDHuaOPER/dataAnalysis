@@ -1077,6 +1077,15 @@ div.swal2-container {
 	z-index: 9;
 }
 
+/* 预览值 */
+span.preview_span, #preview {
+	font-size: 12px;
+}
+
+span.preview_span {
+	color: red;
+}
+
 @media screen and (max-width: 1366px) {
 	.g_bodyin_bodyin_bottom_1, .g_bodyin_bodyin_bottom_2 {
 		-ms-grid-columns: 300px 1fr;

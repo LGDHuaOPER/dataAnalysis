@@ -26,7 +26,7 @@
 	<!-- endbuild -->
 
 </head>
-<body data-curpage="projectAnalysis"  data-curusername="${userName}" data-userauthority="${userAuthority}">
+<body data-curpage="projectAnalysis"  data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

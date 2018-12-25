@@ -24,7 +24,7 @@
 	<link rel="stylesheet" href="src/style/modules/dataStatistics/dataStatistics.css" type="text/css">
 	<!-- endbuild -->
 </head>
-<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
+<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}' data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

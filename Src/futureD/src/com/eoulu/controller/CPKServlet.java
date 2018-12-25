@@ -3,6 +3,7 @@ package com.eoulu.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class CPKServlet extends HttpServlet {
 		CPKService service = new CPKServiceImpl();
 		String waferIdStr = request.getParameter("waferIdStr") == null ? "" : request.getParameter("waferIdStr"),
 				parameter = request.getParameter("parameter") == null ? "" : request.getParameter("parameter");
-		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> result = new LinkedHashMap<>();
 		if (!"".equals(parameter)) {
 			result.put(parameter, service.getCPK(waferIdStr, parameter));
 			response.getWriter().write(new Gson().toJson(result));

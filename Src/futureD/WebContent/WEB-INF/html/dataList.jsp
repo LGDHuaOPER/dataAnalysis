@@ -27,7 +27,7 @@
 	<link rel="stylesheet" href="src/style/modules/dataList/dataList.css" type="text/css">
 	<!-- endbuild -->
 </head>
-<body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}">
+<body data-curpage="dataList" data-curusername="${userName}" data-waferlist="${waferList}" data-userlist="${userList}" data-categorylist="${categoryList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

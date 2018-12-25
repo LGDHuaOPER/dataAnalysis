@@ -294,6 +294,6 @@
 
 	<script src="dist/script/modules/dataCompare/dataCompareRenderChart-c703715985.min.js"></script>
 
-	<script src="dist/script/modules/dataListDetail/dataListDetail-17107e4b66.min.js"></script>
+	<script src="dist/script/modules/dataListDetail/dataListDetail-428fb281b6.min.js"></script>
 </body>
 </html>

@@ -63,10 +63,10 @@ public class Correlation extends HttpServlet {
 		if (paramList.size() >= 2) {
 			paramX = paramList.get(0);
 			paramY = paramList.get(1);
-			minX = rangList.get(paramX).get(1);
-			maxX = rangList.get(paramX).get(0);
-			minY = rangList.get(paramY).get(1);
-			maxY = rangList.get(paramY).get(0);
+			minX = rangList.get(paramX).get(0);
+			maxX = rangList.get(paramX).get(1);
+			minY = rangList.get(paramY).get(0);
+			maxY = rangList.get(paramY).get(1);
 			result = service2.getCorrelation(waferIdStr, paramX, paramY, minX, maxX, minY, maxY);
 		} else {
 			status = "所选晶圆参数小于两个，无法绘制！";
@@ -84,13 +84,13 @@ public class Correlation extends HttpServlet {
 	}
 	
 	public static void main(String[] args) {
-		String waferIdStr = "424,373";
-		String status = "",paramX = "Param1",
-				paramY = "Param2";
-		double minX= 4600,
-				maxX= 6500,
-				minY= 4500,
-				maxY= 6500;
+		String waferIdStr = "307";
+		String status = "",paramX = "",
+				paramY = "";
+		double minX= 1e-006,
+				maxX= 1e-005,
+				minY= 1e-006,
+				maxY= 5e-006;
 		
 		CorrelationService service2 = new CorrelationServiceImpl();
 		Map<String, Object> result = null;
@@ -107,15 +107,16 @@ public class Correlation extends HttpServlet {
 		if (paramList.size() >= 2) {
 			paramX = paramList.get(0);
 			paramY = paramList.get(1);
-			minX = rangList.get(paramX).get(1);
-			maxX = rangList.get(paramX).get(0);
-			minY = rangList.get(paramY).get(1);
-			maxY = rangList.get(paramY).get(0);
+			minX = rangList.get(paramX).get(0);
+			maxX = rangList.get(paramX).get(1);
+			minY = rangList.get(paramY).get(0);
+			maxY = rangList.get(paramY).get(1);
 			result = service2.getCorrelation(waferIdStr, paramX, paramY, minX, maxX, minY, maxY);
 		} else {
 			status = "所选晶圆参数小于两个，无法绘制！";
 		}
 		result.put("status", status);
+		System.out.println(new Gson().toJson(result));
 	}
 
 }
