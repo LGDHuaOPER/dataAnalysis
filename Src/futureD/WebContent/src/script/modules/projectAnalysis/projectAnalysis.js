@@ -221,7 +221,24 @@ $(function(){
 		$(".g_bodyin_body_top").height(($(".g_bodyin_body").height())/2);
 		$(".g_bodyin_body_bottom").height(($(".g_bodyin_body").height())/2 - 30);
 	});
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: {
+			"UserInstall": [$('.g_info_r .AdminOperat')],
+			"Analysis": [$('.g_body_rr_body_item[data-icurvetype="RF-S2P"]')]
+		},
+		getKey: 'url'
+	});
+	/*判断权限end*/
 	
+	
+	/*判断权限
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: _.cloneDeep({
+			"RF-S2P分析": [$('.g_body_rr_body_item[data-icurvetype="RF-S2P"]')],
+		}),
+	});*/
+	/*判断权限end*/
 	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	
@@ -627,6 +644,17 @@ $(".g_body_rr_body_itemin").click(function(e){
 });
 
 $(".g_body_rr_body_btn>input").click(function(){
+	
+	if($(".g_body_rr_body_item.active").data("icurvetype") == ("DC"||"RTP") ) {
+		projectAnalysisSwalMixin({
+			title: '提示',
+			text: "功能暂未添加，敬请期待",
+			type: 'warning',
+			showConfirmButton: false,
+			timer: 2000,
+		});
+		return false;
+	}
 	var classify = $(".g_body_rr_body_item.active").find(".g_body_rr_body_itemin>div").text();
 	var waferId = [],waferNO = [];
 	for(var trnum = 0 ; trnum < $(".g_bodyin_body_bottom tbody tr").length ;trnum++){

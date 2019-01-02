@@ -1,6 +1,8 @@
 package com.eoulu.action.analysis;
 
 import java.io.IOException;
+import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -43,26 +45,52 @@ public class Calculator extends HttpServlet {
 					subdieId = request.getParameter("subdieId")==null?"0":request.getParameter("subdieId"),
 					subdieFlag = request.getParameter("subdieFlag")==null?"":request.getParameter("subdieFlag"),
 						waferId = request.getParameter("waferId")==null?"0":request.getParameter("waferId").trim(),
-								calculationId = request.getParameter("calculationId")==null?"":request.getParameter("calculationId").trim();
+							calculationId = request.getParameter("calculationId")==null?"":request.getParameter("calculationId").trim(),
+					sParam = request.getParameter("sParameter")==null?"S11": request.getParameter("sParameter");
+		String typeIdStr = request.getParameter("typeIdStr");
+		Map<String,String> checkMap = new HashMap<>();
 		if("".equals(customParam)){
-			response.getWriter().write(new Gson().toJson("参数不能为空！"));
+			checkMap.put("message","自定义参数为空");
+			response.getWriter().write(new Gson().toJson(checkMap));
+			return;
 		}
 		AnalysisService service = new AnalysisServiceImpl();
-		if(service.getParameterExsit(Integer.parseInt(waferId), customParam,subdieFlag)){
-			response.getWriter().write(new Gson().toJson("自定义参数已存在！"));
+		if("".equals(calculationId)){
+			if(service.getParameterExsit(Integer.parseInt(waferId), customParam,subdieFlag)){
+				checkMap.put("message","自定义参数已存在");
+				response.getWriter().write(new Gson().toJson(checkMap));
+				return;
+			}
+		}else{
+			if(service.getParameterExsit(Integer.parseInt(waferId), customParam,subdieFlag)){
+				if(!oldParam.equals(customParam)){
+					checkMap.put("message","自定义参数已存在");
+					response.getWriter().write(new Gson().toJson(checkMap));
+					return;
+				}
+			}
 		}
-		String result = "",status = "";
+
+		
+		String result = "",status = "",formula="";
+		formula = service.replaceFormula(typeIdStr, sParam, calculation);
 		Map<String,String> map = null;
 		try {
-			map = NumericalCalculator.cal(calculation);
+			map = NumericalCalculator.cal(formula);
 			result = map.get("result").toString();
 			status = map.get("status").toString();
 		} catch (ExpressionFormatException e) {
 			e.printStackTrace();
 			status = e.getMessage();
+		}catch (EmptyStackException e1) {
+			map = new HashMap<>();
+			map.put("result","");
+			map.put("status","请先提交marker");
+
 		}
 		if("".equals(status) && !"".equals(result)){
 			if("".equals(calculationId)){
+
 				boolean flag =  service.saveCalculation(Integer.parseInt(waferId), Integer.parseInt(coordinateId),Integer.parseInt(subdieId),subdieFlag,customParam, calculation, userformula,Double.parseDouble(result), "TCF");
 				
 				if(flag){
@@ -73,10 +101,11 @@ public class Calculator extends HttpServlet {
 				}
 			}else{
 				boolean flag = service.modifyCalculation(oldParam, customParam, calculation,userformula, result, Integer.parseInt(calculationId), Integer.parseInt(coordinateId),Integer.parseInt(subdieId),subdieFlag, Integer.parseInt(waferId));
-				System.out.println("flag==="+flag);
-				map.put("calculationId", calculationId);
-				map.put("formula", userformula);
-				map.put("customParameter", customParam);
+				if(flag){
+					map.put("calculationId", calculationId);
+					map.put("formula", userformula);
+					map.put("customParameter", customParam);
+				}
 			}
 			
 		}

@@ -21,10 +21,10 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/index/index.min.css -->
-	<link rel="stylesheet" href="src/style/modules/index/index.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/index/index.css">
 	<!-- endbuild -->
 </head>
-<body data-curpage="index" data-curusername="${userName}" data-userauthority="${userAuthority}">
+<body data-curpage="index" data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l bootstro" data-bootstro-title="系统主页面引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>欢迎来到futureD系统</h4><p>接下来我将带你熟悉整个系统。</p><p>点击下一步或者键盘方向键可以控制页面引导</p><p>点击页面右上角问号可以重新查看</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">futureD数据管理与分析</div>

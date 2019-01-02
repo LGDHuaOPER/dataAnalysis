@@ -195,13 +195,14 @@ public class NumericalCalculator {
 	        if (op.getParamNumber() == 1) {
 	            firstValue = dataStack.pop();
 	        } else {
+	        
 	            secondValue = dataStack.pop();
-	            System.out.println("op=========="+op);
-	            System.out.println("secondValue=========="+secondValue);
+	        	//System.out.println("firstValue"+firstValue);
+	        	System.out.println("secondValue===="+secondValue);
+	        	System.out.println("op===="+op);
 	            firstValue = dataStack.pop();
 	        }
-//System.out.println("firstValue"+firstValue);
-//System.out.println("secondValue"+secondValue);
+
 	        double result;
 	        switch (op){
 	            case ADD:result = firstValue.add(secondValue).doubleValue(); break;

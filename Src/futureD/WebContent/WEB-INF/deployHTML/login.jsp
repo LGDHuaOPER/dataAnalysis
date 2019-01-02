@@ -71,10 +71,10 @@
 	<script src="assets/script/libs/sweetalert2.min.js"></script>
 	<script src="assets/script/libs/a_polyfill_for_ES6_Promises_for_IE11_and_Android.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-4f6f2ba7b8.min.js"></script>
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 	
-	<script src="dist/script/modules/login/login-7f96311dbf.min.js"></script>
+	<script src="dist/script/modules/login/login-1590afa8bb.min.js"></script>
 </body>
 </html>

@@ -411,7 +411,7 @@ public class ExcelParser {
 								} else if (isNum2.matches()) {
 								} else if ("infinity".equals(value)) {
 									value = "9E31";
-								} else {
+								} else if("".equals(value.trim())){
 									value = null;
 								}
 								att[5+j-init+1] = value;
@@ -433,7 +433,7 @@ public class ExcelParser {
 								} else if (isNum2.matches()) {
 								} else if ("infinity".equals(value)) {
 									value = "9E31";
-								} else {
+								} else if("".equals(value.trim())){
 									value = null;
 								}
 								att[5+j-init+1] = value;
@@ -470,7 +470,7 @@ public class ExcelParser {
 								} else if (isNum2.matches()) {
 								} else if ("infinity".equals(value)) {
 									value = "9E31";
-								} else {
+								} else if("".equals(value.trim())){
 									value = null;
 								}
 								att[5+j-init+1] = value;
@@ -492,7 +492,7 @@ public class ExcelParser {
 								} else if (isNum2.matches()) {
 								} else if ("infinity".equals(value)) {
 									value = "9E31";
-								} else {
+								} else if("".equals(value.trim())){
 									value = null;
 								}
 								System.out.println(init+"init"+length+"length:"+(5+j-init+1));

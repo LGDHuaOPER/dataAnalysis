@@ -56,10 +56,11 @@ public class MarkerSave extends HttpServlet {
 		boolean flag = false;
 		boolean flag2 = false;
 		AnalysisService service = new AnalysisServiceImpl();
-		if ("X".equals(markerKey)) {    //暂时禁用功能
+		if ("x".equals(markerKey)) {    //暂时禁用功能
 			flag = service.saveMarkerByX(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId), curveTypeStr, sParam);
 		}
-		if ("Y".equals(markerKey)) {
+		
+		if ("y".equals(markerKey)) {
 			if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 				flag = service.saveMarkerByY(Integer.parseInt(waferId), module, Integer.parseInt(coordinateId),subdieFlag,curveTypeStr, sParam);
 				
@@ -67,8 +68,10 @@ public class MarkerSave extends HttpServlet {
 
 			}else{
 				flag = service.saveMarkerByY(Integer.parseInt(waferId), module, Integer.parseInt(subdieId),subdieFlag,curveTypeStr, sParam);
-				
+				System.out.println("flag1===="+flag);
 				flag2 = service.updateSubdieCalculation(Integer.parseInt(waferId),Integer.parseInt(subdieId),sParam);
+				
+				System.out.println("flag2===="+flag2);
 
 			}
 		}

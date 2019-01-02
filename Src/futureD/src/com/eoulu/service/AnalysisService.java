@@ -126,6 +126,13 @@ public interface AnalysisService {
 	 * @return
 	 */
 	boolean updateSubdieCalculation(int waferId,int subdieId,String sParameter);
+	/**
+	 * 替换marker
+	 * @param typeIdStr
+	 * @param sParameter
+	 * @return
+	 */
+	String replaceFormula(String typeIdStr, String sParameter,String formula);
 	
 	/**
 	 * marker是否存在
@@ -135,6 +142,7 @@ public interface AnalysisService {
 	 * @param sParameter
 	 * @return
 	 */
+	
 	boolean getMarkerExsit(int waferId, String markerName, String module, String sParameter);
 	/**
 	 * 添加

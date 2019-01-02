@@ -22,7 +22,7 @@
 
 	<link rel="stylesheet" href="dist/style/modules/index/index-898d10b4bc.min.css">
 </head>
-<body data-curpage="index" data-curusername="${userName}" data-userauthority="${userAuthority}">
+<body data-curpage="index" data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l bootstro" data-bootstro-title="系统主页面引导：第一步" data-bootstro-content="<div class='well well-sm'><h4>欢迎来到futureD系统</h4><p>接下来我将带你熟悉整个系统。</p><p>点击下一步或者键盘方向键可以控制页面引导</p><p>点击页面右上角问号可以重新查看</p></div>" data-bootstro-placement="bottom" data-bootstro-html="true" data-bootstro-step="0">futureD数据管理与分析</div>
@@ -107,9 +107,9 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-4f6f2ba7b8.min.js"></script>
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 	
 	<script src="dist/script/modules/index/index-ad031da1a3.min.js"></script>
 </body>

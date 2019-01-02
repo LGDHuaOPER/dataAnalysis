@@ -22,7 +22,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/admin/admin.min.css -->
-	<link rel="stylesheet" href="src/style/modules/admin/admin.css" type="text/css"> 
+	<link rel="stylesheet" type="text/css" href="src/style/modules/admin/admin.css"> 
 	<!-- endbuild -->
 </head>
 <body data-curpage="admin" data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>

@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/index/index.min.css -->
-	<link rel="stylesheet" href="src/style/modules/index/index.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/index/index.css">
 	<!-- endbuild -->
 </head>
 <body data-curpage="index" data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>

@@ -192,6 +192,17 @@ $(".g_bodyin_bodyin_bottom_2, .g_bodyin_bodyin_bottom_rsubin").hide().css("opaci
 
 /*page onload*/
 $(function(){
+
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: {
+			"UserInstall": [$('.g_info_r .AdminOperat')],
+		},
+		getKey: 'url'
+	});
+	/*判断权限end*/
+	
+	
 	var selectwaferId = $("body").data("wafer").waferId;
 	var selectwaferNO = $("body").data("wafer").waferNO;
 	/*主页面csv文件渲染*/
@@ -429,5 +440,8 @@ $(document).on("blur", ".g_bodyin_bodyin_bottom_2 .g_bodyin_bodyin_bottom_lsub_m
 $(document).on("keyup", ".g_bodyin_bodyin_bottom_lsub_mid_equal input", function(){
 	$(this).val($(this).val().replace(/^(0+)|[^\d]+/g,''));
 });
-
+$(document).on("blur", ".g_bodyin_bodyin_bottom_lsub_mid_min input,.g_bodyin_bodyin_bottom_lsub_mid_max input", function(){
+	var reg = $(this).val().match(/^([+|-])?\d+(\.\d+)?([E|e][+|-]\d+)?$/);
+	reg == null ? $(this).val($(this).val().match(/([+|-])?\d+(\.\d+)?([E|e][+|-]\d+)?/)[0]): $(this).val($(this).val().match(/^([+|-])?\d+(\.\d+)?([E|e][+|-]\d+)?$/)[0]);
+});
 

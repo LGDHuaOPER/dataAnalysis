@@ -85,7 +85,7 @@
             }]
         }, {
             "pageName": "数据对比",
-            "weight": 5,
+            "weight": 4,
             "pageUrl": "DataCompare",
             "authority": [{
                 "name": "数据对比",
@@ -160,17 +160,27 @@
             }]
         }, {
             "pageName": "工程分析",
-            "weight": 4,
+            "weight": 5,
             "pageUrl": "ProjectAnalysis",
             "authority": [{
                 "name": "工程分析",
                 "value": 13,
                 "url": "ProjectAnalysis"
-            }, {
+            }]
+        }, {
+            "pageName": "RF-S2P分析",
+            "weight": 6,
+            "pageUrl": "Analysis",
+            "authority": [{
                 "name": "RF-S2P分析",
                 "value": 15,
                 "url": "Analysis"
-            }, {
+            }]
+        }, {
+            "pageName": "数据分析",
+            "weight": 7,
+            "pageUrl": "DataStatistics",
+            "authority": [{
                 "name": "数据分析",
                 "value": 16,
                 "url": "DataStatistics"
@@ -212,7 +222,7 @@
             }]
         }, {
             "pageName": "数据对比",
-            "weight": 5,
+            "weight": 4,
             "pageUrl": "DataCompare",
             "authority": [{
                 "name": "数据对比",
@@ -299,7 +309,7 @@
             }]
         }, {
             "pageName": "工程分析",
-            "weight": 4,
+            "weight": 5,
             "pageUrl": "ProjectAnalysis",
             "authority": [{
                 "name": "工程分析",
@@ -310,6 +320,32 @@
                 "value": 15,
                 "url": "Analysis"
             }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }, {
+            "pageName": "RF-S2P分析",
+            "weight": 6,
+            "pageUrl": "Analysis",
+            "authority": [{
+                "name": "RF-S2P分析",
+                "value": 15,
+                "url": "Analysis"
+            }, {
+                "name": "数据分析",
+                "value": 16,
+                "url": "DataStatistics"
+            }, {
+                "name": "管理员",
+                "value": 17,
+                "url": "UserInstall"
+            }]
+        }, {
+            "pageName": "数据分析",
+            "weight": 7,
+            "pageUrl": "DataStatistics",
+            "authority": [{
                 "name": "数据分析",
                 "value": 16,
                 "url": "DataStatistics"

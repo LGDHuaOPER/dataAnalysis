@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css" />
 
 	<!-- build:css ../../dist/style/modules/login/login.min.css -->
-	<link rel="stylesheet" href="src/style/modules/login/login.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/login/login.css">
 	<!-- endbuild -->
 </head>
 <body>
@@ -58,7 +58,7 @@
 	    						    				<button type="button" class="btn btn-info" data-env="offline">访客登录</button>
 	    				</div> -->
 	    				<div class="copy_div">
-	    					<span>版本号：V1.3.1.181224</span>
+	    					<span>版本号：V1.3.2.181229</span>
 	    				</div>
 	    			</div><!-- container-fluid end -->
 	    		</fieldset>

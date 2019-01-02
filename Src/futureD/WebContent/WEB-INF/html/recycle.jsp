@@ -24,7 +24,7 @@
 	<link rel="stylesheet" href="assets/style/common/futureDT2AddUpdate.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/recycle/recycle.min.css -->
-	<link rel="stylesheet" href="src/style/modules/recycle/recycle.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/recycle/recycle.css">
 	<!-- endbuild -->
 </head>
 <body data-curpage="recycle" data-curusername="${userName}" data-waferlist="${waferList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>

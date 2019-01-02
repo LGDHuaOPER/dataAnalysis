@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css" />
 
 	<!-- build:css ../../dist/style/modules/login/login.min.css -->
-	<link rel="stylesheet" href="src/style/modules/login/login.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/login/login.css">
 	<!-- endbuild -->
 </head>
 <body>

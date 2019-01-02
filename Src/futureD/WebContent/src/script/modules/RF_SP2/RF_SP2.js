@@ -535,7 +535,7 @@ RF_SP2Store.util.linkage = function(obj){
 };
 RF_SP2Store.util.renderNav = function(obj){
 	var str = '';
-	var item = obj.item == "RF-S2P" ? "S2P" : obj.item, 
+	var item = obj.item == "RF-S2P" ? "SP2" : obj.item, 
 	type = obj.type, 
 	inde = obj.index;
 	if(type == "g_bodyin_bodyin_bottom_1"){
@@ -1416,10 +1416,10 @@ function markerJoinCalc(str){
 		var delayArr = str.match(new RegExp(iv.markerName+"\\."+"X", "g"));
 		var delayArr2 = str.match(new RegExp(iv.markerName+"\\."+"Y", "g"));
 		_.forEach(delayArr, function(vv, ii){
-			str = str.replace(vv, iv.x);
+			str = str.replace(vv, "("+iv.x+")");
 		});
 		_.forEach(delayArr2, function(vv, ii){
-			str = str.replace(vv, iv.y);
+			str = str.replace(vv, "("+iv.y+")");
 		});
 	});
 	return str;
@@ -1692,6 +1692,7 @@ $(function(){
 		}).then(function(){
 			eouluGlobal.S_settingURLParam({}, false, false, false, "ProjectAnalysis");
 		});
+		return false;
 	}else{
 		RF_SP2Store.ajax.AnalysisFile({
 			wafer: wafer,
@@ -1730,6 +1731,15 @@ $(function(){
 			}
 		});
 	}
+	/*判断权限*/
+	eouluGlobal.C_pageAuthorityCommonHandler({
+		authorityJQDomMap: {
+			"UserInstall": [$('.g_info_r .AdminOperat')],
+			"DataStatistics": [$(".g_bodyin_tit_r>.glyphicon-stats")]
+		},
+		getKey: 'url'
+	});
+	/*判断权限end*/
 	/*导航栏*/
 	RF_SP2Store.util.renderNav({
 		item: RF_SP2Store.stateObj.navCurveType,
@@ -2418,7 +2428,8 @@ $(document).on({
 })
 .on("click", ".subAddParam_footin>.btn-primary", function(){
 	// 公式、参数提交
-	var frontformula = $("#preview").data("frontformula");
+	var frontformula = $("#preview").data("frontformulahasmarker");
+	// var frontformula = $("#preview").data("frontformula");
 	if(_.isNil(frontformula) || _.eq(frontformula, "未填公式") || _.eq(frontformula, "公式有误")) return false;
 	var customParameter = $("#calc_text").val().trim(),
 	str = $("#clac_textarea").val();
@@ -2505,12 +2516,69 @@ $(document).on({
 				formula: formula,
 				subdieId: subdieId,
 				subdieFlag: subdieFlag,
-				oldParameter: oldParameter
+				oldParameter: oldParameter,
+				sParameter: RF_SP2Store.stateObj.TCFsParameter,
+				typeIdStr: _.reduce(findTCFWafer.selected, function(rest, v){
+					rest.push(v.curvetypeid);
+					return rest;
+				}, []).join()
 			},
 			dataType: 'json'
 		}).then(function(data1){
-			var result = data1.result;
-			if(_.isNil(result)){
+			var result = data1.result,
+			msg = data1.message;
+			if(_.keys(data1).length == 5){
+				if(_.isNil(result)){
+					RF_SP2SwalMixin({
+						title: addorupdate+"提示",
+						text: addorupdate+"失败",
+						type: "warning",
+						timer: 1900,
+						showConfirmButton: false
+					});
+				}else if(_.eq(result, "")){
+					RF_SP2SwalMixin({
+						title: addorupdate+"提示",
+						text: addorupdate+"失败，公式错误，请检查公式或先提交Marker",
+						type: "warning",
+						timer: 2500,
+						showConfirmButton: false
+					});
+				}else{
+					if(_.eq(msg, "自定义参数已存在") || _.eq(msg, "自定义参数为空")){
+						RF_SP2SwalMixin({
+							title: addorupdate+"提示",
+							text: addorupdate+"失败，"+msg,
+							type: "warning",
+							timer: 2000,
+							showConfirmButton: false
+						});
+					}else{
+						RF_SP2SwalMixin({
+							title: addorupdate+"提示",
+							text: addorupdate+"成功",
+							type: "success",
+							timer: 1900,
+							showConfirmButton: false
+						});
+						
+						if(_.isNaN(result)){
+							tr.children().eq(1).text("9E+37");
+						}else{
+							tr.children().eq(1).text(result);
+						}
+						tr.children().eq(0).text(customParameter);
+						tr.children().eq(2).text(str);
+						tr.data({
+							'oldparameter': data1.customParameter,
+							'olduserformula': userformula,
+							'ivalue': data1.calculationId
+						});
+						_.isNil(oldParameter) && $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
+						$(".subAddParam_footin>.btn-warning").trigger("click");
+					}
+				}
+			}else{
 				RF_SP2SwalMixin({
 					title: addorupdate+"提示",
 					text: addorupdate+"失败",
@@ -2518,29 +2586,6 @@ $(document).on({
 					timer: 1900,
 					showConfirmButton: false
 				});
-			}else{
-				RF_SP2SwalMixin({
-					title: addorupdate+"提示",
-					text: addorupdate+"成功",
-					type: "success",
-					timer: 1900,
-					showConfirmButton: false
-				});
-				
-				if(_.isNaN(result)){
-					tr.children().eq(1).text("9E+37");
-				}else{
-					tr.children().eq(1).text(result);
-				}
-				tr.children().eq(0).text(customParameter);
-				tr.children().eq(2).text(str);
-				tr.data({
-					'oldparameter': data1.customParameter,
-					'olduserformula': userformula,
-					'ivalue': data1.calculationId
-				});
-				_.isNil(oldParameter) && $(".g_bodyin_bodyin_bottom_lsub_bottom tbody").append('<tr class="canCalc"><td></td><td></td><td></td></tr>');
-				$(".subAddParam_footin>.btn-warning").trigger("click");
 			}
 		});
 	}else{
@@ -2630,20 +2675,39 @@ $("#clac_textarea").on("keydown", function(e){
 	eouluGlobal.S_setCaretPosition($("#clac_textarea")[0], eouluGlobal.S_getCaretPosition($("#clac_textarea")[0]));
 	// 预览值
 	if(old == "" || old.trim() == ""){
-		$("#preview").attr("title","未填公式").text("未填公式").data("frontformula", "未填公式");
+		$("#preview").attr("title", "未填公式").text("未填公式").data({
+			"frontformula": "未填公式",
+			"frontformulahasmarker": "未填公式"
+		});
 	}else{
-		old = markerJoinCalc(old);
-		old = markerMathCalc(old);
+		console.log(old)
+		// 保存含有marker点的
+		var oldHasMarker = markerMathCalc(old);
+		oldHasMarker = oldHasMarker.replace(/MarkMath\.E/g, 'Marke');
+		console.log(old)
+		// 保存替换marker的
+		var oldReplaceMarker = markerJoinCalc(old);
+		console.log(old)
+		console.log(oldReplaceMarker)
+		oldReplaceMarker = markerMathCalc(oldReplaceMarker);
+		console.log(old)
+		console.log(oldReplaceMarker)
 		try{
-			var iVal = eval(old);
+			var iVal = eval(oldReplaceMarker);
 			if(_.isNaN(iVal)){
 				$("#preview").attr("title","9E+37").text("9E+37");
 			}else{
 				$("#preview").attr("title",iVal).text(iVal.toFixed(2));
 			}
-			$("#preview").data("frontformula", old);
+			$("#preview").data({
+				"frontformula": oldReplaceMarker,
+				"frontformulahasmarker": oldHasMarker
+			});
 		}catch(err){
-			$("#preview").attr("title","公式有误").text("公式有误").data("frontformula", "公式有误");
+			$("#preview").attr("title","公式有误").text("公式有误").data({
+				"frontformula": "公式有误",
+				"frontformulahasmarker": "公式有误"
+			});
 		}
 	}
 });

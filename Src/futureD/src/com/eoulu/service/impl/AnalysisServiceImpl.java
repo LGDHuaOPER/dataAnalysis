@@ -188,7 +188,6 @@ public class AnalysisServiceImpl implements AnalysisService{
 				conn.rollback();
 				return flag;
 			}
-			//System.out.println("subdie=============="+SubdieFlagEnum.DIE.getCode());
 			if(subdieFlag.equals(SubdieFlagEnum.DIE.getCode())){
 				param = new Object[]{waferId};
 				String column = paramDao.getMaxColumn(conn,param);
@@ -225,10 +224,12 @@ public class AnalysisServiceImpl implements AnalysisService{
 				}
 				param = new Object[]{result,subdieId};
 				flag = new CoordinateDao().updateSubdieParamByMarker(conn, param, column);
+				
 				if(!flag){
 					conn.rollback();
 					return flag;
 				}
+				
 			}
 			
 			conn.commit();
@@ -337,7 +338,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			for(int j=0,size2=calList.size();j<size2;j++){
 				parameter = calList.get(j).get("custom_parameter").toString();
 				column = paramDao.getColumnByName(conn,parameter, waferId);
-				formula = calList.get(j).get("user_formula").toString();
+				formula = calList.get(j).get("calculate_formula").toString();
 				for(String key:map.keySet()){
 					pointX = map.get(key).get(0);
 					pointY = map.get(key).get(1);
@@ -367,7 +368,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		}finally {
 			db.close(conn);
 		}
-		return false;
+		return flag;
 	}
 	
 	@Override
@@ -387,7 +388,11 @@ public class AnalysisServiceImpl implements AnalysisService{
 		List<Integer> ls = null;
 
 		ls = curveDao.getSubdieId(conn, waferId);
-		
+		for (int i = 0, size = ls.size(); i < size; i++) {
+			dieId = ls.get(i);
+			System.out.println(dieId);
+		}
+			
 		Object[] param = null;
 		try {
 			conn.setAutoCommit(false);
@@ -401,7 +406,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 			for(int j=0,size2=calList.size();j<size2;j++){
 				parameter = calList.get(j).get("custom_parameter").toString();
 				column = paramDao.getSubdieColumn(conn,parameter, waferId);
-				formula = calList.get(j).get("user_formula").toString();
+				formula = calList.get(j).get("calculate_formula").toString();
 				for(String key:map.keySet()){
 					pointX = map.get(key).get(0);
 					pointY = map.get(key).get(1);
@@ -414,6 +419,9 @@ public class AnalysisServiceImpl implements AnalysisService{
 						formula = formula.replaceAll(key+".Y", pointY);
 					}
 				}
+				System.out.println("dieId"+dieId);
+				System.out.println("fofvffff"+formula);
+				System.out.println("column"+column);
 				result = NumericalCalculator.cal(formula).get("result").toString();
 				param = new Object[]{Double.parseDouble(result),dieId};
 				flag = new CoordinateDao().updateSubdieParamByMarker(conn,param, column);
@@ -431,7 +439,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		}finally {
 			db.close(conn);
 		}
-		return false;
+		return flag;
 	}
 	
 
@@ -497,7 +505,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					}
 					String[] markerAtt = (String[]) map.get(markerName);
 					param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0],
-							markerAtt[1], "X",sParameter };
+							markerAtt[1], "x",sParameter };
 					flag = smithDao.insertMarker(conn, param,db);
 					if (!flag) {
 						conn.rollback();
@@ -527,7 +535,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 		int curveTypeId = 0, num = 0, dieId = 0, curveTypeId2 = 0;
 		List<Map<String, Object>> list = null, smithList = null;
 		Map<String, Object> map = null;
-		List<String> limit = null;
+		List<Double> limit = null;
 		Object[] param = null;
 		String markerName = "", markerName2 = "";
 		double pointY = 0, max = 0, min = 0;
@@ -555,16 +563,17 @@ public class AnalysisServiceImpl implements AnalysisService{
 					num = smithDao.getSubdieRowNumber(conn, coordinateId, curveTypeId,db);
 					curveTypeId2 = smithDao.getSubdieCurveTypeId(conn, dieId, num,db);
 				}
-				
+			
 				
 				exsitFlag = smithDao.getMarkerExsit(conn, curveTypeId2,sParameter,db);
 				if(exsitFlag){
 					exsitFlag = smithDao.deleteMarkerById(conn, curveTypeId2,sParameter,db);
 				}
 				limit = smithDao.getMaxAndMin(conn, curveTypeId2, sParameter,db);
-				max = Double.parseDouble(limit.get(0));
-				min = Double.parseDouble(limit.get(1));
+				max = limit.get(0);
+				min = limit.get(1);
 				smithList = smithDao.getMarkerSmithData(conn, curveTypeId2, sParameter,db);
+
 				markerName2 = "";
 				
 				if (list.size() > 1) {
@@ -604,7 +613,7 @@ public class AnalysisServiceImpl implements AnalysisService{
 					map.put(markerName2, new String[] { "NaN", "NaN" });
 				}
 				String[] markerAtt = (String[]) map.get(markerName);
-				param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0], markerAtt[1], "Y",sParameter };
+				param = new Object[] { waferId, curveTypeId2, module, markerName, markerAtt[0], markerAtt[1], "y",sParameter };
 				flag = smithDao.insertMarker(conn, param,db);
 				if (!flag) {
 					conn.rollback();
@@ -612,12 +621,14 @@ public class AnalysisServiceImpl implements AnalysisService{
 				}
 				String[] markerAtt2 = (String[]) map.get(markerName2);
 				param = new Object[] { waferId, curveTypeId2, module, markerName2, markerAtt2[0], markerAtt2[1],
-						"Y",sParameter };
+						"y",sParameter };
 				flag = smithDao.insertMarker(conn, param,db);
 				if (!flag) {
 					conn.rollback();
 					return flag;
 				}
+	
+
 				
 
 			}
@@ -818,6 +829,28 @@ public class AnalysisServiceImpl implements AnalysisService{
 			return true;
 		}
 		return smithDao.deleteMarker(curveTypeId,db,sParameter);
+	}
+
+	@Override
+	public String replaceFormula(String typeIdStr, String sParameter,String formula) {
+		SmithDao smithDao = new SmithDao();
+		DataBaseUtil db = DataBaseUtil.getInstance();
+		Connection conn = db.getConnection();
+		Map<String,List<String>>map = smithDao.getAllMarker(conn, typeIdStr,sParameter,db);
+		String pointX="",pointY="";
+		for(String key:map.keySet()){
+			pointX = map.get(key).get(0);
+			pointY = map.get(key).get(1);
+			pointX = "NaN".equals(pointX)?"9E37":pointX;
+			pointY = "NaN".equals(pointY)?"9E37":pointY;
+			if(formula.contains(key+".X")){
+				formula = formula.replaceAll(key+".X", pointX);
+			}
+			if(formula.contains(key+".Y")){
+				formula = formula.replaceAll(key+".Y", pointY);
+			}
+		}
+		return formula;
 	}
 
 

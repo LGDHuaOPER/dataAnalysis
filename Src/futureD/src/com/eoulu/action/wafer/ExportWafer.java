@@ -39,7 +39,7 @@ public class ExportWafer extends HttpServlet {
 				waferNO = request.getParameter("waferNO") == null ? "" : request.getParameter("waferNO").trim();
 		StringBuffer wholePath = request.getRequestURL();
 		String servletPath = request.getServletPath();
-		String path = request.getServletContext().getRealPath("/")+"down\\";
+		String path = request.getServletContext().getRealPath("/")+"down/";
 		System.out.println(path);
 		path=URLDecoder.decode(path,"gbk");
 		File file = new File(path);

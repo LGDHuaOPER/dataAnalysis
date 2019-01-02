@@ -25,7 +25,7 @@
 
 	<link rel="stylesheet" href="dist/style/modules/RF_SP2/RF_SP2-0660fdf6ea.min.css">
 </head>
-<body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}'>
+<body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}' data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -53,7 +53,7 @@
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
 					  	<li><a href="ProjectAnalysis">工程分析</a></li>
-					  	<li class="active">RF-SP2分析</li>
+					  	<li class="active">RF-S2P分析</li>
 					</ol>
 					<span class="glyphicon glyphicon-stats" aria-hidden="true" title="进入数据统计功能"></span>
 				</div>
@@ -316,14 +316,15 @@
 	<!-- 额外内容 -->
 	<div class="RF_SP2_cover"></div>
 	<div class="subAddParam">
-		<div class="subAddParam_tit">添加参数<span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+		<div class="subAddParam_tit">添加/修改参数<span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
 		<div class="subAddParam_body">
 			<div class="container-fluid">
 				<div class="row addParam">
 					<div class="col-sm-4 col-md-2 col-lg-2">参数名称</div>
-					<div class="col-sm-8 col-md-8 col-lg-8">
+					<div class="col-sm-5 col-md-5 col-lg-5">
 						<input type="text" class="form-control" id="calc_text"><button type="button" class="btn btn-default awesomplete_btn" aria-label="Left Align"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></button>
 					</div>
+					<div class="col-sm-3 col-md-5 col-lg-5 parammessage"></div>
 				</div>
 				<div class="row">
 					<div class="col-sm-4 col-md-2 col-lg-2">表达式
@@ -357,7 +358,7 @@
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="(" data-ivalue="(" data-ipos="0">(</div></div>
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue=")" data-ivalue=")" data-ipos="0">)</div></div>
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="x的N次方根，规则：(N)√(x)" data-backvalue="sqrt(,)" data-ivalue="()√()" data-ipos="-4">√</div></div>
-									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="打开/关闭数组软键盘" data-backvalue="Number">Num</div></div>
+									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" title="打开/关闭数组软键盘" data-backvalue="Number" data-ivalue="Number">Num</div></div>
 								</div>
 								<div class="row toggleRow">
 									<div class="col-sm-3 col-md-3 col-lg-3"><div class="clac_item" data-backvalue="0" data-ivalue="0" data-ipos="0">0</div></div>
@@ -520,12 +521,12 @@
 	
 	<script src="dist/script/modules/common/drawingSmith-42fb909dbf.min.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-4f6f2ba7b8.min.js"></script>
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2-ef64398031.min.js"></script>
+	<script src="dist/script/modules/RF_SP2/RF_SP2-2cf2f31264.min.js"></script>
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2_render-7d3ab11eda.min.js"></script>
+	<script src="dist/script/modules/RF_SP2/RF_SP2_render-5fe908f4eb.min.js"></script>
 </body>
 </html>

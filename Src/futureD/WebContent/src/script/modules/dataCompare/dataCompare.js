@@ -1378,7 +1378,7 @@ function dataCompareRenderData(currentPage){
 		   			var ii = v.wafer_id;
 		   			if(!v.test_operator){var test_operator = ""}else{var test_operator = v.test_operator};
 		   			str+='<tr>'+
-		   					'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+
+		   					'<td class="not_search"><input type="checkbox" data-ivalue="'+ii+'"></td>'+	
 		   					'<td class="product_category" data-itext="'+v.product_category+'">'+v.product_category+'</td>'+
 		   					'<td class="device_number" data-itext="'+v.device_number+'">'+v.device_number+'</td>'+
 		   					'<td class="lot_number" data-itext="'+v.lot_number+'">'+v.lot_number+'</td>'+
@@ -1807,12 +1807,12 @@ $(function(){
 	
 	/*判断权限*/
 	eouluGlobal.C_pageAuthorityCommonHandler({
-		authorityJQDomMap: _.cloneDeep({
-			"管理员": [$('.g_info_r  .AdminOperat')],
-		}),
+		authorityJQDomMap: {
+			"UserInstall": [$('.g_info_r .AdminOperat')],
+		},
+		getKey: 'url'
 	});
 	/*判断权限end*/
-	
 	
 	$(".breadcrumb li:eq(0) a ").attr("href","./HomeInterface");
 	/*判断是否有选中*/

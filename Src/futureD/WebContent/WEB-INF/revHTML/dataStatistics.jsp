@@ -21,10 +21,10 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/dataStatistics/dataStatistics.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataStatistics/dataStatistics.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/dataStatistics/dataStatistics.css">
 	<!-- endbuild -->
 </head>
-<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
+<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}' data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

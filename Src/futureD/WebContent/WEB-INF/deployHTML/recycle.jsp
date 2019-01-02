@@ -25,7 +25,7 @@
 
 	<link rel="stylesheet" href="dist/style/modules/recycle/recycle-aafe4cb091.min.css">
 </head>
-<body data-curpage="recycle" data-curusername="${userName}" data-waferlist="${waferList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}">
+<body data-curpage="recycle" data-curusername="${userName}" data-waferlist="${waferList}" data-currentpage="${currentPage}" data-totalpage="${totalPage}" data-totalcount="${totalCount}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -138,9 +138,9 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-4f6f2ba7b8.min.js"></script>
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 
 	<script src="dist/script/modules/recycle/recycle-a23be16c8a.min.js"></script>
 </body>

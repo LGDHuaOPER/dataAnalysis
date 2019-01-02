@@ -91,10 +91,10 @@ public class ZipFileParser {
 		// 若是一个文件夹。
 		File file1 = null;
 		if(filePath.endsWith(".zip")){
-			file1 = FileUtil.unZip(filePath, temp + "\\" + filename2);
+			file1 = FileUtil.unZip(filePath, temp + "/" + filename2);
 		}
 		if(filePath.endsWith(".rar")){
-			file1 = FileUtil.unRar(filePath, temp + "\\" + filename2);
+			file1 = FileUtil.unRar(filePath, temp + "/" + filename2);
 		}
 //		System.out.println(file1.getName());
 //		if ("0".equals(dataFormat)) {
@@ -352,99 +352,99 @@ public class ZipFileParser {
 //		System.out.println("status:"+status);
 		switch (status) {
 		case "上传失败，目标文件内容有误！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(内容有误)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(内容有误)";
 			break;
 		// 文件已经上传
 		case "文件已经上传！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(已上传)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(已上传)";
 			break;
 		case "上传失败，文件中的晶圆编号为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(晶圆编号为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(晶圆编号为空)";
 			break;
 		case "上传失败，文件中缺失编号坐标X轴增长方向！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失编号坐标X轴增长方向)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失编号坐标X轴增长方向)";
 			break;
 		case "上传失败，文件中缺失编号坐标Y轴增长方向！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失编号坐标Y轴增长方向)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失编号坐标Y轴增长方向)";
 			break;
 		case "上传失败，文件中缺失晶圆图坐标X轴增长方向！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失晶圆图坐标X轴增长方向)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失晶圆图坐标X轴增长方向)";
 			break;
 		case "上传失败，文件中缺失晶圆图坐标Y轴增长方向！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失晶圆图坐标Y轴增长方向)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失晶圆图坐标Y轴增长方向)";
 			break;
 		case "上传失败，文件中缺失晶圆图参考Die的X坐标！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失晶圆图参考Die的X坐标)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失晶圆图参考Die的X坐标)";
 			break;
 		case "上传失败，文件中缺失晶圆图参考Die的Y坐标！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失晶圆图参考Die的Y坐标)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失晶圆图参考Die的Y坐标)";
 			break;
 		case "上传失败，文件中缺失晶圆图参考Die编号的X坐标！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失晶圆图参考Die编号的X坐标)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失晶圆图参考Die编号的X坐标)";
 			break;
 		case "上传失败，文件中缺失晶圆图参考Die编号的Y坐标！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(缺失晶圆图参考Die编号的Y坐标)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(缺失晶圆图参考Die编号的Y坐标)";
 			break;
 		case "上传失败，文件中的测试人员为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(测试人员为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(测试人员为空)";
 			break;
 		case "上传失败，文件中的设备编号为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(设备编号为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(设备编号为空)";
 			break;
 		case "上传失败，文件中的批次编号为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(批次编号为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(批次编号为空)";
 			break;
 		case "上传失败，文件中的DieType存在空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(DieType存在空值)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(DieType存在空值)";
 			break;
 		case "上传失败，文件中的DieX存在空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(DieX存在空值)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(DieX存在空值)";
 			break;
 		case "上传失败，文件中的DieY存在空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(DieY存在空值)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(DieY存在空值)";
 			break;
 		case "上传失败，文件中的Bin值存在空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(Bin值存在空值)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(Bin值存在空值)";
 			break;
 		// 缺少map文件
 		case "上传失败，导入目标文件前没有导入对应的map文件！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(没有map文件)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(没有map文件)";
 			break;
 		case "上传失败，文件中参数的上下限填写不完整！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(上下限不完整)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(上下限不完整)";
 			break;
 		case "上传失败，文件中位置坐标(Coordinate)格式不正确！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(Coordinate格式有误)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(Coordinate格式有误)";
 			break;
 		case "上传失败，文件中字母坐标格式不正确！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(字母坐标格式有误)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(字母坐标格式有误)";
 			break;
 		case "上传失败，文件中FileName为空！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(FileName为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(FileName为空)";
 			break;
 		case "上传失败，文件中TesttotalTime为空！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(TesttotalTime为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(TesttotalTime为空)";
 			break;
 		case "上传失败，文件中参数名称存在空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(参数名存在空值)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(参数名存在空值)";
 			break;
 		case "success":
 			name = "success";
 			break;
 		case "重复数据":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(重复数据)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(重复数据)";
 			break;
 		case "上传失败，文件中的Diameter为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(Diameter为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(Diameter为空)";
 			break;
 		case "上传失败，文件中的DieSizeX为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(DieSizeX为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(DieSizeX为空)";
 			break;
 		case "上传失败，文件中的DieSizeY为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(DieSizeY为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(DieSizeY为空)";
 			break;
 		case "上传失败，文件中的FlatLength为空值！":
-			name = filename.substring(filename.lastIndexOf("\\") + 1) + "(FlatLength为空)";
+			name = filename.substring(filename.lastIndexOf("/") + 1) + "(FlatLength为空)";
 			break;
 		default:
 			if(status.contains("文件夹")){

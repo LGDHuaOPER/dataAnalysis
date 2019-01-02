@@ -22,11 +22,11 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	
 	<!-- build:css ../../dist/style/modules/dataCompare/dataCompare.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/dataCompare/dataCompare.css">
 	<!-- endbuild -->
 	
 </head>
-<body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" >
+<body data-curpage="dataCompare" data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

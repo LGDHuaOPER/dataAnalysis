@@ -208,7 +208,7 @@ public class CurveDao {
 	
 	public List<Integer> getCoordinateId(Connection conn,int waferId){
 		List<Integer> ls = new ArrayList<>();
-		String sql = "select distinct coordinate_id from dm_curve_type  where wafer_id=?";
+		String sql = "select distinct coordinate_id from dm_curve_type  where wafer_id=? and curve_file_type=1";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, waferId);
@@ -225,7 +225,7 @@ public class CurveDao {
 	
 	public List<Integer> getSubdieId(Connection conn,int waferId){
 		List<Integer> ls = new ArrayList<>();
-		String sql = "select distinct subdie_id from dm_curve_type  where wafer_id=?";
+		String sql = "select distinct subdie_id from dm_curve_type  where wafer_id=? and curve_file_type=1";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, waferId);

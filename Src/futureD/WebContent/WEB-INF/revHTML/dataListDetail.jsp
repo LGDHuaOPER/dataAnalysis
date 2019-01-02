@@ -22,11 +22,11 @@
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/dataListDetail/dataListDetail.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/dataListDetail/dataListDetail.css">
 	<!-- endbuild -->
 
 </head>
-<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}">
+<body data-curpage="dataListDetail" data-curusername='${userName}' data-result='${result}' data-webparam='${webParam}' data-waferid='${waferId}' data-dataformat='${dataFormat}' data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>

@@ -50,10 +50,10 @@ public class FileUtil {
 		public Map<String, Object> getPath() throws UnsupportedEncodingException{
 			Map<String, Object> resultMap=new HashMap<String, Object>();
 			Date date=new Date();
-			String path4 = Thread.currentThread().getContextClassLoader().getResource("../../").getPath()+date.getTime()+"\\";
+			String path4 = Thread.currentThread().getContextClassLoader().getResource("../../").getPath()+date.getTime()+"/";
 			String temp=path4;
-			String tempPath =temp+"EOULU\\file\\";//zip压缩文件
-			String path=temp+"EOULU\\file1";//缓存文件
+			String tempPath =temp+"EOULU/file/";//zip压缩文件
+			String path=temp+"EOULU/file1";//缓存文件
 			path=URLDecoder.decode(temp,"gbk");
 		    File file = new File(tempPath);
 		    File file01 = new File(path);

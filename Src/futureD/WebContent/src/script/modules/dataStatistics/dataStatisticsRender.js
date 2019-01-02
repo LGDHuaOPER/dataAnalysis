@@ -686,6 +686,15 @@ function ajax_all_chart(obj){
 				for(var _p = 0 ; _p<data[curWaferID[0]].waferList.length ; _p++){
 					paramsArr.push(data[curWaferID[0]].waferList[_p].parameter);
 				}
+				paramsArr = _.sortBy(paramsArr, function(vv, ii){
+					var returnV;
+					if(_.isNil(vv.match(/\d+/))) {
+						returnV = 0;
+					}else{
+						returnV = _.toNumber(vv.match(/\d+/)[0]);
+					}
+					return returnV;
+				});
 			}
 			else{
 				if(["correlationgraph"].indexOf(whenArrItem.classify) > -1){
@@ -706,6 +715,7 @@ function ajax_all_chart(obj){
 						}
 						return returnV;
 					});
+					
 				}
 			}	
 			var IDParamObjArr = buildParameterChartContainer({
@@ -920,7 +930,7 @@ function buildParameterChartContainer(obj){
 
 /*map色阶分布图绘制*/
 function draw_map_color_order_distribution(obj){
-	console.log("draw_map_color_order_distribution",obj);
+	//console.log("draw_map_color_order_distribution",obj);
 	/*获取参数*/
 	var data = obj.data;
 	var IDParamObj = obj.IDParamObj;
@@ -930,7 +940,7 @@ function draw_map_color_order_distribution(obj){
 	waferData = _.find(data, function(v, k){
 		return _.toString(k) == _.toString(waferNO);
 	})
-	console.log("waferData",waferData);
+	//console.log("waferData",waferData);
 	dieData = [],
 	subdieData = [],
 	currentDieItem = _.find(waferData.waferList, function(v, k){

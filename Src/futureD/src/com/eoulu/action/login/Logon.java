@@ -29,7 +29,10 @@ public class Logon extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
-		session.invalidate();
+		if(session !=null){
+			session.invalidate();
+		}
+	
 		response.getWriter().write(new Gson().toJson("OK"));
 //		request.getRequestDispatcher("").forward(request, response);
 	}

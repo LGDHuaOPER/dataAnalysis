@@ -22,7 +22,7 @@
 
 	<link rel="stylesheet" href="dist/style/modules/dataStatistics/dataStatistics-0dd084159d.min.css">
 </head>
-<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}'  >
+<body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}' data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -243,9 +243,9 @@
 
 	<script src="dist/script/modules/common/drawWaferMap-53d71b3ba0.min.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-4f6f2ba7b8.min.js"></script>
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 
 	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-b6de4d9760.min.js"></script>
 

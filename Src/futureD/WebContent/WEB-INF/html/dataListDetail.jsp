@@ -22,7 +22,7 @@
 	<link rel="stylesheet" href="assets/style/libs/jquery.contextMenu.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/dataListDetail/dataListDetail.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataListDetail/dataListDetail.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/dataListDetail/dataListDetail.css">
 	<!-- endbuild -->
 
 </head>

@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/dataStatistics/dataStatistics.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataStatistics/dataStatistics.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/dataStatistics/dataStatistics.css">
 	<!-- endbuild -->
 </head>
 <body data-curpage="dataStatistics" data-userauthority="${userAuthority}"  data-curusername="${userName}" data-wafer='${datas}' data-loginstatus='${loginStatus}'>
@@ -54,7 +54,7 @@
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
 					  	<li><a href="ProjectAnalysis">工程分析</a></li>
-					  	<li><a class="RF_SP2" >RF-SP2分析</a></li>
+					  	<li><a class="RF_SP2" >RF-S2P分析</a></li>
 					  	<li class="active">数据统计</li>
 					</ol>
 					<span class="glyphicon glyphicon glyphicon-share-alt" aria-hidden="true" title="返回" data-ipage="g_bodyin_bodyin_bottom_1"></span>

@@ -165,17 +165,17 @@ public class SmithDao {
 		String condition = "";
 		switch (parameter) {
 		case "S11":
-			condition = ",format(-20*log10(real_part_s11),2) y  ";
+			condition = ",round((20*log10(sqrt(real_part_s11*real_part_s11+imaginary_part_s11*imaginary_part_s11))),2) y";
 			break;
 
 		case "S12":
-			condition =  ",format(-20*log10(real_part_s12),2) y  ";
+			condition =  ",round((20*log10(sqrt(real_part_s12*real_part_s12+imaginary_part_s12*imaginary_part_s12))),2) y";
 			break;
 		case "S21":
-			condition =  ",format(-20*log10(real_part_s21),2) y  ";
+			condition =  ",round((20*log10(sqrt(real_part_s21*real_part_s21+imaginary_part_s21*imaginary_part_s21))),2) y";
 			break;
 		case "S22":
-			condition =  ",format(-20*log10(real_part_s22),2) y  ";
+			condition =  ",round((20*log10(sqrt(real_part_s22*real_part_s22+imaginary_part_s22*imaginary_part_s22))),2) y";
 			break;
 		}
 		String sql = "select frequency x"+condition+" from dm_smith_data where curve_type_id=?  order by frequency";
@@ -239,7 +239,17 @@ public class SmithDao {
 	
 	public boolean deleteMarkerById(Connection conn,int curveTypeId,String sParam,DataBaseUtil db){
 		String sql = "delete from dm_marker_data where curve_type_id=? and s_parameter = ?";
-		return db.operate(sql, new Object[]{curveTypeId,sParam});
+		try {
+			PreparedStatement pStatement = conn.prepareStatement(sql);
+			pStatement.setInt(1, curveTypeId);
+			pStatement.setString(2, sParam);
+			return pStatement.execute();
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 	
 	public List<Map<String,Object>> getMarkerByTypeId(Connection conn,int curveTypeId,String sParameter,DataBaseUtil db){
@@ -265,7 +275,7 @@ public class SmithDao {
 	}
 	
 	public String getSubdieTypeIdStr(Connection conn,int subdieId,DataBaseUtil db){
-		String sql = "select curve_type_id from dm_curve_type where subdieId=?";
+		String sql = "select curve_type_id from dm_curve_type where subdie_id=?";
 		List<String> ls = db.queryList(conn, sql, new Object[]{subdieId});
 		String result = "";
 		for(String str:ls){
@@ -303,8 +313,9 @@ public class SmithDao {
 	 * @param sParameter
 	 * @return
 	 */
-	public List<String> getMaxAndMin(Connection conn,int curveTypeId,String sParameter,DataBaseUtil db){
+	public List<Double> getMaxAndMin(Connection conn,int curveTypeId,String sParameter,DataBaseUtil db){
 		String condition = "";
+		List<Double> list = new ArrayList<>();
 		switch (sParameter) {
 		case "S11":
 			condition = "format(-20*log10(real_part_s11),2)  ";
@@ -321,7 +332,21 @@ public class SmithDao {
 			break;
 		}
 		String sql = "select max("+condition+") max,min("+condition+") min from dm_smith_data where curve_type_id=?";
-		return db.queryList(conn, sql, new Object[]{curveTypeId});
+		PreparedStatement pStatement = null;
+		try {
+			pStatement = conn.prepareStatement(sql);
+			pStatement.setInt(1, curveTypeId);
+			ResultSet rSet = pStatement.executeQuery();
+			while (rSet.next()) {
+				list.add(rSet.getDouble(1));
+				list.add(rSet.getDouble(2));
+				
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+		
 	}
 	
 	/**
@@ -427,8 +452,8 @@ public class SmithDao {
 	}
 	
 	public List<Map<String,Object>> getCalculation(Connection conn,int waferId,String module,DataBaseUtil db){
-		String sql = "select custom_parameter,user_formula from dm_marker_calculation where wafer_id=? and module=?";
-		return db.queryToList(conn,sql, new Object[]{waferId});
+		String sql = "select custom_parameter,calculate_formula from dm_marker_calculation where wafer_id=? and module=?";
+		return db.queryToList(conn,sql, new Object[]{waferId,module});
 	}
 	
 	/**
@@ -456,7 +481,7 @@ public class SmithDao {
 	 * @return
 	 */
 	public int getSubdieRowNumber(Connection conn,int subdieId,int curveTypeId,DataBaseUtil db){
-		String sql = "select c.rowno from "
+		String sql = "select cast(c.rowno as SIGNED) rowno from "
 				+ "(select dm_curve_type.curve_type_id ,(@rowno:=@rowno+1) as rowno from dm_curve_type,(select (@rowno:=0)) b "
 				+ "where subdie_id=? and curve_file_type=1 order  by curve_type_id)c where c.curve_type_id=?";
 		Object[] param = new Object[]{subdieId,curveTypeId};

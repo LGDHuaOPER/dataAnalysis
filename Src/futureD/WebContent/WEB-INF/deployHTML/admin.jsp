@@ -23,7 +23,7 @@
 
 	<link rel="stylesheet" href="dist/style/modules/admin/admin-28d9e5204b.min.css">
 </head>
-<body data-curpage="admin" data-curusername="${userName}" data-userauthority="${userAuthority}">
+<body data-curpage="admin" data-curusername="${userName}" data-userauthority="${userAuthority}" data-loginstatus='${loginStatus}'>
 	<div class="g_logo"><img src="assets/img/modules/dataList/logo.png" alt="logo"></div>
 	<div class="g_info">
 		<div class="g_info_l">futureD数据管理与分析</div>
@@ -337,9 +337,9 @@
 	<script src="assets/script/libs/bootstro.js"></script>
 	<script src="assets/script/common/futureD_bootstro.js"></script>
 
-	<script src="dist/script/modules/common/futureD_config-1fd77e7532.min.js"></script>
+	<script src="dist/script/modules/common/futureD_config-4f6f2ba7b8.min.js"></script>
 
-	<script src="dist/script/modules/common/globalConf-96187585ff.min.js"></script>
+	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 	
 	<script src="dist/script/modules/admin/admin-433a472408.min.js"></script>
 </body>

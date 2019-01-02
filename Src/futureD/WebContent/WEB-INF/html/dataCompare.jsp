@@ -22,7 +22,7 @@
 	<link rel="stylesheet" href="assets/style/libs/animate.min.css" type="text/css">
 	
 	<!-- build:css ../../dist/style/modules/dataCompare/dataCompare.min.css -->
-	<link rel="stylesheet" href="src/style/modules/dataCompare/dataCompare.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/dataCompare/dataCompare.css">
 	<!-- endbuild -->
 	
 </head>

@@ -103,9 +103,9 @@ public class BaseEncrypt {
         // 加密
         String enString = BaseEncrypt.Encrypt("jdbc:mysql://localhost:3306/futured_v2?useUnicode=true&characterEncoding=utf-8", cKey);
         System.out.println("加密后的字串是：" + enString);
-        String user = BaseEncrypt.Encrypt("admin", cKey);
+        String user = BaseEncrypt.Encrypt("root", cKey);
         System.out.println("加密后的字串是：" + user);
-        String password = BaseEncrypt.Encrypt("eoulu2015", cKey);
+        String password = BaseEncrypt.Encrypt("9ol.8ik,", cKey);
         System.out.println("加密后的字串是：" + password);
 
         // 解密

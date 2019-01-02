@@ -24,7 +24,7 @@
 	<link rel="stylesheet" href="assets/style/libs/jquery-ui/jquery-ui-Draggable_Droppable.min.css" type="text/css">
 
 	<!-- build:css ../../dist/style/modules/RF_SP2/RF_SP2.min.css -->
-	<link rel="stylesheet" href="src/style/modules/RF_SP2/RF_SP2.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="src/style/modules/RF_SP2/RF_SP2.css">
 	<!-- endbuild -->
 </head>
 <body data-curpage="RF_SP2" data-curusername="${userName}" data-userauthority="${userAuthority}" data-wafer='${wafer}' data-loginstatus='${loginStatus}'>
@@ -55,7 +55,7 @@
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
 					  	<li><a href="ProjectAnalysis">工程分析</a></li>
-					  	<li class="active">RF-SP2分析</li>
+					  	<li class="active">RF-S2P分析</li>
 					</ol>
 					<span class="glyphicon glyphicon-stats" aria-hidden="true" title="进入数据统计功能"></span>
 				</div>
