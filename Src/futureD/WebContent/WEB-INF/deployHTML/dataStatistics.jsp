@@ -52,7 +52,7 @@
 					<ol class="breadcrumb">
 					  	<li><a href="HomeInterface">系统主页面</a></li>
 					  	<li><a href="ProjectAnalysis">工程分析</a></li>
-					  	<li><a class="RF_SP2" >RF-SP2分析</a></li>
+					  	<li><a class="RF_SP2" >RF-S2P分析</a></li>
 					  	<li class="active">数据统计</li>
 					</ol>
 					<span class="glyphicon glyphicon glyphicon-share-alt" aria-hidden="true" title="返回" data-ipage="g_bodyin_bodyin_bottom_1"></span>
@@ -247,8 +247,8 @@
 
 	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 
-	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-b6de4d9760.min.js"></script>
+	<script src="dist/script/modules/dataStatistics/dataStatisticsRender-176d5f0569.min.js"></script>
 
-	<script src="dist/script/modules/dataStatistics/dataStatistics-10f713afe9.min.js"></script>
+	<script src="dist/script/modules/dataStatistics/dataStatistics-ab6c2b21cf.min.js"></script>
 </body>
 </html>

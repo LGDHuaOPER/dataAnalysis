@@ -58,7 +58,7 @@
 	    						    				<button type="button" class="btn btn-info" data-env="offline">访客登录</button>
 	    				</div> -->
 	    				<div class="copy_div">
-	    					<span>版本号：V1.3.1.181224</span>
+	    					<span id="VNStr" data-ivnstr="vnstr">版本号：V1.0.0.190104</span>
 	    				</div>
 	    			</div><!-- container-fluid end -->
 	    		</fieldset>

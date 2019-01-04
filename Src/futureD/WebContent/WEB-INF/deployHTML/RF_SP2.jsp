@@ -525,7 +525,7 @@
 
 	<script src="dist/script/modules/common/globalConf-fb37273e5e.min.js"></script>
 
-	<script src="dist/script/modules/RF_SP2/RF_SP2-2cf2f31264.min.js"></script>
+	<script src="dist/script/modules/RF_SP2/RF_SP2-2726de18ab.min.js"></script>
 
 	<script src="dist/script/modules/RF_SP2/RF_SP2_render-5fe908f4eb.min.js"></script>
 </body>
